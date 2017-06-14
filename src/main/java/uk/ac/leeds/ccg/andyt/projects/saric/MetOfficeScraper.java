@@ -26,6 +26,25 @@ public class MetOfficeScraper extends WebScraper {
      */
     File dataDirectory;
 
+    // Special strings
+    String s_ampersand;
+    String s_backslash;
+    String s_questionmark;
+    String s_equals;
+
+    // Normal strings
+    String s_all;
+    String s_capabilities;
+    String s_key;
+    String s_layer;
+    String s_png;
+    String s_val;
+    String s_wxfcs;
+    String s_xml;
+
+    // Variables
+    String path;
+
     /**
      * To be read in from a file rather than being hard coded to avoid sharing
      * the key online.
@@ -40,75 +59,133 @@ public class MetOfficeScraper extends WebScraper {
 
     public void run() {
         // Set data Directory
-        String userDir;
-        userDir = System.getProperty("user.dir");
-        dataDirectory = new File(
-                userDir,
-                "data");
+        setDataDirectory("data");
+        // Read API_KEY from file
         API_KEY = getAPI_KEY();
         //System.out.println(API_KEY);
-        String s_questionmark;
-        s_questionmark = "?";
-        String s_key;
-        s_key = "key";
-        String s_equals;
-        s_equals = "=";
-        String s_backslash;
-        s_backslash = "/";
-        String s_layer;
-        s_layer = "layer";
-        String s_wxfcs;
-        s_wxfcs = "wxfcs";
-        String s_all;
-        s_all = "all";
-        String s_xml;
-        s_xml = "xml";
-        String s_capabilities;
-        s_capabilities = "capabilities";
+
+//        // Download capabilities document for the forecast layers in XML format
+//        downloadCapabilitiesDocumentForTheForecastLayersInXMLFormat();
+
+//        // Download three hourly five day forecast for Dunkeswell Aerodrome
+//        downloadThreeHourlyFiveDayForecastForDunkeswellAerodrome();
+
+        
+//        // Download capabilities document for current WMTS observation layer in XML format
+//        downloadCapabilitiesDocumentForCurrentWMTSObservationLayerInXMLFormat();
+
+           // Request a tile from the WMTS service
+           requestAnObservationTileFromTheWMTSService();
+    }
+
+    /**
+     * Request an observation tile from the WMTS service
+     */
+    protected void requestAnObservationTileFromTheWMTSService() {
+        //http://datapoint.metoffice.gov.uk/public/data/inspire/view/wmts?REQUEST=gettile&LAYER=<layer required>&FORMAT=image/png&TILEMATRIXSET=<projection>&TILEMATRIX=<projection zoom level required>&TILEROW=<tile row required>&TILECOL=<tile column required>&TIME=<time required>&STYLE=<style required>&key=<API key>
+        path = "inspire/view/wmts";
+        url = BASE_URL
+                + path
+                + "?REQUEST=gettile"
+                //+ "&LAYER=Highres"
+                + "&LAYER=RADAR_UK_Composite_Highres"
+                + "&FORMAT=image/png"
+                //+ "&TILEMATRIXSET=EPSG:4258"
+                + "&TILEMATRIXSET=EPSG:29903"
+                //+ "&TILEMATRIX=EPSG:4258:0"
+                + "&TILEMATRIX=EPSG:29903:0"
+                + "&TILEROW=0"
+                + "&TILECOL=0"
+                //+ "&TIME=2013-11-20T11:15:00Z"
+                + "&TIME=2017-06-14T11:15:00Z"
+                + "&STYLE=Bitmap%201km%20Blue-Pale%20blue%20gradient%200.01%20to%2032mm%2Fhr" // The + character has been URL encoded to %2B and the / character to %2F
+                + "&key=" + API_KEY;
+        String name;
+        name = "test";
+        getPNG(name);
+    }
+    
+    /**
+     * Download capabilities document for current WMTS observation layer in XML
+     * format
+     */
+    protected void downloadCapabilitiesDocumentForCurrentWMTSObservationLayerInXMLFormat() {
+        //datapoint.metoffice.gov.uk/public/data/inspire/view/wmts?REQUEST=getcapabilities&key=<API key>
+        path = "inspire/view/wmts";
+        url = BASE_URL
+                + path
+                + "?REQUEST=get" + getS_capabilities()
+                + getS_ampersand()
+                + getS_key() + getS_equals() + API_KEY;
+        getXML(getS_capabilities());
+    }
+
+    /**
+     * Download capabilities document for the forecast layers in XML format
+     */
+    protected void downloadCapabilitiesDocumentForTheForecastLayersInXMLFormat() {
         // http://datapoint.metoffice.gov.uk/public/data/layer/wxfcs/all/xml/capabilities?key=<API key>
-        // http://datapoint.metoffice.gov.uk/public/data/layer/wxfcs/all/xml/capabilities?key=c1804-3077-48cf-a301-f6f95e39679
-        String capabilityForTheForecastLayersInXMLFormatURL;
+        path = getS_layer() + getS_backslash()
+                + getS_wxfcs() + getS_backslash()
+                + getS_all() + getS_backslash()
+                + getS_xml() + getS_backslash();
+        url = BASE_URL
+                + path
+                + getS_capabilities() + getS_questionmark()
+                + getS_key() + getS_equals() + API_KEY;
+        getXML(getS_capabilities());
+    }
+    
+    protected void getXML(String name) {
         File outputDir;
-        capabilityForTheForecastLayersInXMLFormatURL = BASE_URL
-                + s_layer + s_backslash
-                + s_wxfcs + s_backslash
-                + s_all + s_backslash
-                + s_xml + s_backslash
-                + s_capabilities + s_questionmark + s_key + s_equals + API_KEY;
         outputDir = new File(
                 getMetOfficeDataDirectory(),
-                s_layer);
-        outputDir = new File(
-                outputDir,
-                s_wxfcs);
-        outputDir = new File(
-                outputDir,
-                s_all);
-        outputDir = new File(
-                outputDir,
-                s_xml);
+                path);
         outputDir.mkdirs();
-        // http://datapoint.metoffice.gov.uk/public/data/val/wxfcs/all/xml/3840?res=3hourly&key=01234567-89ab-cdef-0123-456789abcdef
-        String s_val;
-        s_val = "val";
-        String threeHourlyFiveDayForecastForDunkeswellAerodrome;
-        threeHourlyFiveDayForecastForDunkeswellAerodrome = BASE_URL
-                + s_val + s_backslash
-                + s_wxfcs + s_backslash
-                + s_all + s_backslash
-                + s_xml + s_backslash
-                + "3840" + s_questionmark + "res=3hourly&key" + s_equals + API_KEY;
-        
         File xml;
         xml = Generic_StaticIO.createNewFile(
                 outputDir,
-                s_capabilities + "." + s_xml);
-        getXML(threeHourlyFiveDayForecastForDunkeswellAerodrome,
+                name + "." + getS_xml());
+        getXML(url,
                 xml);
-//        getXML(capabilityForTheForecastLayersInXMLFormatURL,
-//                xml);
     }
 
+    protected void getPNG(String name) {
+        File outputDir;
+        outputDir = new File(
+                getMetOfficeDataDirectory(),
+                path);
+        outputDir.mkdirs();
+        File png;
+        png = Generic_StaticIO.createNewFile(
+                outputDir,
+                name + "." + getS_png());
+        getXML(url,
+                png);
+    }
+    
+    /**
+     * Download three hourly five day forecast for Dunkeswell Aerodrome
+     */
+    protected void downloadThreeHourlyFiveDayForecastForDunkeswellAerodrome() {
+        // http://datapoint.metoffice.gov.uk/public/data/val/wxfcs/all/xml/3840?res=3hourly&key=01234567-89ab-cdef-0123-456789abcdef
+        path = getS_val() + getS_backslash()
+                + getS_wxfcs() + getS_backslash()
+                + getS_all() + getS_backslash()
+                + getS_xml() + getS_backslash()
+                + "3840";
+        url = BASE_URL
+                + path + getS_questionmark()
+                + "res" + getS_equals() + "3hourly&"
+                + getS_key() + getS_equals() + API_KEY;
+        getXML("test");
+    }
+
+    /**
+     * return new File(dataDirectory, "MetOffice");
+     *
+     * @return
+     */
     File getMetOfficeDataDirectory() {
         return new File(dataDirectory, "MetOffice");
     }
@@ -160,6 +237,13 @@ public class MetOfficeScraper extends WebScraper {
                     message += " and http://en.wikipedia.org/wiki/HTTP_";
                     message += Integer.toString(responseCode);
                 }
+                /**
+                 * responseCode == 400 Bad Request
+                 * The server cannot or will not process the request due to an 
+                 * apparent client error (e.g., malformed request syntax, size 
+                 * too large, invalid request message framing, or deceptive 
+                 * request routing).
+                 */
                 throw new Error(message);
             }
             br = new BufferedReader(
@@ -179,4 +263,157 @@ public class MetOfficeScraper extends WebScraper {
             //e.printStackTrace(System.err);
         }
     }
+
+    /**
+     * Initialises a data directory with a name given by name.
+     *
+     * @param name
+     */
+    protected void setDataDirectory(String name) {
+        String userDir;
+        userDir = System.getProperty("user.dir");
+        dataDirectory = new File(
+                userDir,
+                name);
+        if (!dataDirectory.exists()) {
+            boolean successfulCreation;
+            successfulCreation = dataDirectory.mkdirs();
+            if (!successfulCreation) {
+                throw new Error("dataDirectory not created in " + this.getClass().getName() + ".setDataDirectory(String)");
+            }
+        }
+    }
+
+    public String getS_ampersand() {
+        if (s_ampersand == null) {
+            s_ampersand = "&";
+        }
+        return s_ampersand;
+    }
+
+    public void setS_ampersand(String s_ampersand) {
+        this.s_ampersand = s_ampersand;
+    }
+
+    public String getS_backslash() {
+        if (s_backslash == null) {
+            s_backslash = "/";
+        }
+        return s_backslash;
+    }
+
+    public void setS_backslash(String s_backslash) {
+        this.s_backslash = s_backslash;
+    }
+
+    public String getS_questionmark() {
+        if (s_questionmark == null) {
+            s_questionmark = "?";
+        }
+        return s_questionmark;
+    }
+
+    public void setS_questionmark(String s_questionmark) {
+        this.s_questionmark = s_questionmark;
+    }
+
+    public String getS_equals() {
+        if (s_equals == null) {
+            s_equals = "=";
+        }
+        return s_equals;
+    }
+
+    public void setS_equals(String s_equals) {
+        this.s_equals = s_equals;
+    }
+
+    public String getS_all() {
+        if (s_all == null) {
+            s_all = "all";
+        }
+        return s_all;
+    }
+
+    public void setS_all(String s_all) {
+        this.s_all = s_all;
+    }
+
+    public String getS_capabilities() {
+        if (s_capabilities == null) {
+            s_capabilities = "capabilities";
+        }
+        return s_capabilities;
+    }
+
+    public void setS_capabilities(String s_capabilities) {
+        this.s_capabilities = s_capabilities;
+    }
+
+    public String getS_key() {
+        if (s_key == null) {
+            s_key = "key";
+        }
+        return s_key;
+    }
+
+    public void setS_key(String s_key) {
+        this.s_key = s_key;
+    }
+
+    public String getS_png() {
+        if (s_png == null) {
+            s_png = "png";
+        }
+        return s_png;
+    }
+
+    public void setS_png(String s_png) {
+        this.s_png = s_png;
+    }
+
+    public String getS_layer() {
+        if (s_layer == null) {
+            s_layer = "layer";
+        }
+        return s_layer;
+    }
+
+    public void setS_layer(String s_layer) {
+        this.s_layer = s_layer;
+    }
+
+    public String getS_val() {
+        if (s_val == null) {
+            s_val = "val";
+        }
+        return s_val;
+    }
+
+    public void setS_val(String s_val) {
+        this.s_val = s_val;
+    }
+
+    public String getS_wxfcs() {
+        if (s_wxfcs == null) {
+            s_wxfcs = "wxfcs";
+        }
+        return s_wxfcs;
+    }
+
+    public void setS_wxfcs(String s_wxfcs) {
+        this.s_wxfcs = s_wxfcs;
+    }
+
+    public String getS_xml() {
+        if (s_xml == null) {
+            s_xml = "xml";
+        }
+        return s_xml;
+    }
+
+    public void setS_xml(String s_xml) {
+        this.s_xml = s_xml;
+    }
+
 }
