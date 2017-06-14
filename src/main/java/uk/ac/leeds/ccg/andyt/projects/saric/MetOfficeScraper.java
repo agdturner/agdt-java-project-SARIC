@@ -5,6 +5,8 @@
  */
 package uk.ac.leeds.ccg.andyt.projects.saric;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -40,6 +42,7 @@ public class MetOfficeScraper extends WebScraper {
     String s_png;
     String s_val;
     String s_wxfcs;
+    String s_wxobs;
     String s_xml;
 
     // Variables
@@ -66,16 +69,43 @@ public class MetOfficeScraper extends WebScraper {
 
 //        // Download capabilities document for the forecast layers in XML format
 //        downloadCapabilitiesDocumentForTheForecastLayersInXMLFormat();
+//        // Download capabilities document for the observation layers in XML format
+//        downloadCapabilitiesDocumentForTheObservationLayersInXMLFormat();
 
+//        // Download capabilities document for current WMTS forecast layer in XML format
+//        downloadCapabilitiesDocumentForCurrentWMTSForecastLayerInXMLFormat();
 //        // Download three hourly five day forecast for Dunkeswell Aerodrome
 //        downloadThreeHourlyFiveDayForecastForDunkeswellAerodrome();
+        // Download observation data
+        downloadObservationData();
 
-        
-//        // Download capabilities document for current WMTS observation layer in XML format
-//        downloadCapabilitiesDocumentForCurrentWMTSObservationLayerInXMLFormat();
+//           // Request a tile from the WMTS service
+//           requestAnObservationTileFromTheWMTSService();
+    }
 
-           // Request a tile from the WMTS service
-           requestAnObservationTileFromTheWMTSService();
+    /**
+     * Download observation data.
+     */
+    protected void downloadObservationData() {
+        //http://datapoint.metoffice.gov.uk/public/data/layer/wxobs/{LayerName}/{ImageFormat}?TIME={Time}Z&key={key}
+        String layerName;
+        layerName = "RADAR_UK_Composite_Highres";
+        String imageFormat;
+        imageFormat = getS_png();
+        String time;
+        time = "2017-06-14T20:45:00";
+        path = getS_layer() + getS_backslash()
+                + getS_wxobs() + getS_backslash()
+                + layerName + getS_backslash()
+                + imageFormat;
+        url = BASE_URL
+                + path
+                + getS_questionmark()
+                + "TIME" + getS_equals() + time + "Z"
+                + getS_ampersand() + getS_key() + getS_equals() + API_KEY;
+        String name;
+        name = layerName + time.replace(':', '_');
+        getPNG(name);
     }
 
     /**
@@ -87,15 +117,17 @@ public class MetOfficeScraper extends WebScraper {
         url = BASE_URL
                 + path
                 + "?REQUEST=gettile"
-                //+ "&LAYER=Highres"
-                + "&LAYER=RADAR_UK_Composite_Highres"
+                //+ "&LAYER=Highres" //This fails
+                //+ "&LAYER=RADAR_UK_Composite_Highres"
                 + "&FORMAT=image/png"
                 //+ "&TILEMATRIXSET=EPSG:4258"
-                + "&TILEMATRIXSET=EPSG:29903"
+                + "&TILEMATRIXSET=EPSG:4326"
                 //+ "&TILEMATRIX=EPSG:4258:0"
-                + "&TILEMATRIX=EPSG:29903:0"
+                + "&TILEMATRIX=EPSG:4326:0"
+                //+ "&TILEROW=1"
                 + "&TILEROW=0"
-                + "&TILECOL=0"
+                //+ "&TILECOL=0"
+                + "&TILECOL=1"
                 //+ "&TIME=2013-11-20T11:15:00Z"
                 + "&TIME=2017-06-14T11:15:00Z"
                 + "&STYLE=Bitmap%201km%20Blue-Pale%20blue%20gradient%200.01%20to%2032mm%2Fhr" // The + character has been URL encoded to %2B and the / character to %2F
@@ -104,18 +136,51 @@ public class MetOfficeScraper extends WebScraper {
         name = "test";
         getPNG(name);
     }
-    
+
     /**
      * Download capabilities document for current WMTS observation layer in XML
      * format
      */
-    protected void downloadCapabilitiesDocumentForCurrentWMTSObservationLayerInXMLFormat() {
-        //datapoint.metoffice.gov.uk/public/data/inspire/view/wmts?REQUEST=getcapabilities&key=<API key>
+    protected void downloadCapabilitiesDocumentForCurrentWMTSForecastLayerInXMLFormat() {
+        //http://datapoint.metoffice.gov.uk/public/data/layer/wxfcs/all/xml/capabilities?key=<API key>
+        path = getS_layer() + getS_backslash()
+                + getS_wxfcs() + getS_backslash()
+                + getS_all() + getS_backslash()
+                + getS_xml() + getS_backslash()
+                + getS_capabilities();
+        url = BASE_URL
+                + path
+                + getS_questionmark() + getS_key() + getS_equals() + API_KEY;
+        getXML(getS_capabilities());
+    }
+
+    /**
+     * Download capabilities document for inspire WMTS in XML format
+     */
+    protected void downloadCapabilitiesDocumentForInspireWMTSInXMLFormat() {
+        //http://datapoint.metoffice.gov.uk/public/data/inspire/view/wmts?REQUEST=getcapabilities&key=<API key>
         path = "inspire/view/wmts";
         url = BASE_URL
                 + path
                 + "?REQUEST=get" + getS_capabilities()
                 + getS_ampersand()
+                + getS_key() + getS_equals() + API_KEY;
+        getXML(getS_capabilities());
+    }
+
+    /**
+     * Download capabilities document for current WMTS observation layer in XML
+     * format
+     */
+    protected void downloadCapabilitiesDocumentForTheObservationLayersInXMLFormat() {
+        // http://datapoint.metoffice.gov.uk/public/data/layer/wxobs/all/xml/capabilities?key=<API key>
+        path = getS_layer() + getS_backslash()
+                + getS_wxobs() + getS_backslash()
+                + getS_all() + getS_backslash()
+                + getS_xml() + getS_backslash();
+        url = BASE_URL
+                + path
+                + getS_capabilities() + getS_questionmark()
                 + getS_key() + getS_equals() + API_KEY;
         getXML(getS_capabilities());
     }
@@ -135,7 +200,7 @@ public class MetOfficeScraper extends WebScraper {
                 + getS_key() + getS_equals() + API_KEY;
         getXML(getS_capabilities());
     }
-    
+
     protected void getXML(String name) {
         File outputDir;
         outputDir = new File(
@@ -160,10 +225,10 @@ public class MetOfficeScraper extends WebScraper {
         png = Generic_StaticIO.createNewFile(
                 outputDir,
                 name + "." + getS_png());
-        getXML(url,
+        getPNG(url,
                 png);
     }
-    
+
     /**
      * Download three hourly five day forecast for Dunkeswell Aerodrome
      */
@@ -215,6 +280,70 @@ public class MetOfficeScraper extends WebScraper {
      * @param url The url request.
      * @param f The file written to.
      */
+    public void getPNG(
+            String url,
+            File f) {
+        HttpURLConnection connection;
+        BufferedInputStream bis;
+        BufferedOutputStream bos;
+        bos = Generic_StaticIO.getBufferedOutputStream(f);
+        String line;
+        try {
+            connection = getOpenHttpURLConnection(url);
+            int responseCode = connection.getResponseCode();
+            if (responseCode != 200) {
+                String message = url + " connection.getResponseCode() "
+                        + responseCode
+                        + " see http://en.wikipedia.org/wiki/List_of_HTTP_status_codes";
+                if (responseCode == 301 || responseCode == 302 || responseCode == 303
+                        || responseCode == 403 || responseCode == 404) {
+                    message += " and http://en.wikipedia.org/wiki/HTTP_";
+                    message += Integer.toString(responseCode);
+                }
+                /**
+                 * responseCode == 400 Bad Request The server cannot or will not
+                 * process the request due to an apparent client error (e.g.,
+                 * malformed request syntax, size too large, invalid request
+                 * message framing, or deceptive request routing).
+                 */
+                throw new Error(message);
+            }
+            bis = new BufferedInputStream(connection.getInputStream());
+            try {
+                int bufferSize = 8192;
+                byte [] b = new byte[bufferSize];
+                int noOfBytes = 0;
+                while( (noOfBytes = bis.read(b)) != -1) {        
+                    bos.write(b, 0, noOfBytes);
+                }
+            } catch(final IOException ioe) {
+                ioe.printStackTrace();
+            } finally {
+                if (bis != null) {
+                    try {
+                        bis.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                if (bos != null) {
+                    try {
+                        bos.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            } // End of the try - catch finally //
+        } catch (IOException e) {
+            //e.printStackTrace(System.err);
+        }
+    }
+    
+    /**
+     *
+     * @param url The url request.
+     * @param f The file written to.
+     */
     public void getXML(
             String url,
             File f) {
@@ -238,11 +367,10 @@ public class MetOfficeScraper extends WebScraper {
                     message += Integer.toString(responseCode);
                 }
                 /**
-                 * responseCode == 400 Bad Request
-                 * The server cannot or will not process the request due to an 
-                 * apparent client error (e.g., malformed request syntax, size 
-                 * too large, invalid request message framing, or deceptive 
-                 * request routing).
+                 * responseCode == 400 Bad Request The server cannot or will not
+                 * process the request due to an apparent client error (e.g.,
+                 * malformed request syntax, size too large, invalid request
+                 * message framing, or deceptive request routing).
                  */
                 throw new Error(message);
             }
@@ -403,6 +531,17 @@ public class MetOfficeScraper extends WebScraper {
 
     public void setS_wxfcs(String s_wxfcs) {
         this.s_wxfcs = s_wxfcs;
+    }
+
+    public String getS_wxobs() {
+        if (s_wxobs == null) {
+            s_wxobs = "wxobs";
+        }
+        return s_wxobs;
+    }
+
+    public void setS_wxobs(String s_wxobs) {
+        this.s_wxobs = s_wxobs;
     }
 
     public String getS_xml() {
