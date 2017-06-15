@@ -15,6 +15,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import uk.ac.leeds.ccg.andyt.generic.io.Generic_StaticIO;
+import uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Time;
 import uk.ac.leeds.ccg.andyt.web.WebScraper;
 
 /**
@@ -61,6 +62,30 @@ public class MetOfficeScraper extends WebScraper {
     }
 
     public void run() {
+        // Set conmnection rate
+        /**
+         * For the purposes of this DataPoint Fair Use Policy, the Fair Use
+         * Limits shall be defined as follows:
+         *
+         * You may make no more than 5000 data requests per day; and You may
+         * make no more than 100 data requests per minute. Usage above this
+         * limit is available by purchasing a Paid Data Plan. You may purchase a
+         * Paid Data Plan by contacting: enquiries@metoffice.gov.uk. The current
+         * price for the Paid Data Plan is £1,500 per annum, exclusive of Value
+         * Added Tax. The Met Office reserves the right to adjust the price of
+         * the Paid Data Plan.
+         *
+         * Should you exceed one or more of the Fair Use Limits without having a
+         * Paid Data Plan in place, you agree that the Met Office shall be
+         * entitled to take either of the following measures:
+         *
+         * Contact you to discuss how you might reduce your data usage; or
+         * Invoice you for a Paid Data Plan.
+         */
+        int permittedConnectionsPerHour;
+        permittedConnectionsPerHour = 100 * 60;
+        permittedConnectionRate = permittedConnectionsPerHour / (double) Generic_Time.MilliSecondsInHour;
+        
         // Set data Directory
         setDataDirectory("data");
         // Read API_KEY from file
@@ -71,22 +96,58 @@ public class MetOfficeScraper extends WebScraper {
 //        downloadCapabilitiesDocumentForTheForecastLayersInXMLFormat();
 //        // Download capabilities document for the observation layers in XML format
 //        downloadCapabilitiesDocumentForTheObservationLayersInXMLFormat();
+//        // Download observation web map
+//        downloadObservationImage();
+//
+        // Download forecast web map
+        downloadForecastImages();
 
 //        // Download capabilities document for current WMTS forecast layer in XML format
 //        downloadCapabilitiesDocumentForCurrentWMTSForecastLayerInXMLFormat();
 //        // Download three hourly five day forecast for Dunkeswell Aerodrome
 //        downloadThreeHourlyFiveDayForecastForDunkeswellAerodrome();
-        // Download observation data
-        downloadObservationData();
-
-//           // Request a tile from the WMTS service
-//           requestAnObservationTileFromTheWMTSService();
+//        // Request a tile from the WMTS service
+//        requestAnObservationTileFromTheWMTSService();
     }
 
     /**
-     * Download observation data.
+     * Download forecast image.
      */
-    protected void downloadObservationData() {
+    protected void downloadForecastImages() {
+        //http://datapoint.metoffice.gov.uk/public/data/layer/wxfcs/{LayerName}/{ImageFormat}?RUN={DefaultTime}Z&FORECAST={Timestep}&key={key}
+        String layerName;
+        layerName = "Precipitation_Rate"; // Rainfall
+//        layerName = "Total_Cloud_Cover"; // Cloud
+//        layerName = "Total_Cloud_Cover_Precip_Rate_Overlaid"; // Cloud and Rain
+        // temperature and pressure also available
+        String imageFormat;
+        imageFormat = getS_png();
+        String defaultTime;
+        defaultTime = "2017-06-15T03:00:00";
+        String timeStep;
+        String name;
+        for (int step = 0; step <= 36; step += 3) {
+            timeStep = Integer.toString(step);
+            System.out.println("Getting forecast for time " + timeStep);
+            path = getS_layer() + getS_backslash()
+                    + getS_wxfcs() + getS_backslash()
+                    + layerName + getS_backslash()
+                    + imageFormat;
+            url = BASE_URL
+                    + path
+                    + getS_questionmark()
+                    + "RUN" + getS_equals() + defaultTime + "Z"
+                    + getS_ampersand() + "FORECAST" + getS_equals() + timeStep
+                    + getS_ampersand() + getS_key() + getS_equals() + API_KEY;
+            name = layerName + defaultTime.replace(':', '_') + timeStep;
+            getPNG(name);
+        }
+    }
+
+    /**
+     * Download observation web map.
+     */
+    protected void downloadObservationImage() {
         //http://datapoint.metoffice.gov.uk/public/data/layer/wxobs/{LayerName}/{ImageFormat}?TIME={Time}Z&key={key}
         String layerName;
         layerName = "RADAR_UK_Composite_Highres";
@@ -311,12 +372,12 @@ public class MetOfficeScraper extends WebScraper {
             bis = new BufferedInputStream(connection.getInputStream());
             try {
                 int bufferSize = 8192;
-                byte [] b = new byte[bufferSize];
+                byte[] b = new byte[bufferSize];
                 int noOfBytes = 0;
-                while( (noOfBytes = bis.read(b)) != -1) {        
+                while ((noOfBytes = bis.read(b)) != -1) {
                     bos.write(b, 0, noOfBytes);
                 }
-            } catch(final IOException ioe) {
+            } catch (final IOException ioe) {
                 ioe.printStackTrace();
             } finally {
                 if (bis != null) {
@@ -338,7 +399,7 @@ public class MetOfficeScraper extends WebScraper {
             //e.printStackTrace(System.err);
         }
     }
-    
+
     /**
      *
      * @param url The url request.
