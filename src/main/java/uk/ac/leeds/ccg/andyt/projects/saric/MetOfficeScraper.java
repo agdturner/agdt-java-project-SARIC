@@ -15,6 +15,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import uk.ac.leeds.ccg.andyt.generic.io.Generic_StaticIO;
+import uk.ac.leeds.ccg.andyt.generic.io.Generic_XMLDOMReader;
 import uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Time;
 import uk.ac.leeds.ccg.andyt.web.WebScraper;
 
@@ -85,29 +86,48 @@ public class MetOfficeScraper extends WebScraper {
         int permittedConnectionsPerHour;
         permittedConnectionsPerHour = 100 * 60;
         permittedConnectionRate = permittedConnectionsPerHour / (double) Generic_Time.MilliSecondsInHour;
-        
+
         // Set data Directory
         setDataDirectory("data");
         // Read API_KEY from file
         API_KEY = getAPI_KEY();
         //System.out.println(API_KEY);
 
-//        // Download capabilities document for the forecast layers in XML format
-//        downloadCapabilitiesDocumentForTheForecastLayersInXMLFormat();
-//        // Download capabilities document for the observation layers in XML format
-//        downloadCapabilitiesDocumentForTheObservationLayersInXMLFormat();
+        // Download capabilities document for the forecast layers in XML format
+        File forecastLayerCapabilities;
+        forecastLayerCapabilities = getForecastLayersCapabilities();
+
+        // Download capabilities document for the observation layers in XML format
+        File observationLayerCapabilities;
+        observationLayerCapabilities = getObservationLayerCapabilities();
+
+        // Get times from observationLayerCapabilities
+        ArrayList<String> times;
+        times = getObservationLayerTimes(observationLayerCapabilities);
 //        // Download observation web map
 //        downloadObservationImage();
-//
-        // Download forecast web map
-        downloadForecastImages();
 
+//        // Download forecast web map
+//        downloadForecastImages();
 //        // Download capabilities document for current WMTS forecast layer in XML format
 //        downloadCapabilitiesDocumentForCurrentWMTSForecastLayerInXMLFormat();
 //        // Download three hourly five day forecast for Dunkeswell Aerodrome
 //        downloadThreeHourlyFiveDayForecastForDunkeswellAerodrome();
 //        // Request a tile from the WMTS service
 //        requestAnObservationTileFromTheWMTSService();
+    }
+
+    /**
+     * Get times from observationLayerCapabilities
+     *
+     * @return
+     */
+    protected ArrayList<String> getObservationLayerTimes(File xml) {
+        ArrayList<String> result;
+        result = new ArrayList<String>();
+        CapabilitiesXMLDOMReader r;
+        r = new CapabilitiesXMLDOMReader();
+        return result;
     }
 
     /**
@@ -150,7 +170,11 @@ public class MetOfficeScraper extends WebScraper {
     protected void downloadObservationImage() {
         //http://datapoint.metoffice.gov.uk/public/data/layer/wxobs/{LayerName}/{ImageFormat}?TIME={Time}Z&key={key}
         String layerName;
-        layerName = "RADAR_UK_Composite_Highres";
+        //layerName = "ATDNET_Sferics"; // lightening
+        //layerName = "SATELLITE_Infrared_Fulldisk";
+        //layerName = "SATELLITE_Visible_N_Section";
+        //layerName = "SATELLITE_Visible_N_Section";
+        layerName = "RADAR_UK_Composite_Highres"; //Rainfall
         String imageFormat;
         imageFormat = getS_png();
         String time;
@@ -233,8 +257,9 @@ public class MetOfficeScraper extends WebScraper {
      * Download capabilities document for current WMTS observation layer in XML
      * format
      */
-    protected void downloadCapabilitiesDocumentForTheObservationLayersInXMLFormat() {
+    protected File getObservationLayerCapabilities() {
         // http://datapoint.metoffice.gov.uk/public/data/layer/wxobs/all/xml/capabilities?key=<API key>
+        File result;
         path = getS_layer() + getS_backslash()
                 + getS_wxobs() + getS_backslash()
                 + getS_all() + getS_backslash()
@@ -243,14 +268,16 @@ public class MetOfficeScraper extends WebScraper {
                 + path
                 + getS_capabilities() + getS_questionmark()
                 + getS_key() + getS_equals() + API_KEY;
-        getXML(getS_capabilities());
+        result = getXML(getS_capabilities());
+        return result;
     }
 
     /**
      * Download capabilities document for the forecast layers in XML format
      */
-    protected void downloadCapabilitiesDocumentForTheForecastLayersInXMLFormat() {
+    protected File getForecastLayersCapabilities() {
         // http://datapoint.metoffice.gov.uk/public/data/layer/wxfcs/all/xml/capabilities?key=<API key>
+        File result;
         path = getS_layer() + getS_backslash()
                 + getS_wxfcs() + getS_backslash()
                 + getS_all() + getS_backslash()
@@ -259,10 +286,11 @@ public class MetOfficeScraper extends WebScraper {
                 + path
                 + getS_capabilities() + getS_questionmark()
                 + getS_key() + getS_equals() + API_KEY;
-        getXML(getS_capabilities());
+        result = getXML(getS_capabilities());
+        return result;
     }
 
-    protected void getXML(String name) {
+    protected File getXML(String name) {
         File outputDir;
         outputDir = new File(
                 getMetOfficeDataDirectory(),
@@ -274,6 +302,7 @@ public class MetOfficeScraper extends WebScraper {
                 name + "." + getS_xml());
         getXML(url,
                 xml);
+        return xml;
     }
 
     protected void getPNG(String name) {
