@@ -104,12 +104,12 @@
             <version>${geotools.version}</version>
         </dependency>
         -->
-        <!--
         <dependency>
             <groupId>uk.ac.leeds.ccg.andyt</groupId>
             <artifactId>agdt-geotools</artifactId>
             <version>${agdtgeotools.version}</version>
         </dependency>
+        <!--
         <dependency>
             <groupId>uk.ac.leeds.ccg.andyt</groupId>
             <artifactId>agdt-census</artifactId>
