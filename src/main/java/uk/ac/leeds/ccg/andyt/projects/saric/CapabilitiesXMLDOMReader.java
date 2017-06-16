@@ -4,18 +4,21 @@
  * and open the template in the editor.
  */
 package uk.ac.leeds.ccg.andyt.projects.saric;
+
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.TreeSet;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import uk.ac.leeds.ccg.andyt.generic.io.Generic_XMLDOMReader;
 
 /**
  *
  * @author geoagdt
  */
-public class CapabilitiesXMLDOMReader  extends Generic_XMLDOMReader {
+public class CapabilitiesXMLDOMReader extends Generic_XMLDOMReader {
 
     public TreeSet<String> outcodePostcodes;
 
@@ -24,17 +27,21 @@ public class CapabilitiesXMLDOMReader  extends Generic_XMLDOMReader {
 
     public CapabilitiesXMLDOMReader(
             File file) {
-        init(file, "url");
-        parseNodeList();
+        init(file, "*");
     }
-    
+
+    protected void initNodeList() {
+        nodeList = aDocument.getElementsByTagName("*");
+    }
+
     public static void main(String args[]) {
         CapabilitiesXMLDOMReader r;
         r = new CapabilitiesXMLDOMReader();
-        File file = new File("/scratch02/zoopla/outcodes.xml");
-        String nodeName = "url";
+        File file = new File("C:/Users/geoagdt/src/projects/saric/data/MetOffice/layer/wxobs/all/xml/capabilities.xml");
+        String nodeName = "*";
         r.init(file, nodeName);
-        r.parseNodeList();
+        ArrayList<String> times;
+        times = r.getTimes("RADAR_UK_Composite_Highres");
     }
 
     protected void print() {
@@ -44,39 +51,118 @@ public class CapabilitiesXMLDOMReader  extends Generic_XMLDOMReader {
         }
     }
 
-    @Override
-    protected final void parseNodeList() {
-        //readNodeListElements();
-        outcodePostcodes = new TreeSet<String>();
-        /*
-         * <url>
-         *  <lastmod>2013-03-05</lastmod>
-         *  <priority>0.4</priority>
-         *  <loc>http://www.zoopla.co.uk/home-values/browse/tn35/</loc>
-         *  <changefreq>weekly</changefreq>
-         * </url>
-         */
+    protected ArrayList<String> getTimesInspireWMTS(String layerName) {
+        ArrayList<String> result;
+        result = new ArrayList<String>();
+        boolean foundLayer;
+        foundLayer = false;
         for (int i = 0; i < nodeList.getLength(); i++) {
-            Node nNode = nodeList.item(i);
-            //System.out.println(nNode.getNodeName());
-            if (nNode.getNodeType() == Node.ELEMENT_NODE) {
-                Element aElement = (Element) nNode;
-                //System.out.println("lastmod : " + aElement.getAttribute("lastmod"));
-                //System.out.println("priority : " + aElement.getElementsByTagName("priority").item(0).getTextContent());
-                String loc = aElement.getElementsByTagName("loc").item(0).getTextContent();
-                //System.out.println("loc : " + loc);
-                if (loc.contains("http://www.zoopla.co.uk/home-values/")) {
-                    String[] split = loc.split("http://www.zoopla.co.uk/home-values/");
-                    //System.out.println("split[1] : " + split[1]);
-                    String[] split2 = split[1].split("/");
-                    if (split2.length == 1) {
-                        //System.out.println("split2[0] : " + split2[0]);
-                        outcodePostcodes.add(split2[0]);
+            Node n;
+            n = nodeList.item(i);
+            String nNodeName;
+            nNodeName = n.getNodeName();
+            String nTextContent;
+            if (nNodeName.equalsIgnoreCase("Contents")) {
+                i = find("Layer", nodeList);
+                
+                System.out.println(nodeName);
+                for (int j = i + 1; j < nodeList.getLength(); j++) {
+                    n = nodeList.item(j);
+                    nNodeName = n.getNodeName();
+                    if (nNodeName.equalsIgnoreCase("Layer")) {
+                        System.out.println(nodeName);
+                        for (int k = j + 1; k < nodeList.getLength(); k++) {
+                            n = nodeList.item(k);
+                            nNodeName = n.getNodeName();
+                            if (nNodeName.equalsIgnoreCase("ows:Identifier")) {
+                                System.out.println(nodeName);
+                                nTextContent = n.getTextContent();
+                                if (nTextContent.equalsIgnoreCase(layerName)) {
+                                    foundLayer = true;
+                                    System.out.println(nTextContent);
+
+                                } else {
+                                    break;
+                                }
+                            } else if (nNodeName.equalsIgnoreCase("Layer")) {
+                                
+                            }
+                        }
                     }
                 }
-                //System.out.println("changefreq : " + aElement.getElementsByTagName("changefreq").item(0).getTextContent());
+            }
+            if (!foundLayer) {
+                if (nNodeName.equalsIgnoreCase("Layer")) {
+                    for (int j
+                            = <ows {
+                        
+                    }:Identifier > RADAR_UK_Composite_Highres <  / ows
+                    :Identifier
+                            > nTextContent = n.getTextContent();
+                    if (nTextContent.equalsIgnoreCase(layerName)) {
+                        foundLayer = true;
+//                        System.out.println(nTextContent);
+                    }
+                }
+            } else {
+                if (nNodeName.equalsIgnoreCase("Time")) {
+                    nTextContent = n.getTextContent();
+                    result.add(nTextContent);
+//                    System.out.println(nTextContent);
+                }
             }
         }
-        //print();
+        return result;
+    }
+
+    /**
+     * get the index in the nodeList of the next node with tag s
+     * @param s
+     * @param nodeList
+     * @param i
+     * @return 
+     */
+    protected int find(String s, NodeList nodeList, int i) {
+        int result;
+        for (int j = i; j < nodeList.getLength(); j++) {
+            
+        }
+        return result;
+    }
+    
+    protected ArrayList<String> getTimes(String layerName) {
+        ArrayList<String> result;
+        result = new ArrayList<String>();
+        boolean foundLayer;
+        foundLayer = false;
+        for (int i = 0; i < nodeList.getLength(); i++) {
+            Node n;
+            n = nodeList.item(i);
+            String nNodeName;
+            nNodeName = n.getNodeName();
+//            System.out.println(nodeName);
+            String nTextContent;
+            if (!foundLayer) {
+                if (nNodeName.equalsIgnoreCase("LayerName")) {
+                    nTextContent = n.getTextContent();
+                    if (nTextContent.equalsIgnoreCase(layerName)) {
+                        foundLayer = true;
+//                        System.out.println(nTextContent);
+                    }
+                }
+            } else {
+                if (nNodeName.equalsIgnoreCase("Time")) {
+                    nTextContent = n.getTextContent();
+                    result.add(nTextContent);
+//                    System.out.println(nTextContent);
+                }
+            }
+        }
+        return result;
+    }
+
+    @Override
+    protected void parseNodeList() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

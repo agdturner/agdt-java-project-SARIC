@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
+import java.util.Iterator;
 import uk.ac.leeds.ccg.andyt.generic.io.Generic_StaticIO;
 import uk.ac.leeds.ccg.andyt.generic.io.Generic_XMLDOMReader;
 import uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Time;
@@ -93,53 +94,80 @@ public class MetOfficeScraper extends WebScraper {
         API_KEY = getAPI_KEY();
         //System.out.println(API_KEY);
 
-        // Download capabilities document for the forecast layers in XML format
-        File forecastLayerCapabilities;
-        forecastLayerCapabilities = getForecastLayersCapabilities();
-
+//        getObserved();
+//        getForecast();
+        
+//        // Download three hourly five day forecast for Dunkeswell Aerodrome
+//        downloadThreeHourlyFiveDayForecastForDunkeswellAerodrome();
+        // Request a tile from the WMTS service
+        getTileFromWMTSService();
+    }
+    
+    protected void getObserved() {
         // Download capabilities document for the observation layers in XML format
         File observationLayerCapabilities;
         observationLayerCapabilities = getObservationLayerCapabilities();
 
+        String layerName;
+        
         // Get times from observationLayerCapabilities
+        //layerName = "ATDNET_Sferics"; // lightening
+        //layerName = "SATELLITE_Infrared_Fulldisk";
+        //layerName = "SATELLITE_Visible_N_Section";
+        //layerName = "SATELLITE_Visible_N_Section";
+        layerName = "RADAR_UK_Composite_Highres"; //Rainfall
         ArrayList<String> times;
-        times = getObservationLayerTimes(observationLayerCapabilities);
-//        // Download observation web map
-//        downloadObservationImage();
-
-//        // Download forecast web map
-//        downloadForecastImages();
-//        // Download capabilities document for current WMTS forecast layer in XML format
-//        downloadCapabilitiesDocumentForCurrentWMTSForecastLayerInXMLFormat();
-//        // Download three hourly five day forecast for Dunkeswell Aerodrome
-//        downloadThreeHourlyFiveDayForecastForDunkeswellAerodrome();
-//        // Request a tile from the WMTS service
-//        requestAnObservationTileFromTheWMTSService();
+        times = getObservationLayerTimes(layerName, observationLayerCapabilities);
+        // Download observation web map
+        downloadObservationImage(layerName, times);
     }
 
+    protected void getForecast() {
+        // Download capabilities document for the forecast layers in XML format
+        File forecastLayerCapabilities;
+        forecastLayerCapabilities = getForecastLayersCapabilities();
+        
+        String layerName;
+        
+        // Download forecast web map
+        layerName = "Precipitation_Rate"; // Rainfall
+//        layerName = "Total_Cloud_Cover"; // Cloud
+//        layerName = "Total_Cloud_Cover_Precip_Rate_Overlaid"; // Cloud and Rain
+        // temperature and pressure also available
+        downloadForecastImages(layerName);
+    }
+    
+    protected Parameters getParameters(
+            String layerName, 
+            File xml) {
+    CapabilitiesXMLDOMReader r;
+        r = new CapabilitiesXMLDOMReader(xml);
+        
+        Parameters parameters;
+        parameters = getParameters(layerName, inspireWMTSCapabilities);
+        
+    }
+    
     /**
      * Get times from observationLayerCapabilities
      *
      * @return
      */
-    protected ArrayList<String> getObservationLayerTimes(File xml) {
+    protected ArrayList<String> getObservationLayerTimes(
+            String layerName,
+            File xml) {
         ArrayList<String> result;
-        result = new ArrayList<String>();
         CapabilitiesXMLDOMReader r;
-        r = new CapabilitiesXMLDOMReader();
+        r = new CapabilitiesXMLDOMReader(xml);
+        result = r.getTimes(layerName);
         return result;
     }
 
     /**
      * Download forecast image.
      */
-    protected void downloadForecastImages() {
+    protected void downloadForecastImages(String layerName) {
         //http://datapoint.metoffice.gov.uk/public/data/layer/wxfcs/{LayerName}/{ImageFormat}?RUN={DefaultTime}Z&FORECAST={Timestep}&key={key}
-        String layerName;
-        layerName = "Precipitation_Rate"; // Rainfall
-//        layerName = "Total_Cloud_Cover"; // Cloud
-//        layerName = "Total_Cloud_Cover_Precip_Rate_Overlaid"; // Cloud and Rain
-        // temperature and pressure also available
         String imageFormat;
         imageFormat = getS_png();
         String defaultTime;
@@ -167,82 +195,83 @@ public class MetOfficeScraper extends WebScraper {
     /**
      * Download observation web map.
      */
-    protected void downloadObservationImage() {
+    protected void downloadObservationImage(
+            String layerName,
+            ArrayList<String> times) {
         //http://datapoint.metoffice.gov.uk/public/data/layer/wxobs/{LayerName}/{ImageFormat}?TIME={Time}Z&key={key}
-        String layerName;
-        //layerName = "ATDNET_Sferics"; // lightening
-        //layerName = "SATELLITE_Infrared_Fulldisk";
-        //layerName = "SATELLITE_Visible_N_Section";
-        //layerName = "SATELLITE_Visible_N_Section";
-        layerName = "RADAR_UK_Composite_Highres"; //Rainfall
         String imageFormat;
         imageFormat = getS_png();
-        String time;
-        time = "2017-06-14T20:45:00";
-        path = getS_layer() + getS_backslash()
-                + getS_wxobs() + getS_backslash()
-                + layerName + getS_backslash()
-                + imageFormat;
-        url = BASE_URL
-                + path
-                + getS_questionmark()
-                + "TIME" + getS_equals() + time + "Z"
-                + getS_ampersand() + getS_key() + getS_equals() + API_KEY;
-        String name;
-        name = layerName + time.replace(':', '_');
-        getPNG(name);
+        Iterator<String> ite;
+        ite = times.iterator();
+        while (ite.hasNext()) {
+            String time;
+            time = ite.next();
+            //System.out.println(time);
+            if (time.contains("00:00")) { 
+            path = getS_layer() + getS_backslash()
+                        + getS_wxobs() + getS_backslash()
+                        + layerName + getS_backslash()
+                        + imageFormat;
+                url = BASE_URL
+                        + path
+                        + getS_questionmark()
+                        + "TIME" + getS_equals() + time + "Z"
+                        + getS_ampersand() + getS_key() + getS_equals() + API_KEY;
+                String name;
+                name = layerName + time.replace(':', '_');
+                getPNG(name);
+            }
+        }
     }
 
     /**
      * Request an observation tile from the WMTS service
      */
-    protected void requestAnObservationTileFromTheWMTSService() {
+    protected void getTileFromWMTSService() {
+        File inspireWMTSCapabilities = getInspireWMTSCapabilities();
+        String layerName;
+        layerName = "RADAR_UK_Composite_Highres";
+        Parameters parameters;
+        parameters = getParameters(layerName, inspireWMTSCapabilities);
+        
         //http://datapoint.metoffice.gov.uk/public/data/inspire/view/wmts?REQUEST=gettile&LAYER=<layer required>&FORMAT=image/png&TILEMATRIXSET=<projection>&TILEMATRIX=<projection zoom level required>&TILEROW=<tile row required>&TILECOL=<tile column required>&TIME=<time required>&STYLE=<style required>&key=<API key>
         path = "inspire/view/wmts";
+        String layer;
+        String tileMatrixSet;
+        String tileMatrix;
+        String tileRow;
+        String tileCol;
+        String time;
+        layer = "RADAR_UK_Composite_Highres";
+        tileMatrixSet = "EPSG:27700"; // British National Grid
+        //tileMatrixSet = "EPSG:4326"; // WGS84
+        tileMatrix = "EPSG:27700:0"; // British National Grid
+        //tileMatrix = "EPSG:4326:0"; // WGS84
+        tileRow = "0";
+        tileCol = "0";
+        time = "2017-06-16T03:00:00Z";
+                
         url = BASE_URL
                 + path
                 + "?REQUEST=gettile"
-                //+ "&LAYER=Highres" //This fails
-                //+ "&LAYER=RADAR_UK_Composite_Highres"
-                + "&FORMAT=image/png"
-                //+ "&TILEMATRIXSET=EPSG:4258"
-                + "&TILEMATRIXSET=EPSG:4326"
-                //+ "&TILEMATRIX=EPSG:4258:0"
-                + "&TILEMATRIX=EPSG:4326:0"
-                //+ "&TILEROW=1"
-                + "&TILEROW=0"
-                //+ "&TILECOL=0"
-                + "&TILECOL=1"
-                //+ "&TIME=2013-11-20T11:15:00Z"
-                + "&TIME=2017-06-14T11:15:00Z"
+                + "&LAYER=" + layer
+                + "&FORMAT=image%2Fpng" //+ "&FORMAT=image/png" // The / character is URL encoded to %2B
+                + "&TILEMATRIXSET=" + tileMatrixSet
+                + "&TILEMATRIX=" + tileMatrix
+                + "&TILEROW=" + tileRow
+                + "&TILECOL=" + tileCol
+                + "&TIME=" + time
                 + "&STYLE=Bitmap%201km%20Blue-Pale%20blue%20gradient%200.01%20to%2032mm%2Fhr" // The + character has been URL encoded to %2B and the / character to %2F
                 + "&key=" + API_KEY;
         String name;
-        name = "test";
+        name = layer + tileMatrix.replace(':', '_') + time.replace(':', '_') + "_" + tileRow + "_" + tileCol;
         getPNG(name);
     }
 
     /**
-     * Download capabilities document for current WMTS observation layer in XML
-     * format
+     * Download capabilities document for inspire WMTS in XML format.
      */
-    protected void downloadCapabilitiesDocumentForCurrentWMTSForecastLayerInXMLFormat() {
-        //http://datapoint.metoffice.gov.uk/public/data/layer/wxfcs/all/xml/capabilities?key=<API key>
-        path = getS_layer() + getS_backslash()
-                + getS_wxfcs() + getS_backslash()
-                + getS_all() + getS_backslash()
-                + getS_xml() + getS_backslash()
-                + getS_capabilities();
-        url = BASE_URL
-                + path
-                + getS_questionmark() + getS_key() + getS_equals() + API_KEY;
-        getXML(getS_capabilities());
-    }
-
-    /**
-     * Download capabilities document for inspire WMTS in XML format
-     */
-    protected void downloadCapabilitiesDocumentForInspireWMTSInXMLFormat() {
+    protected File getInspireWMTSCapabilities() {
         //http://datapoint.metoffice.gov.uk/public/data/inspire/view/wmts?REQUEST=getcapabilities&key=<API key>
         path = "inspire/view/wmts";
         url = BASE_URL
@@ -250,7 +279,8 @@ public class MetOfficeScraper extends WebScraper {
                 + "?REQUEST=get" + getS_capabilities()
                 + getS_ampersand()
                 + getS_key() + getS_equals() + API_KEY;
-        getXML(getS_capabilities());
+        File result = getXML(getS_capabilities());
+        return result;
     }
 
     /**
