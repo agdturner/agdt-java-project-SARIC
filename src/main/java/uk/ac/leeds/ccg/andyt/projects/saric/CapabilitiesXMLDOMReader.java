@@ -56,80 +56,102 @@ public class CapabilitiesXMLDOMReader extends Generic_XMLDOMReader {
         result = new ArrayList<String>();
         boolean foundLayer;
         foundLayer = false;
-        for (int i = 0; i < nodeList.getLength(); i++) {
-            Node n;
+        int i;
+        i = 0;
+        Node n;
+        n = null;
+        String nTextContent;
+        i = find("Contents", nodeList, i);
+        //System.out.println(nodeList.item(i).getNodeName());
+        while (!foundLayer) {
+            i = find("Layer", nodeList, i + 1);
+            //System.out.println(nodeList.item(i).getNodeName());
+            i = find("ows:Identifier", nodeList, i + 1);
             n = nodeList.item(i);
-            String nNodeName;
-            nNodeName = n.getNodeName();
-            String nTextContent;
-            if (nNodeName.equalsIgnoreCase("Contents")) {
-                i = find("Layer", nodeList);
-                
-                System.out.println(nodeName);
-                for (int j = i + 1; j < nodeList.getLength(); j++) {
-                    n = nodeList.item(j);
-                    nNodeName = n.getNodeName();
-                    if (nNodeName.equalsIgnoreCase("Layer")) {
-                        System.out.println(nodeName);
-                        for (int k = j + 1; k < nodeList.getLength(); k++) {
-                            n = nodeList.item(k);
-                            nNodeName = n.getNodeName();
-                            if (nNodeName.equalsIgnoreCase("ows:Identifier")) {
-                                System.out.println(nodeName);
-                                nTextContent = n.getTextContent();
-                                if (nTextContent.equalsIgnoreCase(layerName)) {
-                                    foundLayer = true;
-                                    System.out.println(nTextContent);
-
-                                } else {
-                                    break;
-                                }
-                            } else if (nNodeName.equalsIgnoreCase("Layer")) {
-                                
-                            }
-                        }
-                    }
-                }
-            }
-            if (!foundLayer) {
-                if (nNodeName.equalsIgnoreCase("Layer")) {
-                    for (int j
-                            = <ows {
-                        
-                    }:Identifier > RADAR_UK_Composite_Highres <  / ows
-                    :Identifier
-                            > nTextContent = n.getTextContent();
-                    if (nTextContent.equalsIgnoreCase(layerName)) {
-                        foundLayer = true;
-//                        System.out.println(nTextContent);
-                    }
-                }
-            } else {
-                if (nNodeName.equalsIgnoreCase("Time")) {
-                    nTextContent = n.getTextContent();
-                    result.add(nTextContent);
-//                    System.out.println(nTextContent);
-                }
+            //System.out.println(n.getNodeName());
+            nTextContent = n.getTextContent();
+            if (nTextContent.equalsIgnoreCase(layerName)) {
+                //System.out.println(nTextContent);
+                foundLayer = true;
             }
         }
+        i = find("Value", nodeList, i + 1);
+        n = nodeList.item(i);
+        //System.out.println(nodeList.item(i).getNodeName());
+        nTextContent = n.getTextContent();
+        result.add(nTextContent);
+        //System.out.println(nTextContent);
+        i = find("Value", nodeList, i + 1);
+        n = nodeList.item(i);
+        while (nodeList.item(i + 1).getNodeName().equalsIgnoreCase("Value")) {
+            nTextContent = n.getTextContent();
+            result.add(nTextContent);
+            //System.out.println(nTextContent);
+            i = find("Value", nodeList, i + 1);
+            n = nodeList.item(i);
+        }
+        return result;
+    }
+
+    protected int[] getNrowsAndNcols(String tileMatrix) {
+        int[] result;
+        result = new int[2];
+        boolean foundMatrix;
+        foundMatrix = false;
+        String nTextContent;
+        int i;
+        i = 0;
+        Node n;
+        while (!foundMatrix) {
+            i = find("TileMatrix", nodeList, i);
+            //System.out.println(nodeList.item(i).getNodeName());
+            i = find("ows:Identifier", nodeList, i + 1);
+            n = nodeList.item(i);
+            //System.out.println(n.getNodeName());
+            nTextContent = n.getTextContent();
+            if (nTextContent.equalsIgnoreCase(tileMatrix)) {
+                foundMatrix = true;
+            }
+        }
+        i = find("MatrixWidth", nodeList, i + 1);
+        n = nodeList.item(i);
+        //System.out.println(n.getNodeName());
+        nTextContent = n.getTextContent();
+        //System.out.println(nTextContent);
+        result[1] = new Integer(nTextContent);
+        i = find("MatrixHeight", nodeList, i + 1);
+        n = nodeList.item(i);
+        //System.out.println(n.getNodeName());
+        nTextContent = n.getTextContent();
+        //System.out.println(nTextContent);
+        result[0] = new Integer(nTextContent);
         return result;
     }
 
     /**
-     * get the index in the nodeList of the next node with tag s
-     * @param s
+     * Return the index in the nodeList of the next node after that with index i
+     * with name equal to nodeName or return nodeList.getLength();
+     *
+     * @param nodeName
      * @param nodeList
      * @param i
-     * @return 
+     * @return
      */
-    protected int find(String s, NodeList nodeList, int i) {
-        int result;
-        for (int j = i; j < nodeList.getLength(); j++) {
-            
+    protected int find(String nodeName, NodeList nodeList, int i) {
+        int j;
+        Node n;
+        String nNodeName;
+        for (j = i; j < nodeList.getLength(); j++) {
+            n = nodeList.item(j);
+            nNodeName = n.getNodeName();
+            String nTextContent;
+            if (nNodeName.equalsIgnoreCase(nodeName)) {
+                return j;
+            }
         }
-        return result;
+        return j;
     }
-    
+
     protected ArrayList<String> getTimes(String layerName) {
         ArrayList<String> result;
         result = new ArrayList<String>();
