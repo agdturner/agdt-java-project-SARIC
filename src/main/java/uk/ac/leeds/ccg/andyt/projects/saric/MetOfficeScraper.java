@@ -96,20 +96,19 @@ public class MetOfficeScraper extends WebScraper {
 
 //        getObserved();
 //        getForecast();
-        
 //        // Download three hourly five day forecast for Dunkeswell Aerodrome
 //        downloadThreeHourlyFiveDayForecastForDunkeswellAerodrome();
         // Request a tile from the WMTS service
         getTileFromWMTSService();
     }
-    
+
     protected void getObserved() {
         // Download capabilities document for the observation layers in XML format
         File observationLayerCapabilities;
         observationLayerCapabilities = getObservationLayerCapabilities();
 
         String layerName;
-        
+
         // Get times from observationLayerCapabilities
         //layerName = "ATDNET_Sferics"; // lightening
         //layerName = "SATELLITE_Infrared_Fulldisk";
@@ -126,9 +125,9 @@ public class MetOfficeScraper extends WebScraper {
         // Download capabilities document for the forecast layers in XML format
         File forecastLayerCapabilities;
         forecastLayerCapabilities = getForecastLayersCapabilities();
-        
+
         String layerName;
-        
+
         // Download forecast web map
         layerName = "Precipitation_Rate"; // Rainfall
 //        layerName = "Total_Cloud_Cover"; // Cloud
@@ -136,18 +135,24 @@ public class MetOfficeScraper extends WebScraper {
         // temperature and pressure also available
         downloadForecastImages(layerName);
     }
-    
-    protected Parameters getParameters(
-            String layerName, 
+
+    protected void setParameters(
+            Parameters p,
+            String layerName,
+            String tileMatrix,
             File xml) {
-    CapabilitiesXMLDOMReader r;
+        CapabilitiesXMLDOMReader r;
         r = new CapabilitiesXMLDOMReader(xml);
-        
-        Parameters parameters;
-        parameters = getParameters(layerName, inspireWMTSCapabilities);
-        
+        p.setLayerName(layerName);
+        ArrayList<String> times;
+        times = r.getTimesInspireWMTS(layerName);
+        p.setTimes(times);
+        int[] nrows_ncols;
+        nrows_ncols = r.getNrowsAndNcols(tileMatrix);
+        p.setNrows(nrows_ncols[0]);
+        p.setNcols(nrows_ncols[1]);
     }
-    
+
     /**
      * Get times from observationLayerCapabilities
      *
@@ -207,8 +212,8 @@ public class MetOfficeScraper extends WebScraper {
             String time;
             time = ite.next();
             //System.out.println(time);
-            if (time.contains("00:00")) { 
-            path = getS_layer() + getS_backslash()
+            if (time.contains("00:00")) {
+                path = getS_layer() + getS_backslash()
                         + getS_wxobs() + getS_backslash()
                         + layerName + getS_backslash()
                         + imageFormat;
@@ -231,41 +236,52 @@ public class MetOfficeScraper extends WebScraper {
         File inspireWMTSCapabilities = getInspireWMTSCapabilities();
         String layerName;
         layerName = "RADAR_UK_Composite_Highres";
-        Parameters parameters;
-        parameters = getParameters(layerName, inspireWMTSCapabilities);
-        
-        //http://datapoint.metoffice.gov.uk/public/data/inspire/view/wmts?REQUEST=gettile&LAYER=<layer required>&FORMAT=image/png&TILEMATRIXSET=<projection>&TILEMATRIX=<projection zoom level required>&TILEROW=<tile row required>&TILECOL=<tile column required>&TIME=<time required>&STYLE=<style required>&key=<API key>
-        path = "inspire/view/wmts";
-        String layer;
-        String tileMatrixSet;
         String tileMatrix;
-        String tileRow;
-        String tileCol;
-        String time;
-        layer = "RADAR_UK_Composite_Highres";
-        tileMatrixSet = "EPSG:27700"; // British National Grid
-        //tileMatrixSet = "EPSG:4326"; // WGS84
-        tileMatrix = "EPSG:27700:0"; // British National Grid
-        //tileMatrix = "EPSG:4326:0"; // WGS84
-        tileRow = "0";
-        tileCol = "0";
-        time = "2017-06-16T03:00:00Z";
-                
-        url = BASE_URL
-                + path
-                + "?REQUEST=gettile"
-                + "&LAYER=" + layer
-                + "&FORMAT=image%2Fpng" //+ "&FORMAT=image/png" // The / character is URL encoded to %2B
-                + "&TILEMATRIXSET=" + tileMatrixSet
-                + "&TILEMATRIX=" + tileMatrix
-                + "&TILEROW=" + tileRow
-                + "&TILECOL=" + tileCol
-                + "&TIME=" + time
-                + "&STYLE=Bitmap%201km%20Blue-Pale%20blue%20gradient%200.01%20to%2032mm%2Fhr" // The + character has been URL encoded to %2B and the / character to %2F
-                + "&key=" + API_KEY;
-        String name;
-        name = layer + tileMatrix.replace(':', '_') + time.replace(':', '_') + "_" + tileRow + "_" + tileCol;
-        getPNG(name);
+        //for (int matrix = 0; matrix < 7; matrix += 1) {
+        for (int matrix = 3; matrix < 7; matrix += 6) {
+            tileMatrix = "EPSG:27700:" + matrix; // British National Grid
+            //tileMatrix = "EPSG:4326:0"; // WGS84
+            Parameters p;
+            p = new Parameters();
+            setParameters(p, layerName, tileMatrix, inspireWMTSCapabilities);
+
+            //http://datapoint.metoffice.gov.uk/public/data/inspire/view/wmts?REQUEST=gettile&LAYER=<layer required>&FORMAT=image/png&TILEMATRIXSET=<projection>&TILEMATRIX=<projection zoom level required>&TILEROW=<tile row required>&TILECOL=<tile column required>&TIME=<time required>&STYLE=<style required>&key=<API key>
+            path = "inspire/view/wmts";
+            String tileMatrixSet;
+            String tileRow;
+            String tileCol;
+            String time;
+            tileMatrixSet = "EPSG:27700"; // British National Grid
+            //tileMatrixSet = "EPSG:4326"; // WGS84
+            Iterator<String> ite;
+            for (int row = 0; row < p.nrows; row++) {
+                for (int col = 0; col < p.ncols; col++) {
+                    tileRow = Integer.toString(row);
+                    tileCol = Integer.toString(col);
+                    ite = p.getTimes().iterator();
+                    while (ite.hasNext()) {
+                        time = ite.next();
+                        System.out.println(time);
+                        url = BASE_URL
+                                + path
+                                + "?REQUEST=gettile"
+                                + "&LAYER=" + layerName
+                                + "&FORMAT=image%2Fpng" //+ "&FORMAT=image/png" // The / character is URL encoded to %2B
+                                + "&TILEMATRIXSET=" + tileMatrixSet
+                                + "&TILEMATRIX=" + tileMatrix
+                                + "&TILEROW=" + tileRow
+                                + "&TILECOL=" + tileCol
+                                + "&TIME=" + time
+                                + "&STYLE=Bitmap%201km%20Blue-Pale%20blue%20gradient%200.01%20to%2032mm%2Fhr" // The + character has been URL encoded to %2B and the / character to %2F
+                                + "&key=" + API_KEY;
+                        String name;
+                        name = layerName + tileMatrix.replace(':', '_') + time.replace(':', '_') + "_" + tileRow + "_" + tileCol;
+                        getPNG(name);
+                        break; // For testing
+                    }
+                }
+            }
+        }
     }
 
     /**
