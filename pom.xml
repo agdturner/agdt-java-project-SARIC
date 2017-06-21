@@ -29,6 +29,8 @@
         <geotools.version>12.1</geotools.version>
         <agdtcensus.version>0.1.0-SNAPSHOT</agdtcensus.version>
         -->
+        <mapsforge.version>0.8.0</mapsforge.version>
+        <osmosis.version>0.45</osmosis.version>
         <agdtgeotools.version>0.1.0-SNAPSHOT</agdtgeotools.version>
         <generic.version>1.0-SNAPSHOT</generic.version>
         <grids.version>1.0-SNAPSHOT</grids.version>
@@ -43,6 +45,210 @@
             <version>4.11</version>
             <scope>test</scope>
         </dependency>
+        <!-- OSM -->
+        <!--
+        org.mapsforge
+        https://github.com/mapsforge/mapsforge/blob/master/README.md
+        https://github.com/mapsforge/mapsforge/blob/master/docs/Integration.md
+        -->
+        <dependency>
+            <groupId>org.mapsforge</groupId>
+            <artifactId>mapsforge-core</artifactId>
+            <version>${mapsforge.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mapsforge</groupId>
+            <artifactId>mapsforge-map</artifactId>
+            <version>${mapsforge.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mapsforge</groupId>
+            <artifactId>mapsforge-map-awt</artifactId>
+            <version>${mapsforge.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mapsforge</groupId>
+            <artifactId>mapsforge-map-reader</artifactId>
+            <version>${mapsforge.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mapsforge</groupId>
+            <artifactId>mapsforge-map-writer</artifactId>
+            <version>${mapsforge.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mapsforge</groupId>
+            <artifactId>mapsforge-poi</artifactId>
+            <version>${mapsforge.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mapsforge</groupId>
+            <artifactId>mapsforge-poi-awt</artifactId>
+            <version>${mapsforge.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mapsforge</groupId>
+            <artifactId>mapsforge-poi-writer</artifactId>
+            <version>${mapsforge.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mapsforge</groupId>
+            <artifactId>mapsforge-themes</artifactId>
+            <version>${mapsforge.version}</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.openstreetmap/josm -->
+        <!--
+        <dependency>
+            <groupId>org.openstreetmap</groupId>
+            <artifactId>josm</artifactId>
+            <version>0.8.17</version>
+        </dependency>
+        -->
+        <!-- https://mvnrepository.com/artifact/org.openstreetmap.osmosis/osmosis-core -->
+        <dependency>
+            <groupId>org.openstreetmap.osmosis</groupId>
+            <artifactId>osmosis-core</artifactId>
+            <version>${osmosis.version}</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.openstreetmap.osmosis/osmosis-xml -->
+        <!--<dependency>
+            <groupId>org.openstreetmap.osmosis</groupId>
+            <artifactId>osmosis-xml</artifactId>
+            <version>${osmosis.version}</version>
+            <scope>test</scope>
+        </dependency>
+        -->
+        <!-- https://mvnrepository.com/artifact/org.openstreetmap.osmosis/osmosis-testutil -->
+        <!--<dependency>
+            <groupId>org.openstreetmap.osmosis</groupId>
+            <artifactId>osmosis-testutil</artifactId>
+            <version>${osmosis.version}</version>
+            <scope>test</scope>
+        </dependency>
+        -->
+        <!-- https://mvnrepository.com/artifact/org.openstreetmap.osmosis/osmosis-osm-binary -->
+        <!--<dependency>
+            <groupId>org.openstreetmap.osmosis</groupId>
+            <artifactId>osmosis-osm-binary</artifactId>
+            <version>${osmosis.version}</version>
+        </dependency>
+        -->
+        <!-- https://mvnrepository.com/artifact/org.openstreetmap.osmosis/osmosis-osm-binary -->
+        <!--<dependency>
+            <groupId>org.openstreetmap.osmosis</groupId>
+            <artifactId>osmosis-osm-binary</artifactId>
+            <version>${osmosis.version}</version>
+        </dependency>
+        -->
+        <!-- https://mvnrepository.com/artifact/org.openstreetmap.osmosis/osmosis-pbf -->
+        <!--<dependency>
+            <groupId>org.openstreetmap.osmosis</groupId>
+            <artifactId>osmosis-pbf</artifactId>
+            <version>${osmosis.version}</version>
+        </dependency>
+        -->
+        <!-- https://mvnrepository.com/artifact/org.openstreetmap.osmosis/osmosis-replication -->
+        <!--<dependency>
+            <groupId>org.openstreetmap.osmosis</groupId>
+            <artifactId>osmosis-replication</artifactId>
+            <version>${osmosis.version}</version>
+        </dependency>
+        -->
+        <!-- https://mvnrepository.com/artifact/org.openstreetmap.osmosis/osmosis-replication -->
+        <!--<dependency>
+            <groupId>org.openstreetmap.osmosis</groupId>
+            <artifactId>osmosis-replication</artifactId>
+            <version>${osmosis.version}</version>
+        </dependency>
+        -->
+        <!-- https://mvnrepository.com/artifact/org.openstreetmap.osmosis/osmosis-dataset -->
+        <!--<dependency>
+            <groupId>org.openstreetmap.osmosis</groupId>
+            <artifactId>osmosis-dataset</artifactId>
+            <version>${osmosis.version}</version>
+        </dependency>
+        -->
+        <!-- https://mvnrepository.com/artifact/org.openstreetmap.osmosis/osmosis-set -->
+        <!--<dependency>
+            <groupId>org.openstreetmap.osmosis</groupId>
+            <artifactId>osmosis-set</artifactId>
+            <version>${osmosis.version}</version>
+        </dependency>
+        -->
+        <!-- https://mvnrepository.com/artifact/org.openstreetmap.osmosis/osmosis-tagfilter -->
+        <!--<dependency>
+            <groupId>org.openstreetmap.osmosis</groupId>
+            <artifactId>osmosis-tagfilter</artifactId>
+            <version>${osmosis.version}</version>
+        </dependency>
+        -->
+        <!-- https://mvnrepository.com/artifact/org.openstreetmap.osmosis/osmosis-hstore-jdbc -->
+        <!--<dependency>
+            <groupId>org.openstreetmap.osmosis</groupId>
+            <artifactId>osmosis-hstore-jdbc</artifactId>
+            <version>${osmosis.version}</version>
+        </dependency>
+        -->
+        <!-- https://mvnrepository.com/artifact/org.openstreetmap.osmosis/osmosis-areafilter -->
+        <!--<dependency>
+            <groupId>org.openstreetmap.osmosis</groupId>
+            <artifactId>osmosis-areafilter</artifactId>
+            <version>${osmosis.version}</version>
+        </dependency>
+        -->
+        <!-- https://mvnrepository.com/artifact/org.openstreetmap.osmosis/osmosis-apidb -->
+        <!--<dependency>
+            <groupId>org.openstreetmap.osmosis</groupId>
+            <artifactId>osmosis-apidb</artifactId>
+            <version>${osmosis.version}</version>
+        </dependency>
+        -->
+        <!-- https://mvnrepository.com/artifact/org.openstreetmap.osmosis/osmosis-extract -->
+        <!--<dependency>
+            <groupId>org.openstreetmap.osmosis</groupId>
+            <artifactId>osmosis-extract</artifactId>
+            <version>${osmosis.version}</version>
+        </dependency>
+        -->
+        <!-- https://mvnrepository.com/artifact/org.openstreetmap.osmosis/osmosis-pgsimple -->
+        <!--<dependency>
+            <groupId>org.openstreetmap.osmosis</groupId>
+            <artifactId>osmosis-pgsimple</artifactId>
+            <version>${osmosis.version}</version>
+        </dependency>
+        -->
+        <!-- https://mvnrepository.com/artifact/org.openstreetmap.osmosis/osmosis-replication-http -->
+        <!--<dependency>
+            <groupId>org.openstreetmap.osmosis</groupId>
+            <artifactId>osmosis-replication-http</artifactId>
+            <version>${osmosis.version}</version>
+        </dependency>
+        -->
+        <!-- https://mvnrepository.com/artifact/org.openstreetmap.osmosis/osmosis-pgsnapshot -->
+        <!--<dependency>
+            <groupId>org.openstreetmap.osmosis</groupId>
+            <artifactId>osmosis-pgsnapshot</artifactId>
+            <version>${osmosis.version}</version>
+        </dependency>
+        -->
+        <!-- https://mvnrepository.com/artifact/org.openstreetmap.osmosis/osmosis-tagtransform -->
+        <!--
+        <dependency>
+            <groupId>org.openstreetmap.osmosis</groupId>
+            <artifactId>osmosis-tagtransform</artifactId>
+            <version>${osmosis.version}</version>
+        </dependency>
+        -->
+        <!-- https://mvnrepository.com/artifact/org.openstreetmap.osmosis/osmosis-pbf2 -->
+        <!--
+        <dependency>
+            <groupId>org.openstreetmap.osmosis</groupId>
+            <artifactId>osmosis-pbf2</artifactId>
+            <version>${osmosis.version}</version>
+        </dependency>
+        -->
+        
+
         <!--
         <dependency>
             <groupId>com.vividsolutions</groupId>
