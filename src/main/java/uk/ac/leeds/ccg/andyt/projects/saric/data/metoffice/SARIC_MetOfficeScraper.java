@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package uk.ac.leeds.ccg.andyt.projects.saric;
+package uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -16,37 +16,43 @@ import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.Iterator;
 import uk.ac.leeds.ccg.andyt.generic.io.Generic_StaticIO;
-import uk.ac.leeds.ccg.andyt.generic.io.Generic_XMLDOMReader;
 import uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Time;
+import uk.ac.leeds.ccg.andyt.projects.saric.SARIC_Environment;
+import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
 import uk.ac.leeds.ccg.andyt.web.WebScraper;
 
 /**
  *
  * @author geoagdt
  */
-public class MetOfficeScraper extends WebScraper {
+public class SARIC_MetOfficeScraper extends WebScraper {
 
     /**
-     * Directory where all data files are to be stored.
+     * For convenience.
      */
-    File dataDirectory;
+    SARIC_Files SARIC_Files;
+    SARIC_Environment SARIC_Environment;
 
     // Special strings
-    String s_ampersand;
-    String s_backslash;
-    String s_questionmark;
-    String s_equals;
+    String symbol_ampersand;
+    String symbol_backslash;
+    String symbol_questionmark;
+    String symbol_equals;
 
     // Normal strings
-    String s_all;
-    String s_capabilities;
-    String s_key;
-    String s_layer;
-    String s_png;
-    String s_val;
-    String s_wxfcs;
-    String s_wxobs;
-    String s_xml;
+    String string_3hourly;
+    String string_all;
+    String string_capabilities;
+    String string_datatype;
+    String string_key;
+    String string_layer;
+    String string_png;
+    String string_res;
+    String string_sitelist;
+    String string_val;
+    String string_wxfcs;
+    String string_wxobs;
+    String string_xml;
 
     // Variables
     String path;
@@ -59,8 +65,20 @@ public class MetOfficeScraper extends WebScraper {
 
     String BASE_URL = "http://datapoint.metoffice.gov.uk/public/data/";
 
+    protected SARIC_MetOfficeScraper() {
+    }
+
+    protected SARIC_MetOfficeScraper(SARIC_Environment SARIC_Environment) {
+        this.SARIC_Environment = SARIC_Environment;
+        this.SARIC_Files = SARIC_Environment.getSARIC_Files();
+    }
+
     public static void main(String[] args) {
-        new MetOfficeScraper().run();
+        SARIC_Environment SARIC_Environment;
+        SARIC_Environment = new SARIC_Environment("data");
+        SARIC_MetOfficeScraper SARIC_MetOfficeScraper;
+        SARIC_MetOfficeScraper = new SARIC_MetOfficeScraper(SARIC_Environment);
+        SARIC_MetOfficeScraper.run();
     }
 
     public void run() {
@@ -88,8 +106,6 @@ public class MetOfficeScraper extends WebScraper {
         permittedConnectionsPerHour = 100 * 60;
         permittedConnectionRate = permittedConnectionsPerHour / (double) Generic_Time.MilliSecondsInHour;
 
-        // Set data Directory
-        setDataDirectory("data");
         // Read API_KEY from file
         API_KEY = getAPI_KEY();
         //System.out.println(API_KEY);
@@ -98,11 +114,15 @@ public class MetOfficeScraper extends WebScraper {
 //        getForecast();
 //        // Download three hourly five day forecast for Dunkeswell Aerodrome
 //        downloadThreeHourlyFiveDayForecastForDunkeswellAerodrome();
-        // Request a tile from the WMTS service
-        getTileFromWMTSService();
+//        // Request a tile from the WMTS service
+//        getTileFromWMTSService();
+//        getObservationSiteList();
+//        getForecastSiteList();
+        getForecastSite(324251); //<Location unitaryAuthArea="Norfolk" region="ee" name="Cromer" longitude="1.3036" latitude="52.9311" id="324251" elevation="15.0"/>
+
     }
 
-    protected void getObserved() {
+    protected void getObservationLayer() {
         // Download capabilities document for the observation layers in XML format
         File observationLayerCapabilities;
         observationLayerCapabilities = getObservationLayerCapabilities();
@@ -121,7 +141,25 @@ public class MetOfficeScraper extends WebScraper {
         downloadObservationImage(layerName, times);
     }
 
-    protected void getForecast() {
+    protected File getForecastSite(int siteID) {
+        File result;
+        String siteID_s;
+        siteID_s = Integer.toString(siteID);
+        path = getValDataTypePath(getString_xml(), getString_wxfcs())
+                + siteID_s;
+        String res;
+        res = getString_3hourly();
+        url = BASE_URL
+                + path
+                + getSymbol_questionmark()
+                + getString_res() + getSymbol_equals() + res
+                + getSymbol_ampersand()
+                + getString_key() + getSymbol_equals() + API_KEY;
+        result = getXML(siteID_s + res);
+        return result;
+    }
+
+    protected void getForecastLayer() {
         // Download capabilities document for the forecast layers in XML format
         File forecastLayerCapabilities;
         forecastLayerCapabilities = getForecastLayersCapabilities();
@@ -137,12 +175,12 @@ public class MetOfficeScraper extends WebScraper {
     }
 
     protected void setParameters(
-            Parameters p,
+            SARIC_MetOfficeParameters p,
             String layerName,
             String tileMatrix,
             File xml) {
-        CapabilitiesXMLDOMReader r;
-        r = new CapabilitiesXMLDOMReader(xml);
+        SARIC_MetOfficeCapabilitiesXMLDOMReader r;
+        r = new SARIC_MetOfficeCapabilitiesXMLDOMReader(SARIC_Environment, xml);
         p.setLayerName(layerName);
         ArrayList<String> times;
         times = r.getTimesInspireWMTS(layerName);
@@ -154,27 +192,80 @@ public class MetOfficeScraper extends WebScraper {
     }
 
     /**
+     * Get observation site list.
+     */
+    protected void getObservationSiteList() {
+        getSiteList(getString_wxobs());
+    }
+
+    /**
+     * Get forecast site list.
+     */
+    protected void getForecastSiteList() {
+        getSiteList(getString_wxfcs());
+    }
+
+    /**
+     * Get observation site list.
+     *
+     * @param obs_or_fcs
+     */
+    protected void getSiteList(String obs_or_fcs) {
+        path = getValDataTypePath(getString_xml(), obs_or_fcs)
+                + getString_sitelist();
+        url = BASE_URL
+                + path
+                + getSymbol_questionmark()
+                + getString_key() + getSymbol_equals() + API_KEY;
+        File dir;
+        dir = new File(SARIC_Files.getMetOfficeDataDir(),
+                path);
+        dir.mkdirs();
+        File xml;
+        xml = new File(dir,
+                getString_sitelist() + "." + getString_xml());
+        getXML(url, xml);
+    }
+
+    /**
+     * 
+     * @param dataType Either "xml" or "json".
+     * @param obs_or_fcs Either "wxobs" or "wxfcs".
+     * @return 
+     */
+    public String getValDataTypePath(String dataType, String obs_or_fcs) {
+            return getString_val() + getSymbol_backslash()
+                + obs_or_fcs + getSymbol_backslash()
+                + getString_all() + getSymbol_backslash()
+                + dataType + getSymbol_backslash();
+    }
+    
+    /**
      * Get times from observationLayerCapabilities
      *
+     * @param layerName
+     * @param xml
      * @return
      */
     protected ArrayList<String> getObservationLayerTimes(
             String layerName,
             File xml) {
         ArrayList<String> result;
-        CapabilitiesXMLDOMReader r;
-        r = new CapabilitiesXMLDOMReader(xml);
+        SARIC_MetOfficeCapabilitiesXMLDOMReader r;
+        r = new SARIC_MetOfficeCapabilitiesXMLDOMReader(SARIC_Environment, xml);
         result = r.getTimes(layerName);
         return result;
     }
 
     /**
      * Download forecast image.
+     *
+     * @param layerName
      */
     protected void downloadForecastImages(String layerName) {
         //http://datapoint.metoffice.gov.uk/public/data/layer/wxfcs/{LayerName}/{ImageFormat}?RUN={DefaultTime}Z&FORECAST={Timestep}&key={key}
         String imageFormat;
-        imageFormat = getS_png();
+        imageFormat = getString_png();
         String defaultTime;
         defaultTime = "2017-06-15T03:00:00";
         String timeStep;
@@ -182,16 +273,16 @@ public class MetOfficeScraper extends WebScraper {
         for (int step = 0; step <= 36; step += 3) {
             timeStep = Integer.toString(step);
             System.out.println("Getting forecast for time " + timeStep);
-            path = getS_layer() + getS_backslash()
-                    + getS_wxfcs() + getS_backslash()
-                    + layerName + getS_backslash()
+            path = getString_layer() + getSymbol_backslash()
+                    + getString_wxfcs() + getSymbol_backslash()
+                    + layerName + getSymbol_backslash()
                     + imageFormat;
             url = BASE_URL
                     + path
-                    + getS_questionmark()
-                    + "RUN" + getS_equals() + defaultTime + "Z"
-                    + getS_ampersand() + "FORECAST" + getS_equals() + timeStep
-                    + getS_ampersand() + getS_key() + getS_equals() + API_KEY;
+                    + getSymbol_questionmark()
+                    + "RUN" + getSymbol_equals() + defaultTime + "Z"
+                    + getSymbol_ampersand() + "FORECAST" + getSymbol_equals() + timeStep
+                    + getSymbol_ampersand() + getString_key() + getSymbol_equals() + API_KEY;
             name = layerName + defaultTime.replace(':', '_') + timeStep;
             getPNG(name);
         }
@@ -199,13 +290,16 @@ public class MetOfficeScraper extends WebScraper {
 
     /**
      * Download observation web map.
+     *
+     * @param layerName
+     * @param times
      */
     protected void downloadObservationImage(
             String layerName,
             ArrayList<String> times) {
         //http://datapoint.metoffice.gov.uk/public/data/layer/wxobs/{LayerName}/{ImageFormat}?TIME={Time}Z&key={key}
         String imageFormat;
-        imageFormat = getS_png();
+        imageFormat = getString_png();
         Iterator<String> ite;
         ite = times.iterator();
         while (ite.hasNext()) {
@@ -213,15 +307,15 @@ public class MetOfficeScraper extends WebScraper {
             time = ite.next();
             //System.out.println(time);
             if (time.contains("00:00")) {
-                path = getS_layer() + getS_backslash()
-                        + getS_wxobs() + getS_backslash()
-                        + layerName + getS_backslash()
+                path = getString_layer() + getSymbol_backslash()
+                        + getString_wxobs() + getSymbol_backslash()
+                        + layerName + getSymbol_backslash()
                         + imageFormat;
                 url = BASE_URL
                         + path
-                        + getS_questionmark()
-                        + "TIME" + getS_equals() + time + "Z"
-                        + getS_ampersand() + getS_key() + getS_equals() + API_KEY;
+                        + getSymbol_questionmark()
+                        + "TIME" + getSymbol_equals() + time + "Z"
+                        + getSymbol_ampersand() + getString_key() + getSymbol_equals() + API_KEY;
                 String name;
                 name = layerName + time.replace(':', '_');
                 getPNG(name);
@@ -241,8 +335,8 @@ public class MetOfficeScraper extends WebScraper {
         for (int matrix = 3; matrix < 7; matrix += 6) {
             tileMatrix = "EPSG:27700:" + matrix; // British National Grid
             //tileMatrix = "EPSG:4326:0"; // WGS84
-            Parameters p;
-            p = new Parameters();
+            SARIC_MetOfficeParameters p;
+            p = new SARIC_MetOfficeParameters();
             setParameters(p, layerName, tileMatrix, inspireWMTSCapabilities);
 
             //http://datapoint.metoffice.gov.uk/public/data/inspire/view/wmts?REQUEST=gettile&LAYER=<layer required>&FORMAT=image/png&TILEMATRIXSET=<projection>&TILEMATRIX=<projection zoom level required>&TILEROW=<tile row required>&TILECOL=<tile column required>&TIME=<time required>&STYLE=<style required>&key=<API key>
@@ -253,6 +347,14 @@ public class MetOfficeScraper extends WebScraper {
             String time;
             tileMatrixSet = "EPSG:27700"; // British National Grid
             //tileMatrixSet = "EPSG:4326"; // WGS84
+            // http://www.metoffice.gov.uk/datapoint/product/precipitation-forecast-map-layer
+            // For tileMatrix = EPSG:4326:0 
+            // MinY = 48.0
+            // MaxY = 61.0
+            // MinX = -12.0
+            // MaxX = 5.0
+            // DiffY = 13
+            // DiffX = 17 
             Iterator<String> ite;
             for (int row = 0; row < p.nrows; row++) {
                 for (int col = 0; col < p.ncols; col++) {
@@ -286,66 +388,72 @@ public class MetOfficeScraper extends WebScraper {
 
     /**
      * Download capabilities document for inspire WMTS in XML format.
+     *
+     * @return
      */
     protected File getInspireWMTSCapabilities() {
         //http://datapoint.metoffice.gov.uk/public/data/inspire/view/wmts?REQUEST=getcapabilities&key=<API key>
         path = "inspire/view/wmts";
         url = BASE_URL
                 + path
-                + "?REQUEST=get" + getS_capabilities()
-                + getS_ampersand()
-                + getS_key() + getS_equals() + API_KEY;
-        File result = getXML(getS_capabilities());
+                + "?REQUEST=get" + getString_capabilities()
+                + getSymbol_ampersand()
+                + getString_key() + getSymbol_equals() + API_KEY;
+        File result = getXML(getString_capabilities());
         return result;
     }
 
     /**
      * Download capabilities document for current WMTS observation layer in XML
      * format
+     *
+     * @return
      */
     protected File getObservationLayerCapabilities() {
         // http://datapoint.metoffice.gov.uk/public/data/layer/wxobs/all/xml/capabilities?key=<API key>
         File result;
-        path = getS_layer() + getS_backslash()
-                + getS_wxobs() + getS_backslash()
-                + getS_all() + getS_backslash()
-                + getS_xml() + getS_backslash();
+        path = getString_layer() + getSymbol_backslash()
+                + getString_wxobs() + getSymbol_backslash()
+                + getString_all() + getSymbol_backslash()
+                + getString_xml() + getSymbol_backslash();
         url = BASE_URL
                 + path
-                + getS_capabilities() + getS_questionmark()
-                + getS_key() + getS_equals() + API_KEY;
-        result = getXML(getS_capabilities());
+                + getString_capabilities() + getSymbol_questionmark()
+                + getString_key() + getSymbol_equals() + API_KEY;
+        result = getXML(getString_capabilities());
         return result;
     }
 
     /**
      * Download capabilities document for the forecast layers in XML format
+     *
+     * @return
      */
     protected File getForecastLayersCapabilities() {
         // http://datapoint.metoffice.gov.uk/public/data/layer/wxfcs/all/xml/capabilities?key=<API key>
         File result;
-        path = getS_layer() + getS_backslash()
-                + getS_wxfcs() + getS_backslash()
-                + getS_all() + getS_backslash()
-                + getS_xml() + getS_backslash();
+        path = getString_layer() + getSymbol_backslash()
+                + getString_wxfcs() + getSymbol_backslash()
+                + getString_all() + getSymbol_backslash()
+                + getString_xml() + getSymbol_backslash();
         url = BASE_URL
                 + path
-                + getS_capabilities() + getS_questionmark()
-                + getS_key() + getS_equals() + API_KEY;
-        result = getXML(getS_capabilities());
+                + getString_capabilities() + getSymbol_questionmark()
+                + getString_key() + getSymbol_equals() + API_KEY;
+        result = getXML(getString_capabilities());
         return result;
     }
 
     protected File getXML(String name) {
         File outputDir;
         outputDir = new File(
-                getMetOfficeDataDirectory(),
+                SARIC_Files.getMetOfficeDataDir(),
                 path);
         outputDir.mkdirs();
         File xml;
         xml = Generic_StaticIO.createNewFile(
                 outputDir,
-                name + "." + getS_xml());
+                name + "." + getString_xml());
         getXML(url,
                 xml);
         return xml;
@@ -354,13 +462,13 @@ public class MetOfficeScraper extends WebScraper {
     protected void getPNG(String name) {
         File outputDir;
         outputDir = new File(
-                getMetOfficeDataDirectory(),
+                SARIC_Files.getMetOfficeDataDir(),
                 path);
         outputDir.mkdirs();
         File png;
         png = Generic_StaticIO.createNewFile(
                 outputDir,
-                name + "." + getS_png());
+                name + "." + getString_png());
         getPNG(url,
                 png);
     }
@@ -370,25 +478,16 @@ public class MetOfficeScraper extends WebScraper {
      */
     protected void downloadThreeHourlyFiveDayForecastForDunkeswellAerodrome() {
         // http://datapoint.metoffice.gov.uk/public/data/val/wxfcs/all/xml/3840?res=3hourly&key=01234567-89ab-cdef-0123-456789abcdef
-        path = getS_val() + getS_backslash()
-                + getS_wxfcs() + getS_backslash()
-                + getS_all() + getS_backslash()
-                + getS_xml() + getS_backslash()
+        path = getString_val() + getSymbol_backslash()
+                + getString_wxfcs() + getSymbol_backslash()
+                + getString_all() + getSymbol_backslash()
+                + getString_xml() + getSymbol_backslash()
                 + "3840";
         url = BASE_URL
-                + path + getS_questionmark()
-                + "res" + getS_equals() + "3hourly&"
-                + getS_key() + getS_equals() + API_KEY;
+                + path + getSymbol_questionmark()
+                + "res" + getSymbol_equals() + "3hourly&"
+                + getString_key() + getSymbol_equals() + API_KEY;
         getXML("test");
-    }
-
-    /**
-     * return new File(dataDirectory, "MetOffice");
-     *
-     * @return
-     */
-    File getMetOfficeDataDirectory() {
-        return new File(dataDirectory, "MetOffice");
     }
 
     /**
@@ -397,14 +496,8 @@ public class MetOfficeScraper extends WebScraper {
      * @return
      */
     public String getAPI_KEY() {
-        File configDir;
-        configDir = new File(
-                dataDirectory,
-                "config");
         File f;
-        f = new File(
-                configDir,
-                "MetOfficeAPIKey.txt");
+        f = SARIC_Files.getMetOfficeAPIKeyFile();
         ArrayList<String> l;
         l = Generic_StaticIO.readIntoArrayList_String(f);
         return l.get(0);
@@ -448,30 +541,28 @@ public class MetOfficeScraper extends WebScraper {
             try {
                 int bufferSize = 8192;
                 byte[] b = new byte[bufferSize];
-                int noOfBytes = 0;
+                int noOfBytes;
                 while ((noOfBytes = bis.read(b)) != -1) {
                     bos.write(b, 0, noOfBytes);
                 }
             } catch (final IOException ioe) {
-                ioe.printStackTrace();
+                ioe.printStackTrace(System.err);
             } finally {
-                if (bis != null) {
-                    try {
-                        bis.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                try {
+                    bis.close();
+                } catch (IOException e) {
+                    e.printStackTrace(System.err);
                 }
                 if (bos != null) {
                     try {
                         bos.close();
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        e.printStackTrace(System.err);
                     }
                 }
-            } // End of the try - catch finally //
+            }
         } catch (IOException e) {
-            //e.printStackTrace(System.err);
+            e.printStackTrace(System.err);
         }
     }
 
@@ -528,167 +619,123 @@ public class MetOfficeScraper extends WebScraper {
         }
     }
 
-    /**
-     * Initialises a data directory with a name given by name.
-     *
-     * @param name
-     */
-    protected void setDataDirectory(String name) {
-        String userDir;
-        userDir = System.getProperty("user.dir");
-        dataDirectory = new File(
-                userDir,
-                name);
-        if (!dataDirectory.exists()) {
-            boolean successfulCreation;
-            successfulCreation = dataDirectory.mkdirs();
-            if (!successfulCreation) {
-                throw new Error("dataDirectory not created in " + this.getClass().getName() + ".setDataDirectory(String)");
-            }
+    // Special symbols
+    public String getSymbol_ampersand() {
+        if (symbol_ampersand == null) {
+            symbol_ampersand = "&";
         }
+        return symbol_ampersand;
     }
 
-    public String getS_ampersand() {
-        if (s_ampersand == null) {
-            s_ampersand = "&";
+    public String getSymbol_backslash() {
+        if (symbol_backslash == null) {
+            symbol_backslash = "/";
         }
-        return s_ampersand;
+        return symbol_backslash;
     }
 
-    public void setS_ampersand(String s_ampersand) {
-        this.s_ampersand = s_ampersand;
-    }
-
-    public String getS_backslash() {
-        if (s_backslash == null) {
-            s_backslash = "/";
+    public String getSymbol_questionmark() {
+        if (symbol_questionmark == null) {
+            symbol_questionmark = "?";
         }
-        return s_backslash;
+        return symbol_questionmark;
     }
 
-    public void setS_backslash(String s_backslash) {
-        this.s_backslash = s_backslash;
-    }
-
-    public String getS_questionmark() {
-        if (s_questionmark == null) {
-            s_questionmark = "?";
+    public String getSymbol_equals() {
+        if (symbol_equals == null) {
+            symbol_equals = "=";
         }
-        return s_questionmark;
+        return symbol_equals;
     }
 
-    public void setS_questionmark(String s_questionmark) {
-        this.s_questionmark = s_questionmark;
-    }
-
-    public String getS_equals() {
-        if (s_equals == null) {
-            s_equals = "=";
+    public String getString_3hourly() {
+        if (string_3hourly == null) {
+            string_3hourly = "3hourly";
         }
-        return s_equals;
+        return string_3hourly;
     }
-
-    public void setS_equals(String s_equals) {
-        this.s_equals = s_equals;
-    }
-
-    public String getS_all() {
-        if (s_all == null) {
-            s_all = "all";
+    
+    public String getString_all() {
+        if (string_all == null) {
+            string_all = "all";
         }
-        return s_all;
+        return string_all;
     }
 
-    public void setS_all(String s_all) {
-        this.s_all = s_all;
-    }
-
-    public String getS_capabilities() {
-        if (s_capabilities == null) {
-            s_capabilities = "capabilities";
+    public String getString_capabilities() {
+        if (string_capabilities == null) {
+            string_capabilities = "capabilities";
         }
-        return s_capabilities;
+        return string_capabilities;
     }
 
-    public void setS_capabilities(String s_capabilities) {
-        this.s_capabilities = s_capabilities;
-    }
-
-    public String getS_key() {
-        if (s_key == null) {
-            s_key = "key";
+    public String getString_datatype() {
+        if (string_datatype == null) {
+            string_datatype = "datatype";
         }
-        return s_key;
+        return string_datatype;
     }
 
-    public void setS_key(String s_key) {
-        this.s_key = s_key;
-    }
-
-    public String getS_png() {
-        if (s_png == null) {
-            s_png = "png";
+    public String getString_key() {
+        if (string_key == null) {
+            string_key = "key";
         }
-        return s_png;
+        return string_key;
     }
 
-    public void setS_png(String s_png) {
-        this.s_png = s_png;
-    }
-
-    public String getS_layer() {
-        if (s_layer == null) {
-            s_layer = "layer";
+    public String getString_layer() {
+        if (string_layer == null) {
+            string_layer = "layer";
         }
-        return s_layer;
+        return string_layer;
     }
 
-    public void setS_layer(String s_layer) {
-        this.s_layer = s_layer;
-    }
-
-    public String getS_val() {
-        if (s_val == null) {
-            s_val = "val";
+    public String getString_png() {
+        if (string_png == null) {
+            string_png = "png";
         }
-        return s_val;
+        return string_png;
     }
 
-    public void setS_val(String s_val) {
-        this.s_val = s_val;
-    }
-
-    public String getS_wxfcs() {
-        if (s_wxfcs == null) {
-            s_wxfcs = "wxfcs";
+    public String getString_res() {
+        if (string_res == null) {
+            string_res = "res";
         }
-        return s_wxfcs;
+        return string_res;
     }
 
-    public void setS_wxfcs(String s_wxfcs) {
-        this.s_wxfcs = s_wxfcs;
-    }
-
-    public String getS_wxobs() {
-        if (s_wxobs == null) {
-            s_wxobs = "wxobs";
+    public String getString_sitelist() {
+        if (string_sitelist == null) {
+            string_sitelist = "sitelist";
         }
-        return s_wxobs;
+        return string_sitelist;
     }
 
-    public void setS_wxobs(String s_wxobs) {
-        this.s_wxobs = s_wxobs;
-    }
-
-    public String getS_xml() {
-        if (s_xml == null) {
-            s_xml = "xml";
+    public String getString_val() {
+        if (string_val == null) {
+            string_val = "val";
         }
-        return s_xml;
+        return string_val;
     }
 
-    public void setS_xml(String s_xml) {
-        this.s_xml = s_xml;
+    public String getString_wxfcs() {
+        if (string_wxfcs == null) {
+            string_wxfcs = "wxfcs";
+        }
+        return string_wxfcs;
     }
 
+    public String getString_wxobs() {
+        if (string_wxobs == null) {
+            string_wxobs = "wxobs";
+        }
+        return string_wxobs;
+    }
+
+    public String getString_xml() {
+        if (string_xml == null) {
+            string_xml = "xml";
+        }
+        return string_xml;
+    }
 }

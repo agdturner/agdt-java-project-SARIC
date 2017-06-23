@@ -3,30 +3,37 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package uk.ac.leeds.ccg.andyt.projects.saric;
+package uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.TreeSet;
-import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import uk.ac.leeds.ccg.andyt.generic.io.Generic_XMLDOMReader;
+import uk.ac.leeds.ccg.andyt.projects.saric.SARIC_Environment;
+import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
 
 /**
  *
  * @author geoagdt
  */
-public class CapabilitiesXMLDOMReader extends Generic_XMLDOMReader {
+public class SARIC_MetOfficeCapabilitiesXMLDOMReader extends Generic_XMLDOMReader {
+
+    SARIC_Environment SARIC_Environment;
+    SARIC_Files SARIC_Files;
 
     public TreeSet<String> outcodePostcodes;
 
-    public CapabilitiesXMLDOMReader() {
+    protected SARIC_MetOfficeCapabilitiesXMLDOMReader() {
     }
 
-    public CapabilitiesXMLDOMReader(
+    public SARIC_MetOfficeCapabilitiesXMLDOMReader(
+            SARIC_Environment SARIC_Environment,
             File file) {
+        this.SARIC_Environment = SARIC_Environment;
+        this.SARIC_Files = SARIC_Environment.getSARIC_Files();
         init(file, "*");
     }
 
@@ -35,8 +42,8 @@ public class CapabilitiesXMLDOMReader extends Generic_XMLDOMReader {
     }
 
     public static void main(String args[]) {
-        CapabilitiesXMLDOMReader r;
-        r = new CapabilitiesXMLDOMReader();
+        SARIC_MetOfficeCapabilitiesXMLDOMReader r;
+        r = new SARIC_MetOfficeCapabilitiesXMLDOMReader();
         File file = new File("C:/Users/geoagdt/src/projects/saric/data/MetOffice/layer/wxobs/all/xml/capabilities.xml");
         String nodeName = "*";
         r.init(file, nodeName);

@@ -26,6 +26,7 @@ import org.ojalgo.type.colour.Colour;
 import uk.ac.leeds.ccg.andyt.agdtgeotools.AGDT_Geotools;
 import uk.ac.leeds.ccg.andyt.agdtgeotools.AGDT_Shapefile;
 import uk.ac.leeds.ccg.andyt.agdtgeotools.demo.AGDT_DisplayShapefile;
+import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
 
 /**
  *
@@ -33,7 +34,10 @@ import uk.ac.leeds.ccg.andyt.agdtgeotools.demo.AGDT_DisplayShapefile;
  */
 public class CatchmentViewer extends AGDT_DisplayShapefile {
 
+    SARIC_Files SARIC_Files;
+    
     public CatchmentViewer() {
+        SARIC_Files = new SARIC_Files("data");     
     }
 
     public static void main(String[] args) {
@@ -48,8 +52,6 @@ public class CatchmentViewer extends AGDT_DisplayShapefile {
         File dir;
         File f;
 
-        File dataDir = new File("C:/Users/geoagdt/src/projects/saric/data/");
-
         AGDT_Shapefile as;
         FeatureLayer fl;
         
@@ -59,8 +61,8 @@ public class CatchmentViewer extends AGDT_DisplayShapefile {
         // Wissey
         mc = new MapContent();
         dir = new File(
-                dataDir,
-                "CatchmentBoundaries/Wissey");
+                SARIC_Files.getCatchmentBoundariesDataDir(),
+                "Wissey");
         name = "33006.shp";
         f = AGDT_Geotools.getShapefile(dir, name, false);
         files.add(f);
@@ -77,9 +79,9 @@ public class CatchmentViewer extends AGDT_DisplayShapefile {
                 printBounds(re);
 
         // Teifi
-        dir = new File(
-                dataDir,
-                "CatchmentBoundaries/Teifi");
+         dir = new File(
+                SARIC_Files.getCatchmentBoundariesDataDir(),
+                 "Teifi");
         name = "62001.shp";
         f = AGDT_Geotools.getShapefile(dir, name, false);
         files.add(f);
@@ -91,9 +93,9 @@ public class CatchmentViewer extends AGDT_DisplayShapefile {
         re = fl.getBounds();
         printBounds(re);
         
-        dir = new File(
-                dataDir,
-                "CEH/WGS84");
+         dir = new File(
+                SARIC_Files.getCEHDataDir(),
+                "WGS84");
         name = "ihu_catchments.shp";
         f = AGDT_Geotools.getShapefile(dir, name, false);
         files.add(f);

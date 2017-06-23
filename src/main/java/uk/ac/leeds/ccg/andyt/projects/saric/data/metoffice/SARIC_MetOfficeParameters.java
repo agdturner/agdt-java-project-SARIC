@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package uk.ac.leeds.ccg.andyt.projects.saric;
+package uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice;
 
 import java.util.ArrayList;
 
@@ -11,17 +11,17 @@ import java.util.ArrayList;
  *
  * @author geoagdt
  */
-public class Parameters {
+public class SARIC_MetOfficeParameters {
 
     int nrows;
     int ncols;
     ArrayList<String> times;
     String layerName;
 
-    public Parameters() {
+    public SARIC_MetOfficeParameters() {
     }
 
-    public Parameters(
+    public SARIC_MetOfficeParameters(
             int nrows,
             int ncols,
             ArrayList<String> times,
