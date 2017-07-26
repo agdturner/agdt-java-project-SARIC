@@ -1,19 +1,35 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright (C) 2017 geoagdt.
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301  USA
  */
-package uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice;
+package uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.TreeSet;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import uk.ac.leeds.ccg.andyt.generic.io.Generic_XMLDOMReader;
-import uk.ac.leeds.ccg.andyt.projects.saric.SARIC_Environment;
+import uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Time;
+import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
+import uk.ac.leeds.ccg.andyt.projects.saric.util.SARIC_Time;
 
 /**
  *
@@ -39,16 +55,6 @@ public class SARIC_MetOfficeCapabilitiesXMLDOMReader extends Generic_XMLDOMReade
 
     protected void initNodeList() {
         nodeList = aDocument.getElementsByTagName("*");
-    }
-
-    public static void main(String args[]) {
-        SARIC_MetOfficeCapabilitiesXMLDOMReader r;
-        r = new SARIC_MetOfficeCapabilitiesXMLDOMReader();
-        File file = new File("C:/Users/geoagdt/src/projects/saric/data/MetOffice/layer/wxobs/all/xml/capabilities.xml");
-        String nodeName = "*";
-        r.init(file, nodeName);
-        ArrayList<String> times;
-        times = r.getTimes("RADAR_UK_Composite_Highres");
     }
 
     protected void print() {
@@ -159,7 +165,89 @@ public class SARIC_MetOfficeCapabilitiesXMLDOMReader extends Generic_XMLDOMReade
         return j;
     }
 
-    protected ArrayList<String> getTimes(String layerName) {
+    protected ArrayList<String> getForecastTimes(String layerName) {
+        ArrayList<String> result;
+        result = new ArrayList<String>();
+        boolean foundLayer;
+        foundLayer = false;
+        boolean startTimeSet;
+        startTimeSet = false;
+        SARIC_Time startTime = null;
+        SARIC_Time time;                    
+        for (int i = 0; i < nodeList.getLength(); i++) {
+            Node n;
+            n = nodeList.item(i);
+            String nNodeName;
+            nNodeName = n.getNodeName();
+//            System.out.println(nodeName);
+            String nTextContent;
+            if (!foundLayer) {
+                if (nNodeName.equalsIgnoreCase("LayerName")) {
+                    nTextContent = n.getTextContent();
+                    if (nTextContent.equalsIgnoreCase(layerName)) {
+                        foundLayer = true;
+//                        System.out.println(nTextContent);
+                    }
+                }
+            } else {
+                String date;
+                int timeStartYear;
+                int timeStartMonth;
+                int timeStartDay;
+                int timeStartHour;
+                int timeStartMinute;
+                int timeStartSecond;
+                if (nNodeName.equalsIgnoreCase("TimeSteps") && ! startTimeSet) {
+                    NamedNodeMap nnm = n.getAttributes();
+                    String nodeValue;
+                    nodeValue = nnm.item(0).getNodeValue();
+                    //result.add(nodeValue);
+                    String[] timeSplit;
+                    timeSplit = nodeValue.split("T");
+                    date = timeSplit[0];
+                    String[] timeSplit2;
+                    timeSplit2 = timeSplit[0].split("-");
+                    timeStartYear = new Integer(timeSplit2[0]);
+                    timeStartMonth = new Integer(timeSplit2[1]);
+                    timeStartDay = new Integer(timeSplit2[2]);
+                    timeSplit2 = timeSplit[1].split(":");
+                    if (timeSplit2[0].startsWith("0")) {
+                        timeStartHour = new Integer(timeSplit2[0].substring(1));
+                    } else {
+                        timeStartHour = new Integer(timeSplit2[0]);
+                    }
+                    if (timeSplit2[1].startsWith("0")) {
+                        timeStartMinute = new Integer(timeSplit2[1].substring(1));
+                    } else {
+                        timeStartMinute = new Integer(timeSplit2[1]);
+                    }
+                    if (timeSplit2[2].startsWith("0")) {
+                        timeStartSecond = new Integer(timeSplit2[2].substring(1));
+                    } else {
+                        timeStartSecond = new Integer(timeSplit2[2]);
+                    }
+                    startTime = new SARIC_Time(timeStartYear, timeStartMonth,
+                            timeStartDay, timeStartHour, timeStartMinute,
+                            timeStartSecond);
+                    startTimeSet = true;
+                } else {
+                    if (nNodeName.equalsIgnoreCase("TimeStep")) {
+                        String v;
+                        v = n.getTextContent();
+                        time = new SARIC_Time(startTime);
+                        time.addMinutes(Integer.valueOf(v));
+                        String timeString;
+                        timeString = time.toString();
+                        System.out.println(timeString);
+                        result.add(time.toString());
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
+    protected ArrayList<String> getObservationTimes(String layerName, String nodeName) {
         ArrayList<String> result;
         result = new ArrayList<String>();
         boolean foundLayer;
@@ -180,7 +268,7 @@ public class SARIC_MetOfficeCapabilitiesXMLDOMReader extends Generic_XMLDOMReade
                     }
                 }
             } else {
-                if (nNodeName.equalsIgnoreCase("Time")) {
+                if (nNodeName.equalsIgnoreCase(nodeName)) {
                     nTextContent = n.getTextContent();
                     result.add(nTextContent);
 //                    System.out.println(nTextContent);

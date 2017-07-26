@@ -37,15 +37,15 @@ import org.mapsforge.map.rendertheme.InternalRenderTheme;
  *
  * @author geoagdt
  */
-public class MapsForgeTest {
+public class SARIC_MapsForgeTest {
 
     MapView mv;
 
-    public MapsForgeTest() {
+    public SARIC_MapsForgeTest() {
     }
 
     public static void main(String[] args) {
-        new MapsForgeTest().run();
+        new SARIC_MapsForgeTest().run();
     }
 
     public void run() {

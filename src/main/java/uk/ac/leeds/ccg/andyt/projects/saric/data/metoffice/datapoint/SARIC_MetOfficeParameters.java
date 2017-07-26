@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice;
+package uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint;
 
 import java.util.ArrayList;
 

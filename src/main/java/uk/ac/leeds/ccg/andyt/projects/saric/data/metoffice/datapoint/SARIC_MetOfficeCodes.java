@@ -16,7 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
-package uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice;
+package uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint;
 
 import java.util.HashMap;
 

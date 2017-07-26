@@ -1,9 +1,22 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright (C) 2017 geoagdt.
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301  USA
  */
-package uk.ac.leeds.ccg.andyt.projects.saric;
+package uk.ac.leeds.ccg.andyt.projects.saric.process;
 
 import java.awt.Color;
 import java.io.File;
@@ -32,16 +45,12 @@ import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
  *
  * @author geoagdt
  */
-public class CatchmentViewer extends AGDT_DisplayShapefile {
+public class SARIC_CatchmentViewer extends AGDT_DisplayShapefile {
 
     SARIC_Files SARIC_Files;
     
-    public CatchmentViewer() {
+    public SARIC_CatchmentViewer() {
         SARIC_Files = new SARIC_Files("data");     
-    }
-
-    public static void main(String[] args) {
-        new CatchmentViewer().run();
     }
 
     @Override
@@ -61,7 +70,7 @@ public class CatchmentViewer extends AGDT_DisplayShapefile {
         // Wissey
         mc = new MapContent();
         dir = new File(
-                SARIC_Files.getCatchmentBoundariesDataDir(),
+                SARIC_Files.getInputDataCatchmentBoundariesDir(),
                 "Wissey");
         name = "33006.shp";
         f = AGDT_Geotools.getShapefile(dir, name, false);
@@ -80,7 +89,7 @@ public class CatchmentViewer extends AGDT_DisplayShapefile {
 
         // Teifi
          dir = new File(
-                SARIC_Files.getCatchmentBoundariesDataDir(),
+                SARIC_Files.getInputDataCatchmentBoundariesDir(),
                  "Teifi");
         name = "62001.shp";
         f = AGDT_Geotools.getShapefile(dir, name, false);
@@ -94,7 +103,7 @@ public class CatchmentViewer extends AGDT_DisplayShapefile {
         printBounds(re);
         
          dir = new File(
-                SARIC_Files.getCEHDataDir(),
+                SARIC_Files.getInputDataCEHDir(),
                 "WGS84");
         name = "ihu_catchments.shp";
         f = AGDT_Geotools.getShapefile(dir, name, false);

@@ -27,11 +27,14 @@ import java.io.File;
 public class SARIC_Files {
     
     protected File DataDirectory;
-    protected File CatchmentBoundariesDataDir;
-    protected File CEHDataDir;
-    protected File MetOfficeDataDir;
-    protected File MetOfficeConfigDir;
-    protected File MetOfficeAPIKeyFile;
+    protected File InputDataDirectory;
+    protected File InputDataCatchmentBoundariesDir;
+    protected File InputDataCEHDir;
+    protected File InputDataMetOfficeDir;
+    protected File InputDataMetOfficeDataPointDir;
+    protected File InputDataMetOfficeDataPointConfigDir;
+    protected File InputDataMetOfficeDataPointAPIKeyFile;
+    protected File InputDataMetOfficeNimrodDir;
     
     protected SARIC_Files(){}
 
@@ -45,11 +48,12 @@ public class SARIC_Files {
      * @param name
      */
     public final void setDataDirectory(String name) {
-        String userDir;
-        userDir = System.getProperty("user.dir");
-        DataDirectory = new File(
-                userDir,
-                name);
+//        String userDir;
+//        userDir = System.getProperty("user.dir");
+//        DataDirectory = new File(
+//                userDir,
+//                name);
+        DataDirectory = new File(name);
         if (!DataDirectory.exists()) {
             boolean successfulCreation;
             successfulCreation = DataDirectory.mkdirs();
@@ -63,48 +67,75 @@ public class SARIC_Files {
         return DataDirectory;
     }
     
-    public File getMetOfficeAPIKeyFile() {
-        if (MetOfficeAPIKeyFile == null) {
-            MetOfficeAPIKeyFile = new File(
-                getMetOfficeConfigDir(),
-                "MetOfficeAPIKey.txt");
+    public File getInputDataDirectory() {
+        if (InputDataDirectory == null) {
+            InputDataDirectory = new File(
+            getDataDirectory(),
+            "input");
         }
-        return MetOfficeAPIKeyFile;
+        return InputDataDirectory;
     }
     
-    public File getMetOfficeConfigDir() {
-        if (MetOfficeConfigDir == null) {
-        MetOfficeConfigDir = new File(
-                getMetOfficeDataDir(),
+    public File getInputDataMetOfficeDataPointAPIKeyFile() {
+        if (InputDataMetOfficeDataPointAPIKeyFile == null) {
+            InputDataMetOfficeDataPointAPIKeyFile = new File(
+                getInputDataMetOfficeDataPointConfigDir(),
+                "MetOfficeDataPointAPIKey.txt");
+        }
+        return InputDataMetOfficeDataPointAPIKeyFile;
+    }
+    
+    public File getInputDataMetOfficeDataPointConfigDir() {
+        if (InputDataMetOfficeDataPointConfigDir == null) {
+        InputDataMetOfficeDataPointConfigDir = new File(
+                getInputDataMetOfficeDataPointDir(),
                 "config");
         }
-        return MetOfficeConfigDir;
+        return InputDataMetOfficeDataPointConfigDir;
     }
     
-    public File getMetOfficeDataDir() {
-        if (MetOfficeDataDir == null) {
-        MetOfficeDataDir = new File(
-                DataDirectory,
+    public File getInputDataMetOfficeDir() {
+        if (InputDataMetOfficeDir == null) {
+            InputDataMetOfficeDir = new File(
+                getInputDataDirectory(),
                 "MetOffice");
         }
-        return MetOfficeDataDir;
+        return InputDataMetOfficeDir;
     }
     
-    public File getCEHDataDir() {
-        if (CEHDataDir == null) {
-        CEHDataDir = new File(
-                DataDirectory,
+    public File getInputDataMetOfficeDataPointDir() {
+        if (InputDataMetOfficeDataPointDir == null) {
+            InputDataMetOfficeDataPointDir = new File(
+                getInputDataMetOfficeDir(),
+                "DataPoint");
+        }
+        return InputDataMetOfficeDataPointDir;
+    }
+    
+    public File getInputDataMetOfficeNimrodDir() {
+        if (InputDataMetOfficeNimrodDir == null) {
+            InputDataMetOfficeNimrodDir = new File(
+                getInputDataMetOfficeDir(),
+                "Nimrod");
+        }
+        return InputDataMetOfficeDir;
+    }
+    
+    public File getInputDataCEHDir() {
+        if (InputDataCEHDir == null) {
+        InputDataCEHDir = new File(
+                getInputDataDirectory(),
                 "CEH");
         }
-        return CEHDataDir;
+        return InputDataCEHDir;
     }
     
-    public File getCatchmentBoundariesDataDir() {
-        if (CatchmentBoundariesDataDir == null) {
-        CatchmentBoundariesDataDir = new File(
-                DataDirectory,
+    public File getInputDataCatchmentBoundariesDir() {
+        if (InputDataCatchmentBoundariesDir == null) {
+        InputDataCatchmentBoundariesDir = new File(
+                getInputDataDirectory(),
                 "CatchmentBoundaries");
         }
-        return CatchmentBoundariesDataDir;
+        return InputDataCatchmentBoundariesDir;
     }
 }

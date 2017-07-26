@@ -1,9 +1,22 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright (C) 2017 geoagdt.
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301  USA
  */
-package uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice;
+package uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -17,7 +30,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import uk.ac.leeds.ccg.andyt.generic.io.Generic_StaticIO;
 import uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Time;
-import uk.ac.leeds.ccg.andyt.projects.saric.SARIC_Environment;
+import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
 import uk.ac.leeds.ccg.andyt.web.WebScraper;
 
@@ -68,20 +81,18 @@ public class SARIC_MetOfficeScraper extends WebScraper {
     protected SARIC_MetOfficeScraper() {
     }
 
-    protected SARIC_MetOfficeScraper(SARIC_Environment SARIC_Environment) {
+    public SARIC_MetOfficeScraper(SARIC_Environment SARIC_Environment) {
         this.SARIC_Environment = SARIC_Environment;
         this.SARIC_Files = SARIC_Environment.getSARIC_Files();
     }
 
-    public static void main(String[] args) {
-        SARIC_Environment SARIC_Environment;
-        SARIC_Environment = new SARIC_Environment("data");
-        SARIC_MetOfficeScraper SARIC_MetOfficeScraper;
-        SARIC_MetOfficeScraper = new SARIC_MetOfficeScraper(SARIC_Environment);
-        SARIC_MetOfficeScraper.run();
-    }
-
-    public void run() {
+    public void run(
+            boolean Observation,
+            boolean Forecast,
+            boolean TileFromWMTSService,
+            boolean ObservationSiteList,
+            boolean ForecastSiteList
+    ) {
         // Set conmnection rate
         /**
          * For the purposes of this DataPoint Fair Use Policy, the Fair Use
@@ -110,14 +121,29 @@ public class SARIC_MetOfficeScraper extends WebScraper {
         API_KEY = getAPI_KEY();
         //System.out.println(API_KEY);
 
-//        getObserved();
-//        getForecast();
+        if (Observation) {
+            getObservationLayer();
+        }
+        
+        if (Forecast) {
+            getForecastLayer();
+        }
+        
 //        // Download three hourly five day forecast for Dunkeswell Aerodrome
 //        downloadThreeHourlyFiveDayForecastForDunkeswellAerodrome();
-//        // Request a tile from the WMTS service
-//        getTileFromWMTSService();
-//        getObservationSiteList();
-//        getForecastSiteList();
+        
+        // Request a tile from the WMTS service
+        if (TileFromWMTSService) {
+        getTileFromWMTSService();
+        }
+
+        if (ObservationSiteList) {
+        getObservationSiteList();
+        }
+
+        if (ForecastSiteList) {
+        getForecastSiteList();
+        }
         getForecastSite(324251); //<Location unitaryAuthArea="Norfolk" region="ee" name="Cromer" longitude="1.3036" latitude="52.9311" id="324251" elevation="15.0"/>
 
     }
@@ -138,7 +164,7 @@ public class SARIC_MetOfficeScraper extends WebScraper {
         ArrayList<String> times;
         times = getObservationLayerTimes(layerName, observationLayerCapabilities);
         // Download observation web map
-        downloadObservationImage(layerName, times);
+        downloadObservationImages(layerName, times);
     }
 
     protected File getForecastSite(int siteID) {
@@ -165,13 +191,19 @@ public class SARIC_MetOfficeScraper extends WebScraper {
         forecastLayerCapabilities = getForecastLayersCapabilities();
 
         String layerName;
-
         // Download forecast web map
         layerName = "Precipitation_Rate"; // Rainfall
 //        layerName = "Total_Cloud_Cover"; // Cloud
 //        layerName = "Total_Cloud_Cover_Precip_Rate_Overlaid"; // Cloud and Rain
         // temperature and pressure also available
-        downloadForecastImages(layerName);
+        
+//        String time;
+//        time = "2017-06-15T03:00:00";
+//        downloadForecastImages(layerName, time);
+        
+        ArrayList<String> times;
+        times = getForecastLayerTimes(layerName, forecastLayerCapabilities);
+        downloadForecastImages(layerName, times.get(0));
     }
 
     protected void setParameters(
@@ -218,7 +250,7 @@ public class SARIC_MetOfficeScraper extends WebScraper {
                 + getSymbol_questionmark()
                 + getString_key() + getSymbol_equals() + API_KEY;
         File dir;
-        dir = new File(SARIC_Files.getMetOfficeDataDir(),
+        dir = new File(SARIC_Files.getInputDataMetOfficeDir(),
                 path);
         dir.mkdirs();
         File xml;
@@ -228,16 +260,33 @@ public class SARIC_MetOfficeScraper extends WebScraper {
     }
 
     /**
-     * 
+     *
      * @param dataType Either "xml" or "json".
      * @param obs_or_fcs Either "wxobs" or "wxfcs".
-     * @return 
+     * @return
      */
     public String getValDataTypePath(String dataType, String obs_or_fcs) {
-            return getString_val() + getSymbol_backslash()
+        return getString_val() + getSymbol_backslash()
                 + obs_or_fcs + getSymbol_backslash()
                 + getString_all() + getSymbol_backslash()
                 + dataType + getSymbol_backslash();
+    }
+
+    /**
+     * Get times from observationLayerCapabilities
+     *
+     * @param layerName
+     * @param xml
+     * @return
+     */
+    protected ArrayList<String> getForecastLayerTimes(
+            String layerName,
+            File xml) {
+        ArrayList<String> result;
+        SARIC_MetOfficeCapabilitiesXMLDOMReader r;
+        r = new SARIC_MetOfficeCapabilitiesXMLDOMReader(SARIC_Environment, xml);
+        result = r.getForecastTimes(layerName);     
+        return result;
     }
     
     /**
@@ -253,7 +302,9 @@ public class SARIC_MetOfficeScraper extends WebScraper {
         ArrayList<String> result;
         SARIC_MetOfficeCapabilitiesXMLDOMReader r;
         r = new SARIC_MetOfficeCapabilitiesXMLDOMReader(SARIC_Environment, xml);
-        result = r.getTimes(layerName);
+        String nodeName;
+        nodeName = "Time";
+        result = r.getObservationTimes(layerName, nodeName);
         return result;
     }
 
@@ -262,12 +313,12 @@ public class SARIC_MetOfficeScraper extends WebScraper {
      *
      * @param layerName
      */
-    protected void downloadForecastImages(String layerName) {
+    protected void downloadForecastImages(
+            String layerName,
+            String time) {
         //http://datapoint.metoffice.gov.uk/public/data/layer/wxfcs/{LayerName}/{ImageFormat}?RUN={DefaultTime}Z&FORECAST={Timestep}&key={key}
         String imageFormat;
         imageFormat = getString_png();
-        String defaultTime;
-        defaultTime = "2017-06-15T03:00:00";
         String timeStep;
         String name;
         for (int step = 0; step <= 36; step += 3) {
@@ -280,10 +331,10 @@ public class SARIC_MetOfficeScraper extends WebScraper {
             url = BASE_URL
                     + path
                     + getSymbol_questionmark()
-                    + "RUN" + getSymbol_equals() + defaultTime + "Z"
+                    + "RUN" + getSymbol_equals() + time + "Z"
                     + getSymbol_ampersand() + "FORECAST" + getSymbol_equals() + timeStep
                     + getSymbol_ampersand() + getString_key() + getSymbol_equals() + API_KEY;
-            name = layerName + defaultTime.replace(':', '_') + timeStep;
+            name = layerName + time.replace(':', '_') + timeStep;
             getPNG(name);
         }
     }
@@ -294,7 +345,7 @@ public class SARIC_MetOfficeScraper extends WebScraper {
      * @param layerName
      * @param times
      */
-    protected void downloadObservationImage(
+    protected void downloadObservationImages(
             String layerName,
             ArrayList<String> times) {
         //http://datapoint.metoffice.gov.uk/public/data/layer/wxobs/{LayerName}/{ImageFormat}?TIME={Time}Z&key={key}
@@ -447,7 +498,7 @@ public class SARIC_MetOfficeScraper extends WebScraper {
     protected File getXML(String name) {
         File outputDir;
         outputDir = new File(
-                SARIC_Files.getMetOfficeDataDir(),
+                SARIC_Files.getInputDataMetOfficeDir(),
                 path);
         outputDir.mkdirs();
         File xml;
@@ -462,7 +513,7 @@ public class SARIC_MetOfficeScraper extends WebScraper {
     protected void getPNG(String name) {
         File outputDir;
         outputDir = new File(
-                SARIC_Files.getMetOfficeDataDir(),
+                SARIC_Files.getInputDataMetOfficeDataPointDir(),
                 path);
         outputDir.mkdirs();
         File png;
@@ -497,7 +548,7 @@ public class SARIC_MetOfficeScraper extends WebScraper {
      */
     public String getAPI_KEY() {
         File f;
-        f = SARIC_Files.getMetOfficeAPIKeyFile();
+        f = SARIC_Files.getInputDataMetOfficeDataPointAPIKeyFile();
         ArrayList<String> l;
         l = Generic_StaticIO.readIntoArrayList_String(f);
         return l.get(0);
@@ -654,7 +705,7 @@ public class SARIC_MetOfficeScraper extends WebScraper {
         }
         return string_3hourly;
     }
-    
+
     public String getString_all() {
         if (string_all == null) {
             string_all = "all";

@@ -27,12 +27,12 @@ import org.openstreetmap.osmosis.core.pipeline.common.TaskConfiguration;
  *
  * @author geoagdt
  */
-public class OSMOSISTest {
+public class SARIC_OSMOSISTest {
     
-    public OSMOSISTest(){}
+    public SARIC_OSMOSISTest(){}
     
     public static void main(String[] args) {
-        new OSMOSISTest().run();
+        new SARIC_OSMOSISTest().run();
     }
     
     public void run() {

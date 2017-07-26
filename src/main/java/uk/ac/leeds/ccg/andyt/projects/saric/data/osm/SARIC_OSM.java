@@ -1,7 +1,20 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright (C) 2017 geoagdt.
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301  USA
  */
 package uk.ac.leeds.ccg.andyt.projects.saric.data.osm;
 
@@ -33,11 +46,11 @@ import org.xml.sax.SAXException;
  *
  * @author geoagdt
  */
-public class OSM {
+public class SARIC_OSM {
 
     private static final String OPENSTREETMAP_API_06 = "http://www.openstreetmap.org/api/0.6/";
 
-    public OSM() {
+    public SARIC_OSM() {
     }
 
     /**
@@ -47,7 +60,7 @@ public class OSM {
      */
     public static void main(String[] args) {
         try {
-            new OSM().run();
+            new SARIC_OSM().run();
         } catch (Exception e) {
             e.printStackTrace();
         } catch (Error e) {
@@ -57,16 +70,16 @@ public class OSM {
 
     public void run() throws IOException, SAXException, ParserConfigurationException {
         //Authenticator.setDefault(new Authenticator("username", "password"));
-        List<OSMNode> osmNodesInVicinity = getOSMNodesInVicinity(49, 8.3, 0.005); //http://www.openstreetmap.org/api/0.6/map?bbox=48.095,8.295,49.005,8.305
+        List<SARIC_OSMNode> osmNodesInVicinity = getOSMNodesInVicinity(49, 8.3, 0.005); //http://www.openstreetmap.org/api/0.6/map?bbox=48.095,8.295,49.005,8.305
 //        List<OSMNode> osmNodesInVicinity = getOSMNodesInVicinity(52.7766, 0.6317, 0.3);
 //        List<OSMNode> osmNodesInVicinity = getOSMNodesInVicinity(52.7766, 0.6317, 0.25); //http://www.openstreetmap.org/api/0.6/map?bbox=52.5266,0.3817,53.0266,0.8817
 //        List<OSMNode> osmNodesInVicinity = getOSMNodesInVicinity(52.565546, 0.526386, 0.25);
-        for (OSMNode osmNode : osmNodesInVicinity) {
+        for (SARIC_OSMNode osmNode : osmNodesInVicinity) {
             System.out.println(osmNode.getId() + ":" + osmNode.getLat() + ":" + osmNode.getLon());
         }
     }
 
-    public static OSMNode getNode(String nodeId) throws IOException, ParserConfigurationException, SAXException {
+    public static SARIC_OSMNode getNode(String nodeId) throws IOException, ParserConfigurationException, SAXException {
         String string = OPENSTREETMAP_API_06 + "node/" + nodeId;
         URL osm = new URL(string);
         HttpURLConnection connection;
@@ -74,7 +87,7 @@ public class OSM {
         DocumentBuilderFactory dbfac = DocumentBuilderFactory.newInstance();
         DocumentBuilder docBuilder = dbfac.newDocumentBuilder();
         Document document = docBuilder.parse(connection.getInputStream());
-        List<OSMNode> nodes = getNodes(document);
+        List<SARIC_OSMNode> nodes = getNodes(document);
         if (!nodes.isEmpty()) {
             return nodes.iterator().next();
         }
@@ -120,8 +133,8 @@ public class OSM {
      * @return a list of openseamap nodes extracted from xml
      */
     @SuppressWarnings("nls")
-    public static List<OSMNode> getNodes(Document d) {
-        List<OSMNode> osmNodes = new ArrayList<OSMNode>();
+    public static List<SARIC_OSMNode> getNodes(Document d) {
+        List<SARIC_OSMNode> osmNodes = new ArrayList<SARIC_OSMNode>();
 
         // Document xml = getXML(8.32, 49.001);
         Node osmRoot = d.getFirstChild();
@@ -153,19 +166,19 @@ public class OSM {
                     version = namedItemVersion.getNodeValue();
                 }
 
-                osmNodes.add(new OSMNode(id, latitude, longitude, tags, version));
+                osmNodes.add(new SARIC_OSMNode(id, latitude, longitude, tags, version));
             }
 
         }
         return osmNodes;
     }
 
-    public static List<OSMNode> getOSMNodesInVicinity(
+    public static List<SARIC_OSMNode> getOSMNodesInVicinity(
             double lat,
             double lon,
             double vicinityRange) throws IOException,
             SAXException, ParserConfigurationException {
-        return OSM.getNodes(getXML(lon, lat, vicinityRange));
+        return SARIC_OSM.getNodes(getXML(lon, lat, vicinityRange));
     }
 
 }

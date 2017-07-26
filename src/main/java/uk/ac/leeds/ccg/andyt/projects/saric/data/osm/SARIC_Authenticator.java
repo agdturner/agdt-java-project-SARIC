@@ -24,17 +24,17 @@ import java.net.PasswordAuthentication;
  *
  * @author geoagdt
  */
-public class Authenticator extends java.net.Authenticator {
+public class SARIC_Authenticator extends java.net.Authenticator {
 	
 	private final PasswordAuthentication pa;
 	
-	public Authenticator(String username, String password) {
+	public SARIC_Authenticator(String username, String password) {
 		this.pa = new PasswordAuthentication(
                         username, 
                         password.toCharArray());
 	}
 	
-	public Authenticator(PasswordAuthentication pa) {
+	public SARIC_Authenticator(PasswordAuthentication pa) {
 		this.pa = pa;
 	}
 

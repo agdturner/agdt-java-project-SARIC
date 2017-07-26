@@ -26,7 +26,7 @@ import java.util.Map;
  *
  * @author geoagdt
  */
-public class OSMNode {
+public class SARIC_OSMNode {
 
     private String id;
 
@@ -38,11 +38,11 @@ public class OSMNode {
 
     private String version;
 
-    public OSMNode() {
+    public SARIC_OSMNode() {
         tags = new HashMap<String, String>();
     }
 
-    public OSMNode(
+    public SARIC_OSMNode(
             String id,
             String lat,
             String lon,
