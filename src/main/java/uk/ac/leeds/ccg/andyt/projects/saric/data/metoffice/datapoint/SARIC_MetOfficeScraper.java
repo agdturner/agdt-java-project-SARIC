@@ -28,6 +28,8 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import uk.ac.leeds.ccg.andyt.generic.io.Generic_StaticIO;
 import uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Time;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
@@ -38,7 +40,7 @@ import uk.ac.leeds.ccg.andyt.web.WebScraper;
  *
  * @author geoagdt
  */
-public class SARIC_MetOfficeScraper extends WebScraper {
+public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
 
     /**
      * For convenience.
@@ -78,21 +80,41 @@ public class SARIC_MetOfficeScraper extends WebScraper {
 
     String BASE_URL = "http://datapoint.metoffice.gov.uk/public/data/";
 
+    String name;
+    boolean Observations;
+    boolean Forecasts;
+    boolean TileFromWMTSService;
+    boolean ObservationsSiteList;
+    boolean ForecastsSiteList;
+    boolean ObservationsForSites;
+    boolean ForecastsForSites;
+
+    long timeDelay;
+
     protected SARIC_MetOfficeScraper() {
     }
 
-    public SARIC_MetOfficeScraper(SARIC_Environment SARIC_Environment) {
-        this.SARIC_Environment = SARIC_Environment;
-        this.SARIC_Files = SARIC_Environment.getSARIC_Files();
-    }
-
-    public void run(
+    public SARIC_MetOfficeScraper(
+            SARIC_Environment SARIC_Environment,
             boolean Observation,
             boolean Forecast,
             boolean TileFromWMTSService,
             boolean ObservationSiteList,
-            boolean ForecastSiteList
-    ) {
+            boolean ForecastSiteList,
+            long timeDelay,
+            String name) {
+        this.SARIC_Environment = SARIC_Environment;
+        this.SARIC_Files = SARIC_Environment.getSARIC_Files();
+        this.Observations = Observation;
+        this.Forecasts = Forecast;
+        this.TileFromWMTSService = TileFromWMTSService;
+        this.ObservationsSiteList = ObservationSiteList;
+        this.ForecastsSiteList = ForecastSiteList;
+        this.timeDelay = timeDelay;
+        this.name = name;
+    }
+
+    public void run() {
         // Set conmnection rate
         /**
          * For the purposes of this DataPoint Fair Use Policy, the Fair Use
@@ -121,53 +143,81 @@ public class SARIC_MetOfficeScraper extends WebScraper {
         API_KEY = getAPI_KEY();
         //System.out.println(API_KEY);
 
-        if (Observation) {
-            getObservationLayer();
-        }
-        
-        if (Forecast) {
-            getForecastLayer();
-        }
-        
+        int i = 0;
+        while (true) {
+            System.out.println("Iteration " + i + " of " + name);
+            String layerName;
+            if (Observations) {
+//                layerName = "ATDNET_Sferics"; // lightening
+//                layerName = "SATELLITE_Infrared_Fulldisk";
+//                layerName = "SATELLITE_Visible_N_Section";
+//                layerName = "SATELLITE_Visible_N_Section";
+                layerName = "RADAR_UK_Composite_Highres"; //Rainfall
+                getObservationLayer(layerName);
+            }
+
+            if (Forecasts) {
+                layerName = "Precipitation_Rate"; // Rainfall
+//                layerName = "Total_Cloud_Cover"; // Cloud
+//                layerName = "Total_Cloud_Cover_Precip_Rate_Overlaid"; // Cloud and Rain
+                //temperature and pressure also available
+                getForecastLayer(layerName);
+            }
+
 //        // Download three hourly five day forecast for Dunkeswell Aerodrome
 //        downloadThreeHourlyFiveDayForecastForDunkeswellAerodrome();
-        
-        // Request a tile from the WMTS service
-        if (TileFromWMTSService) {
-        getTileFromWMTSService();
-        }
+            // Request a tile from the WMTS service
+            if (TileFromWMTSService) {
+                layerName = "RADAR_UK_Composite_Highres";
+                getTileFromWMTSService(layerName);
+                layerName = "Precipitation_Rate";
+                getTileFromWMTSService(layerName);
+            }
 
-        if (ObservationSiteList) {
-        getObservationSiteList();
-        }
+            if (ObservationsSiteList) {
+                getObservationsSiteList();
+            }
 
-        if (ForecastSiteList) {
-        getForecastSiteList();
-        }
-        getForecastSite(324251); //<Location unitaryAuthArea="Norfolk" region="ee" name="Cromer" longitude="1.3036" latitude="52.9311" id="324251" elevation="15.0"/>
+            if (ForecastsSiteList) {
+                getForecastsSiteList();
+            }
 
+            if (ForecastsForSites) {
+                getForecastsSite(324251); //<Location unitaryAuthArea="Norfolk" region="ee" name="Cromer" longitude="1.3036" latitude="52.9311" id="324251" elevation="15.0"/>
+            }
+
+            if (ObservationsForSites) {
+                getObservationsSite(324251); //<Location unitaryAuthArea="Norfolk" region="ee" name="Cromer" longitude="1.3036" latitude="52.9311" id="324251" elevation="15.0"/>
+            }
+            synchronized (this) {
+                try {
+                    this.wait(timeDelay);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(SARIC_MetOfficeScraper.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                System.out.println("Waited " + Generic_Time.getTime(timeDelay) + ".");
+            }
+            i++;
+        }
     }
 
-    protected void getObservationLayer() {
+    protected void getObservationLayer(String layerName) {
         // Download capabilities document for the observation layers in XML format
         File observationLayerCapabilities;
-        observationLayerCapabilities = getObservationLayerCapabilities();
-
-        String layerName;
-
-        // Get times from observationLayerCapabilities
-        //layerName = "ATDNET_Sferics"; // lightening
-        //layerName = "SATELLITE_Infrared_Fulldisk";
-        //layerName = "SATELLITE_Visible_N_Section";
-        //layerName = "SATELLITE_Visible_N_Section";
-        layerName = "RADAR_UK_Composite_Highres"; //Rainfall
+        observationLayerCapabilities = getObservationsLayerCapabilities();
         ArrayList<String> times;
-        times = getObservationLayerTimes(layerName, observationLayerCapabilities);
+        times = getObservationsLayerTimes(layerName, observationLayerCapabilities);
         // Download observation web map
         downloadObservationImages(layerName, times);
     }
 
-    protected File getForecastSite(int siteID) {
+    /**
+     * Gets Forecast data for a specific site.
+     *
+     * @param siteID The ID of the site for which the forecast is got.
+     * @return The File where the data is stored.
+     */
+    protected File getForecastsSite(int siteID) {
         File result;
         String siteID_s;
         siteID_s = Integer.toString(siteID);
@@ -185,24 +235,46 @@ public class SARIC_MetOfficeScraper extends WebScraper {
         return result;
     }
 
-    protected void getForecastLayer() {
+    /**
+     * Gets Forecast data for a specific site.
+     *
+     * @param siteID The ID of the site for which the forecast is got.
+     * @return The File where the data is stored.
+     */
+    protected File getObservationsSite(int siteID) {
+        File result;
+        result = null;
+//        String siteID_s;
+//        siteID_s = Integer.toString(siteID);
+//        path = getValDataTypePath(getString_xml(), getString_wxobs())
+//                + siteID_s;
+//        String res;
+//        res = getString_3hourly(); //???
+//        url = BASE_URL
+//                + path
+//                + getSymbol_questionmark()
+//                + getString_res() + getSymbol_equals() + res
+//                + getSymbol_ampersand()
+//                + getString_key() + getSymbol_equals() + API_KEY;
+//        result = getXML(siteID_s + res);
+        return result;
+    }
+
+    protected void getForecastLayer(String layerName) {
         // Download capabilities document for the forecast layers in XML format
         File forecastLayerCapabilities;
-        forecastLayerCapabilities = getForecastLayersCapabilities();
+        forecastLayerCapabilities = getForecastsLayerCapabilities();
 
-        String layerName;
-        // Download forecast web map
-        layerName = "Precipitation_Rate"; // Rainfall
-//        layerName = "Total_Cloud_Cover"; // Cloud
-//        layerName = "Total_Cloud_Cover_Precip_Rate_Overlaid"; // Cloud and Rain
-        // temperature and pressure also available
-        
 //        String time;
 //        time = "2017-06-15T03:00:00";
 //        downloadForecastImages(layerName, time);
-        
         ArrayList<String> times;
-        times = getForecastLayerTimes(layerName, forecastLayerCapabilities);
+        times = getForecastsLayerTimes(layerName, forecastLayerCapabilities);
+        /**
+         * @TODO Rather than pass in the first time and get the 12 3 hourly
+         * forecasts for the next 36 hours based on the first time, we can now
+         * pass in the list of times parsed from the Capabilities XML.
+         */
         downloadForecastImages(layerName, times.get(0));
     }
 
@@ -226,14 +298,14 @@ public class SARIC_MetOfficeScraper extends WebScraper {
     /**
      * Get observation site list.
      */
-    protected void getObservationSiteList() {
+    protected void getObservationsSiteList() {
         getSiteList(getString_wxobs());
     }
 
     /**
      * Get forecast site list.
      */
-    protected void getForecastSiteList() {
+    protected void getForecastsSiteList() {
         getSiteList(getString_wxfcs());
     }
 
@@ -279,16 +351,16 @@ public class SARIC_MetOfficeScraper extends WebScraper {
      * @param xml
      * @return
      */
-    protected ArrayList<String> getForecastLayerTimes(
+    protected ArrayList<String> getForecastsLayerTimes(
             String layerName,
             File xml) {
         ArrayList<String> result;
         SARIC_MetOfficeCapabilitiesXMLDOMReader r;
         r = new SARIC_MetOfficeCapabilitiesXMLDOMReader(SARIC_Environment, xml);
-        result = r.getForecastTimes(layerName);     
+        result = r.getForecastTimes(layerName);
         return result;
     }
-    
+
     /**
      * Get times from observationLayerCapabilities
      *
@@ -296,7 +368,7 @@ public class SARIC_MetOfficeScraper extends WebScraper {
      * @param xml
      * @return
      */
-    protected ArrayList<String> getObservationLayerTimes(
+    protected ArrayList<String> getObservationsLayerTimes(
             String layerName,
             File xml) {
         ArrayList<String> result;
@@ -320,7 +392,7 @@ public class SARIC_MetOfficeScraper extends WebScraper {
         String imageFormat;
         imageFormat = getString_png();
         String timeStep;
-        String name;
+        String outputFilenameWithoutExtension;
         for (int step = 0; step <= 36; step += 3) {
             timeStep = Integer.toString(step);
             System.out.println("Getting forecast for time " + timeStep);
@@ -334,8 +406,8 @@ public class SARIC_MetOfficeScraper extends WebScraper {
                     + "RUN" + getSymbol_equals() + time + "Z"
                     + getSymbol_ampersand() + "FORECAST" + getSymbol_equals() + timeStep
                     + getSymbol_ampersand() + getString_key() + getSymbol_equals() + API_KEY;
-            name = layerName + time.replace(':', '_') + timeStep;
-            getPNG(name);
+            outputFilenameWithoutExtension = layerName + time.replace(':', '_') + timeStep;
+            getPNG(outputFilenameWithoutExtension);
         }
     }
 
@@ -357,33 +429,134 @@ public class SARIC_MetOfficeScraper extends WebScraper {
             String time;
             time = ite.next();
             //System.out.println(time);
-            if (time.contains("00:00")) {
-                path = getString_layer() + getSymbol_backslash()
-                        + getString_wxobs() + getSymbol_backslash()
-                        + layerName + getSymbol_backslash()
-                        + imageFormat;
-                url = BASE_URL
-                        + path
-                        + getSymbol_questionmark()
-                        + "TIME" + getSymbol_equals() + time + "Z"
-                        + getSymbol_ampersand() + getString_key() + getSymbol_equals() + API_KEY;
-                String name;
-                name = layerName + time.replace(':', '_');
-                getPNG(name);
-            }
+            //if (time.contains("00:00")) {
+            path = getString_layer() + getSymbol_backslash()
+                    + getString_wxobs() + getSymbol_backslash()
+                    + layerName + getSymbol_backslash()
+                    + imageFormat;
+            url = BASE_URL
+                    + path
+                    + getSymbol_questionmark()
+                    + "TIME" + getSymbol_equals() + time + "Z"
+                    + getSymbol_ampersand() + getString_key() + getSymbol_equals() + API_KEY;
+            String outputFilenameWithoutExtension;
+            outputFilenameWithoutExtension = layerName + time.replace(':', '_');
+            getPNG(outputFilenameWithoutExtension);
+            //}
         }
     }
 
     /**
      * Request an observation tile from the WMTS service
+     *
      */
-    protected void getTileFromWMTSService() {
+    protected void getTileFromWMTSService(String layerName) {
+        /**
+         * <TileMatrixSet>
+         * <ows:Identifier>EPSG:27700</ows:Identifier>
+         * <ows:SupportedCRS>urn:ogc:def:crs:EPSG::27700</ows:SupportedCRS>
+         * <TileMatrix>
+         * <ows:Identifier>EPSG:27700:0</ows:Identifier>
+         * <ScaleDenominator>9344354.716796875</ScaleDenominator>
+         * <TopLeftCorner>1393.0196 1230275.0454</TopLeftCorner>
+         * <TileWidth>256</TileWidth>
+         * <TileHeight>256</TileHeight>
+         * <MatrixWidth>1</MatrixWidth>
+         * <MatrixHeight>2</MatrixHeight>
+         * </TileMatrix>
+         * <TileMatrix>
+         * <ows:Identifier>EPSG:27700:1</ows:Identifier>
+         * <ScaleDenominator>4672177.3583984375</ScaleDenominator>
+         * <TopLeftCorner>1393.0196 1230275.0454</TopLeftCorner>
+         * <TileWidth>256</TileWidth>
+         * <TileHeight>256</TileHeight>
+         * <MatrixWidth>2</MatrixWidth>
+         * <MatrixHeight>4</MatrixHeight>
+         * </TileMatrix>
+         * <TileMatrix>
+         * <ows:Identifier>EPSG:27700:2</ows:Identifier>
+         * <ScaleDenominator>2336088.6791992188</ScaleDenominator>
+         * <TopLeftCorner>1393.0196 1230275.0454</TopLeftCorner>
+         * <TileWidth>256</TileWidth>
+         * <TileHeight>256</TileHeight>
+         * <MatrixWidth>4</MatrixWidth>
+         * <MatrixHeight>8</MatrixHeight>
+         * </TileMatrix>
+         * <TileMatrix>
+         * <ows:Identifier>EPSG:27700:3</ows:Identifier>
+         * <ScaleDenominator>1168044.3395996094</ScaleDenominator>
+         * <TopLeftCorner>1393.0196 1230275.0454</TopLeftCorner>
+         * <TileWidth>256</TileWidth>
+         * <TileHeight>256</TileHeight>
+         * <MatrixWidth>8</MatrixWidth>
+         * <MatrixHeight>16</MatrixHeight>
+         * </TileMatrix>
+         * <TileMatrix>
+         * <ows:Identifier>EPSG:27700:4</ows:Identifier>
+         * <ScaleDenominator>584022.1697998047</ScaleDenominator>
+         * <TopLeftCorner>1393.0196 1230275.0454</TopLeftCorner>
+         * <TileWidth>256</TileWidth>
+         * <TileHeight>256</TileHeight>
+         * <MatrixWidth>16</MatrixWidth>
+         * <MatrixHeight>32</MatrixHeight>
+         * </TileMatrix>
+         * <TileMatrix>
+         * <ows:Identifier>EPSG:27700:5</ows:Identifier>
+         * <ScaleDenominator>292011.08489990234</ScaleDenominator>
+         * <TopLeftCorner>1393.0196 1230275.0454</TopLeftCorner>
+         * <TileWidth>256</TileWidth>
+         * <TileHeight>256</TileHeight>
+         * <MatrixWidth>32</MatrixWidth>
+         * <MatrixHeight>64</MatrixHeight>
+         * </TileMatrix>
+         * <TileMatrix>
+         * <ows:Identifier>EPSG:27700:6</ows:Identifier>
+         * <ScaleDenominator>146005.54244995117</ScaleDenominator>
+         * <TopLeftCorner>1393.0196 1230275.0454</TopLeftCorner>
+         * <TileWidth>256</TileWidth>
+         * <TileHeight>256</TileHeight>
+         * <MatrixWidth>64</MatrixWidth>
+         * <MatrixHeight>128</MatrixHeight>
+         * </TileMatrix>
+         * <TileMatrix>
+         * <ows:Identifier>EPSG:27700:6</ows:Identifier>
+         */
         File inspireWMTSCapabilities = getInspireWMTSCapabilities();
-        String layerName;
-        layerName = "RADAR_UK_Composite_Highres";
         String tileMatrix;
         //for (int matrix = 0; matrix < 7; matrix += 1) {
-        for (int matrix = 3; matrix < 7; matrix += 6) {
+        //for (int matrix = 3; matrix < 7; matrix += 6) {
+        /**
+         * Total Bounding Box for tileMatrixSet = "EPSG:4326"; // WGS84
+         * MinY = 48.0
+         * MaxY = 61.0
+         * MinX = -12.0
+         * MaxX = 5.0
+         * height = 13
+         * width = 17
+         */
+        /**
+         * Total Bounding Box for tileMatrixSet = "EPSG:27700"; // British National Grid
+         * MinY = 48.0 (1230275.0454 - 9344354.716796875)
+         * MaxY = 1230275.0454
+         * MinX = 1393.0196
+         * MaxX = 5.0
+         * height = 13
+         * width = 17
+         */
+        /**
+         * https://gis.stackexchange.com/questions/29671/mathematics-behind-converting-scale-to-resolution
+         * http://www.opengeospatial.org/standards/wmts document states, "The tile matrix set that has scale values calculated based on the dpi defined by OGC specification (dpi assumes 0.28mm as the physical distance of a pixel)."
+         * 0.28 mm per pixel = 0.0110236 inches per pixel or 90.71446714322 pixels per inch.
+         * Since there are 25.4 mm in one inch then 25.4 / .28 = 90.71428571429 DPI which is the value we're after for DPI. Here is a site which confirms this calculation.
+         * 
+         */
+        double dotsPerInch = 90.71446714322; // 0.28 mm per pixel = 0.0110236 inches per pixel or 90.71446714322 pixels per inch.
+double inchesPerFoot = 12.0;   
+double dotsPerUnit = dotsPerInch * inchesPerFoot;
+//double scale = 256000;
+double scale = 9344354.716796875;
+double resolution = scale / dotsPerUnit; // 8584.
+        for (int matrix = 0; matrix < 7; matrix += 8) {
             tileMatrix = "EPSG:27700:" + matrix; // British National Grid
             //tileMatrix = "EPSG:4326:0"; // WGS84
             SARIC_MetOfficeParameters p;
@@ -397,6 +570,15 @@ public class SARIC_MetOfficeScraper extends WebScraper {
             String tileCol;
             String time;
             tileMatrixSet = "EPSG:27700"; // British National Grid
+            // MinY = 48.0
+            // MaxY = 61.0
+            // MinX = -12.0
+            // MaxX = 5.0
+            // DiffY = 13
+            // DiffX = 17 
+            //9344354.716796875
+                    
+            //256 256
             //tileMatrixSet = "EPSG:4326"; // WGS84
             // http://www.metoffice.gov.uk/datapoint/product/precipitation-forecast-map-layer
             // For tileMatrix = EPSG:4326:0 
@@ -407,14 +589,15 @@ public class SARIC_MetOfficeScraper extends WebScraper {
             // DiffY = 13
             // DiffX = 17 
             Iterator<String> ite;
-            for (int row = 0; row < p.nrows; row++) {
-                for (int col = 0; col < p.ncols; col++) {
-                    tileRow = Integer.toString(row);
-                    tileCol = Integer.toString(col);
-                    ite = p.getTimes().iterator();
-                    while (ite.hasNext()) {
-                        time = ite.next();
-                        System.out.println(time);
+            ite = p.getTimes().iterator();
+            while (ite.hasNext()) {
+                time = ite.next();
+                System.out.println(time);
+                for (int row = 0; row < p.nrows; row++) {
+                    
+                    for (int col = 0; col < p.ncols; col++) {
+                        tileRow = Integer.toString(row);
+                        tileCol = Integer.toString(col);
                         url = BASE_URL
                                 + path
                                 + "?REQUEST=gettile"
@@ -427,12 +610,17 @@ public class SARIC_MetOfficeScraper extends WebScraper {
                                 + "&TIME=" + time
                                 + "&STYLE=Bitmap%201km%20Blue-Pale%20blue%20gradient%200.01%20to%2032mm%2Fhr" // The + character has been URL encoded to %2B and the / character to %2F
                                 + "&key=" + API_KEY;
-                        String name;
-                        name = layerName + tileMatrix.replace(':', '_') + time.replace(':', '_') + "_" + tileRow + "_" + tileCol;
-                        getPNG(name);
-                        break; // For testing
+                        String outputFilenameWithoutExtension;
+                        outputFilenameWithoutExtension = layerName + tileMatrix.replace(':', '_') + time.replace(':', '_') + "_" + tileRow + "_" + tileCol;
+                        String pathDummy = path;
+                        path += "/" + layerName;
+                        getPNG(outputFilenameWithoutExtension);
+                        path = pathDummy;
+                        //break; // For testing
                     }
                 }
+                //break; // For testing
+                System.exit(0);
             }
         }
     }
@@ -460,7 +648,7 @@ public class SARIC_MetOfficeScraper extends WebScraper {
      *
      * @return
      */
-    protected File getObservationLayerCapabilities() {
+    protected File getObservationsLayerCapabilities() {
         // http://datapoint.metoffice.gov.uk/public/data/layer/wxobs/all/xml/capabilities?key=<API key>
         File result;
         path = getString_layer() + getSymbol_backslash()
@@ -480,7 +668,7 @@ public class SARIC_MetOfficeScraper extends WebScraper {
      *
      * @return
      */
-    protected File getForecastLayersCapabilities() {
+    protected File getForecastsLayerCapabilities() {
         // http://datapoint.metoffice.gov.uk/public/data/layer/wxfcs/all/xml/capabilities?key=<API key>
         File result;
         path = getString_layer() + getSymbol_backslash()
@@ -510,7 +698,7 @@ public class SARIC_MetOfficeScraper extends WebScraper {
         return xml;
     }
 
-    protected void getPNG(String name) {
+    protected void getPNG(String outputFilenameWithoutExtension) {
         File outputDir;
         outputDir = new File(
                 SARIC_Files.getInputDataMetOfficeDataPointDir(),
@@ -519,7 +707,7 @@ public class SARIC_MetOfficeScraper extends WebScraper {
         File png;
         png = Generic_StaticIO.createNewFile(
                 outputDir,
-                name + "." + getString_png());
+                outputFilenameWithoutExtension + "." + getString_png());
         getPNG(url,
                 png);
     }

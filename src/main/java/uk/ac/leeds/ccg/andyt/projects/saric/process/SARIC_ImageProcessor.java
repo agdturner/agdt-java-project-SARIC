@@ -127,7 +127,7 @@ public class SARIC_ImageProcessor extends SARIC_Object {
                 col = 0;
                 row--;
             }
-            System.out.println("row, col = " + row + ", " + col);
+            //System.out.println("row, col = " + row + ", " + col);
             Color pixel = new Color(pixels[i]);
             if (pixel.equals(Blue)) {
                 g.setCell(row, col, 0.25d, HandleOutOfMemoryError);

@@ -18,11 +18,14 @@
  */
 package uk.ac.leeds.ccg.andyt.projects.saric.process;
 
+import uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Time;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Object;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.SARIC_MetOfficeScraper;
 
 /**
+ * This is the main processor/controller for SARIC processing. Everything is
+ * supposed to be actionable from here.
  *
  * @author geoagdt
  */
@@ -76,25 +79,118 @@ public class SARIC_Processor extends SARIC_Object {
      */
     public void run() throws Exception {
 
-        //RunSARIC_MetOfficeScraper = true;
-        RunSARIC_ImageProcessor = true;
+        RunSARIC_MetOfficeScraper = true;
+        //RunSARIC_ImageProcessor = true;
         /**
          * Run SARIC_MetOfficeScraper
          */
         if (RunSARIC_MetOfficeScraper) {
-            SARIC_MetOfficeScraper SARIC_MetOfficeScraper;
-            SARIC_MetOfficeScraper = new SARIC_MetOfficeScraper(env);
-//        Observation = true;
-            Forecast = true;
-//        TileFromWMTSService = true;
-//        ObservationSiteList = true;
-//        ForecastSiteList = true;
-            SARIC_MetOfficeScraper.run(
-                    Observation,
-                    Forecast,
-                    TileFromWMTSService,
-                    ObservationSiteList,
-                    ForecastSiteList);
+            long timeDelay;
+            String name;
+
+            boolean doNonTiledObs = false;
+            boolean doNonTiledFcs = false;
+            boolean doTileFromWMTSService = false;
+
+            // Main Switches
+//            doNonTiledObs = true;
+//            doNonTiledFcs = true;
+            doTileFromWMTSService = true;
+
+            /**
+             * Observation thread gets data every 2 and 3/4 hours. New data is
+             * supposed to be released every 15 minutes, so it might be better
+             * to just keep getting this new data, but for simplicity this
+             * currently gets data for every 15 minutes in the last 3 hours set.
+             */
+            if (doNonTiledObs) {
+                Observations = true;
+                Forecasts = false;
+                TileFromWMTSService = false;
+                ObservationSiteList = false;
+                ForecastSiteList = false;
+                timeDelay = (long) (Generic_Time.MilliSecondsInHour * 2.75);
+                name = "Observations";
+                SARIC_MetOfficeScraper ObservationsMetOfficeScraper;
+                ObservationsMetOfficeScraper = new SARIC_MetOfficeScraper(
+                        env,
+                        Observations,
+                        Forecasts,
+                        TileFromWMTSService,
+                        ObservationSiteList,
+                        ForecastSiteList,
+                        timeDelay,
+                        name);
+                Thread observationsThread;
+                observationsThread = new Thread(ObservationsMetOfficeScraper);
+                observationsThread.start();
+            }
+
+            /**
+             * Forecasts thread gets data every 5.5 hours. New data is supposed
+             * to be released for every 6 hours. There is one release marked for
+             * each of these times: 3am, 9am, 3pm, 9pm. At each of these times
+             * there are forecasts for 3 hourly intervals for up to 36 hours (12
+             * forecasts). So, there are 6 forecasts for any time. The most
+             * recent forecast will be the most useful, but sometimes we have to
+             * look a long way ahead. It may be that there are longer term
+             * forecasts made for the sites where there are ground observations.
+             */
+            if (doNonTiledFcs) {
+                Observations = false;
+                Forecasts = true;
+                TileFromWMTSService = false;
+                ObservationSiteList = false;
+                ForecastSiteList = false;
+                timeDelay = (long) (Generic_Time.MilliSecondsInHour * 5.5);
+                name = "Forecasts";
+                SARIC_MetOfficeScraper ForecastsMetOfficeScraper;
+                ForecastsMetOfficeScraper = new SARIC_MetOfficeScraper(
+                        env,
+                        Observations,
+                        Forecasts,
+                        TileFromWMTSService,
+                        ObservationSiteList,
+                        ForecastSiteList,
+                        timeDelay,
+                        name);
+                Thread forecastsThread;
+                forecastsThread = new Thread(ForecastsMetOfficeScraper);
+                forecastsThread.start();
+            }
+
+            /**
+             * Forecasts thread gets data every 5.5 hours. New data is supposed
+             * to be released for every 6 hours. There is one release marked for
+             * each of these times: 3am, 9am, 3pm, 9pm. At each of these times
+             * there are forecasts for 3 hourly intervals for up to 36 hours (12
+             * forecasts). So, there are 6 forecasts for any time. The most
+             * recent forecast will be the most useful, but sometimes we have to
+             * look a long way ahead. It may be that there are longer term
+             * forecasts made for the sites where there are ground observations.
+             */
+            if (doTileFromWMTSService) {
+                Observations = false;
+                Forecasts = false;
+                TileFromWMTSService = true;
+                ObservationSiteList = false;
+                ForecastSiteList = false;
+                timeDelay = (long) (Generic_Time.MilliSecondsInHour * 5.5);
+                name = "Higher Resolution Tiled Forecasts and Observations";
+                SARIC_MetOfficeScraper ForecastsMetOfficeScraper;
+                ForecastsMetOfficeScraper = new SARIC_MetOfficeScraper(
+                        env,
+                        Observations,
+                        Forecasts,
+                        TileFromWMTSService,
+                        ObservationSiteList,
+                        ForecastSiteList,
+                        timeDelay,
+                        name);
+                Thread forecastsThread;
+                forecastsThread = new Thread(ForecastsMetOfficeScraper);
+                forecastsThread.start();
+            }
         }
 
         /**
@@ -107,8 +203,8 @@ public class SARIC_Processor extends SARIC_Object {
         }
     }
 
-    boolean Observation = false;
-    boolean Forecast = false;
+    boolean Observations = false;
+    boolean Forecasts = false;
     boolean TileFromWMTSService = false;
     boolean ObservationSiteList = false;
     boolean ForecastSiteList = false;

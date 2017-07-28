@@ -56,6 +56,10 @@ public class SARIC_Time
         calendar.add(Calendar.MINUTE, minutes);
     }
 
+    public void addHours(int hours) {
+        calendar.add(Calendar.HOUR, hours);
+    }
+
     public void addDays(int days) {
         calendar.add(Calendar.DAY_OF_YEAR, days);
     }

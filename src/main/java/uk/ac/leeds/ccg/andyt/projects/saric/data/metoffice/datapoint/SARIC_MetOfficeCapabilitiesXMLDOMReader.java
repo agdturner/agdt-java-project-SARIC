@@ -26,7 +26,6 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import uk.ac.leeds.ccg.andyt.generic.io.Generic_XMLDOMReader;
-import uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Time;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
 import uk.ac.leeds.ccg.andyt.projects.saric.util.SARIC_Time;
@@ -165,6 +164,12 @@ public class SARIC_MetOfficeCapabilitiesXMLDOMReader extends Generic_XMLDOMReade
         return j;
     }
 
+    /**
+     * Parses the Forecast Service Capabilities XML and returns a list of times 
+     * at which forecasts are suppose to be available.
+     * @param layerName The name of the forecast layer.
+     * @return A list of times at which forecasts are suppose to be available.
+     */
     protected ArrayList<String> getForecastTimes(String layerName) {
         ArrayList<String> result;
         result = new ArrayList<String>();
@@ -235,7 +240,7 @@ public class SARIC_MetOfficeCapabilitiesXMLDOMReader extends Generic_XMLDOMReade
                         String v;
                         v = n.getTextContent();
                         time = new SARIC_Time(startTime);
-                        time.addMinutes(Integer.valueOf(v));
+                        time.addHours(Integer.valueOf(v));
                         String timeString;
                         timeString = time.toString();
                         System.out.println(timeString);
