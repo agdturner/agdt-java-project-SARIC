@@ -75,22 +75,36 @@ public class SARIC_Processor extends SARIC_Object {
      * @throws Exception
      */
     public void run() throws Exception {
+
+        //RunSARIC_MetOfficeScraper = true;
+        RunSARIC_ImageProcessor = true;
         /**
          * Run SARIC_MetOfficeScraper
          */
-        SARIC_MetOfficeScraper SARIC_MetOfficeScraper;
-        SARIC_MetOfficeScraper = new SARIC_MetOfficeScraper(env);
+        if (RunSARIC_MetOfficeScraper) {
+            SARIC_MetOfficeScraper SARIC_MetOfficeScraper;
+            SARIC_MetOfficeScraper = new SARIC_MetOfficeScraper(env);
 //        Observation = true;
-        Forecast = true;
+            Forecast = true;
 //        TileFromWMTSService = true;
 //        ObservationSiteList = true;
 //        ForecastSiteList = true;
-        SARIC_MetOfficeScraper.run(
-                Observation,
-                Forecast,
-                TileFromWMTSService, 
-                ObservationSiteList,
-                ForecastSiteList);
+            SARIC_MetOfficeScraper.run(
+                    Observation,
+                    Forecast,
+                    TileFromWMTSService,
+                    ObservationSiteList,
+                    ForecastSiteList);
+        }
+
+        /**
+         * Run SARIC_ImageProcessor
+         */
+        if (RunSARIC_ImageProcessor) {
+            SARIC_ImageProcessor SARIC_ImageProcessor;
+            SARIC_ImageProcessor = new SARIC_ImageProcessor(env);
+            SARIC_ImageProcessor.run();
+        }
     }
 
     boolean Observation = false;
@@ -98,4 +112,7 @@ public class SARIC_Processor extends SARIC_Object {
     boolean TileFromWMTSService = false;
     boolean ObservationSiteList = false;
     boolean ForecastSiteList = false;
+    boolean RunSARIC_MetOfficeScraper = false;
+    boolean RunSARIC_ImageProcessor = false;
+
 }

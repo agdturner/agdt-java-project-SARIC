@@ -18,6 +18,7 @@
  */
 package uk.ac.leeds.ccg.andyt.projects.saric.core;
 
+import uk.ac.leeds.ccg.andyt.grids.core.Grids_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
 
 /**
@@ -27,15 +28,21 @@ import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
 public class SARIC_Environment {
     
     SARIC_Files SARIC_Files;
+    Grids_Environment ge;
     
     protected SARIC_Environment(){}
     
     public SARIC_Environment(String dataDir){
         SARIC_Files = new SARIC_Files(dataDir);
+        ge = new Grids_Environment();
     }
     
     public SARIC_Files getSARIC_Files() {
         return SARIC_Files;
+    }
+    
+    public Grids_Environment getGrids_Environment() {
+        return ge;
     }
     
 }
