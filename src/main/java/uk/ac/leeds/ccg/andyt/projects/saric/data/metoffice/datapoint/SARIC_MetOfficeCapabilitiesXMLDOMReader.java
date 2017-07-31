@@ -108,6 +108,8 @@ public class SARIC_MetOfficeCapabilitiesXMLDOMReader extends Generic_XMLDOMReade
             i = find("Value", nodeList, i + 1);
             n = nodeList.item(i);
         }
+        nTextContent = n.getTextContent();
+        result.add(nTextContent);
         return result;
     }
 
@@ -120,7 +122,7 @@ public class SARIC_MetOfficeCapabilitiesXMLDOMReader extends Generic_XMLDOMReade
         result = new Integer(tileMatrixParameter);
         return result;
     }
-    
+
     protected int getNrows(String tileMatrix) {
         int result;
         String tileMatrixParameter;
@@ -130,7 +132,7 @@ public class SARIC_MetOfficeCapabilitiesXMLDOMReader extends Generic_XMLDOMReade
         result = new Integer(tileMatrixParameter);
         return result;
     }
-    
+
     protected BigDecimal getCellsize(
             String tileMatrix) {
         BigDecimal result;
@@ -176,7 +178,7 @@ public class SARIC_MetOfficeCapabilitiesXMLDOMReader extends Generic_XMLDOMReade
     /**
      * @param tileMatrix
      * @param parameterName
-     * @return 
+     * @return
      */
     protected String getTileMatrixParameter(
             String tileMatrix,
@@ -205,7 +207,7 @@ public class SARIC_MetOfficeCapabilitiesXMLDOMReader extends Generic_XMLDOMReade
         result = n.getTextContent();
         return result;
     }
-    
+
     /**
      * Return the index in the nodeList of the next node after that with index i
      * with name equal to nodeName or return nodeList.getLength();
@@ -231,8 +233,9 @@ public class SARIC_MetOfficeCapabilitiesXMLDOMReader extends Generic_XMLDOMReade
     }
 
     /**
-     * Parses the Forecast Service Capabilities XML and returns a list of times 
+     * Parses the Forecast Service Capabilities XML and returns a list of times
      * at which forecasts are suppose to be available.
+     *
      * @param layerName The name of the forecast layer.
      * @return A list of times at which forecasts are suppose to be available.
      */
@@ -244,7 +247,7 @@ public class SARIC_MetOfficeCapabilitiesXMLDOMReader extends Generic_XMLDOMReade
         boolean startTimeSet;
         startTimeSet = false;
         SARIC_Time startTime = null;
-        SARIC_Time time;                    
+        SARIC_Time time;
         for (int i = 0; i < nodeList.getLength(); i++) {
             Node n;
             n = nodeList.item(i);
@@ -268,7 +271,7 @@ public class SARIC_MetOfficeCapabilitiesXMLDOMReader extends Generic_XMLDOMReade
                 int timeStartHour;
                 int timeStartMinute;
                 int timeStartSecond;
-                if (nNodeName.equalsIgnoreCase("TimeSteps") && ! startTimeSet) {
+                if (nNodeName.equalsIgnoreCase("TimeSteps") && !startTimeSet) {
                     NamedNodeMap nnm = n.getAttributes();
                     String nodeValue;
                     nodeValue = nnm.item(0).getNodeValue();

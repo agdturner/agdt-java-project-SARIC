@@ -91,12 +91,16 @@ public class SARIC_Processor extends SARIC_Object {
             boolean doNonTiledObs = false;
             boolean doNonTiledFcs = false;
             boolean doTileFromWMTSService = false;
+            boolean doObservationsTileFromWMTSService = false;
+            boolean doForecastsTileFromWMTSService = false;
 
             // Main Switches
 //            doNonTiledObs = true;
 //            doNonTiledFcs = true;
             doTileFromWMTSService = true;
-
+            doObservationsTileFromWMTSService = true;
+            doForecastsTileFromWMTSService = true;
+            
             /**
              * Observation thread gets data every 2 and 3/4 hours. New data is
              * supposed to be released every 15 minutes, so it might be better
@@ -108,6 +112,8 @@ public class SARIC_Processor extends SARIC_Object {
                 Forecasts = false;
                 TileFromWMTSService = false;
                 ObservationSiteList = false;
+                ObservationsTileFromWMTSService = false;
+                        ForecastsTileFromWMTSService = false;
                 ForecastSiteList = false;
                 timeDelay = (long) (Generic_Time.MilliSecondsInHour * 2.75);
                 name = "Observations";
@@ -117,6 +123,8 @@ public class SARIC_Processor extends SARIC_Object {
                         Observations,
                         Forecasts,
                         TileFromWMTSService,
+                        ObservationsTileFromWMTSService,
+                        ForecastsTileFromWMTSService,
                         ObservationSiteList,
                         ForecastSiteList,
                         timeDelay,
@@ -140,6 +148,8 @@ public class SARIC_Processor extends SARIC_Object {
                 Observations = false;
                 Forecasts = true;
                 TileFromWMTSService = false;
+                ObservationsTileFromWMTSService = false;
+                        ForecastsTileFromWMTSService = false;
                 ObservationSiteList = false;
                 ForecastSiteList = false;
                 timeDelay = (long) (Generic_Time.MilliSecondsInHour * 5.5);
@@ -150,6 +160,8 @@ public class SARIC_Processor extends SARIC_Object {
                         Observations,
                         Forecasts,
                         TileFromWMTSService,
+                        ObservationsTileFromWMTSService,
+                        ForecastsTileFromWMTSService,
                         ObservationSiteList,
                         ForecastSiteList,
                         timeDelay,
@@ -175,6 +187,30 @@ public class SARIC_Processor extends SARIC_Object {
                 TileFromWMTSService = true;
                 ObservationSiteList = false;
                 ForecastSiteList = false;
+                if (doObservationsTileFromWMTSService) {
+                ObservationsTileFromWMTSService = true;
+                        ForecastsTileFromWMTSService = false;
+                timeDelay = (long) (Generic_Time.MilliSecondsInHour * 19);
+                name = "Higher Resolution Tiled Forecasts and Observations";
+                SARIC_MetOfficeScraper ForecastsMetOfficeScraper;
+                ForecastsMetOfficeScraper = new SARIC_MetOfficeScraper(
+                        se,
+                        Observations,
+                        Forecasts,
+                        TileFromWMTSService,
+                        ObservationsTileFromWMTSService,
+                        ForecastsTileFromWMTSService,
+                        ObservationSiteList,
+                        ForecastSiteList,
+                        timeDelay,
+                        name);
+                Thread forecastsThread;
+                forecastsThread = new Thread(ForecastsMetOfficeScraper);
+                forecastsThread.start();
+                }
+                if (doForecastsTileFromWMTSService) {
+                ObservationsTileFromWMTSService = false;
+                        ForecastsTileFromWMTSService = true;
                 timeDelay = (long) (Generic_Time.MilliSecondsInHour * 5.5);
                 name = "Higher Resolution Tiled Forecasts and Observations";
                 SARIC_MetOfficeScraper ForecastsMetOfficeScraper;
@@ -183,6 +219,8 @@ public class SARIC_Processor extends SARIC_Object {
                         Observations,
                         Forecasts,
                         TileFromWMTSService,
+                        ObservationsTileFromWMTSService,
+                        ForecastsTileFromWMTSService,
                         ObservationSiteList,
                         ForecastSiteList,
                         timeDelay,
@@ -190,6 +228,7 @@ public class SARIC_Processor extends SARIC_Object {
                 Thread forecastsThread;
                 forecastsThread = new Thread(ForecastsMetOfficeScraper);
                 forecastsThread.start();
+                }
             }
         }
 
@@ -206,6 +245,8 @@ public class SARIC_Processor extends SARIC_Object {
     boolean Observations = false;
     boolean Forecasts = false;
     boolean TileFromWMTSService = false;
+   boolean ObservationsTileFromWMTSService = false;
+   boolean                     ForecastsTileFromWMTSService = false;
     boolean ObservationSiteList = false;
     boolean ForecastSiteList = false;
     boolean RunSARIC_MetOfficeScraper = false;
