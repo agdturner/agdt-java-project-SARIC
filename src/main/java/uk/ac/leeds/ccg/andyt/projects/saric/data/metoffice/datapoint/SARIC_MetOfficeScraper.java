@@ -25,8 +25,10 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -34,6 +36,9 @@ import uk.ac.leeds.ccg.andyt.generic.io.Generic_StaticIO;
 import uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Time;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
+import uk.ac.leeds.ccg.andyt.vector.core.Vector_Environment;
+import uk.ac.leeds.ccg.andyt.vector.geometry.Vector_Envelope2D;
+import uk.ac.leeds.ccg.andyt.vector.geometry.Vector_Point2D;
 import uk.ac.leeds.ccg.andyt.web.WebScraper;
 
 /**
@@ -45,8 +50,10 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
     /**
      * For convenience.
      */
-    SARIC_Files SARIC_Files;
-    SARIC_Environment SARIC_Environment;
+    SARIC_Files files;
+    SARIC_Environment se;
+
+    Vector_Environment ve;
 
     // Special strings
     String symbol_ampersand;
@@ -103,8 +110,8 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
             boolean ForecastSiteList,
             long timeDelay,
             String name) {
-        this.SARIC_Environment = SARIC_Environment;
-        this.SARIC_Files = SARIC_Environment.getSARIC_Files();
+        this.se = SARIC_Environment;
+        this.files = SARIC_Environment.getFiles();
         this.Observations = Observation;
         this.Forecasts = Forecast;
         this.TileFromWMTSService = TileFromWMTSService;
@@ -168,11 +175,116 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
 //        downloadThreeHourlyFiveDayForecastForDunkeswellAerodrome();
             // Request a tile from the WMTS service
             if (TileFromWMTSService) {
+                String tileMatrixSet;
+                tileMatrixSet = "EPSG:27700"; // British National Grid
+                /**
+                 * <TileMatrixSet>
+                 * <ows:Identifier>EPSG:27700</ows:Identifier>
+                 * <ows:SupportedCRS>urn:ogc:def:crs:EPSG::27700</ows:SupportedCRS>
+                 * <TileMatrix>
+                 * <ows:Identifier>EPSG:27700:0</ows:Identifier>
+                 * <ScaleDenominator>9344354.716796875</ScaleDenominator>
+                 * <TopLeftCorner>1393.0196 1230275.0454</TopLeftCorner>
+                 * <TileWidth>256</TileWidth>
+                 * <TileHeight>256</TileHeight>
+                 * <MatrixWidth>1</MatrixWidth>
+                 * <MatrixHeight>2</MatrixHeight>
+                 * </TileMatrix>
+                 * <TileMatrix>
+                 * <ows:Identifier>EPSG:27700:1</ows:Identifier>
+                 * <ScaleDenominator>4672177.3583984375</ScaleDenominator>
+                 * <TopLeftCorner>1393.0196 1230275.0454</TopLeftCorner>
+                 * <TileWidth>256</TileWidth>
+                 * <TileHeight>256</TileHeight>
+                 * <MatrixWidth>2</MatrixWidth>
+                 * <MatrixHeight>4</MatrixHeight>
+                 * </TileMatrix>
+                 * <TileMatrix>
+                 * <ows:Identifier>EPSG:27700:2</ows:Identifier>
+                 * <ScaleDenominator>2336088.6791992188</ScaleDenominator>
+                 * <TopLeftCorner>1393.0196 1230275.0454</TopLeftCorner>
+                 * <TileWidth>256</TileWidth>
+                 * <TileHeight>256</TileHeight>
+                 * <MatrixWidth>4</MatrixWidth>
+                 * <MatrixHeight>8</MatrixHeight>
+                 * </TileMatrix>
+                 * <TileMatrix>
+                 * <ows:Identifier>EPSG:27700:3</ows:Identifier>
+                 * <ScaleDenominator>1168044.3395996094</ScaleDenominator>
+                 * <TopLeftCorner>1393.0196 1230275.0454</TopLeftCorner>
+                 * <TileWidth>256</TileWidth>
+                 * <TileHeight>256</TileHeight>
+                 * <MatrixWidth>8</MatrixWidth>
+                 * <MatrixHeight>16</MatrixHeight>
+                 * </TileMatrix>
+                 * <TileMatrix>
+                 * <ows:Identifier>EPSG:27700:4</ows:Identifier>
+                 * <ScaleDenominator>584022.1697998047</ScaleDenominator>
+                 * <TopLeftCorner>1393.0196 1230275.0454</TopLeftCorner>
+                 * <TileWidth>256</TileWidth>
+                 * <TileHeight>256</TileHeight>
+                 * <MatrixWidth>16</MatrixWidth>
+                 * <MatrixHeight>32</MatrixHeight>
+                 * </TileMatrix>
+                 * <TileMatrix>
+                 * <ows:Identifier>EPSG:27700:5</ows:Identifier>
+                 * <ScaleDenominator>292011.08489990234</ScaleDenominator>
+                 * <TopLeftCorner>1393.0196 1230275.0454</TopLeftCorner>
+                 * <TileWidth>256</TileWidth>
+                 * <TileHeight>256</TileHeight>
+                 * <MatrixWidth>32</MatrixWidth>
+                 * <MatrixHeight>64</MatrixHeight>
+                 * </TileMatrix>
+                 * <TileMatrix>
+                 * <ows:Identifier>EPSG:27700:6</ows:Identifier>
+                 * <ScaleDenominator>146005.54244995117</ScaleDenominator>
+                 * <TopLeftCorner>1393.0196 1230275.0454</TopLeftCorner>
+                 * <TileWidth>256</TileWidth>
+                 * <TileHeight>256</TileHeight>
+                 * <MatrixWidth>64</MatrixWidth>
+                 * <MatrixHeight>128</MatrixHeight>
+                 * </TileMatrix>
+                 * <TileMatrix>
+                 * <ows:Identifier>EPSG:27700:6</ows:Identifier>
+                 */
+                //tileMatrixSet = "EPSG:4326"; // WGS84
+                /**
+                 * For tileMatrix = EPSG:4326:0 MinY = 48.0 MaxY = 61.0 MinX =
+                 * -12.0 MaxX = 5.0 DiffY = 13 DiffX = 17
+                 */
+
+                File inspireWMTSCapabilities = getInspireWMTSCapabilities();
+                SARIC_MetOfficeParameters p;
+                p = new SARIC_MetOfficeParameters();
+                SARIC_MetOfficeCapabilitiesXMLDOMReader r;
+                r = new SARIC_MetOfficeCapabilitiesXMLDOMReader(se, inspireWMTSCapabilities);
+                ve = new Vector_Environment();
+                String tileMatrix;
+                tileMatrix = tileMatrixSet + ":0";
+                BigDecimal cellsize;
+                cellsize = r.getCellsize(tileMatrix);
+                System.out.println("cellsize " + cellsize);
+                int nrows;
+                nrows = r.getNrows(tileMatrix);
+                int ncols;
+                ncols = r.getNcols(tileMatrix);
+                Vector_Envelope2D bounds;
+                bounds = r.getDimensions(cellsize, nrows, ncols, tileMatrix, p.TwoFiveSix);
+                System.out.println(bounds.toString());
+                p.setBounds(bounds);
+                Vector_Envelope2D wisseyBounds;
+                wisseyBounds = se.getWissey().getBounds();
+                Vector_Envelope2D teifiBounds;
+                teifiBounds = se.getTeifi().getBounds();
+                //getAllTilesFromWMTSService(layerName, tileMatrixSet, p, r);
                 layerName = "RADAR_UK_Composite_Highres";
-                getTileFromWMTSService(layerName);
+                getIntersectingTilesFromWMTSService(layerName, tileMatrixSet, p, r, wisseyBounds,  "Wissey");
+                getIntersectingTilesFromWMTSService(layerName, tileMatrixSet, p, r, teifiBounds,  "Teifi");
                 layerName = "Precipitation_Rate";
-                getTileFromWMTSService(layerName);
-            }
+                getIntersectingTilesFromWMTSService(layerName, tileMatrixSet, p, r, wisseyBounds,  "Wissey");
+                getIntersectingTilesFromWMTSService(layerName, tileMatrixSet, p, r, teifiBounds,  "Teifi");
+                    System.exit(0);
+}
 
             if (ObservationsSiteList) {
                 getObservationsSiteList();
@@ -278,23 +390,6 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
         downloadForecastImages(layerName, times.get(0));
     }
 
-    protected void setParameters(
-            SARIC_MetOfficeParameters p,
-            String layerName,
-            String tileMatrix,
-            File xml) {
-        SARIC_MetOfficeCapabilitiesXMLDOMReader r;
-        r = new SARIC_MetOfficeCapabilitiesXMLDOMReader(SARIC_Environment, xml);
-        p.setLayerName(layerName);
-        ArrayList<String> times;
-        times = r.getTimesInspireWMTS(layerName);
-        p.setTimes(times);
-        int[] nrows_ncols;
-        nrows_ncols = r.getNrowsAndNcols(tileMatrix);
-        p.setNrows(nrows_ncols[0]);
-        p.setNcols(nrows_ncols[1]);
-    }
-
     /**
      * Get observation site list.
      */
@@ -322,7 +417,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
                 + getSymbol_questionmark()
                 + getString_key() + getSymbol_equals() + API_KEY;
         File dir;
-        dir = new File(SARIC_Files.getInputDataMetOfficeDir(),
+        dir = new File(files.getInputDataMetOfficeDir(),
                 path);
         dir.mkdirs();
         File xml;
@@ -356,7 +451,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
             File xml) {
         ArrayList<String> result;
         SARIC_MetOfficeCapabilitiesXMLDOMReader r;
-        r = new SARIC_MetOfficeCapabilitiesXMLDOMReader(SARIC_Environment, xml);
+        r = new SARIC_MetOfficeCapabilitiesXMLDOMReader(se, xml);
         result = r.getForecastTimes(layerName);
         return result;
     }
@@ -373,7 +468,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
             File xml) {
         ArrayList<String> result;
         SARIC_MetOfficeCapabilitiesXMLDOMReader r;
-        r = new SARIC_MetOfficeCapabilitiesXMLDOMReader(SARIC_Environment, xml);
+        r = new SARIC_MetOfficeCapabilitiesXMLDOMReader(se, xml);
         String nodeName;
         nodeName = "Time";
         result = r.getObservationTimes(layerName, nodeName);
@@ -449,153 +544,45 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
     /**
      * Request an observation tile from the WMTS service
      *
+     * @param layerName
+     * @param tileMatrixSet
+     * @param p
+     * @param r
      */
-    protected void getTileFromWMTSService(String layerName) {
-        /**
-         * <TileMatrixSet>
-         * <ows:Identifier>EPSG:27700</ows:Identifier>
-         * <ows:SupportedCRS>urn:ogc:def:crs:EPSG::27700</ows:SupportedCRS>
-         * <TileMatrix>
-         * <ows:Identifier>EPSG:27700:0</ows:Identifier>
-         * <ScaleDenominator>9344354.716796875</ScaleDenominator>
-         * <TopLeftCorner>1393.0196 1230275.0454</TopLeftCorner>
-         * <TileWidth>256</TileWidth>
-         * <TileHeight>256</TileHeight>
-         * <MatrixWidth>1</MatrixWidth>
-         * <MatrixHeight>2</MatrixHeight>
-         * </TileMatrix>
-         * <TileMatrix>
-         * <ows:Identifier>EPSG:27700:1</ows:Identifier>
-         * <ScaleDenominator>4672177.3583984375</ScaleDenominator>
-         * <TopLeftCorner>1393.0196 1230275.0454</TopLeftCorner>
-         * <TileWidth>256</TileWidth>
-         * <TileHeight>256</TileHeight>
-         * <MatrixWidth>2</MatrixWidth>
-         * <MatrixHeight>4</MatrixHeight>
-         * </TileMatrix>
-         * <TileMatrix>
-         * <ows:Identifier>EPSG:27700:2</ows:Identifier>
-         * <ScaleDenominator>2336088.6791992188</ScaleDenominator>
-         * <TopLeftCorner>1393.0196 1230275.0454</TopLeftCorner>
-         * <TileWidth>256</TileWidth>
-         * <TileHeight>256</TileHeight>
-         * <MatrixWidth>4</MatrixWidth>
-         * <MatrixHeight>8</MatrixHeight>
-         * </TileMatrix>
-         * <TileMatrix>
-         * <ows:Identifier>EPSG:27700:3</ows:Identifier>
-         * <ScaleDenominator>1168044.3395996094</ScaleDenominator>
-         * <TopLeftCorner>1393.0196 1230275.0454</TopLeftCorner>
-         * <TileWidth>256</TileWidth>
-         * <TileHeight>256</TileHeight>
-         * <MatrixWidth>8</MatrixWidth>
-         * <MatrixHeight>16</MatrixHeight>
-         * </TileMatrix>
-         * <TileMatrix>
-         * <ows:Identifier>EPSG:27700:4</ows:Identifier>
-         * <ScaleDenominator>584022.1697998047</ScaleDenominator>
-         * <TopLeftCorner>1393.0196 1230275.0454</TopLeftCorner>
-         * <TileWidth>256</TileWidth>
-         * <TileHeight>256</TileHeight>
-         * <MatrixWidth>16</MatrixWidth>
-         * <MatrixHeight>32</MatrixHeight>
-         * </TileMatrix>
-         * <TileMatrix>
-         * <ows:Identifier>EPSG:27700:5</ows:Identifier>
-         * <ScaleDenominator>292011.08489990234</ScaleDenominator>
-         * <TopLeftCorner>1393.0196 1230275.0454</TopLeftCorner>
-         * <TileWidth>256</TileWidth>
-         * <TileHeight>256</TileHeight>
-         * <MatrixWidth>32</MatrixWidth>
-         * <MatrixHeight>64</MatrixHeight>
-         * </TileMatrix>
-         * <TileMatrix>
-         * <ows:Identifier>EPSG:27700:6</ows:Identifier>
-         * <ScaleDenominator>146005.54244995117</ScaleDenominator>
-         * <TopLeftCorner>1393.0196 1230275.0454</TopLeftCorner>
-         * <TileWidth>256</TileWidth>
-         * <TileHeight>256</TileHeight>
-         * <MatrixWidth>64</MatrixWidth>
-         * <MatrixHeight>128</MatrixHeight>
-         * </TileMatrix>
-         * <TileMatrix>
-         * <ows:Identifier>EPSG:27700:6</ows:Identifier>
-         */
-        File inspireWMTSCapabilities = getInspireWMTSCapabilities();
+    protected void getAllTilesFromWMTSService(
+            String layerName,
+            String tileMatrixSet,
+            SARIC_MetOfficeParameters p,
+            SARIC_MetOfficeCapabilitiesXMLDOMReader r) {
+        ArrayList<String> times;
+        times = r.getTimesInspireWMTS(layerName);
+        p.setTimes(times);
+        HashMap<String, SARIC_MetOfficeLayerParameters> parameters;
+        parameters = p.getParameters();
+        SARIC_MetOfficeLayerParameters lp;
         String tileMatrix;
-        //for (int matrix = 0; matrix < 7; matrix += 1) {
-        //for (int matrix = 3; matrix < 7; matrix += 6) {
-        /**
-         * Total Bounding Box for tileMatrixSet = "EPSG:4326"; // WGS84
-         * MinY = 48.0
-         * MaxY = 61.0
-         * MinX = -12.0
-         * MaxX = 5.0
-         * height = 13
-         * width = 17
-         */
-        /**
-         * Total Bounding Box for tileMatrixSet = "EPSG:27700"; // British National Grid
-         * MinY = 48.0 (1230275.0454 - 9344354.716796875)
-         * MaxY = 1230275.0454
-         * MinX = 1393.0196
-         * MaxX = 5.0
-         * height = 13
-         * width = 17
-         */
-        /**
-         * https://gis.stackexchange.com/questions/29671/mathematics-behind-converting-scale-to-resolution
-         * http://www.opengeospatial.org/standards/wmts document states, "The tile matrix set that has scale values calculated based on the dpi defined by OGC specification (dpi assumes 0.28mm as the physical distance of a pixel)."
-         * 0.28 mm per pixel = 0.0110236 inches per pixel or 90.71446714322 pixels per inch.
-         * Since there are 25.4 mm in one inch then 25.4 / .28 = 90.71428571429 DPI which is the value we're after for DPI. Here is a site which confirms this calculation.
-         * 
-         */
-        double dotsPerInch = 90.71446714322; // 0.28 mm per pixel = 0.0110236 inches per pixel or 90.71446714322 pixels per inch.
-double inchesPerFoot = 12.0;   
-double dotsPerUnit = dotsPerInch * inchesPerFoot;
-//double scale = 256000;
-double scale = 9344354.716796875;
-double resolution = scale / dotsPerUnit; // 8584.
-        for (int matrix = 0; matrix < 7; matrix += 8) {
-            tileMatrix = "EPSG:27700:" + matrix; // British National Grid
+        for (int matrix = 0; matrix < 7; matrix += 1) {
+            //for (int matrix = 2; matrix < 7; matrix += 1) {
+            tileMatrix = tileMatrixSet + ":" + matrix; // British National Grid
             //tileMatrix = "EPSG:4326:0"; // WGS84
-            SARIC_MetOfficeParameters p;
-            p = new SARIC_MetOfficeParameters();
-            setParameters(p, layerName, tileMatrix, inspireWMTSCapabilities);
-
+            lp = parameters.get(tileMatrix);
+            if (lp == null) {
+                lp = new SARIC_MetOfficeLayerParameters(se, r.getCellsize(tileMatrix), p);
+            }
+            lp.setNrows(r.getNrows(tileMatrix));
+            lp.setNcols(r.getNcols(tileMatrix));
             //http://datapoint.metoffice.gov.uk/public/data/inspire/view/wmts?REQUEST=gettile&LAYER=<layer required>&FORMAT=image/png&TILEMATRIXSET=<projection>&TILEMATRIX=<projection zoom level required>&TILEROW=<tile row required>&TILECOL=<tile column required>&TIME=<time required>&STYLE=<style required>&key=<API key>
             path = "inspire/view/wmts";
-            String tileMatrixSet;
             String tileRow;
             String tileCol;
             String time;
-            tileMatrixSet = "EPSG:27700"; // British National Grid
-            // MinY = 48.0
-            // MaxY = 61.0
-            // MinX = -12.0
-            // MaxX = 5.0
-            // DiffY = 13
-            // DiffX = 17 
-            //9344354.716796875
-                    
-            //256 256
-            //tileMatrixSet = "EPSG:4326"; // WGS84
-            // http://www.metoffice.gov.uk/datapoint/product/precipitation-forecast-map-layer
-            // For tileMatrix = EPSG:4326:0 
-            // MinY = 48.0
-            // MaxY = 61.0
-            // MinX = -12.0
-            // MaxX = 5.0
-            // DiffY = 13
-            // DiffX = 17 
             Iterator<String> ite;
-            ite = p.getTimes().iterator();
+            ite = times.iterator();
             while (ite.hasNext()) {
                 time = ite.next();
                 System.out.println(time);
-                for (int row = 0; row < p.nrows; row++) {
-                    
-                    for (int col = 0; col < p.ncols; col++) {
+                for (int row = 0; row < lp.nrows; row++) {
+                    for (int col = 0; col < lp.ncols; col++) {
                         tileRow = Integer.toString(row);
                         tileCol = Integer.toString(col);
                         url = BASE_URL
@@ -613,16 +600,108 @@ double resolution = scale / dotsPerUnit; // 8584.
                         String outputFilenameWithoutExtension;
                         outputFilenameWithoutExtension = layerName + tileMatrix.replace(':', '_') + time.replace(':', '_') + "_" + tileRow + "_" + tileCol;
                         String pathDummy = path;
-                        path += "/" + layerName;
+                        path += "/" + layerName + "/" + tileMatrix.replace(':', '_');
                         getPNG(outputFilenameWithoutExtension);
                         path = pathDummy;
                         //break; // For testing
                     }
                 }
                 //break; // For testing
-                System.exit(0);
+                //System.exit(0);
             }
         }
+    }
+
+    /**
+     * Request an observation tile from the WMTS service
+     *
+     * @param layerName
+     * @param tileMatrixSet
+     * @param p
+     * @param r
+     * @param AreaBoundingBox The bounding box of the area for which tiles are
+     * requested.
+     * @param areaName
+     */
+    protected void getIntersectingTilesFromWMTSService(
+            String layerName,
+            String tileMatrixSet,
+            SARIC_MetOfficeParameters p,
+            SARIC_MetOfficeCapabilitiesXMLDOMReader r,
+            Vector_Envelope2D AreaBoundingBox,
+            String areaName) {
+        System.out.println("AreaBoundingBox " + AreaBoundingBox);
+        ArrayList<String> times;
+        times = r.getTimesInspireWMTS(layerName);
+        p.setTimes(times);
+        HashMap<String, SARIC_MetOfficeLayerParameters> parameters;
+        parameters = p.getParameters();
+        SARIC_MetOfficeLayerParameters lp;
+        String tileMatrix;
+//        BigDecimal[] tileDimensions;
+        Vector_Envelope2D tileBounds;
+        int matrix = 4;
+        //for (matrix = 0; matrix < 7; matrix += 1) {
+        for (matrix = 0; matrix < 5; matrix += 1) {
+        tileMatrix = tileMatrixSet + ":" + matrix; // British National Grid
+        //tileMatrix = "EPSG:4326:0"; // WGS84
+        //System.out.println("tileMatrix " + tileMatrix);
+        lp = parameters.get(tileMatrix);
+        if (lp == null) {
+            lp = new SARIC_MetOfficeLayerParameters(se, r.getCellsize(tileMatrix), p);
+            System.out.println("Cellsize " + lp.getCellsize());
+        }
+        lp.setNrows(r.getNrows(tileMatrix));
+        lp.setNcols(r.getNcols(tileMatrix));
+        //http://datapoint.metoffice.gov.uk/public/data/inspire/view/wmts?REQUEST=gettile&LAYER=<layer required>&FORMAT=image/png&TILEMATRIXSET=<projection>&TILEMATRIX=<projection zoom level required>&TILEROW=<tile row required>&TILECOL=<tile column required>&TIME=<time required>&STYLE=<style required>&key=<API key>
+        path = "inspire/view/wmts";
+        String tileRow;
+        String tileCol;
+        String time;
+        Iterator<String> ite;
+        ite = times.iterator();
+        while (ite.hasNext()) {
+            time = ite.next();
+            System.out.println(time);
+            for (int row = 0; row < lp.nrows; row++) {
+                //System.out.println("row " + row);
+                for (int col = 0; col < lp.ncols; col++) {
+                    //System.out.println("col " + col);
+                    tileBounds = lp.getTileBounds(row, col);
+                    boolean intersects;
+                    intersects = tileBounds.getIntersects(AreaBoundingBox);
+                    if (intersects) {
+                        System.out.println("Intersection in row " + row + ", col " + col);
+                        System.out.println(tileBounds.toString());
+                        tileRow = Integer.toString(row);
+                        tileCol = Integer.toString(col);
+                        url = BASE_URL
+                                + path
+                                + "?REQUEST=gettile"
+                                + "&LAYER=" + layerName
+                                + "&FORMAT=image%2Fpng" //+ "&FORMAT=image/png" // The / character is URL encoded to %2B
+                                + "&TILEMATRIXSET=" + tileMatrixSet
+                                + "&TILEMATRIX=" + tileMatrix
+                                + "&TILEROW=" + tileRow
+                                + "&TILECOL=" + tileCol
+                                + "&TIME=" + time
+                                + "&STYLE=Bitmap%201km%20Blue-Pale%20blue%20gradient%200.01%20to%2032mm%2Fhr" // The + character has been URL encoded to %2B and the / character to %2F
+                                + "&key=" + API_KEY;
+                        String outputFilenameWithoutExtension;
+                        outputFilenameWithoutExtension = layerName + tileMatrix.replace(':', '_') + time.replace(':', '_') + "_" + tileRow + "_" + tileCol;
+                        String pathDummy = path;
+                        path += "/" + areaName + "/" + layerName + "/" + tileMatrix.replace(':', '_') + "/" + time.replace(':', '_');
+                        getPNG(outputFilenameWithoutExtension);
+                        path = pathDummy;
+                    }
+                    //break; // For testing
+                }
+            }
+            //break; // For testing
+            //System.exit(0);
+        }
+        }
+        //System.exit(0);
     }
 
     /**
@@ -686,7 +765,7 @@ double resolution = scale / dotsPerUnit; // 8584.
     protected File getXML(String name) {
         File outputDir;
         outputDir = new File(
-                SARIC_Files.getInputDataMetOfficeDir(),
+                files.getInputDataMetOfficeDataPointDir(),
                 path);
         outputDir.mkdirs();
         File xml;
@@ -701,7 +780,7 @@ double resolution = scale / dotsPerUnit; // 8584.
     protected void getPNG(String outputFilenameWithoutExtension) {
         File outputDir;
         outputDir = new File(
-                SARIC_Files.getInputDataMetOfficeDataPointDir(),
+                files.getInputDataMetOfficeDataPointDir(),
                 path);
         outputDir.mkdirs();
         File png;
@@ -736,7 +815,7 @@ double resolution = scale / dotsPerUnit; // 8584.
      */
     public String getAPI_KEY() {
         File f;
-        f = SARIC_Files.getInputDataMetOfficeDataPointAPIKeyFile();
+        f = files.getInputDataMetOfficeDataPointAPIKeyFile();
         ArrayList<String> l;
         l = Generic_StaticIO.readIntoArrayList_String(f);
         return l.get(0);

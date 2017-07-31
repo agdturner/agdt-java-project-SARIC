@@ -30,11 +30,11 @@ public abstract class SARIC_Object implements Serializable {
     /**
      * A reference to DW_Environment
      */
-    protected transient SARIC_Environment env;
+    protected transient SARIC_Environment se;
 
     public SARIC_Object(){}
     
-    public SARIC_Object(SARIC_Environment env) {
-        this.env = env;
+    public SARIC_Object(SARIC_Environment se) {
+        this.se = se;
     }
 }

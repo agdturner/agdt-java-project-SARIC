@@ -46,7 +46,7 @@ import uk.ac.leeds.ccg.andyt.agdtgeotools.AGDT_Maps;
 import uk.ac.leeds.ccg.andyt.agdtgeotools.AGDT_Shapefile;
 import uk.ac.leeds.ccg.andyt.generic.io.Generic_StaticIO;
 import uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Collections;
-import uk.ac.leeds.ccg.andyt.projects.saric.SARIC_Environment;
+import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
 
 /**
@@ -67,7 +67,7 @@ public class SARIC_Maps extends AGDT_Maps {
 
     public SARIC_Maps(SARIC_Environment env) {
         this.env = env;
-        SARIC_Files = env.getSARIC_Files();
+        SARIC_Files = env.getFiles();
     }
 
     /*
@@ -141,7 +141,7 @@ public class SARIC_Maps extends AGDT_Maps {
         //name = "62001.shp";
         name = "WW_area.shp";
         File dir = new File(
-                env.getSARIC_Files().getCatchmentBoundariesDataDir(),
+                env.getFiles().getInputDataCatchmentBoundariesDir(),
                 "Teifi");
         dir = new File(dir, name);
         File f;

@@ -50,10 +50,10 @@ public class SARIC_Processor extends SARIC_Object {
                         + "Aborting.");
                 System.exit(0);
             } else {
-                SARIC_Environment env = new SARIC_Environment(args[0]);
-                SARIC_Processor SARIC_Processor;
-                SARIC_Processor = new SARIC_Processor(env);
-                SARIC_Processor.run();
+                SARIC_Environment se = new SARIC_Environment(args[0]);
+                SARIC_Processor sp;
+                sp = new SARIC_Processor(se);
+                sp.run();
             }
         } catch (Exception e) {
             System.err.println(e.getLocalizedMessage());
@@ -113,7 +113,7 @@ public class SARIC_Processor extends SARIC_Object {
                 name = "Observations";
                 SARIC_MetOfficeScraper ObservationsMetOfficeScraper;
                 ObservationsMetOfficeScraper = new SARIC_MetOfficeScraper(
-                        env,
+                        se,
                         Observations,
                         Forecasts,
                         TileFromWMTSService,
@@ -146,7 +146,7 @@ public class SARIC_Processor extends SARIC_Object {
                 name = "Forecasts";
                 SARIC_MetOfficeScraper ForecastsMetOfficeScraper;
                 ForecastsMetOfficeScraper = new SARIC_MetOfficeScraper(
-                        env,
+                        se,
                         Observations,
                         Forecasts,
                         TileFromWMTSService,
@@ -179,7 +179,7 @@ public class SARIC_Processor extends SARIC_Object {
                 name = "Higher Resolution Tiled Forecasts and Observations";
                 SARIC_MetOfficeScraper ForecastsMetOfficeScraper;
                 ForecastsMetOfficeScraper = new SARIC_MetOfficeScraper(
-                        env,
+                        se,
                         Observations,
                         Forecasts,
                         TileFromWMTSService,
@@ -198,7 +198,7 @@ public class SARIC_Processor extends SARIC_Object {
          */
         if (RunSARIC_ImageProcessor) {
             SARIC_ImageProcessor SARIC_ImageProcessor;
-            SARIC_ImageProcessor = new SARIC_ImageProcessor(env);
+            SARIC_ImageProcessor = new SARIC_ImageProcessor(se);
             SARIC_ImageProcessor.run();
         }
     }

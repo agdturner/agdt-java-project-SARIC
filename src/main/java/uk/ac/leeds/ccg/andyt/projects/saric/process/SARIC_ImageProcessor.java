@@ -51,8 +51,8 @@ public class SARIC_ImageProcessor extends SARIC_Object {
     Grids_ImageExporter gridImage;
 
     public SARIC_ImageProcessor(SARIC_Environment env) {
-        this.env = env;
-        SARIC_Files = env.getSARIC_Files();
+        this.se = env;
+        SARIC_Files = env.getFiles();
         ge = env.getGrids_Environment();
         gridAscii = new Grids_ESRIAsciiGridExporter(ge);
         gridImage = new Grids_ImageExporter(ge);

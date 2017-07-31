@@ -19,6 +19,7 @@
 package uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint;
 
 import java.io.File;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.TreeSet;
@@ -26,9 +27,12 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import uk.ac.leeds.ccg.andyt.generic.io.Generic_XMLDOMReader;
+import uk.ac.leeds.ccg.andyt.generic.math.Generic_BigDecimal;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
 import uk.ac.leeds.ccg.andyt.projects.saric.util.SARIC_Time;
+import uk.ac.leeds.ccg.andyt.vector.geometry.Vector_Envelope2D;
+import uk.ac.leeds.ccg.andyt.vector.geometry.Vector_Point2D;
 
 /**
  *
@@ -36,8 +40,9 @@ import uk.ac.leeds.ccg.andyt.projects.saric.util.SARIC_Time;
  */
 public class SARIC_MetOfficeCapabilitiesXMLDOMReader extends Generic_XMLDOMReader {
 
-    SARIC_Environment SARIC_Environment;
-    SARIC_Files SARIC_Files;
+    SARIC_Environment se;
+    SARIC_Files files;
+    SARIC_MetOfficeParameters metOfficeParameters;
 
     public TreeSet<String> outcodePostcodes;
 
@@ -47,8 +52,9 @@ public class SARIC_MetOfficeCapabilitiesXMLDOMReader extends Generic_XMLDOMReade
     public SARIC_MetOfficeCapabilitiesXMLDOMReader(
             SARIC_Environment SARIC_Environment,
             File file) {
-        this.SARIC_Environment = SARIC_Environment;
-        this.SARIC_Files = SARIC_Environment.getSARIC_Files();
+        this.se = SARIC_Environment;
+        this.files = SARIC_Environment.getFiles();
+        this.metOfficeParameters = SARIC_Environment.getMetOfficeParameters();
         init(file, "*");
     }
 
@@ -105,9 +111,77 @@ public class SARIC_MetOfficeCapabilitiesXMLDOMReader extends Generic_XMLDOMReade
         return result;
     }
 
-    protected int[] getNrowsAndNcols(String tileMatrix) {
-        int[] result;
-        result = new int[2];
+    protected int getNcols(String tileMatrix) {
+        int result;
+        String tileMatrixParameter;
+        tileMatrixParameter = getTileMatrixParameter(
+                tileMatrix,
+                "MatrixWidth");
+        result = new Integer(tileMatrixParameter);
+        return result;
+    }
+    
+    protected int getNrows(String tileMatrix) {
+        int result;
+        String tileMatrixParameter;
+        tileMatrixParameter = getTileMatrixParameter(
+                tileMatrix,
+                "MatrixHeight");
+        result = new Integer(tileMatrixParameter);
+        return result;
+    }
+    
+    protected BigDecimal getCellsize(
+            String tileMatrix) {
+        BigDecimal result;
+        String tileMatrixParameter;
+        tileMatrixParameter = getTileMatrixParameter(
+                tileMatrix,
+                "ScaleDenominator");
+        result = new BigDecimal(tileMatrixParameter).multiply(metOfficeParameters.DefaultOGCWMTSResolution);
+        return result;
+    }
+
+    protected Vector_Envelope2D getDimensions(
+            BigDecimal cellsize,
+            int nrows,
+            int ncols,
+            String tileMatrix,
+            BigDecimal TwoFiveSix) {
+        Vector_Envelope2D result;
+        String tileMatrixParameter;
+        tileMatrixParameter = getTileMatrixParameter(
+                tileMatrix,
+                "TopLeftCorner");
+        String[] split;
+        split = tileMatrixParameter.split(" ");
+        BigDecimal TwoFiveSixCellsize;
+        TwoFiveSixCellsize = TwoFiveSix.multiply(cellsize);
+        BigDecimal xmin;
+        xmin = new BigDecimal(split[0]);
+        BigDecimal ymax;
+        ymax = new BigDecimal(split[1]);
+        BigDecimal ymin;
+        ymin = ymax.subtract(TwoFiveSixCellsize.multiply(new BigDecimal(nrows)));
+        BigDecimal xmax;
+        xmax = xmin.add((TwoFiveSixCellsize.multiply(new BigDecimal(ncols))));
+        Vector_Point2D p;
+        p = new Vector_Point2D(se.getVector_Environment(), xmin, ymin);
+        result = p.getEnvelope2D();
+        p = new Vector_Point2D(se.getVector_Environment(), xmax, ymax);
+        result = result.envelope(p.getEnvelope2D());
+        return result;
+    }
+
+    /**
+     * @param tileMatrix
+     * @param parameterName
+     * @return 
+     */
+    protected String getTileMatrixParameter(
+            String tileMatrix,
+            String parameterName) {
+        String result;
         boolean foundMatrix;
         foundMatrix = false;
         String nTextContent;
@@ -125,21 +199,13 @@ public class SARIC_MetOfficeCapabilitiesXMLDOMReader extends Generic_XMLDOMReade
                 foundMatrix = true;
             }
         }
-        i = find("MatrixWidth", nodeList, i + 1);
+        i = find(parameterName, nodeList, i + 1);
         n = nodeList.item(i);
         //System.out.println(n.getNodeName());
-        nTextContent = n.getTextContent();
-        //System.out.println(nTextContent);
-        result[1] = new Integer(nTextContent);
-        i = find("MatrixHeight", nodeList, i + 1);
-        n = nodeList.item(i);
-        //System.out.println(n.getNodeName());
-        nTextContent = n.getTextContent();
-        //System.out.println(nTextContent);
-        result[0] = new Integer(nTextContent);
+        result = n.getTextContent();
         return result;
     }
-
+    
     /**
      * Return the index in the nodeList of the next node after that with index i
      * with name equal to nodeName or return nodeList.getLength();

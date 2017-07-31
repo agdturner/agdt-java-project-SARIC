@@ -19,37 +19,70 @@
 package uk.ac.leeds.ccg.andyt.projects.saric.core;
 
 import uk.ac.leeds.ccg.andyt.grids.core.Grids_Environment;
+import uk.ac.leeds.ccg.andyt.projects.saric.data.catchment.SARIC_Teifi;
+import uk.ac.leeds.ccg.andyt.projects.saric.data.catchment.SARIC_Wissey;
+import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.SARIC_MetOfficeParameters;
 import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
 import uk.ac.leeds.ccg.andyt.projects.saric.util.SARIC_Time;
+import uk.ac.leeds.ccg.andyt.vector.core.Vector_Environment;
 
 /**
  *
  * @author geoagdt
  */
 public class SARIC_Environment {
-    
-    SARIC_Files SARIC_Files;
-    SARIC_Time SARIC_Time;
+
+    SARIC_Files files;
+    SARIC_MetOfficeParameters metOfficeParameters;
+    SARIC_Time time;
     Grids_Environment ge;
-    
-    protected SARIC_Environment(){}
-    
-    public SARIC_Environment(String dataDir){
-        SARIC_Files = new SARIC_Files(dataDir);
-        SARIC_Time = new SARIC_Time();
+    Vector_Environment ve;
+    SARIC_Wissey Wissey;
+    SARIC_Teifi Teifi;
+
+    protected SARIC_Environment() {
+    }
+
+    public SARIC_Environment(String dataDir) {
+        files = new SARIC_Files(dataDir);
+        time = new SARIC_Time();
+        metOfficeParameters = new SARIC_MetOfficeParameters();
         ge = new Grids_Environment();
+        ve = new Vector_Environment();
     }
-    
-    public SARIC_Files getSARIC_Files() {
-        return SARIC_Files;
+
+    public SARIC_Files getFiles() {
+        return files;
     }
-    
-     public SARIC_Time getSARIC_Time() {
-        return SARIC_Time;
+
+    public SARIC_MetOfficeParameters getMetOfficeParameters() {
+        return metOfficeParameters;
     }
-    
-     public Grids_Environment getGrids_Environment() {
+
+    public SARIC_Time getTime() {
+        return time;
+    }
+
+    public Grids_Environment getGrids_Environment() {
         return ge;
+    }
+
+    public Vector_Environment getVector_Environment() {
+        return ve;
+    }
+
+    public SARIC_Wissey getWissey() {
+        if (Wissey == null) {
+            Wissey = new SARIC_Wissey(this);
+        }
+        return Wissey;
+    }
+
+    public SARIC_Teifi getTeifi() {
+        if ( Teifi == null) {
+            Teifi = new SARIC_Teifi(this);
+        }
+        return Teifi;
     }
     
 }
