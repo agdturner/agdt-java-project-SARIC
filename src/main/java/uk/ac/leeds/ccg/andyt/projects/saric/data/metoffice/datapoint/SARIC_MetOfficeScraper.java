@@ -95,9 +95,15 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
     boolean ObservationsTileFromWMTSService;
     boolean ObservationsSiteList;
     boolean ForecastsSiteList;
-    boolean ObservationsForSites;
-    boolean ForecastsForSites;
+    boolean ObservationsForSite;
+    boolean ForecastsForSite;
+    boolean overwrite;
 
+    /**
+     * If overwrite is true then an attempt is made to get new data and
+     * overwrite. Otherwise the file is left in place and the method simply
+     * returns.
+     */
     long timeDelay;
 
     protected SARIC_MetOfficeScraper() {
@@ -112,8 +118,12 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
             boolean ForecastsTileFromWMTSService,
             boolean ObservationSiteList,
             boolean ForecastSiteList,
+            boolean ForecastsForSite,
+            boolean ObservationsForSite,
             long timeDelay,
-            String name) {
+            String name,
+            boolean overwrite
+    ) {
         this.se = SARIC_Environment;
         this.files = SARIC_Environment.getFiles();
         this.Observations = Observation;
@@ -123,8 +133,11 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
         this.ForecastsTileFromWMTSService = ForecastsTileFromWMTSService;
         this.ObservationsSiteList = ObservationSiteList;
         this.ForecastsSiteList = ForecastSiteList;
+        this.ForecastsForSite = ForecastsForSite;
+        this.ObservationsForSite = ObservationsForSite;
         this.timeDelay = timeDelay;
         this.name = name;
+        this.overwrite = overwrite;
     }
 
     public void run() {
@@ -166,7 +179,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
 //                layerName = "SATELLITE_Visible_N_Section";
 //                layerName = "SATELLITE_Visible_N_Section";
                 layerName = "RADAR_UK_Composite_Highres"; //Rainfall
-                getObservationLayer(layerName);
+                getObservationLayer(layerName, overwrite);
             }
 
             if (Forecasts) {
@@ -174,7 +187,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
 //                layerName = "Total_Cloud_Cover"; // Cloud
 //                layerName = "Total_Cloud_Cover_Precip_Rate_Overlaid"; // Cloud and Rain
                 //temperature and pressure also available
-                getForecastLayer(layerName);
+                getForecastLayer(layerName, overwrite);
             }
 
 //        // Download three hourly five day forecast for Dunkeswell Aerodrome
@@ -284,14 +297,14 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
                 teifiBounds = se.getTeifi().getBounds();
                 if (ObservationsTileFromWMTSService) {
                     layerName = "RADAR_UK_Composite_Highres";
-                    //getAllObservationsTilesFromWMTSService(layerName, tileMatrixSet, p, r);
-                    getIntersectingObservationsTilesFromWMTSService(layerName, tileMatrixSet, p, r, wisseyBounds, "Wissey");
-                    getIntersectingObservationsTilesFromWMTSService(layerName, tileMatrixSet, p, r, teifiBounds, "Teifi");
+                    //getAllObservationsTilesFromWMTSService(layerName, tileMatrixSet, p, r, overwrite);
+                    getIntersectingObservationsTilesFromWMTSService(layerName, tileMatrixSet, p, r, wisseyBounds, "Wissey", overwrite);
+                    getIntersectingObservationsTilesFromWMTSService(layerName, tileMatrixSet, p, r, teifiBounds, "Teifi", overwrite);
                 }
                 if (ForecastsTileFromWMTSService) {
                     layerName = "Precipitation_Rate";
-                    getIntersectingForecastsTilesFromWMTSService(layerName, tileMatrixSet, p, r, wisseyBounds, "Wissey");
-                    getIntersectingForecastsTilesFromWMTSService(layerName, tileMatrixSet, p, r, teifiBounds, "Teifi");
+                    getIntersectingForecastsTilesFromWMTSService(layerName, tileMatrixSet, p, r, wisseyBounds, "Wissey", overwrite);
+                    getIntersectingForecastsTilesFromWMTSService(layerName, tileMatrixSet, p, r, teifiBounds, "Teifi", overwrite);
                 }
             }
 
@@ -303,11 +316,44 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
                 getForecastsSiteList();
             }
 
-            if (ForecastsForSites) {
-                getForecastsSite(324251); //<Location unitaryAuthArea="Norfolk" region="ee" name="Cromer" longitude="1.3036" latitude="52.9311" id="324251" elevation="15.0"/>
+            if (ForecastsForSite) {
+                //<Location unitaryAuthArea="Norfolk" region="ee" name="Cromer" longitude="1.3036" latitude="52.9311" id="324251" elevation="15.0"/>
+                getForecastsSite(324251);
+                //<Location unitaryAuthArea="Powys" region="wl" name="Llanfair Caereinion" longitude="-3.325" latitude="52.6451" id="352338" elevation="139.0"/>
+                getForecastsSite(352338);
+                /**
+                 * <Location unitaryAuthArea="Caerphilly" region="wl" name="Cwmcarn Forest Drive" longitude="-3.1187" latitude="51.6393" id="351139" elevation="128.0"/>
+                 * <Location unitaryAuthArea="Cardiff" region="wl" name="Llandaff" longitude="-3.2132" latitude="51.4923" id="352324" elevation="19.0"/>
+                 * <Location unitaryAuthArea="Cardiff" region="wl" name="Llanishen" longitude="-3.1892" latitude="51.5291" id="352349" elevation="48.0"/>
+                 * <Location unitaryAuthArea="Carmarthenshire" region="wl" name="Llandovery" longitude="-3.8007" latitude="51.9964" id="324262" elevation="65.0"/>
+                 * <Location unitaryAuthArea="Carmarthenshire" region="wl" name="National Botanic Garden Of Wales" longitude="-4.1403" latitude="51.8443" id="352741" elevation="54.0"/>
+                 * <Location unitaryAuthArea="Ceredigion" region="wl" name="Cardigan" longitude="-4.6597" latitude="52.0834" id="350764" elevation="10.0"/>
+                 * <Location unitaryAuthArea="Ceredigion" region="wl" name="Llangybi" longitude="-4.0341" latitude="52.1594" id="352347" elevation="137.0"/>
+                 * <Location unitaryAuthArea="Conwy" region="wl" name="Conwy Youth Hostel" longitude="-3.8418" latitude="53.2785" id="351006" elevation="63.0"/>
+                 * <Location unitaryAuthArea="Conwy" region="wl" name="Llandudno" longitude="-3.8263" latitude="53.3238" id="352333" elevation="1.0"/>
+                 * <Location unitaryAuthArea="Conwy" region="wl" name="Llandudno Ski & Snowboard Centre" longitude="-3.8371" latitude="53.3286" id="352334" elevation="73.0"/>
+                 * <Location unitaryAuthArea="Conwy" region="wl" name="Lledr Valley Youth Hostel" longitude="-3.8654" latitude="53.0658" id="352357" elevation="162.0" nationalPark="Snowdonia National Park"/>
+                 * <Location unitaryAuthArea="Gwynedd" region="wl" name="Abersoch" longitude="-4.5042" latitude="52.8242" id="324078" elevation="9.0"/>
+                 * <Location unitaryAuthArea="Gwynedd" region="wl" name="Llanbedr" longitude="-4.124" latitude="52.802" id="3407" elevation="9.0" nationalPark="Snowdonia National Park"/> 
+                 * <Location unitaryAuthArea="Gwynedd" region="wl" name="Tywyn" longitude="-4.086" latitude="52.5867" id="354010" elevation="9.0"/>
+                 * <Location unitaryAuthArea="Monmouthshire" region="wl" name="Monmouth Youth Hostel" longitude="-2.7221" latitude="51.8184" id="352666" elevation="33.0"/>
+                 * <Location unitaryAuthArea="Monmouthshire" region="wl" name="Usk" longitude="-2.9022" latitude="51.7049" id="354037" elevation="43.0"/>
+                 * <Location unitaryAuthArea="Newport" region="wl" name="Newport (Newport)" longitude="-2.9963" latitude="51.5837" id="310113" elevation="46.0"/>
+                 * <Location unitaryAuthArea="Newport" region="wl" name="Tredegar House Newport" longitude="-3.0256" latitude="51.5612" id="353971" elevation="9.0"/>
+                 * <Location unitaryAuthArea="Pembrokeshire" region="wl" name="Cc2000 Cross Hands" longitude="-4.8083" latitude="51.775" id="350846" elevation="91.0"/>
+                 * <Location unitaryAuthArea="Pembrokeshire" region="wl" name="Dale" longitude="-5.164" latitude="51.7072" id="351148" elevation="0.0"/>
+                 * <Location unitaryAuthArea="Pembrokeshire" region="wl" name="Narberth" longitude="-4.7425" latitude="51.8" id="352740" elevation="95.0"/>
+                 * <Location unitaryAuthArea="Pembrokeshire" region="wl" name="Newport Bay" longitude="-4.8676" latitude="52.0342" id="352812" elevation="0.0"/>
+                 * <Location unitaryAuthArea="Pembrokeshire" region="wl" name="Newport Youth Hostel" longitude="-4.8352" latitude="52.0172" id="352814" elevation="23.0" nationalPark="Pembrokeshire Coast National Park"/>
+                 * <Location unitaryAuthArea="Pembrokeshire" region="wl" name="Pembroke" longitude="-4.9084" latitude="51.6731" id="310217" elevation="9.0"/>
+                 * <Location unitaryAuthArea="Rhondda Cynon Taff" region="wl" name="Treherbert" longitude="-3.5359" latitude="51.6746" id="353974" elevation="183.0"/>
+                 * <Location unitaryAuthArea="Vale of Glamorgan" region="wl" name="St-Athan" longitude="-3.44" latitude="51.405" id="3716" elevation="49.0"/>
+                 * <Location unitaryAuthArea="Wrexham" region="wl" name="Chirk" longitude="-3.0566" latitude="52.9326" id="350909" elevation="106.0"/>
+                 * 
+                 */
             }
 
-            if (ObservationsForSites) {
+            if (ObservationsForSite) {
                 getObservationsSite(324251); //<Location unitaryAuthArea="Norfolk" region="ee" name="Cromer" longitude="1.3036" latitude="52.9311" id="324251" elevation="15.0"/>
             }
             synchronized (this) {
@@ -322,14 +368,21 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
         }
     }
 
-    protected void getObservationLayer(String layerName) {
+    /**
+     *
+     * @param layerName
+     * @param overwrite If overwrite is true then an attempt is made to get new
+     * data and overwrite. Otherwise the file is left in place and the method
+     * simply returns.
+     */
+    protected void getObservationLayer(String layerName, boolean overwrite) {
         // Download capabilities document for the observation layers in XML format
         File observationLayerCapabilities;
         observationLayerCapabilities = getObservationsLayerCapabilities();
         ArrayList<String> times;
         times = getObservationsLayerTimes(layerName, observationLayerCapabilities);
         // Download observation web map
-        downloadObservationImages(layerName, times);
+        downloadObservationImages(layerName, times, overwrite);
     }
 
     /**
@@ -352,6 +405,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
                 + getString_res() + getSymbol_equals() + res
                 + getSymbol_ampersand()
                 + getString_key() + getSymbol_equals() + API_KEY;
+        System.out.println(url);
         result = getXML(siteID_s + res);
         return result;
     }
@@ -381,7 +435,16 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
         return result;
     }
 
-    protected void getForecastLayer(String layerName) {
+    /**
+     *
+     * @param layerName
+     * @param overwrite If overwrite is true then an attempt is made to get new
+     * data and overwrite. Otherwise the file is left in place and the method
+     * simply returns.
+     */
+    protected void getForecastLayer(
+            String layerName,
+            boolean overwrite) {
         // Download capabilities document for the forecast layers in XML format
         File forecastLayerCapabilities;
         forecastLayerCapabilities = getForecastsLayerCapabilities();
@@ -396,7 +459,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
          * forecasts for the next 36 hours based on the first time, we can now
          * pass in the list of times parsed from the Capabilities XML.
          */
-        downloadForecastImages(layerName, times.get(0));
+        downloadForecastImages(layerName, times.get(0), overwrite);
     }
 
     /**
@@ -426,7 +489,8 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
                 + getSymbol_questionmark()
                 + getString_key() + getSymbol_equals() + API_KEY;
         File dir;
-        dir = new File(files.getInputDataMetOfficeDir(),
+        dir = new File(
+                files.getInputDataMetOfficeDataPointDir(),
                 path);
         dir.mkdirs();
         File xml;
@@ -488,10 +552,15 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
      * Download forecast image.
      *
      * @param layerName
+     * @param time
+     * @param overwrite If overwrite is true then an attempt is made to get new
+     * data and overwrite. Otherwise the file is left in place and the method
+     * simply returns.
      */
     protected void downloadForecastImages(
             String layerName,
-            String time) {
+            String time,
+            boolean overwrite) {
         //http://datapoint.metoffice.gov.uk/public/data/layer/wxfcs/{LayerName}/{ImageFormat}?RUN={DefaultTime}Z&FORECAST={Timestep}&key={key}
         String imageFormat;
         imageFormat = getString_png();
@@ -511,7 +580,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
                     + getSymbol_ampersand() + "FORECAST" + getSymbol_equals() + timeStep
                     + getSymbol_ampersand() + getString_key() + getSymbol_equals() + API_KEY;
             outputFilenameWithoutExtension = layerName + time.replace(':', '_') + timeStep;
-            getPNG(outputFilenameWithoutExtension);
+            getPNG(outputFilenameWithoutExtension, overwrite);
         }
     }
 
@@ -520,10 +589,14 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
      *
      * @param layerName
      * @param times
+     * @param overwrite If overwrite is true then an attempt is made to get new
+     * data and overwrite. Otherwise the file is left in place and the method
+     * simply returns.
      */
     protected void downloadObservationImages(
             String layerName,
-            ArrayList<String> times) {
+            ArrayList<String> times,
+            boolean overwrite) {
         //http://datapoint.metoffice.gov.uk/public/data/layer/wxobs/{LayerName}/{ImageFormat}?TIME={Time}Z&key={key}
         String imageFormat;
         imageFormat = getString_png();
@@ -545,7 +618,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
                     + getSymbol_ampersand() + getString_key() + getSymbol_equals() + API_KEY;
             String outputFilenameWithoutExtension;
             outputFilenameWithoutExtension = layerName + time.replace(':', '_');
-            getPNG(outputFilenameWithoutExtension);
+            getPNG(outputFilenameWithoutExtension, overwrite);
             //}
         }
     }
@@ -557,12 +630,16 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
      * @param tileMatrixSet
      * @param p
      * @param r
+     * @param overwrite If overwrite is true then an attempt is made to get new
+     * data and overwrite. Otherwise the file is left in place and the method
+     * simply returns.
      */
     protected void getAllObservationsTilesFromWMTSService(
             String layerName,
             String tileMatrixSet,
             SARIC_MetOfficeParameters p,
-            SARIC_MetOfficeCapabilitiesXMLDOMReader r) {
+            SARIC_MetOfficeCapabilitiesXMLDOMReader r,
+            boolean overwrite) {
         ArrayList<String> times;
         times = r.getTimesInspireWMTS(layerName);
         p.setTimes(times);
@@ -610,7 +687,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
                         outputFilenameWithoutExtension = layerName + tileMatrix.replace(':', '_') + time.replace(':', '_') + "_" + tileRow + "_" + tileCol;
                         String pathDummy = path;
                         path += "/" + layerName + "/" + tileMatrix.replace(':', '_');
-                        getPNG(outputFilenameWithoutExtension);
+                        getPNG(outputFilenameWithoutExtension, overwrite);
                         path = pathDummy;
                         //break; // For testing
                     }
@@ -631,6 +708,9 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
      * @param AreaBoundingBox The bounding box of the area for which tiles are
      * requested.
      * @param areaName
+     * @param overwrite If overwrite is true then an attempt is made to get new
+     * data and overwrite. Otherwise the file is left in place and the method
+     * simply returns.
      */
     protected void getIntersectingObservationsTilesFromWMTSService(
             String layerName,
@@ -638,7 +718,8 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
             SARIC_MetOfficeParameters p,
             SARIC_MetOfficeCapabilitiesXMLDOMReader r,
             Vector_Envelope2D AreaBoundingBox,
-            String areaName) {
+            String areaName,
+            boolean overwrite) {
         System.out.println("AreaBoundingBox " + AreaBoundingBox);
         ArrayList<String> times;
         times = r.getTimesInspireWMTS(layerName);
@@ -702,7 +783,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
                             outputFilenameWithoutExtension = layerName + tileMatrix.replace(':', '_') + time.replace(':', '_') + "_" + tileRow + "_" + tileCol;
                             String pathDummy = path;
                             path += "/" + areaName + "/" + layerName + "/" + tileMatrix.replace(':', '_') + "/" + time.replace(':', '_');
-                            getPNG(outputFilenameWithoutExtension);
+                            getPNG(outputFilenameWithoutExtension, overwrite);
                             path = pathDummy;
                         }
                         //break; // For testing
@@ -725,6 +806,9 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
      * @param AreaBoundingBox The bounding box of the area for which tiles are
      * requested.
      * @param areaName
+     * @param overwrite If overwrite is true then an attempt is made to get new
+     * data and overwrite. Otherwise the file is left in place and the method
+     * simply returns.
      */
     protected void getIntersectingForecastsTilesFromWMTSService(
             String layerName,
@@ -732,7 +816,8 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
             SARIC_MetOfficeParameters p,
             SARIC_MetOfficeCapabilitiesXMLDOMReader r,
             Vector_Envelope2D AreaBoundingBox,
-            String areaName) {
+            String areaName,
+            boolean overwrite) {
         System.out.println("AreaBoundingBox " + AreaBoundingBox);
         ArrayList<String> times;
         times = r.getTimesInspireWMTS(layerName);
@@ -803,7 +888,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
                             outputFilenameWithoutExtension = layerName + tileMatrix.replace(':', '_') + time.replace(':', '_') + "_" + tileRow + "_" + tileCol;
                             String pathDummy = path;
                             path += "/" + areaName + "/" + layerName + "/" + tileMatrix.replace(':', '_') + "/" + time.replace(':', '_');
-                            getPNG(outputFilenameWithoutExtension);
+                            getPNG(outputFilenameWithoutExtension, overwrite);
                             path = pathDummy;
                         }
                         //break; // For testing
@@ -890,7 +975,16 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
         return xml;
     }
 
-    protected void getPNG(String outputFilenameWithoutExtension) {
+    /**
+     *
+     * @param outputFilenameWithoutExtension
+     * @param overwrite If overwrite is true then an attempt is made to get new
+     * data and overwrite. Otherwise the file is left in place and the method
+     * simply returns.
+     */
+    protected void getPNG(
+            String outputFilenameWithoutExtension,
+            boolean overwrite) {
         File outputDir;
         outputDir = new File(
                 files.getInputDataMetOfficeDataPointDir(),

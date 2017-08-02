@@ -27,9 +27,6 @@ import java.io.Serializable;
 
 public abstract class SARIC_Object implements Serializable {
 
-    /**
-     * A reference to DW_Environment
-     */
     protected transient SARIC_Environment se;
 
     public SARIC_Object(){}

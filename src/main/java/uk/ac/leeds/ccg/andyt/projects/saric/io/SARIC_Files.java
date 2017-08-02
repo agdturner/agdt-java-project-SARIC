@@ -26,8 +26,8 @@ import java.io.File;
  */
 public class SARIC_Files {
     
-    protected File DataDirectory;
-    protected File InputDataDirectory;
+    protected File DataDir;
+    protected File InputDataDir;
     protected File InputDataCatchmentBoundariesDir;
     protected File InputDataCEHDir;
     protected File InputDataMetOfficeDir;
@@ -35,6 +35,17 @@ public class SARIC_Files {
     protected File InputDataMetOfficeDataPointConfigDir;
     protected File InputDataMetOfficeDataPointAPIKeyFile;
     protected File InputDataMetOfficeNimrodDir;
+    protected File OutputDataDir;
+    protected File OutputDataMetOfficeDir;
+    protected File OutputDataMetOfficeDataPointDir;
+    protected String sOutput = "output";
+    protected String sInput = "input";
+    protected String sCatchmentBoundaries = "CatchmentBoundaries";
+    protected String sCEH = "CEH";
+    protected String sConfig = "config";
+    protected String sDataPoint = "DataPoint";
+    protected String sMetOffice = "MetOffice";
+    protected String sNimrod = "Nimrod";
     
     protected SARIC_Files(){}
 
@@ -53,27 +64,55 @@ public class SARIC_Files {
 //        DataDirectory = new File(
 //                userDir,
 //                name);
-        DataDirectory = new File(name);
-        if (!DataDirectory.exists()) {
+        DataDir = new File(name);
+        if (!DataDir.exists()) {
             boolean successfulCreation;
-            successfulCreation = DataDirectory.mkdirs();
+            successfulCreation = DataDir.mkdirs();
             if (!successfulCreation) {
-                throw new Error("dataDirectory not created in " + this.getClass().getName() + ".setDataDirectory(String)");
+                throw new Error("The data directory was not created in " 
+                        + this.getClass().getName() + ".setDataDirectory(String)");
             }
         }
     }
     
-    public File getDataDirectory() {
-        return DataDirectory;
+    public File getDataDir() {
+        return DataDir;
     }
     
-    public File getInputDataDirectory() {
-        if (InputDataDirectory == null) {
-            InputDataDirectory = new File(
-            getDataDirectory(),
-            "input");
+    public File getOutputDataDir() {
+        if (OutputDataDir == null) {
+            OutputDataDir = new File(
+            getDataDir(),
+            sOutput);
         }
-        return InputDataDirectory;
+        return OutputDataDir;
+    }
+
+    public File getOutputDataMetOfficeDir() {
+        if (OutputDataMetOfficeDir == null) {
+            OutputDataMetOfficeDir = new File(
+                getOutputDataDir(),
+                sMetOffice);
+        }
+        return OutputDataMetOfficeDir;
+    }
+
+    public File getOutputDataMetOfficeDataPointDir() {
+        if (OutputDataMetOfficeDataPointDir == null) {
+            OutputDataMetOfficeDataPointDir = new File(
+                getOutputDataDir(),
+                sDataPoint);
+        }
+        return OutputDataMetOfficeDataPointDir;
+    }
+    
+    public File getInputDataDir() {
+        if (InputDataDir == null) {
+            InputDataDir = new File(
+            getDataDir(),
+            sInput);
+        }
+        return InputDataDir;
     }
     
     public File getInputDataMetOfficeDataPointAPIKeyFile() {
@@ -89,7 +128,7 @@ public class SARIC_Files {
         if (InputDataMetOfficeDataPointConfigDir == null) {
         InputDataMetOfficeDataPointConfigDir = new File(
                 getInputDataMetOfficeDataPointDir(),
-                "config");
+                sConfig);
         }
         return InputDataMetOfficeDataPointConfigDir;
     }
@@ -97,8 +136,8 @@ public class SARIC_Files {
     public File getInputDataMetOfficeDir() {
         if (InputDataMetOfficeDir == null) {
             InputDataMetOfficeDir = new File(
-                getInputDataDirectory(),
-                "MetOffice");
+                getInputDataDir(),
+                sMetOffice);
         }
         return InputDataMetOfficeDir;
     }
@@ -107,7 +146,7 @@ public class SARIC_Files {
         if (InputDataMetOfficeDataPointDir == null) {
             InputDataMetOfficeDataPointDir = new File(
                 getInputDataMetOfficeDir(),
-                "DataPoint");
+                sDataPoint);
         }
         return InputDataMetOfficeDataPointDir;
     }
@@ -116,7 +155,7 @@ public class SARIC_Files {
         if (InputDataMetOfficeNimrodDir == null) {
             InputDataMetOfficeNimrodDir = new File(
                 getInputDataMetOfficeDir(),
-                "Nimrod");
+                sNimrod);
         }
         return InputDataMetOfficeDir;
     }
@@ -124,8 +163,8 @@ public class SARIC_Files {
     public File getInputDataCEHDir() {
         if (InputDataCEHDir == null) {
         InputDataCEHDir = new File(
-                getInputDataDirectory(),
-                "CEH");
+                getInputDataDir(),
+                sCEH);
         }
         return InputDataCEHDir;
     }
@@ -133,8 +172,8 @@ public class SARIC_Files {
     public File getInputDataCatchmentBoundariesDir() {
         if (InputDataCatchmentBoundariesDir == null) {
         InputDataCatchmentBoundariesDir = new File(
-                getInputDataDirectory(),
-                "CatchmentBoundaries");
+                getInputDataDir(),
+                sCatchmentBoundaries);
         }
         return InputDataCatchmentBoundariesDir;
     }
