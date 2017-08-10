@@ -63,6 +63,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
 
     // Normal strings
     String string_3hourly;
+    String string_hourly;
     String string_all;
     String string_capabilities;
     String string_datatype;
@@ -74,7 +75,6 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
     String string_val;
     String string_wxfcs;
     String string_wxobs;
-    String string_xml;
 
     // Variables
     String path;
@@ -95,9 +95,13 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
     boolean ObservationsTileFromWMTSService;
     boolean ObservationsSiteList;
     boolean ForecastsSiteList;
-    boolean ObservationsForSite;
-    boolean ForecastsForSite;
+    boolean ObservationsForSites;
+    boolean ForecastsForSites;
     boolean overwrite;
+    /**
+     * @param dataType either "xml" or "json"
+     */
+    String dataType;
 
     /**
      * If overwrite is true then an attempt is made to get new data and
@@ -122,7 +126,8 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
             boolean ObservationsForSite,
             long timeDelay,
             String name,
-            boolean overwrite
+            boolean overwrite,
+            String dataType
     ) {
         this.se = SARIC_Environment;
         this.files = SARIC_Environment.getFiles();
@@ -133,11 +138,12 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
         this.ForecastsTileFromWMTSService = ForecastsTileFromWMTSService;
         this.ObservationsSiteList = ObservationSiteList;
         this.ForecastsSiteList = ForecastSiteList;
-        this.ForecastsForSite = ForecastsForSite;
-        this.ObservationsForSite = ObservationsForSite;
+        this.ForecastsForSites = ForecastsForSite;
+        this.ObservationsForSites = ObservationsForSite;
         this.timeDelay = timeDelay;
         this.name = name;
         this.overwrite = overwrite;
+        this.dataType = dataType;
     }
 
     public void run() {
@@ -309,14 +315,17 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
             }
 
             if (ObservationsSiteList) {
+                getObservationsSiteCapabilities();
                 getObservationsSiteList();
             }
 
             if (ForecastsSiteList) {
+                getForecastsSiteCapabilities();
                 getForecastsSiteList();
             }
 
-            if (ForecastsForSite) {
+            if (ForecastsForSites) {
+                getForecastsSiteCapabilities();
                 //<Location unitaryAuthArea="Norfolk" region="ee" name="Cromer" longitude="1.3036" latitude="52.9311" id="324251" elevation="15.0"/>
                 getForecastsSite(324251);
                 //<Location unitaryAuthArea="Powys" region="wl" name="Llanfair Caereinion" longitude="-3.325" latitude="52.6451" id="352338" elevation="139.0"/>
@@ -334,7 +343,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
                  * <Location unitaryAuthArea="Conwy" region="wl" name="Llandudno Ski & Snowboard Centre" longitude="-3.8371" latitude="53.3286" id="352334" elevation="73.0"/>
                  * <Location unitaryAuthArea="Conwy" region="wl" name="Lledr Valley Youth Hostel" longitude="-3.8654" latitude="53.0658" id="352357" elevation="162.0" nationalPark="Snowdonia National Park"/>
                  * <Location unitaryAuthArea="Gwynedd" region="wl" name="Abersoch" longitude="-4.5042" latitude="52.8242" id="324078" elevation="9.0"/>
-                 * <Location unitaryAuthArea="Gwynedd" region="wl" name="Llanbedr" longitude="-4.124" latitude="52.802" id="3407" elevation="9.0" nationalPark="Snowdonia National Park"/> 
+                 * <Location unitaryAuthArea="Gwynedd" region="wl" name="Llanbedr" longitude="-4.124" latitude="52.802" id="3407" elevation="9.0" nationalPark="Snowdonia National Park"/>
                  * <Location unitaryAuthArea="Gwynedd" region="wl" name="Tywyn" longitude="-4.086" latitude="52.5867" id="354010" elevation="9.0"/>
                  * <Location unitaryAuthArea="Monmouthshire" region="wl" name="Monmouth Youth Hostel" longitude="-2.7221" latitude="51.8184" id="352666" elevation="33.0"/>
                  * <Location unitaryAuthArea="Monmouthshire" region="wl" name="Usk" longitude="-2.9022" latitude="51.7049" id="354037" elevation="43.0"/>
@@ -349,13 +358,15 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
                  * <Location unitaryAuthArea="Rhondda Cynon Taff" region="wl" name="Treherbert" longitude="-3.5359" latitude="51.6746" id="353974" elevation="183.0"/>
                  * <Location unitaryAuthArea="Vale of Glamorgan" region="wl" name="St-Athan" longitude="-3.44" latitude="51.405" id="3716" elevation="49.0"/>
                  * <Location unitaryAuthArea="Wrexham" region="wl" name="Chirk" longitude="-3.0566" latitude="52.9326" id="350909" elevation="106.0"/>
-                 * 
+                 *
                  */
             }
 
-            if (ObservationsForSite) {
+            if (ObservationsForSites) {
+                getObservationsSiteCapabilities();
                 getObservationsSite(324251); //<Location unitaryAuthArea="Norfolk" region="ee" name="Cromer" longitude="1.3036" latitude="52.9311" id="324251" elevation="15.0"/>
             }
+
             synchronized (this) {
                 try {
                     this.wait(timeDelay);
@@ -388,15 +399,24 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
     /**
      * Gets Forecast data for a specific site.
      *
-     * @param siteID The ID of the site for which the forecast is got.
+     * @param siteID The ID of the site for which the forecast is requested.
      * @return The File where the data is stored.
      */
     protected File getForecastsSite(int siteID) {
+        return getForecastsSite(Integer.toString(siteID));
+    }
+
+    /**
+     * Gets Forecast data for a specific site or for all sites.
+     *
+     * @param siteID The ID of the site for which the forecast is requested. If
+     * siteID.equalsIgnoreCase("all") then forecasts for all sites are returned.
+     * @return The File where the data is stored.
+     */
+    protected File getForecastsSite(String siteID) {
         File result;
-        String siteID_s;
-        siteID_s = Integer.toString(siteID);
-        path = getValDataTypePath(getString_xml(), getString_wxfcs())
-                + siteID_s;
+        path = getValDataTypePath(dataType, getString_wxfcs())
+                + siteID;
         String res;
         res = getString_3hourly();
         url = BASE_URL
@@ -406,32 +426,41 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
                 + getSymbol_ampersand()
                 + getString_key() + getSymbol_equals() + API_KEY;
         System.out.println(url);
-        result = getXML(siteID_s + res);
+        result = getXML(siteID + res, false);
         return result;
     }
 
     /**
-     * Gets Forecast data for a specific site.
+     * Gets Observation data for a specific site.
      *
-     * @param siteID The ID of the site for which the forecast is got.
+     * @param siteID The ID of the site for which the observation is requested.
      * @return The File where the data is stored.
      */
     protected File getObservationsSite(int siteID) {
+        return getObservationsSite(Integer.toString(siteID));
+    }
+
+    /**
+     * Gets Observation data for a specific site.
+     *
+     * @param siteID The ID of the site for which the observation is requested.
+     * If siteID.equalsIgnoreCase("all") then forecasts for all sites are
+     * returned.
+     * @return The File where the data is stored.
+     */
+    protected File getObservationsSite(String siteID) {
         File result;
-        result = null;
-//        String siteID_s;
-//        siteID_s = Integer.toString(siteID);
-//        path = getValDataTypePath(getString_xml(), getString_wxobs())
-//                + siteID_s;
-//        String res;
-//        res = getString_3hourly(); //???
-//        url = BASE_URL
-//                + path
-//                + getSymbol_questionmark()
-//                + getString_res() + getSymbol_equals() + res
-//                + getSymbol_ampersand()
-//                + getString_key() + getSymbol_equals() + API_KEY;
-//        result = getXML(siteID_s + res);
+        path = getValDataTypePath(dataType, getString_wxobs())
+                + siteID;
+        String res;
+        res = getString_hourly();
+        url = BASE_URL
+                + path
+                + getSymbol_questionmark()
+                + getString_res() + getSymbol_equals() + res
+                + getSymbol_ampersand()
+                + getString_key() + getSymbol_equals() + API_KEY;
+        result = getXML(siteID + res, false);
         return result;
     }
 
@@ -482,7 +511,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
      * @param obs_or_fcs
      */
     protected void getSiteList(String obs_or_fcs) {
-        path = getValDataTypePath(getString_xml(), obs_or_fcs)
+        path = getValDataTypePath(dataType, obs_or_fcs)
                 + getString_sitelist();
         url = BASE_URL
                 + path
@@ -495,7 +524,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
         dir.mkdirs();
         File xml;
         xml = new File(dir,
-                getString_sitelist() + "." + getString_xml());
+                getString_sitelist() + "." + dataType);
         getXML(url, xml);
     }
 
@@ -915,7 +944,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
                 + "?REQUEST=get" + getString_capabilities()
                 + getSymbol_ampersand()
                 + getString_key() + getSymbol_equals() + API_KEY;
-        File result = getXML(getString_capabilities());
+        File result = getXML(getString_capabilities(), false);
         return result;
     }
 
@@ -927,16 +956,35 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
      */
     protected File getObservationsLayerCapabilities() {
         // http://datapoint.metoffice.gov.uk/public/data/layer/wxobs/all/xml/capabilities?key=<API key>
+        initPath(getString_val(), getString_wxobs(), dataType);
+        addCapabilitiesToPath();
+        return getCapabilities(false);
+    }
+
+    /**
+     * Download capabilities document for the observations sites in XML format
+     *
+     * @return
+     */
+    protected File getObservationsSiteCapabilities() {
+        initPath(getString_val(), getString_wxobs(), dataType);
+        addCapabilitiesToPath();
+        path += getString_res() + getSymbol_equals() + getString_hourly() + getSymbol_ampersand();
+        return getCapabilities(true);
+    }
+
+    /**
+     * Download capabilities document for current WMTS observation layer in XML
+     * format
+     *
+     * @return
+     */
+    protected File getCapabilities(boolean parsePath) {
         File result;
-        path = getString_layer() + getSymbol_backslash()
-                + getString_wxobs() + getSymbol_backslash()
-                + getString_all() + getSymbol_backslash()
-                + getString_xml() + getSymbol_backslash();
         url = BASE_URL
                 + path
-                + getString_capabilities() + getSymbol_questionmark()
                 + getString_key() + getSymbol_equals() + API_KEY;
-        result = getXML(getString_capabilities());
+        result = getXML(getString_capabilities(), parsePath);
         return result;
     }
 
@@ -947,29 +995,72 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
      */
     protected File getForecastsLayerCapabilities() {
         // http://datapoint.metoffice.gov.uk/public/data/layer/wxfcs/all/xml/capabilities?key=<API key>
-        File result;
-        path = getString_layer() + getSymbol_backslash()
-                + getString_wxfcs() + getSymbol_backslash()
+        initPath(getString_val(), getString_wxfcs(), dataType);
+        addCapabilitiesToPath();
+        return getCapabilities(false);
+    }
+
+    /**
+     * Download capabilities document for the forecast sites in XML format
+     *
+     * @return
+     */
+    protected File getForecastsSiteCapabilities() {
+        // http://datapoint.metoffice.gov.uk/public/data/val/wxfcs/all/xml/capabilities?res=3hourly&key=01234567-89ab-cdef-0123-456789abcdef
+        initPath(getString_val(), getString_wxfcs(), dataType);
+        path += getString_res() + getSymbol_equals() + getString_3hourly();
+        addCapabilitiesToPath();
+        return getCapabilities(true);
+    }
+
+    protected void initPath(
+            String val_Or_layer,
+            String wxfcs_Or_Wxobs,
+            String dataType) {
+        path = val_Or_layer + getSymbol_backslash()
+                + wxfcs_Or_Wxobs + getSymbol_backslash()
                 + getString_all() + getSymbol_backslash()
-                + getString_xml() + getSymbol_backslash();
-        url = BASE_URL
-                + path
-                + getString_capabilities() + getSymbol_questionmark()
-                + getString_key() + getSymbol_equals() + API_KEY;
-        result = getXML(getString_capabilities());
+                + dataType + getSymbol_backslash();
+    }
+
+    public String getParsedPath() {
+        String result;
+        String[] parts;
+        parts = path.split("capabilities\\?res=");
+        result = parts[0] + parts[1].substring(0, parts[1].length() - 1);
         return result;
     }
 
-    protected File getXML(String name) {
+    protected void addCapabilitiesToPath() {
+        path += getString_capabilities() + getSymbol_questionmark();
+    }
+
+    /**
+     *
+     * @param name
+     * @param parsePath If parsePath == true then the path is parsed to ensure
+     * the right directories are set up for writing the XML. Currently the
+     * parsing is only done one way and to change this in future something with
+     * more values than a boolean would have to be passed in instead and the
+     * code would need a refactoring accordingly.
+     * @return
+     */
+    protected File getXML(String name, boolean parsePath) {
         File outputDir;
-        outputDir = new File(
-                files.getInputDataMetOfficeDataPointDir(),
-                path);
+        if (parsePath) {
+            outputDir = new File(
+                    files.getInputDataMetOfficeDataPointDir(),
+                    getParsedPath());
+        } else {
+            outputDir = new File(
+                    files.getInputDataMetOfficeDataPointDir(),
+                    path);
+        }
         outputDir.mkdirs();
         File xml;
         xml = Generic_StaticIO.createNewFile(
                 outputDir,
-                name + "." + getString_xml());
+                name + "." + dataType);
         getXML(url,
                 xml);
         return xml;
@@ -1006,13 +1097,13 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
         path = getString_val() + getSymbol_backslash()
                 + getString_wxfcs() + getSymbol_backslash()
                 + getString_all() + getSymbol_backslash()
-                + getString_xml() + getSymbol_backslash()
+                + dataType + getSymbol_backslash()
                 + "3840";
         url = BASE_URL
                 + path + getSymbol_questionmark()
                 + "res" + getSymbol_equals() + "3hourly&"
                 + getString_key() + getSymbol_equals() + API_KEY;
-        getXML("test");
+        getXML("test", false);
     }
 
     /**
@@ -1175,9 +1266,16 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
 
     public String getString_3hourly() {
         if (string_3hourly == null) {
-            string_3hourly = "3hourly";
+            string_3hourly = "3" + getString_hourly();
         }
         return string_3hourly;
+    }
+
+    public String getString_hourly() {
+        if (string_hourly == null) {
+            string_hourly = "hourly";
+        }
+        return string_hourly;
     }
 
     public String getString_all() {
@@ -1257,10 +1355,4 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
         return string_wxobs;
     }
 
-    public String getString_xml() {
-        if (string_xml == null) {
-            string_xml = "xml";
-        }
-        return string_xml;
-    }
 }

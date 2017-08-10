@@ -32,6 +32,15 @@ import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.SARIC_MetOf
  */
 public class SARIC_Processor extends SARIC_Object {
 
+    String string_xml;
+
+    public String getString_xml() {
+        if (string_xml == null) {
+            string_xml = "xml";
+        }
+        return string_xml;
+    }
+
     protected SARIC_Processor() {
     }
 
@@ -81,8 +90,8 @@ public class SARIC_Processor extends SARIC_Object {
     public void run() throws Exception {
 
         // Main switches
-        //RunSARIC_MetOfficeScraper = true;
-        RunSARIC_ImageProcessor = true;
+        RunSARIC_MetOfficeScraper = true;
+//        RunSARIC_ImageProcessor = true;
 
         /**
          * Run SARIC_MetOfficeScraper
@@ -92,12 +101,19 @@ public class SARIC_Processor extends SARIC_Object {
             String name;
 
             // Main Switches
+            doCalculateSitesStudyAreas = true;
 //            doNonTiledObs = true;
-            doNonTiledFcs = true;
+//            doNonTiledFcs = true;
 //            doTileFromWMTSService = true;
 //            doObservationsTileFromWMTSService = true;
 //            doForecastsTileFromWMTSService = true;
 
+            /**
+             * This thread parses the site list and returns an
+             * ArrayList<Integer> of siteIDs for the sites that are within our
+             * study areas of the Wissey and Teifi catchments. This needs
+             * improving so that the study areas are buffered.
+             */
             /**
              * Observation thread gets data every 2 and 3/4 hours. New data is
              * supposed to be released every 15 minutes, so it might be better
@@ -113,6 +129,7 @@ public class SARIC_Processor extends SARIC_Object {
                 ForecastsTileFromWMTSService = false;
                 ForecastSiteList = false;
                 ForecastsForSite = true;
+                ForecastsForSite = false;
                 ObservationsForSite = true;
                 timeDelay = (long) (Generic_Time.MilliSecondsInHour * 2.75);
                 name = "Observations";
@@ -131,7 +148,9 @@ public class SARIC_Processor extends SARIC_Object {
                         ObservationsForSite,
                         timeDelay,
                         name,
-                        overwrite);
+                        overwrite,
+                        getString_xml()
+                );
                 Thread observationsThread;
                 observationsThread = new Thread(ObservationsMetOfficeScraper);
                 observationsThread.start();
@@ -176,7 +195,8 @@ public class SARIC_Processor extends SARIC_Object {
                         ObservationsForSite,
                         timeDelay,
                         name,
-                        overwrite);
+                        overwrite,
+                        getString_xml());
                 Thread forecastsThread;
                 forecastsThread = new Thread(ForecastsMetOfficeScraper);
                 forecastsThread.start();
@@ -221,7 +241,8 @@ public class SARIC_Processor extends SARIC_Object {
                             ObservationsForSite,
                             timeDelay,
                             name,
-                            overwrite);
+                            overwrite,
+                            getString_xml());
                     Thread forecastsThread;
                     forecastsThread = new Thread(ForecastsMetOfficeScraper);
                     forecastsThread.start();
@@ -246,7 +267,8 @@ public class SARIC_Processor extends SARIC_Object {
                             ObservationsForSite,
                             timeDelay,
                             name,
-                            overwrite);
+                            overwrite,
+                            getString_xml());
                     Thread forecastsThread;
                     forecastsThread = new Thread(ForecastsMetOfficeScraper);
                     forecastsThread.start();
@@ -263,10 +285,12 @@ public class SARIC_Processor extends SARIC_Object {
             boolean doWissey;
             boolean doTeifi;
             doWissey = true;
+//            doWissey = false;
             doTeifi = true;
-//            doNonTiledObs = true;
+            doTeifi = false;
+            doNonTiledObs = true;
             doNonTiledObs = false;
-//            doNonTiledFcs = true;
+            doNonTiledFcs = true;
             doNonTiledFcs = false;
             doTileFromWMTSService = true;
             doObservationsTileFromWMTSService = true;
@@ -292,6 +316,7 @@ public class SARIC_Processor extends SARIC_Object {
         }
     }
 
+    boolean doCalculateSitesStudyAreas = false;
     boolean Observations = false;
     boolean Forecasts = false;
     boolean TileFromWMTSService = false;
