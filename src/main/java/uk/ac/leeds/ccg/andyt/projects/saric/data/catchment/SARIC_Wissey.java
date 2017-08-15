@@ -58,4 +58,5 @@ public class SARIC_Wissey extends SARIC_Object {
         result = new Vector_Envelope2D(aPoint, bPoint);
         return result;
     }
+    
 }

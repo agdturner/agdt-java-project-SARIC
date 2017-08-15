@@ -35,10 +35,14 @@ public class SARIC_Files {
     protected File InputDataMetOfficeDataPointConfigDir;
     protected File InputDataMetOfficeDataPointAPIKeyFile;
     protected File InputDataMetOfficeNimrodDir;
+    protected File GeneratedDataDir;
+    protected File GeneratedDataMetOfficeDir;
+    protected File GeneratedDataMetOfficeDataPointDir;
     protected File OutputDataDir;
     protected File OutputDataMetOfficeDir;
     protected File OutputDataMetOfficeDataPointDir;
     protected String sOutput = "output";
+    protected String sGenerated = "generated";
     protected String sInput = "input";
     protected String sCatchmentBoundaries = "CatchmentBoundaries";
     protected String sCEH = "CEH";
@@ -104,6 +108,33 @@ public class SARIC_Files {
                 sDataPoint);
         }
         return OutputDataMetOfficeDataPointDir;
+    }
+    
+     public File getGeneratedDataDir() {
+        if (GeneratedDataDir == null) {
+            GeneratedDataDir = new File(
+            getDataDir(),
+            sGenerated);
+        }
+        return GeneratedDataDir;
+    }
+
+    public File getGeneratedDataMetOfficeDir() {
+        if (GeneratedDataMetOfficeDir == null) {
+            GeneratedDataMetOfficeDir = new File(
+                getGeneratedDataDir(),
+                sMetOffice);
+        }
+        return GeneratedDataMetOfficeDir;
+    }
+
+    public File getGeneratedDataMetOfficeDataPointDir() {
+        if (GeneratedDataMetOfficeDataPointDir == null) {
+            GeneratedDataMetOfficeDataPointDir = new File(
+                getGeneratedDataDir(),
+                sDataPoint);
+        }
+        return GeneratedDataMetOfficeDataPointDir;
     }
     
     public File getInputDataDir() {

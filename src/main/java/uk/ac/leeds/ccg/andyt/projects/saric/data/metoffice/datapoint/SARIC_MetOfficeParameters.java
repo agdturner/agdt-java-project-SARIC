@@ -47,7 +47,7 @@ public class SARIC_MetOfficeParameters extends SARIC_Object {
     ArrayList<String> times;
     String layerName;
 
-    private HashMap<String, SARIC_MetOfficeLayerParameters> parameters;
+    private HashMap<String, SARIC_MetOfficeLayerParameters> metOfficeLayerParameters;
 
     public SARIC_MetOfficeParameters() {
     }
@@ -57,19 +57,19 @@ public class SARIC_MetOfficeParameters extends SARIC_Object {
     }
 
     public int getNrows(String key) {
-        return getParameters().get(key).getNrows();
+        return getMetOfficeLayerParameters().get(key).getNrows();
     }
 
     public void setNrows(String key, int nrows) {
-        getParameters().get(key).setNrows(nrows);
+        getMetOfficeLayerParameters().get(key).setNrows(nrows);
     }
 
     public int getNcols(String key) {
-        return getParameters().get(key).getNcols();
+        return getMetOfficeLayerParameters().get(key).getNcols();
     }
 
     public void setNcols(String key, int ncols) {
-        getParameters().get(key).setNcols(ncols);
+        getMetOfficeLayerParameters().get(key).setNcols(ncols);
     }
 
     public Vector_Envelope2D getBounds() {
@@ -81,11 +81,11 @@ public class SARIC_MetOfficeParameters extends SARIC_Object {
     }
 
     public HashMap<Integer, Vector_Envelope2D> getTileBounds(String key) {
-        return getParameters().get(key).getTileBounds();
+        return getMetOfficeLayerParameters().get(key).getTileBounds();
     }
 
     public Vector_Envelope2D getTileBounds(String key, int row, int col) {
-        return getParameters().get(key).getTileBounds(row, col);
+        return getMetOfficeLayerParameters().get(key).getTileBounds(row, col);
     }
 
     public ArrayList<String> getTimes() {
@@ -107,11 +107,11 @@ public class SARIC_MetOfficeParameters extends SARIC_Object {
     /**
      * @return the parameters
      */
-    public HashMap<String, SARIC_MetOfficeLayerParameters> getParameters() {
-        if (parameters == null) {
-            parameters = new HashMap<String, SARIC_MetOfficeLayerParameters>();
+    public HashMap<String, SARIC_MetOfficeLayerParameters> getMetOfficeLayerParameters() {
+        if (metOfficeLayerParameters == null) {
+            metOfficeLayerParameters = new HashMap<String, SARIC_MetOfficeLayerParameters>();
         }
-        return parameters;
+        return metOfficeLayerParameters;
     }
 
 }

@@ -101,9 +101,9 @@ public class SARIC_Processor extends SARIC_Object {
             String name;
 
             // Main Switches
-            doCalculateSitesStudyAreas = true;
+//            doCalculateSitesInStudyAreas = true;
 //            doNonTiledObs = true;
-//            doNonTiledFcs = true;
+            doNonTiledFcs = true;
 //            doTileFromWMTSService = true;
 //            doObservationsTileFromWMTSService = true;
 //            doForecastsTileFromWMTSService = true;
@@ -114,6 +114,43 @@ public class SARIC_Processor extends SARIC_Object {
              * study areas of the Wissey and Teifi catchments. This needs
              * improving so that the study areas are buffered.
              */
+            if (doCalculateSitesInStudyAreas) {
+                CalculateSitesInStudyAreas = true;
+                Observations = false;
+                Forecasts = false;
+                TileFromWMTSService = false;
+                ObservationSiteList = false;
+                ObservationsTileFromWMTSService = false;
+                ForecastsTileFromWMTSService = false;
+                ForecastSiteList = false;
+                ForecastsForSite = false;
+                ForecastsForSite = false;
+                ObservationsForSite = false;
+                timeDelay = (long) (Generic_Time.MilliSecondsInHour * 2.75);
+                name = "CalculateSitesInStudyAreas";
+                overwrite = false;
+                SARIC_MetOfficeScraper ObservationsMetOfficeScraper;
+                ObservationsMetOfficeScraper = new SARIC_MetOfficeScraper(
+                        se,
+                        CalculateSitesInStudyAreas,
+                        Observations,
+                        Forecasts,
+                        TileFromWMTSService,
+                        ObservationsTileFromWMTSService,
+                        ForecastsTileFromWMTSService,
+                        ObservationSiteList,
+                        ForecastSiteList,
+                        ForecastsForSite,
+                        ObservationsForSite,
+                        timeDelay,
+                        name,
+                        overwrite,
+                        getString_xml()
+                );
+                Thread observationsThread;
+                observationsThread = new Thread(ObservationsMetOfficeScraper);
+                observationsThread.start();
+            }
             /**
              * Observation thread gets data every 2 and 3/4 hours. New data is
              * supposed to be released every 15 minutes, so it might be better
@@ -121,6 +158,7 @@ public class SARIC_Processor extends SARIC_Object {
              * currently gets data for every 15 minutes in the last 3 hours set.
              */
             if (doNonTiledObs) {
+                CalculateSitesInStudyAreas = false;
                 Observations = false;
                 Forecasts = false;
                 TileFromWMTSService = false;
@@ -137,6 +175,7 @@ public class SARIC_Processor extends SARIC_Object {
                 SARIC_MetOfficeScraper ObservationsMetOfficeScraper;
                 ObservationsMetOfficeScraper = new SARIC_MetOfficeScraper(
                         se,
+                        CalculateSitesInStudyAreas,
                         Observations,
                         Forecasts,
                         TileFromWMTSService,
@@ -167,16 +206,17 @@ public class SARIC_Processor extends SARIC_Object {
              * forecasts made for the sites where there are ground observations.
              */
             if (doNonTiledFcs) {
+                CalculateSitesInStudyAreas = false;
                 Observations = false;
                 Forecasts = false;
                 TileFromWMTSService = false;
                 ObservationsTileFromWMTSService = false;
                 ForecastsTileFromWMTSService = false;
                 ObservationSiteList = true;
-                ForecastSiteList = true;
+                ForecastSiteList = false;
+                ForecastsForSite = false;
+                ForecastSiteList = false;
                 ForecastsForSite = true;
-//                ForecastSiteList = false;
-//                ForecastsForSite = false;
                 ObservationsForSite = false;
                 timeDelay = (long) (Generic_Time.MilliSecondsInHour * 5.5);
                 name = "Forecasts";
@@ -184,6 +224,7 @@ public class SARIC_Processor extends SARIC_Object {
                 SARIC_MetOfficeScraper ForecastsMetOfficeScraper;
                 ForecastsMetOfficeScraper = new SARIC_MetOfficeScraper(
                         se,
+                        CalculateSitesInStudyAreas,
                         Observations,
                         Forecasts,
                         TileFromWMTSService,
@@ -213,6 +254,7 @@ public class SARIC_Processor extends SARIC_Object {
              * forecasts made for the sites where there are ground observations.
              */
             if (doTileFromWMTSService) {
+                CalculateSitesInStudyAreas = false;
                 Observations = false;
                 Forecasts = false;
                 TileFromWMTSService = true;
@@ -230,6 +272,7 @@ public class SARIC_Processor extends SARIC_Object {
                     SARIC_MetOfficeScraper ForecastsMetOfficeScraper;
                     ForecastsMetOfficeScraper = new SARIC_MetOfficeScraper(
                             se,
+                            CalculateSitesInStudyAreas,
                             Observations,
                             Forecasts,
                             TileFromWMTSService,
@@ -256,6 +299,7 @@ public class SARIC_Processor extends SARIC_Object {
                     SARIC_MetOfficeScraper ForecastsMetOfficeScraper;
                     ForecastsMetOfficeScraper = new SARIC_MetOfficeScraper(
                             se,
+                            CalculateSitesInStudyAreas,
                             Observations,
                             Forecasts,
                             TileFromWMTSService,
@@ -316,7 +360,8 @@ public class SARIC_Processor extends SARIC_Object {
         }
     }
 
-    boolean doCalculateSitesStudyAreas = false;
+    // Parameters
+    boolean CalculateSitesInStudyAreas = false;
     boolean Observations = false;
     boolean Forecasts = false;
     boolean TileFromWMTSService = false;
@@ -324,15 +369,18 @@ public class SARIC_Processor extends SARIC_Object {
     boolean ForecastsTileFromWMTSService = false;
     boolean ObservationSiteList = false;
     boolean ForecastSiteList = false;
+    boolean ForecastsForSite = false;
+    boolean ObservationsForSite = false;
+    boolean overwrite = false;
+
+    // Switches
+    boolean doCalculateSitesInStudyAreas = false;
     boolean doNonTiledObs = false;
     boolean doNonTiledFcs = false;
     boolean doTileFromWMTSService = false;
     boolean doObservationsTileFromWMTSService = false;
     boolean doForecastsTileFromWMTSService = false;
-    boolean ForecastsForSite = false;
-    boolean ObservationsForSite = false;
     boolean RunSARIC_MetOfficeScraper = false;
     boolean RunSARIC_ImageProcessor = false;
-    boolean overwrite = false;
 
 }

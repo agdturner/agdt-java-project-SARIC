@@ -28,17 +28,26 @@ import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import sun.util.calendar.BaseCalendar;
 import uk.ac.leeds.ccg.andyt.generic.io.Generic_StaticIO;
 import uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Time;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
+import uk.ac.leeds.ccg.andyt.projects.saric.data.catchment.SARIC_Teifi;
+import uk.ac.leeds.ccg.andyt.projects.saric.data.catchment.SARIC_Wissey;
+import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.site.SARIC_Site;
+import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.site.SARIC_SiteHandler;
 import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
 import uk.ac.leeds.ccg.andyt.vector.core.Vector_Environment;
 import uk.ac.leeds.ccg.andyt.vector.geometry.Vector_Envelope2D;
 import uk.ac.leeds.ccg.andyt.vector.geometry.Vector_Point2D;
+import uk.ac.leeds.ccg.andyt.vector.projection.Vector_OSGBtoLatLon;
 import uk.ac.leeds.ccg.andyt.web.WebScraper;
 
 /**
@@ -88,6 +97,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
     String BASE_URL = "http://datapoint.metoffice.gov.uk/public/data/";
 
     String name;
+    boolean CalculateSitesInStudyAreas;
     boolean Observations;
     boolean Forecasts;
     boolean TileFromWMTSService;
@@ -115,6 +125,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
 
     public SARIC_MetOfficeScraper(
             SARIC_Environment SARIC_Environment,
+            boolean CalculateSitesInStudyAreas,
             boolean Observation,
             boolean Forecast,
             boolean TileFromWMTSService,
@@ -122,8 +133,8 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
             boolean ForecastsTileFromWMTSService,
             boolean ObservationSiteList,
             boolean ForecastSiteList,
-            boolean ForecastsForSite,
-            boolean ObservationsForSite,
+            boolean ForecastsForSites,
+            boolean ObservationsForSites,
             long timeDelay,
             String name,
             boolean overwrite,
@@ -131,6 +142,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
     ) {
         this.se = SARIC_Environment;
         this.files = SARIC_Environment.getFiles();
+        this.CalculateSitesInStudyAreas = CalculateSitesInStudyAreas;
         this.Observations = Observation;
         this.Forecasts = Forecast;
         this.TileFromWMTSService = TileFromWMTSService;
@@ -138,8 +150,8 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
         this.ForecastsTileFromWMTSService = ForecastsTileFromWMTSService;
         this.ObservationsSiteList = ObservationSiteList;
         this.ForecastsSiteList = ForecastSiteList;
-        this.ForecastsForSites = ForecastsForSite;
-        this.ObservationsForSites = ObservationsForSite;
+        this.ForecastsForSites = ForecastsForSites;
+        this.ObservationsForSites = ObservationsForSites;
         this.timeDelay = timeDelay;
         this.name = name;
         this.overwrite = overwrite;
@@ -147,6 +159,59 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
     }
 
     public void run() {
+        if (CalculateSitesInStudyAreas) {
+            SARIC_SiteHandler sh;
+            sh = new SARIC_SiteHandler(se);
+            sh.initForecastsSites();
+            HashSet<SARIC_Site> sites;
+            sites = sh.getSites();
+            SARIC_Wissey wissey;
+            wissey = new SARIC_Wissey(se);
+            Vector_Envelope2D wisseyBounds;
+            wisseyBounds = wissey.getBounds();
+            SARIC_Teifi teifi;
+            teifi = new SARIC_Teifi(se);
+            Vector_Envelope2D teifiBounds;
+            teifiBounds = teifi.getBounds();
+            HashSet<SARIC_Site> sitesInWissey;
+            sitesInWissey = new HashSet<SARIC_Site>();
+            HashSet<SARIC_Site> sitesInTeifi;
+            sitesInTeifi = new HashSet<SARIC_Site>();
+            Iterator<SARIC_Site> ite;
+            ite = sites.iterator();
+            SARIC_Site site;
+            double[] OSGBEastingAndNorthing;
+            Vector_Point2D p;
+            while (ite.hasNext()) {
+                site = ite.next();
+                OSGBEastingAndNorthing = Vector_OSGBtoLatLon.latlon2osgb(
+                        site.getLatitude(), site.getLongitude());
+                p = new Vector_Point2D(ve, OSGBEastingAndNorthing[0], OSGBEastingAndNorthing[1]);
+                if (wisseyBounds.getIntersects(p)) {
+                    sitesInWissey.add(site);
+                }
+                if (teifiBounds.getIntersects(p)) {
+                    sitesInTeifi.add(site);
+                }
+            }
+            System.out.println("There are " + sitesInWissey.size() + " sites in the Wissey.");
+            System.out.println("There are " + sitesInTeifi.size() + " sites in the Teifi.");
+            // Write out sites in the Wissey/Teifi
+            File outfile;
+            outfile = new File(
+                    files.getGeneratedDataMetOfficeDataPointDir(),
+                    "Wissey_HashSet_SARIC_Site.dat");
+            outfile.getParentFile().mkdirs();
+            Generic_StaticIO.writeObject(sitesInWissey, outfile);
+            outfile = new File(
+                    files.getGeneratedDataMetOfficeDataPointDir(),
+                    "Teifi_HashSet_SARIC_Site.dat");
+            Generic_StaticIO.writeObject(sitesInTeifi, outfile);
+//            HashSet<String> sites
+//            parseForecastsSiteList();
+            //getObservationsSiteList();
+        }
+
         // Set conmnection rate
         /**
          * For the purposes of this DataPoint Fair Use Policy, the Fair Use
@@ -325,11 +390,34 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
             }
 
             if (ForecastsForSites) {
-                getForecastsSiteCapabilities();
+                File f;
+                f = new File(
+                        files.getGeneratedDataMetOfficeDataPointDir(),
+                        "Wissey_HashSet_SARIC_Site.dat");
+                HashSet<SARIC_Site> wisseySites;
+                wisseySites = (HashSet<SARIC_Site>) Generic_StaticIO.readObject(f);
+                f = new File(
+                        files.getGeneratedDataMetOfficeDataPointDir(),
+                        "Teifi_HashSet_SARIC_Site.dat");
+                HashSet<SARIC_Site> teifiSites;
+                teifiSites = (HashSet<SARIC_Site>) Generic_StaticIO.readObject(f);
+                SARIC_Site site;
+                Iterator<SARIC_Site> ite;
+                ite = wisseySites.iterator();
+                while (ite.hasNext()) {
+                    site = ite.next();
+                    getForecastsSite(site.getId());
+                }
+                ite = teifiSites.iterator();
+                while (ite.hasNext()) {
+                    site = ite.next();
+                    getForecastsSite(site.getId());
+                }
+//                getForecastsSiteCapabilities();
                 //<Location unitaryAuthArea="Norfolk" region="ee" name="Cromer" longitude="1.3036" latitude="52.9311" id="324251" elevation="15.0"/>
-                getForecastsSite(324251);
+                //               getForecastsSite(324251);
                 //<Location unitaryAuthArea="Powys" region="wl" name="Llanfair Caereinion" longitude="-3.325" latitude="52.6451" id="352338" elevation="139.0"/>
-                getForecastsSite(352338);
+                //             getForecastsSite(352338);
                 /**
                  * <Location unitaryAuthArea="Caerphilly" region="wl" name="Cwmcarn Forest Drive" longitude="-3.1187" latitude="51.6393" id="351139" elevation="128.0"/>
                  * <Location unitaryAuthArea="Cardiff" region="wl" name="Llandaff" longitude="-3.2132" latitude="51.4923" id="352324" elevation="19.0"/>
@@ -426,7 +514,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
                 + getSymbol_ampersand()
                 + getString_key() + getSymbol_equals() + API_KEY;
         System.out.println(url);
-        result = getXML(siteID + res, false);
+        result = getXML(siteID + res, false, false);
         return result;
     }
 
@@ -460,7 +548,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
                 + getString_res() + getSymbol_equals() + res
                 + getSymbol_ampersand()
                 + getString_key() + getSymbol_equals() + API_KEY;
-        result = getXML(siteID + res, false);
+        result = getXML(siteID + res, false, false);
         return result;
     }
 
@@ -672,15 +760,15 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
         ArrayList<String> times;
         times = r.getTimesInspireWMTS(layerName);
         p.setTimes(times);
-        HashMap<String, SARIC_MetOfficeLayerParameters> parameters;
-        parameters = p.getParameters();
+        HashMap<String, SARIC_MetOfficeLayerParameters> metOfficeLayerParameters;
+        metOfficeLayerParameters = p.getMetOfficeLayerParameters();
         SARIC_MetOfficeLayerParameters lp;
         String tileMatrix;
         for (int matrix = 0; matrix < 7; matrix += 1) {
             //for (int matrix = 2; matrix < 7; matrix += 1) {
             tileMatrix = tileMatrixSet + ":" + matrix; // British National Grid
             //tileMatrix = "EPSG:4326:0"; // WGS84
-            lp = parameters.get(tileMatrix);
+            lp = metOfficeLayerParameters.get(tileMatrix);
             if (lp == null) {
                 lp = new SARIC_MetOfficeLayerParameters(se, r.getCellsize(tileMatrix), p);
             }
@@ -753,8 +841,8 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
         ArrayList<String> times;
         times = r.getTimesInspireWMTS(layerName);
         p.setTimes(times);
-        HashMap<String, SARIC_MetOfficeLayerParameters> parameters;
-        parameters = p.getParameters();
+        HashMap<String, SARIC_MetOfficeLayerParameters> metOfficeLayerParameters;
+        metOfficeLayerParameters = p.getMetOfficeLayerParameters();
         SARIC_MetOfficeLayerParameters lp;
         String tileMatrix;
 //        BigDecimal[] tileDimensions;
@@ -765,7 +853,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
             tileMatrix = tileMatrixSet + ":" + matrix; // British National Grid
             //tileMatrix = "EPSG:4326:0"; // WGS84
             //System.out.println("tileMatrix " + tileMatrix);
-            lp = parameters.get(tileMatrix);
+            lp = metOfficeLayerParameters.get(tileMatrix);
             if (lp == null) {
                 lp = new SARIC_MetOfficeLayerParameters(se, r.getCellsize(tileMatrix), p);
                 System.out.println("Cellsize " + lp.getCellsize());
@@ -851,8 +939,8 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
         ArrayList<String> times;
         times = r.getTimesInspireWMTS(layerName);
         p.setTimes(times);
-        HashMap<String, SARIC_MetOfficeLayerParameters> parameters;
-        parameters = p.getParameters();
+        HashMap<String, SARIC_MetOfficeLayerParameters> metOfficeLayerParameters;
+        metOfficeLayerParameters = p.getMetOfficeLayerParameters();
         SARIC_MetOfficeLayerParameters lp;
         String tileMatrix;
 //        BigDecimal[] tileDimensions;
@@ -863,7 +951,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
             tileMatrix = tileMatrixSet + ":" + matrix; // British National Grid
             //tileMatrix = "EPSG:4326:0"; // WGS84
             //System.out.println("tileMatrix " + tileMatrix);
-            lp = parameters.get(tileMatrix);
+            lp = metOfficeLayerParameters.get(tileMatrix);
             if (lp == null) {
                 lp = new SARIC_MetOfficeLayerParameters(se, r.getCellsize(tileMatrix), p);
                 System.out.println("Cellsize " + lp.getCellsize());
@@ -944,7 +1032,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
                 + "?REQUEST=get" + getString_capabilities()
                 + getSymbol_ampersand()
                 + getString_key() + getSymbol_equals() + API_KEY;
-        File result = getXML(getString_capabilities(), false);
+        File result = getXML(getString_capabilities(), false, false);
         return result;
     }
 
@@ -984,7 +1072,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
         url = BASE_URL
                 + path
                 + getString_key() + getSymbol_equals() + API_KEY;
-        result = getXML(getString_capabilities(), parsePath);
+        result = getXML(getString_capabilities(), parsePath, false);
         return result;
     }
 
@@ -1043,9 +1131,11 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
      * parsing is only done one way and to change this in future something with
      * more values than a boolean would have to be passed in instead and the
      * code would need a refactoring accordingly.
+     * @param addDate If addDate is true then the date is added to the outputDir
+     * path.
      * @return
      */
-    protected File getXML(String name, boolean parsePath) {
+    protected File getXML(String name, boolean parsePath, boolean addDate) {
         File outputDir;
         if (parsePath) {
             outputDir = new File(
@@ -1055,6 +1145,11 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
             outputDir = new File(
                     files.getInputDataMetOfficeDataPointDir(),
                     path);
+        }
+        if (addDate) {
+            outputDir = new File(
+                    outputDir,
+                    Generic_Time.getDateAndTimeHourDir());
         }
         outputDir.mkdirs();
         File xml;
@@ -1103,7 +1198,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
                 + path + getSymbol_questionmark()
                 + "res" + getSymbol_equals() + "3hourly&"
                 + getString_key() + getSymbol_equals() + API_KEY;
-        getXML("test", false);
+        getXML("test", false, false);
     }
 
     /**

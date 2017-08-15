@@ -18,18 +18,13 @@
  */
 package uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint;
 
+import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_XMLDOMReader;
 import java.io.File;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.TreeSet;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import uk.ac.leeds.ccg.andyt.generic.io.Generic_XMLDOMReader;
-import uk.ac.leeds.ccg.andyt.generic.math.Generic_BigDecimal;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
-import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
 import uk.ac.leeds.ccg.andyt.projects.saric.util.SARIC_Time;
 import uk.ac.leeds.ccg.andyt.vector.geometry.Vector_Envelope2D;
 import uk.ac.leeds.ccg.andyt.vector.geometry.Vector_Point2D;
@@ -38,35 +33,19 @@ import uk.ac.leeds.ccg.andyt.vector.geometry.Vector_Point2D;
  *
  * @author geoagdt
  */
-public class SARIC_MetOfficeCapabilitiesXMLDOMReader extends Generic_XMLDOMReader {
+public class SARIC_MetOfficeCapabilitiesXMLDOMReader extends SARIC_XMLDOMReader {
 
-    SARIC_Environment se;
-    SARIC_Files files;
     SARIC_MetOfficeParameters metOfficeParameters;
-
-    public TreeSet<String> outcodePostcodes;
 
     protected SARIC_MetOfficeCapabilitiesXMLDOMReader() {
     }
 
     public SARIC_MetOfficeCapabilitiesXMLDOMReader(
-            SARIC_Environment SARIC_Environment,
+            SARIC_Environment se,
             File file) {
-        this.se = SARIC_Environment;
-        this.files = SARIC_Environment.getFiles();
-        this.metOfficeParameters = SARIC_Environment.getMetOfficeParameters();
+        super(se);
+        this.metOfficeParameters = se.getMetOfficeParameters();
         init(file, "*");
-    }
-
-    protected void initNodeList() {
-        nodeList = aDocument.getElementsByTagName("*");
-    }
-
-    protected void print() {
-        Iterator<String> ite = outcodePostcodes.iterator();
-        while (ite.hasNext()) {
-            System.out.println(ite.next());
-        }
     }
 
     protected ArrayList<String> getTimesInspireWMTS(String layerName) {
@@ -208,29 +187,6 @@ public class SARIC_MetOfficeCapabilitiesXMLDOMReader extends Generic_XMLDOMReade
         return result;
     }
 
-    /**
-     * Return the index in the nodeList of the next node after that with index i
-     * with name equal to nodeName or return nodeList.getLength();
-     *
-     * @param nodeName
-     * @param nodeList
-     * @param i
-     * @return
-     */
-    protected int find(String nodeName, NodeList nodeList, int i) {
-        int j;
-        Node n;
-        String nNodeName;
-        for (j = i; j < nodeList.getLength(); j++) {
-            n = nodeList.item(j);
-            nNodeName = n.getNodeName();
-            String nTextContent;
-            if (nNodeName.equalsIgnoreCase(nodeName)) {
-                return j;
-            }
-        }
-        return j;
-    }
 
     /**
      * Parses the Forecast Service Capabilities XML and returns a list of times
@@ -352,8 +308,4 @@ public class SARIC_MetOfficeCapabilitiesXMLDOMReader extends Generic_XMLDOMReade
         return result;
     }
 
-    @Override
-    protected void parseNodeList() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
 }
