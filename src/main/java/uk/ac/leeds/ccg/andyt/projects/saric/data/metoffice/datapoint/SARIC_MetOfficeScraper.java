@@ -39,6 +39,7 @@ import sun.util.calendar.BaseCalendar;
 import uk.ac.leeds.ccg.andyt.generic.io.Generic_StaticIO;
 import uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Time;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
+import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Strings;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.catchment.SARIC_Teifi;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.catchment.SARIC_Wissey;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.site.SARIC_Site;
@@ -59,31 +60,12 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
     /**
      * For convenience.
      */
-    SARIC_Files files;
+    SARIC_Files sf;
     SARIC_Environment se;
+    SARIC_Strings ss;
 
     Vector_Environment ve;
 
-    // Special strings
-    String symbol_ampersand;
-    String symbol_backslash;
-    String symbol_questionmark;
-    String symbol_equals;
-
-    // Normal strings
-    String string_3hourly;
-    String string_hourly;
-    String string_all;
-    String string_capabilities;
-    String string_datatype;
-    String string_key;
-    String string_layer;
-    String string_png;
-    String string_res;
-    String string_sitelist;
-    String string_val;
-    String string_wxfcs;
-    String string_wxobs;
 
     // Variables
     String path;
@@ -124,7 +106,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
     }
 
     public SARIC_MetOfficeScraper(
-            SARIC_Environment SARIC_Environment,
+            SARIC_Environment se,
             boolean CalculateSitesInStudyAreas,
             boolean Observation,
             boolean Forecast,
@@ -140,8 +122,9 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
             boolean overwrite,
             String dataType
     ) {
-        this.se = SARIC_Environment;
-        this.files = SARIC_Environment.getFiles();
+        this.se = se;
+        this.sf = se.getFiles();
+        this.ss = se.getStrings();
         this.CalculateSitesInStudyAreas = CalculateSitesInStudyAreas;
         this.Observations = Observation;
         this.Forecasts = Forecast;
@@ -199,12 +182,12 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
             // Write out sites in the Wissey/Teifi
             File outfile;
             outfile = new File(
-                    files.getGeneratedDataMetOfficeDataPointDir(),
+                    sf.getGeneratedDataMetOfficeDataPointDir(),
                     "Wissey_HashSet_SARIC_Site.dat");
             outfile.getParentFile().mkdirs();
             Generic_StaticIO.writeObject(sitesInWissey, outfile);
             outfile = new File(
-                    files.getGeneratedDataMetOfficeDataPointDir(),
+                    sf.getGeneratedDataMetOfficeDataPointDir(),
                     "Teifi_HashSet_SARIC_Site.dat");
             Generic_StaticIO.writeObject(sitesInTeifi, outfile);
 //            HashSet<String> sites
@@ -392,12 +375,12 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
             if (ForecastsForSites) {
                 File f;
                 f = new File(
-                        files.getGeneratedDataMetOfficeDataPointDir(),
+                        sf.getGeneratedDataMetOfficeDataPointDir(),
                         "Wissey_HashSet_SARIC_Site.dat");
                 HashSet<SARIC_Site> wisseySites;
                 wisseySites = (HashSet<SARIC_Site>) Generic_StaticIO.readObject(f);
                 f = new File(
-                        files.getGeneratedDataMetOfficeDataPointDir(),
+                        sf.getGeneratedDataMetOfficeDataPointDir(),
                         "Teifi_HashSet_SARIC_Site.dat");
                 HashSet<SARIC_Site> teifiSites;
                 teifiSites = (HashSet<SARIC_Site>) Generic_StaticIO.readObject(f);
@@ -503,18 +486,18 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
      */
     protected File getForecastsSite(String siteID) {
         File result;
-        path = getValDataTypePath(dataType, getString_wxfcs())
+        path = getValDataTypePath(dataType, ss.getString_wxfcs())
                 + siteID;
         String res;
-        res = getString_3hourly();
+        res = ss.getString_3hourly();
         url = BASE_URL
                 + path
-                + getSymbol_questionmark()
-                + getString_res() + getSymbol_equals() + res
-                + getSymbol_ampersand()
-                + getString_key() + getSymbol_equals() + API_KEY;
+                + ss.getSymbol_questionmark()
+                + ss.getString_res() + ss.getSymbol_equals() + res
+                + ss.getSymbol_ampersand()
+                + ss.getString_key() + ss.getSymbol_equals() + API_KEY;
         System.out.println(url);
-        result = getXML(siteID + res, false, false);
+        result = getXML(siteID + res, false, true);
         return result;
     }
 
@@ -538,17 +521,17 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
      */
     protected File getObservationsSite(String siteID) {
         File result;
-        path = getValDataTypePath(dataType, getString_wxobs())
+        path = getValDataTypePath(dataType, ss.getString_wxobs())
                 + siteID;
         String res;
-        res = getString_hourly();
+        res = ss.getString_hourly();
         url = BASE_URL
                 + path
-                + getSymbol_questionmark()
-                + getString_res() + getSymbol_equals() + res
-                + getSymbol_ampersand()
-                + getString_key() + getSymbol_equals() + API_KEY;
-        result = getXML(siteID + res, false, false);
+                + ss.getSymbol_questionmark()
+                + ss.getString_res() + ss.getSymbol_equals() + res
+                + ss.getSymbol_ampersand()
+                + ss.getString_key() + ss.getSymbol_equals() + API_KEY;
+        result = getXML(siteID + res, false, true);
         return result;
     }
 
@@ -583,14 +566,14 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
      * Get observation site list.
      */
     protected void getObservationsSiteList() {
-        getSiteList(getString_wxobs());
+        getSiteList(ss.getString_wxobs());
     }
 
     /**
      * Get forecast site list.
      */
     protected void getForecastsSiteList() {
-        getSiteList(getString_wxfcs());
+        getSiteList(ss.getString_wxfcs());
     }
 
     /**
@@ -600,19 +583,19 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
      */
     protected void getSiteList(String obs_or_fcs) {
         path = getValDataTypePath(dataType, obs_or_fcs)
-                + getString_sitelist();
+                + ss.getString_sitelist();
         url = BASE_URL
                 + path
-                + getSymbol_questionmark()
-                + getString_key() + getSymbol_equals() + API_KEY;
+                + ss.getSymbol_questionmark()
+                + ss.getString_key() + ss.getSymbol_equals() + API_KEY;
         File dir;
         dir = new File(
-                files.getInputDataMetOfficeDataPointDir(),
+                sf.getInputDataMetOfficeDataPointDir(),
                 path);
         dir.mkdirs();
         File xml;
         xml = new File(dir,
-                getString_sitelist() + "." + dataType);
+                ss.getString_sitelist() + "." + dataType);
         getXML(url, xml);
     }
 
@@ -623,10 +606,10 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
      * @return
      */
     public String getValDataTypePath(String dataType, String obs_or_fcs) {
-        return getString_val() + getSymbol_backslash()
-                + obs_or_fcs + getSymbol_backslash()
-                + getString_all() + getSymbol_backslash()
-                + dataType + getSymbol_backslash();
+        return ss.getString_val() + ss.getSymbol_backslash()
+                + obs_or_fcs + ss.getSymbol_backslash()
+                + ss.getString_all() + ss.getSymbol_backslash()
+                + dataType + ss.getSymbol_backslash();
     }
 
     /**
@@ -680,22 +663,22 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
             boolean overwrite) {
         //http://datapoint.metoffice.gov.uk/public/data/layer/wxfcs/{LayerName}/{ImageFormat}?RUN={DefaultTime}Z&FORECAST={Timestep}&key={key}
         String imageFormat;
-        imageFormat = getString_png();
+        imageFormat = ss.getString_png();
         String timeStep;
         String outputFilenameWithoutExtension;
         for (int step = 0; step <= 36; step += 3) {
             timeStep = Integer.toString(step);
             System.out.println("Getting forecast for time " + timeStep);
-            path = getString_layer() + getSymbol_backslash()
-                    + getString_wxfcs() + getSymbol_backslash()
-                    + layerName + getSymbol_backslash()
+            path = ss.getString_layer() + ss.getSymbol_backslash()
+                    + ss.getString_wxfcs() + ss.getSymbol_backslash()
+                    + layerName + ss.getSymbol_backslash()
                     + imageFormat;
             url = BASE_URL
                     + path
-                    + getSymbol_questionmark()
-                    + "RUN" + getSymbol_equals() + time + "Z"
-                    + getSymbol_ampersand() + "FORECAST" + getSymbol_equals() + timeStep
-                    + getSymbol_ampersand() + getString_key() + getSymbol_equals() + API_KEY;
+                    + ss.getSymbol_questionmark()
+                    + "RUN" + ss.getSymbol_equals() + time + "Z"
+                    + ss.getSymbol_ampersand() + "FORECAST" + ss.getSymbol_equals() + timeStep
+                    + ss.getSymbol_ampersand() + ss.getString_key() + ss.getSymbol_equals() + API_KEY;
             outputFilenameWithoutExtension = layerName + time.replace(':', '_') + timeStep;
             getPNG(outputFilenameWithoutExtension, overwrite);
         }
@@ -716,7 +699,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
             boolean overwrite) {
         //http://datapoint.metoffice.gov.uk/public/data/layer/wxobs/{LayerName}/{ImageFormat}?TIME={Time}Z&key={key}
         String imageFormat;
-        imageFormat = getString_png();
+        imageFormat = ss.getString_png();
         Iterator<String> ite;
         ite = times.iterator();
         while (ite.hasNext()) {
@@ -724,15 +707,15 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
             time = ite.next();
             //System.out.println(time);
             //if (time.contains("00:00")) {
-            path = getString_layer() + getSymbol_backslash()
-                    + getString_wxobs() + getSymbol_backslash()
-                    + layerName + getSymbol_backslash()
+            path = ss.getString_layer() + ss.getSymbol_backslash()
+                    + ss.getString_wxobs() + ss.getSymbol_backslash()
+                    + layerName + ss.getSymbol_backslash()
                     + imageFormat;
             url = BASE_URL
                     + path
-                    + getSymbol_questionmark()
-                    + "TIME" + getSymbol_equals() + time + "Z"
-                    + getSymbol_ampersand() + getString_key() + getSymbol_equals() + API_KEY;
+                    + ss.getSymbol_questionmark()
+                    + "TIME" + ss.getSymbol_equals() + time + "Z"
+                    + ss.getSymbol_ampersand() + ss.getString_key() + ss.getSymbol_equals() + API_KEY;
             String outputFilenameWithoutExtension;
             outputFilenameWithoutExtension = layerName + time.replace(':', '_');
             getPNG(outputFilenameWithoutExtension, overwrite);
@@ -764,9 +747,11 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
         metOfficeLayerParameters = p.getMetOfficeLayerParameters();
         SARIC_MetOfficeLayerParameters lp;
         String tileMatrix;
+        String tileMatrixFormatted;
         for (int matrix = 0; matrix < 7; matrix += 1) {
             //for (int matrix = 2; matrix < 7; matrix += 1) {
             tileMatrix = tileMatrixSet + ":" + matrix; // British National Grid
+            tileMatrixFormatted = tileMatrix.replace(':', '_');
             //tileMatrix = "EPSG:4326:0"; // WGS84
             lp = metOfficeLayerParameters.get(tileMatrix);
             if (lp == null) {
@@ -779,11 +764,15 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
             String tileRow;
             String tileCol;
             String time;
+            String dateYYYYMMDD;
+            String timeformatted;
             Iterator<String> ite;
             ite = times.iterator();
             while (ite.hasNext()) {
                 time = ite.next();
                 System.out.println(time);
+                timeformatted = time.replace(':', '_');
+                dateYYYYMMDD = time.split("T")[0];
                 for (int row = 0; row < lp.nrows; row++) {
                     for (int col = 0; col < lp.ncols; col++) {
                         tileRow = Integer.toString(row);
@@ -801,9 +790,15 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
                                 + "&STYLE=Bitmap%201km%20Blue-Pale%20blue%20gradient%200.01%20to%2032mm%2Fhr" // The + character has been URL encoded to %2B and the / character to %2F
                                 + "&key=" + API_KEY;
                         String outputFilenameWithoutExtension;
-                        outputFilenameWithoutExtension = layerName + tileMatrix.replace(':', '_') + time.replace(':', '_') + "_" + tileRow + "_" + tileCol;
+                        outputFilenameWithoutExtension = layerName + "_"
+                                + tileMatrixFormatted + "_"
+                                + timeformatted + "_"
+                                + tileRow + "_" + tileCol;
                         String pathDummy = path;
-                        path += "/" + layerName + "/" + tileMatrix.replace(':', '_');
+                        path += "/" + layerName
+                                + "/" + tileMatrixFormatted
+                                + "/" + dateYYYYMMDD
+                                + "/" + timeformatted;
                         getPNG(outputFilenameWithoutExtension, overwrite);
                         path = pathDummy;
                         //break; // For testing
@@ -848,9 +843,18 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
 //        BigDecimal[] tileDimensions;
         Vector_Envelope2D tileBounds;
         int matrix = 4;
+        String tileMatrixFormatted;
+        String tileRow;
+            String tileCol;
+            String time;
+            String dateYYYYMMDD;
+            String timeformatted;
+            Iterator<String> ite;
         //for (matrix = 0; matrix < 7; matrix += 1) {
-        for (matrix = 0; matrix < 5; matrix += 1) {
+        //for (matrix = 0; matrix < 5; matrix += 1) {
             tileMatrix = tileMatrixSet + ":" + matrix; // British National Grid
+            tileMatrixFormatted = tileMatrix.replace(':', '_');
+
             //tileMatrix = "EPSG:4326:0"; // WGS84
             //System.out.println("tileMatrix " + tileMatrix);
             lp = metOfficeLayerParameters.get(tileMatrix);
@@ -863,14 +867,12 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
             //http://datapoint.metoffice.gov.uk/public/data/inspire/view/wmts?REQUEST=gettile&LAYER=<layer required>&FORMAT=image/png&TILEMATRIXSET=<projection>&TILEMATRIX=<projection zoom level required>&TILEROW=<tile row required>&TILECOL=<tile column required>&TIME=<time required>&STYLE=<style required>&key=<API key>
             //http://datapoint.metoffice.gov.uk/public/data/inspire/view/wmts?REQUEST=gettile&LAYER=Precipitation_Rate&FORMAT=image/png&TILEMATRIXSET=EPSG:4258&TILEMATRIX=EPSG:4258:0&TILEROW=0&TILECOL=0&DIM_RUN=2013-11-20T03:00:00Z&DIM_FORECAST=%2B9&STYLE=Bitmap%20Blue-Pale%20blue%20gradient%200.01%20to%20greater%20than%2032mm%2Fhr&key=<API key>Note that the + character has been URL encoded to %2B and the / character to %2F
             path = "inspire/view/wmts";
-            String tileRow;
-            String tileCol;
-            String time;
-            Iterator<String> ite;
             ite = times.iterator();
             while (ite.hasNext()) {
                 time = ite.next();
                 System.out.println(time);
+                timeformatted = time.replace(':', '_');
+                dateYYYYMMDD = time.split("T")[0];
                 for (int row = 0; row < lp.nrows; row++) {
                     //System.out.println("row " + row);
                     for (int col = 0; col < lp.ncols; col++) {
@@ -897,9 +899,15 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
                                     + "&key=" + API_KEY;
                             //http://datapoint.metoffice.gov.uk/public/data/inspire/view/wmts?REQUEST=gettile&LAYER=Precipitation_Rate&FORMAT=image/png&TILEMATRIXSET=EPSG:4258&TILEMATRIX=EPSG:4258:0&TILEROW=0&TILECOL=0
                             String outputFilenameWithoutExtension;
-                            outputFilenameWithoutExtension = layerName + tileMatrix.replace(':', '_') + time.replace(':', '_') + "_" + tileRow + "_" + tileCol;
+                            outputFilenameWithoutExtension = layerName + "_"
+                                    + tileMatrixFormatted + "_"
+                                    + timeformatted + "_"
+                                    + tileRow + "_" + tileCol;
                             String pathDummy = path;
-                            path += "/" + areaName + "/" + layerName + "/" + tileMatrix.replace(':', '_') + "/" + time.replace(':', '_');
+                             path += "/" + layerName
+                                + "/" + tileMatrixFormatted
+                                + "/" + dateYYYYMMDD
+                                + "/" + timeformatted;
                             getPNG(outputFilenameWithoutExtension, overwrite);
                             path = pathDummy;
                         }
@@ -909,7 +917,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
                 //break; // For testing
                 //System.exit(0);
             }
-        }
+        //}
         //System.exit(0);
     }
 
@@ -946,9 +954,13 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
 //        BigDecimal[] tileDimensions;
         Vector_Envelope2D tileBounds;
         int matrix = 4;
+        String tileMatrixFormatted;
+        String timeFormatted;
+        String dateYYYYMMDD;
         //for (matrix = 0; matrix < 7; matrix += 1) {
-        for (matrix = 0; matrix < 5; matrix += 1) {
+        //for (matrix = 0; matrix < 5; matrix += 1) {
             tileMatrix = tileMatrixSet + ":" + matrix; // British National Grid
+            tileMatrixFormatted = tileMatrix.replace(':', '_');
             //tileMatrix = "EPSG:4326:0"; // WGS84
             //System.out.println("tileMatrix " + tileMatrix);
             lp = metOfficeLayerParameters.get(tileMatrix);
@@ -970,6 +982,8 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
                 time = ite.next();
             }
             System.out.println(time);
+            timeFormatted = time.replace(':', '_');
+            dateYYYYMMDD = time.split("T")[0];
             for (int forecastTime = 0; forecastTime <= 36; forecastTime += 3) {
                 for (int row = 0; row < lp.nrows; row++) {
                     //System.out.println("row " + row);
@@ -1002,9 +1016,16 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
                                     + "&key=" + API_KEY;
 
                             String outputFilenameWithoutExtension;
-                            outputFilenameWithoutExtension = layerName + tileMatrix.replace(':', '_') + time.replace(':', '_') + "_" + tileRow + "_" + tileCol;
+                            outputFilenameWithoutExtension = layerName 
+                                    + "_" + tileMatrixFormatted 
+                                    + "_" + timeFormatted
+                                    + "_" + tileRow + "_" + tileCol;
                             String pathDummy = path;
-                            path += "/" + areaName + "/" + layerName + "/" + tileMatrix.replace(':', '_') + "/" + time.replace(':', '_');
+                            path += "/" + areaName 
+                                    + "/" + layerName 
+                                + "/" + tileMatrixFormatted
+                                + "/" + dateYYYYMMDD
+                                + "/" + timeFormatted;
                             getPNG(outputFilenameWithoutExtension, overwrite);
                             path = pathDummy;
                         }
@@ -1015,7 +1036,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
                 //break; // For testing
                 //System.exit(0);
             }
-        }
+        //}
         //System.exit(0);
     }
 
@@ -1029,10 +1050,10 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
         path = "inspire/view/wmts";
         url = BASE_URL
                 + path
-                + "?REQUEST=get" + getString_capabilities()
-                + getSymbol_ampersand()
-                + getString_key() + getSymbol_equals() + API_KEY;
-        File result = getXML(getString_capabilities(), false, false);
+                + "?REQUEST=get" + ss.getString_capabilities()
+                + ss.getSymbol_ampersand()
+                + ss.getString_key() + ss.getSymbol_equals() + API_KEY;
+        File result = getXML(ss.getString_capabilities(), false, false);
         return result;
     }
 
@@ -1044,7 +1065,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
      */
     protected File getObservationsLayerCapabilities() {
         // http://datapoint.metoffice.gov.uk/public/data/layer/wxobs/all/xml/capabilities?key=<API key>
-        initPath(getString_val(), getString_wxobs(), dataType);
+        initPath(ss.getString_val(), ss.getString_wxobs(), dataType);
         addCapabilitiesToPath();
         return getCapabilities(false);
     }
@@ -1055,9 +1076,9 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
      * @return
      */
     protected File getObservationsSiteCapabilities() {
-        initPath(getString_val(), getString_wxobs(), dataType);
+        initPath(ss.getString_val(), ss.getString_wxobs(), dataType);
         addCapabilitiesToPath();
-        path += getString_res() + getSymbol_equals() + getString_hourly() + getSymbol_ampersand();
+        path += ss.getString_res() + ss.getSymbol_equals() + ss.getString_hourly() + ss.getSymbol_ampersand();
         return getCapabilities(true);
     }
 
@@ -1071,8 +1092,8 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
         File result;
         url = BASE_URL
                 + path
-                + getString_key() + getSymbol_equals() + API_KEY;
-        result = getXML(getString_capabilities(), parsePath, false);
+                + ss.getString_key() + ss.getSymbol_equals() + API_KEY;
+        result = getXML(ss.getString_capabilities(), parsePath, false);
         return result;
     }
 
@@ -1083,7 +1104,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
      */
     protected File getForecastsLayerCapabilities() {
         // http://datapoint.metoffice.gov.uk/public/data/layer/wxfcs/all/xml/capabilities?key=<API key>
-        initPath(getString_val(), getString_wxfcs(), dataType);
+        initPath(ss.getString_val(), ss.getString_wxfcs(), dataType);
         addCapabilitiesToPath();
         return getCapabilities(false);
     }
@@ -1095,8 +1116,8 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
      */
     protected File getForecastsSiteCapabilities() {
         // http://datapoint.metoffice.gov.uk/public/data/val/wxfcs/all/xml/capabilities?res=3hourly&key=01234567-89ab-cdef-0123-456789abcdef
-        initPath(getString_val(), getString_wxfcs(), dataType);
-        path += getString_res() + getSymbol_equals() + getString_3hourly();
+        initPath(ss.getString_val(), ss.getString_wxfcs(), dataType);
+        path += ss.getString_res() + ss.getSymbol_equals() + ss.getString_3hourly();
         addCapabilitiesToPath();
         return getCapabilities(true);
     }
@@ -1105,10 +1126,10 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
             String val_Or_layer,
             String wxfcs_Or_Wxobs,
             String dataType) {
-        path = val_Or_layer + getSymbol_backslash()
-                + wxfcs_Or_Wxobs + getSymbol_backslash()
-                + getString_all() + getSymbol_backslash()
-                + dataType + getSymbol_backslash();
+        path = val_Or_layer + ss.getSymbol_backslash()
+                + wxfcs_Or_Wxobs + ss.getSymbol_backslash()
+                + ss.getString_all() + ss.getSymbol_backslash()
+                + dataType + ss.getSymbol_backslash();
     }
 
     public String getParsedPath() {
@@ -1120,7 +1141,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
     }
 
     protected void addCapabilitiesToPath() {
-        path += getString_capabilities() + getSymbol_questionmark();
+        path += ss.getString_capabilities() + ss.getSymbol_questionmark();
     }
 
     /**
@@ -1139,11 +1160,11 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
         File outputDir;
         if (parsePath) {
             outputDir = new File(
-                    files.getInputDataMetOfficeDataPointDir(),
+                    sf.getInputDataMetOfficeDataPointDir(),
                     getParsedPath());
         } else {
             outputDir = new File(
-                    files.getInputDataMetOfficeDataPointDir(),
+                    sf.getInputDataMetOfficeDataPointDir(),
                     path);
         }
         if (addDate) {
@@ -1173,13 +1194,18 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
             boolean overwrite) {
         File outputDir;
         outputDir = new File(
-                files.getInputDataMetOfficeDataPointDir(),
+                sf.getInputDataMetOfficeDataPointDir(),
                 path);
         outputDir.mkdirs();
         File png;
-        png = Generic_StaticIO.createNewFile(
-                outputDir,
-                outputFilenameWithoutExtension + "." + getString_png());
+        png = Generic_StaticIO.createNewFile(outputDir,
+                outputFilenameWithoutExtension + "." + ss.getString_png());
+        if (!overwrite) {
+            if (png.exists()) {
+                System.out.println("File " + png.toString() + " already exists and is not being overwritten.");
+                return; // If the file already exists and we are not in overwrite mode then don't bother getting the data and writing it out.
+            }
+        }
         getPNG(url,
                 png);
     }
@@ -1189,15 +1215,15 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
      */
     protected void downloadThreeHourlyFiveDayForecastForDunkeswellAerodrome() {
         // http://datapoint.metoffice.gov.uk/public/data/val/wxfcs/all/xml/3840?res=3hourly&key=01234567-89ab-cdef-0123-456789abcdef
-        path = getString_val() + getSymbol_backslash()
-                + getString_wxfcs() + getSymbol_backslash()
-                + getString_all() + getSymbol_backslash()
-                + dataType + getSymbol_backslash()
+        path = ss.getString_val() + ss.getSymbol_backslash()
+                + ss.getString_wxfcs() + ss.getSymbol_backslash()
+                + ss.getString_all() + ss.getSymbol_backslash()
+                + dataType + ss.getSymbol_backslash()
                 + "3840";
         url = BASE_URL
-                + path + getSymbol_questionmark()
-                + "res" + getSymbol_equals() + "3hourly&"
-                + getString_key() + getSymbol_equals() + API_KEY;
+                + path + ss.getSymbol_questionmark()
+                + "res" + ss.getSymbol_equals() + "3hourly&"
+                + ss.getString_key() + ss.getSymbol_equals() + API_KEY;
         getXML("test", false, false);
     }
 
@@ -1208,7 +1234,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
      */
     public String getAPI_KEY() {
         File f;
-        f = files.getInputDataMetOfficeDataPointAPIKeyFile();
+        f = sf.getInputDataMetOfficeDataPointAPIKeyFile();
         ArrayList<String> l;
         l = Generic_StaticIO.readIntoArrayList_String(f);
         return l.get(0);
@@ -1330,124 +1356,5 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
         }
     }
 
-    // Special symbols
-    public String getSymbol_ampersand() {
-        if (symbol_ampersand == null) {
-            symbol_ampersand = "&";
-        }
-        return symbol_ampersand;
-    }
-
-    public String getSymbol_backslash() {
-        if (symbol_backslash == null) {
-            symbol_backslash = "/";
-        }
-        return symbol_backslash;
-    }
-
-    public String getSymbol_questionmark() {
-        if (symbol_questionmark == null) {
-            symbol_questionmark = "?";
-        }
-        return symbol_questionmark;
-    }
-
-    public String getSymbol_equals() {
-        if (symbol_equals == null) {
-            symbol_equals = "=";
-        }
-        return symbol_equals;
-    }
-
-    public String getString_3hourly() {
-        if (string_3hourly == null) {
-            string_3hourly = "3" + getString_hourly();
-        }
-        return string_3hourly;
-    }
-
-    public String getString_hourly() {
-        if (string_hourly == null) {
-            string_hourly = "hourly";
-        }
-        return string_hourly;
-    }
-
-    public String getString_all() {
-        if (string_all == null) {
-            string_all = "all";
-        }
-        return string_all;
-    }
-
-    public String getString_capabilities() {
-        if (string_capabilities == null) {
-            string_capabilities = "capabilities";
-        }
-        return string_capabilities;
-    }
-
-    public String getString_datatype() {
-        if (string_datatype == null) {
-            string_datatype = "datatype";
-        }
-        return string_datatype;
-    }
-
-    public String getString_key() {
-        if (string_key == null) {
-            string_key = "key";
-        }
-        return string_key;
-    }
-
-    public String getString_layer() {
-        if (string_layer == null) {
-            string_layer = "layer";
-        }
-        return string_layer;
-    }
-
-    public String getString_png() {
-        if (string_png == null) {
-            string_png = "png";
-        }
-        return string_png;
-    }
-
-    public String getString_res() {
-        if (string_res == null) {
-            string_res = "res";
-        }
-        return string_res;
-    }
-
-    public String getString_sitelist() {
-        if (string_sitelist == null) {
-            string_sitelist = "sitelist";
-        }
-        return string_sitelist;
-    }
-
-    public String getString_val() {
-        if (string_val == null) {
-            string_val = "val";
-        }
-        return string_val;
-    }
-
-    public String getString_wxfcs() {
-        if (string_wxfcs == null) {
-            string_wxfcs = "wxfcs";
-        }
-        return string_wxfcs;
-    }
-
-    public String getString_wxobs() {
-        if (string_wxobs == null) {
-            string_wxobs = "wxobs";
-        }
-        return string_wxobs;
-    }
 
 }

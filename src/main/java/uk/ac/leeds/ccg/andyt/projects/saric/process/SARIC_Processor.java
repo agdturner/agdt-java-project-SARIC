@@ -90,8 +90,8 @@ public class SARIC_Processor extends SARIC_Object {
     public void run() throws Exception {
 
         // Main switches
-        RunSARIC_MetOfficeScraper = true;
-//        RunSARIC_ImageProcessor = true;
+//        RunSARIC_MetOfficeScraper = true;
+        RunSARIC_ImageProcessor = true;
 
         /**
          * Run SARIC_MetOfficeScraper
@@ -103,10 +103,10 @@ public class SARIC_Processor extends SARIC_Object {
             // Main Switches
 //            doCalculateSitesInStudyAreas = true;
 //            doNonTiledObs = true;
-            doNonTiledFcs = true;
-//            doTileFromWMTSService = true;
+//            doNonTiledFcs = true;
+            doTileFromWMTSService = true;
 //            doObservationsTileFromWMTSService = true;
-//            doForecastsTileFromWMTSService = true;
+            doForecastsTileFromWMTSService = true;
 
             /**
              * This thread parses the site list and returns an

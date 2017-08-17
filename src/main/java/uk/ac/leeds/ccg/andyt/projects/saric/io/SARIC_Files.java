@@ -19,44 +19,53 @@
 package uk.ac.leeds.ccg.andyt.projects.saric.io;
 
 import java.io.File;
+import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
+import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Object;
+import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Strings;
 
 /**
  *
  * @author geoagdt
  */
 public class SARIC_Files {
-    
+
+    // For convenience
+    SARIC_Strings ss;
+
     protected File DataDir;
     protected File InputDataDir;
     protected File InputDataCatchmentBoundariesDir;
     protected File InputDataCEHDir;
     protected File InputDataMetOfficeDir;
     protected File InputDataMetOfficeDataPointDir;
+    protected File InputDataMetOfficeDataPointInspireDir;
+    protected File InputDataMetOfficeDataPointInspireViewDir;
+    protected File InputDataMetOfficeDataPointInspireViewWmtsDir;
+    protected File InputDataMetOfficeDataPointInspireViewWmtsCapabilitiesFile;
     protected File InputDataMetOfficeDataPointConfigDir;
     protected File InputDataMetOfficeDataPointAPIKeyFile;
     protected File InputDataMetOfficeNimrodDir;
     protected File GeneratedDataDir;
+    protected File GeneratedDataCatchmentDir;
     protected File GeneratedDataMetOfficeDir;
     protected File GeneratedDataMetOfficeDataPointDir;
     protected File OutputDataDir;
     protected File OutputDataMetOfficeDir;
     protected File OutputDataMetOfficeDataPointDir;
-    protected String sOutput = "output";
-    protected String sGenerated = "generated";
-    protected String sInput = "input";
-    protected String sCatchmentBoundaries = "CatchmentBoundaries";
-    protected String sCEH = "CEH";
-    protected String sConfig = "config";
-    protected String sDataPoint = "DataPoint";
-    protected String sMetOffice = "MetOffice";
-    protected String sNimrod = "Nimrod";
-    
-    protected SARIC_Files(){}
+
+    protected SARIC_Files() {
+    }
 
     public SARIC_Files(String dataDirName) {
+        this.ss = new SARIC_Strings();
         setDataDirectory(dataDirName);
     }
-    
+
+    public SARIC_Files(SARIC_Strings ss, String dataDirName) {
+        this.ss = ss;
+        setDataDirectory(dataDirName);
+    }
+
     /**
      * Initialises a data directory with a name given by name.
      *
@@ -73,21 +82,21 @@ public class SARIC_Files {
             boolean successfulCreation;
             successfulCreation = DataDir.mkdirs();
             if (!successfulCreation) {
-                throw new Error("The data directory was not created in " 
+                throw new Error("The data directory was not created in "
                         + this.getClass().getName() + ".setDataDirectory(String)");
             }
         }
     }
-    
+
     public File getDataDir() {
         return DataDir;
     }
-    
+
     public File getOutputDataDir() {
         if (OutputDataDir == null) {
             OutputDataDir = new File(
-            getDataDir(),
-            sOutput);
+                    getDataDir(),
+                    ss.getString_output());
         }
         return OutputDataDir;
     }
@@ -95,8 +104,8 @@ public class SARIC_Files {
     public File getOutputDataMetOfficeDir() {
         if (OutputDataMetOfficeDir == null) {
             OutputDataMetOfficeDir = new File(
-                getOutputDataDir(),
-                sMetOffice);
+                    getOutputDataDir(),
+                    ss.getString_MetOffice());
         }
         return OutputDataMetOfficeDir;
     }
@@ -104,26 +113,35 @@ public class SARIC_Files {
     public File getOutputDataMetOfficeDataPointDir() {
         if (OutputDataMetOfficeDataPointDir == null) {
             OutputDataMetOfficeDataPointDir = new File(
-                getOutputDataDir(),
-                sDataPoint);
+                    getOutputDataDir(),
+                    ss.getString_DataPoint());
         }
         return OutputDataMetOfficeDataPointDir;
     }
-    
-     public File getGeneratedDataDir() {
+
+    public File getGeneratedDataDir() {
         if (GeneratedDataDir == null) {
             GeneratedDataDir = new File(
-            getDataDir(),
-            sGenerated);
+                    getDataDir(),
+                    ss.getString_Generated());
         }
         return GeneratedDataDir;
+    }
+
+    public File getGeneratedDataCatchmentBoundariesDir() {
+        if (GeneratedDataCatchmentDir == null) {
+            GeneratedDataCatchmentDir = new File(
+                    getGeneratedDataDir(),
+                    ss.getString_Catchment());
+        }
+        return GeneratedDataCatchmentDir;
     }
 
     public File getGeneratedDataMetOfficeDir() {
         if (GeneratedDataMetOfficeDir == null) {
             GeneratedDataMetOfficeDir = new File(
-                getGeneratedDataDir(),
-                sMetOffice);
+                    getGeneratedDataDir(),
+                    ss.getString_MetOffice());
         }
         return GeneratedDataMetOfficeDir;
     }
@@ -131,80 +149,116 @@ public class SARIC_Files {
     public File getGeneratedDataMetOfficeDataPointDir() {
         if (GeneratedDataMetOfficeDataPointDir == null) {
             GeneratedDataMetOfficeDataPointDir = new File(
-                getGeneratedDataDir(),
-                sDataPoint);
+                    getGeneratedDataDir(),
+                    ss.getString_DataPoint());
         }
         return GeneratedDataMetOfficeDataPointDir;
     }
-    
+
     public File getInputDataDir() {
         if (InputDataDir == null) {
             InputDataDir = new File(
-            getDataDir(),
-            sInput);
+                    getDataDir(),
+                    ss.getString_input());
         }
         return InputDataDir;
     }
-    
+
     public File getInputDataMetOfficeDataPointAPIKeyFile() {
         if (InputDataMetOfficeDataPointAPIKeyFile == null) {
             InputDataMetOfficeDataPointAPIKeyFile = new File(
-                getInputDataMetOfficeDataPointConfigDir(),
-                "MetOfficeDataPointAPIKey.txt");
+                    getInputDataMetOfficeDataPointConfigDir(),
+                    "MetOfficeDataPointAPIKey.txt");
         }
         return InputDataMetOfficeDataPointAPIKeyFile;
     }
-    
+
     public File getInputDataMetOfficeDataPointConfigDir() {
         if (InputDataMetOfficeDataPointConfigDir == null) {
-        InputDataMetOfficeDataPointConfigDir = new File(
-                getInputDataMetOfficeDataPointDir(),
-                sConfig);
+            InputDataMetOfficeDataPointConfigDir = new File(
+                    getInputDataMetOfficeDataPointDir(),
+                    ss.getString_config());
         }
         return InputDataMetOfficeDataPointConfigDir;
     }
-    
+
     public File getInputDataMetOfficeDir() {
         if (InputDataMetOfficeDir == null) {
             InputDataMetOfficeDir = new File(
-                getInputDataDir(),
-                sMetOffice);
+                    getInputDataDir(),
+                    ss.getString_MetOffice());
         }
         return InputDataMetOfficeDir;
     }
-    
+
     public File getInputDataMetOfficeDataPointDir() {
         if (InputDataMetOfficeDataPointDir == null) {
             InputDataMetOfficeDataPointDir = new File(
-                getInputDataMetOfficeDir(),
-                sDataPoint);
+                    getInputDataMetOfficeDir(),
+                    ss.getString_DataPoint());
         }
         return InputDataMetOfficeDataPointDir;
     }
-    
+
+    public File getInputDataMetOfficeDataPointInspireDir() {
+        if (InputDataMetOfficeDataPointInspireDir == null) {
+            InputDataMetOfficeDataPointInspireDir = new File(
+                    getInputDataMetOfficeDataPointDir(),
+                    ss.getString_inspire());
+        }
+        return InputDataMetOfficeDataPointInspireDir;
+    }
+
+    public File getInputDataMetOfficeDataPointInspireViewDir() {
+        if (InputDataMetOfficeDataPointInspireViewDir == null) {
+            InputDataMetOfficeDataPointInspireViewDir = new File(
+                    getInputDataMetOfficeDataPointInspireDir(),
+                    ss.getString_view());
+        }
+        return InputDataMetOfficeDataPointInspireViewDir;
+    }
+
+    public File getInputDataMetOfficeDataPointInspireViewWmtsDir() {
+        if (InputDataMetOfficeDataPointInspireViewWmtsDir == null) {
+            InputDataMetOfficeDataPointInspireViewWmtsDir = new File(
+                    getInputDataMetOfficeDataPointInspireViewDir(),
+                    ss.getString_wmts());
+        }
+        return InputDataMetOfficeDataPointInspireViewWmtsDir;
+    }
+
+    public File getInputDataMetOfficeDataPointInspireViewWmtsCapabilitiesFile() {
+        if (InputDataMetOfficeDataPointInspireViewWmtsCapabilitiesFile == null) {
+            InputDataMetOfficeDataPointInspireViewWmtsCapabilitiesFile = new File(
+                    getInputDataMetOfficeDataPointInspireViewWmtsDir(),
+                    ss.getString_capabilities() + "." + ss.getString_xml());
+        }
+        return InputDataMetOfficeDataPointInspireViewWmtsCapabilitiesFile;
+    }
+
     public File getInputDataMetOfficeNimrodDir() {
         if (InputDataMetOfficeNimrodDir == null) {
             InputDataMetOfficeNimrodDir = new File(
-                getInputDataMetOfficeDir(),
-                sNimrod);
+                    getInputDataMetOfficeDir(),
+                    ss.getString_Nimrod());
         }
         return InputDataMetOfficeDir;
     }
-    
+
     public File getInputDataCEHDir() {
         if (InputDataCEHDir == null) {
-        InputDataCEHDir = new File(
-                getInputDataDir(),
-                sCEH);
+            InputDataCEHDir = new File(
+                    getInputDataDir(),
+                    ss.getString_CEH());
         }
         return InputDataCEHDir;
     }
-    
+
     public File getInputDataCatchmentBoundariesDir() {
         if (InputDataCatchmentBoundariesDir == null) {
-        InputDataCatchmentBoundariesDir = new File(
-                getInputDataDir(),
-                sCatchmentBoundaries);
+            InputDataCatchmentBoundariesDir = new File(
+                    getInputDataDir(),
+                    ss.getString_CatchmentBoundaries());
         }
         return InputDataCatchmentBoundariesDir;
     }

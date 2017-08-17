@@ -92,7 +92,7 @@ public class SARIC_MetOfficeCapabilitiesXMLDOMReader extends SARIC_XMLDOMReader 
         return result;
     }
 
-    protected int getNcols(String tileMatrix) {
+    public int getNcols(String tileMatrix) {
         int result;
         String tileMatrixParameter;
         tileMatrixParameter = getTileMatrixParameter(
@@ -102,7 +102,7 @@ public class SARIC_MetOfficeCapabilitiesXMLDOMReader extends SARIC_XMLDOMReader 
         return result;
     }
 
-    protected int getNrows(String tileMatrix) {
+    public int getNrows(String tileMatrix) {
         int result;
         String tileMatrixParameter;
         tileMatrixParameter = getTileMatrixParameter(
@@ -112,7 +112,7 @@ public class SARIC_MetOfficeCapabilitiesXMLDOMReader extends SARIC_XMLDOMReader 
         return result;
     }
 
-    protected BigDecimal getCellsize(
+    public BigDecimal getCellsize(
             String tileMatrix) {
         BigDecimal result;
         String tileMatrixParameter;
@@ -123,7 +123,7 @@ public class SARIC_MetOfficeCapabilitiesXMLDOMReader extends SARIC_XMLDOMReader 
         return result;
     }
 
-    protected Vector_Envelope2D getDimensions(
+    public Vector_Envelope2D getDimensions(
             BigDecimal cellsize,
             int nrows,
             int ncols,

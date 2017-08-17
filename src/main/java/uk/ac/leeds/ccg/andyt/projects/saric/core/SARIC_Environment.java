@@ -33,7 +33,8 @@ import uk.ac.leeds.ccg.andyt.vector.core.Vector_Environment;
  */
 public class SARIC_Environment {
 
-    SARIC_Files files;
+    SARIC_Files sf;
+    SARIC_Strings ss;
     SARIC_MetOfficeParameters metOfficeParameters;
     SARIC_Time time;
     Grids_Environment ge;
@@ -45,7 +46,8 @@ public class SARIC_Environment {
     }
 
     public SARIC_Environment(String dataDir) {
-        files = new SARIC_Files(dataDir);
+        ss = new SARIC_Strings();
+        sf = new SARIC_Files(ss,dataDir);
         time = new SARIC_Time();
         metOfficeParameters = new SARIC_MetOfficeParameters();
         ge = new Grids_Environment();
@@ -53,7 +55,11 @@ public class SARIC_Environment {
     }
 
     public SARIC_Files getFiles() {
-        return files;
+        return sf;
+    }
+
+    public SARIC_Strings getStrings() {
+        return ss;
     }
 
     public SARIC_MetOfficeParameters getMetOfficeParameters() {

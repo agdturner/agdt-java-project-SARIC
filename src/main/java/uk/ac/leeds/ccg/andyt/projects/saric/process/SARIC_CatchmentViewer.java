@@ -39,6 +39,9 @@ import org.ojalgo.type.colour.Colour;
 import uk.ac.leeds.ccg.andyt.agdtgeotools.AGDT_Geotools;
 import uk.ac.leeds.ccg.andyt.agdtgeotools.AGDT_Shapefile;
 import uk.ac.leeds.ccg.andyt.agdtgeotools.demo.AGDT_DisplayShapefile;
+import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
+import uk.ac.leeds.ccg.andyt.projects.saric.data.catchment.SARIC_Teifi;
+import uk.ac.leeds.ccg.andyt.projects.saric.data.catchment.SARIC_Wissey;
 import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
 
 /**
@@ -47,10 +50,14 @@ import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
  */
 public class SARIC_CatchmentViewer extends AGDT_DisplayShapefile {
 
-    SARIC_Files SARIC_Files;
+    SARIC_Environment se;
+    SARIC_Files sf;
     
-    public SARIC_CatchmentViewer() {
-        SARIC_Files = new SARIC_Files("data");     
+    private SARIC_CatchmentViewer() {}
+
+    public SARIC_CatchmentViewer(SARIC_Environment se) {
+        this.se = se;
+        this.sf = se.getFiles();
     }
 
     @Override
@@ -67,43 +74,39 @@ public class SARIC_CatchmentViewer extends AGDT_DisplayShapefile {
         MapContent mc;
         ReferencedEnvelope re;
         
-        // Wissey
         mc = new MapContent();
-        dir = new File(
-                SARIC_Files.getInputDataCatchmentBoundariesDir(),
-                "Wissey");
-        name = "33006.shp";
-        f = AGDT_Geotools.getShapefile(dir, name, false);
-        files.add(f);
-        AGDT_Shapefile f33006;
-        f33006 = new AGDT_Shapefile(f);
-        mc.addLayer(f33006.getFeatureLayer());
-        name = "WISSEY_RBMP2.shp";
-        f = AGDT_Geotools.getShapefile(dir, name, false);
-        files.add(f);
-        as = new AGDT_Shapefile(f);
+
+        // Wissey
+        SARIC_Wissey sw;
+        sw = new SARIC_Wissey(se);
+        as = sw.getNRFAAGDT_Shapefile();
+        files.add(as.getFile());
+        mc.addLayer(as.getFeatureLayer());
+        as = sw.getAnglianAGDT_Shapefile();
+        files.add(as.getFile());
         fl = as.getFeatureLayer();
         mc.addLayer(fl);
-        re = mc.getMaxBounds();
-                printBounds(re);
-
-        // Teifi
-         dir = new File(
-                SARIC_Files.getInputDataCatchmentBoundariesDir(),
-                 "Teifi");
-        name = "62001.shp";
-        f = AGDT_Geotools.getShapefile(dir, name, false);
-        files.add(f);
-        name = "WW_area.shp";
-        f = AGDT_Geotools.getShapefile(dir, name, false);
-        files.add(f);
-        as = new AGDT_Shapefile(f);
-        fl = as.getFeatureLayer();
         re = fl.getBounds();
         printBounds(re);
         
+        // Teifi
+        SARIC_Teifi st;
+        st = new SARIC_Teifi(se);
+        as = st.getNRFAAGDT_Shapefile();
+        files.add(as.getFile());
+        mc.addLayer(as.getFeatureLayer());
+        as = st.getWWAGDT_Shapefile();
+        files.add(as.getFile());
+        fl = as.getFeatureLayer();
+        mc.addLayer(fl);
+        re = fl.getBounds();
+        printBounds(re);
+        re = mc.getMaxBounds();
+                printBounds(re);
+        
+        
          dir = new File(
-                SARIC_Files.getInputDataCEHDir(),
+                this.sf.getInputDataCEHDir(),
                 "WGS84");
         name = "ihu_catchments.shp";
         f = AGDT_Geotools.getShapefile(dir, name, false);
