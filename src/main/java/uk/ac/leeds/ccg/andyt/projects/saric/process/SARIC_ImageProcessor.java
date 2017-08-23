@@ -28,7 +28,9 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.TreeMap;
 import uk.ac.leeds.ccg.andyt.grids.core.Grids_AbstractGrid2DSquareCellDoubleChunkFactory;
+import uk.ac.leeds.ccg.andyt.grids.core.Grids_AbstractGridStatistics;
 import uk.ac.leeds.ccg.andyt.grids.core.Grids_Environment;
 import uk.ac.leeds.ccg.andyt.grids.core.Grids_Grid2DSquareCellDouble;
 import uk.ac.leeds.ccg.andyt.grids.core.Grids_Grid2DSquareCellDoubleFactory;
@@ -43,13 +45,14 @@ import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.SARIC_MetOf
 import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.SARIC_MetOfficeLayerParameters;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.SARIC_MetOfficeParameters;
 import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
+import uk.ac.leeds.ccg.andyt.projects.saric.util.SARIC_Time;
 import uk.ac.leeds.ccg.andyt.vector.geometry.Vector_Envelope2D;
 
 /**
  *
  * @author geoagdt
  */
-public class SARIC_ImageProcessor extends SARIC_Object {
+public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
 
     /**
      * For convenience
@@ -65,10 +68,11 @@ public class SARIC_ImageProcessor extends SARIC_Object {
     boolean doNonTiledFcs;
     boolean doNonTiledObs;
     boolean doTileFromWMTSService;
-    boolean doForecastsTileFromWMTSService;
     boolean doObservationsTileFromWMTSService;
+    boolean doForecastsTileFromWMTSService;
     boolean doWissey;
     boolean doTeifi;
+    boolean overwrite;
     Color Blue = Color.decode("#0000FE");
     Color LightBlue = Color.decode("#3265FE");
     Color MuddyGreen = Color.decode("#7F7F00");
@@ -85,10 +89,11 @@ public class SARIC_ImageProcessor extends SARIC_Object {
             boolean doNonTiledFcs,
             boolean doNonTiledObs,
             boolean doTileFromWMTSService,
-            boolean doForecastsTileFromWMTSService,
             boolean doObservationsTileFromWMTSService,
+            boolean doForecastsTileFromWMTSService,
             boolean doWissey,
-            boolean doTeifi
+            boolean doTeifi,
+            boolean overwrite
     ) {
         this.se = se;
         this.dirIn = dirIn;
@@ -96,10 +101,11 @@ public class SARIC_ImageProcessor extends SARIC_Object {
         this.doNonTiledFcs = doNonTiledFcs;
         this.doNonTiledObs = doNonTiledObs;
         this.doTileFromWMTSService = doTileFromWMTSService;
-        this.doForecastsTileFromWMTSService = doForecastsTileFromWMTSService;
         this.doObservationsTileFromWMTSService = doObservationsTileFromWMTSService;
+        this.doForecastsTileFromWMTSService = doForecastsTileFromWMTSService;
         this.doWissey = doWissey;
         this.doTeifi = doTeifi;
+        this.overwrite = overwrite;
         sf = se.getFiles();
         ge = se.getGrids_Environment();
         ae = new Grids_ESRIAsciiGridExporter(ge);
@@ -117,122 +123,408 @@ public class SARIC_ImageProcessor extends SARIC_Object {
     }
 
     public void run() {
-        File indir;
-        File infile;
-        File outdir;
-        String path;
-        String name;
-        if (doNonTiledFcs) {
-            name = "Precipitation_Rate2017-07-27T03_00_003";
-            path = "layer/wxfcs/Precipitation_Rate/png/";
-            infile = new File(
-                    sf.getInputDataMetOfficeDataPointDir(),
-                    path + name + ".png");
-            outdir = new File(
-                    sf.getInputDataMetOfficeDataPointDir(),
-                    path);
-            //process(infile, outdir, name);
-        }
+
         if (doTileFromWMTSService) {
-
-            File inspireWMTSCapabilities = sf.getInputDataMetOfficeDataPointInspireViewWmtsCapabilitiesFile();
+            File indir;
+            File[] indirs;
+            File infile;
+            File outdir;
+            String path;
+            String name;
+            File inspireWMTSCapabilities;
             SARIC_MetOfficeParameters p;
-            p = new SARIC_MetOfficeParameters();
             SARIC_MetOfficeCapabilitiesXMLDOMReader r;
-            r = new SARIC_MetOfficeCapabilitiesXMLDOMReader(se, inspireWMTSCapabilities);
-
             String area;
             String layerName;
-            layerName = "RADAR_UK_Composite_Highres";
-            File[] indirs;
-            HashSet<String> outdirNames;
-
             String tileMatrixSet;
+            String tileMatrix;
+
+            HashMap<String, SARIC_MetOfficeLayerParameters> metOfficeLayerParameters;
+            BigDecimal cellsize;
+            int nrows;
+            int ncols;
+            Vector_Envelope2D bounds;
+            SARIC_Wissey sw;
+            SARIC_Teifi st;
+            String s;
+            SARIC_Time time;
+
+            inspireWMTSCapabilities = sf.getInputDataMetOfficeDataPointInspireViewWmtsCapabilitiesFile();
+            p = new SARIC_MetOfficeParameters();
+            r = new SARIC_MetOfficeCapabilitiesXMLDOMReader(se, inspireWMTSCapabilities);
             tileMatrixSet = "EPSG:27700"; // British National Grid
+            sw = se.getWissey();
+            st = se.getTeifi();
 
-            for (int scale = 4; scale < 5; scale++) {
-                String tileMatrix;
-                tileMatrix = tileMatrixSet + ":" + scale;
-                HashMap<String, SARIC_MetOfficeLayerParameters> metOfficeLayerParameters;
-                metOfficeLayerParameters = p.getMetOfficeLayerParameters();
-                SARIC_MetOfficeLayerParameters lp;
-                lp = metOfficeLayerParameters.get(tileMatrix);
-                BigDecimal cellsize;
-                cellsize = r.getCellsize(tileMatrix);
-                if (lp == null) {
-                    lp = new SARIC_MetOfficeLayerParameters(se, cellsize, p);
-                }
-                int nrows;
-                nrows = r.getNrows(tileMatrix);
-                int ncols;
-                ncols = r.getNcols(tileMatrix);
-                Vector_Envelope2D bounds;
-                bounds = r.getDimensions(cellsize, nrows, ncols, tileMatrix, p.TwoFiveSix);
-                System.out.println(bounds.toString());
-                p.setBounds(bounds);
+            if (doForecastsTileFromWMTSService) {
+                TreeMap<SARIC_Time, String> orderedOutDirNames;
+                TreeMap<SARIC_Time, File> orderedIndirs;
 
-                if (doWissey) {
-                    area = "Wissey";
-                    System.out.println("Area " + area);
-                    path = "inspire/view/wmts/" + area + "/" + layerName + "/EPSG_27700_";
-
-                    System.out.println("scale " + scale);
-                    indir = new File(
-                            sf.getInputDataMetOfficeDataPointDir(),
-                            path + scale);
-                    indirs = indir.listFiles();
-                    // initialise outdirs
-                    outdirNames = new HashSet<String>();
-                    for (int j = 0; j < indirs.length; j++) {
-                        outdirNames.add(indirs[j].getName());
+                layerName = "Precipitation_Rate";
+                for (int scale = 4; scale < 5; scale++) {
+                    tileMatrix = tileMatrixSet + ":" + scale;
+                    metOfficeLayerParameters = p.getMetOfficeLayerParameters();
+                    SARIC_MetOfficeLayerParameters lp;
+                    lp = metOfficeLayerParameters.get(tileMatrix);
+                    cellsize = r.getCellsize(tileMatrix);
+                    if (lp == null) {
+                        lp = new SARIC_MetOfficeLayerParameters(se, cellsize, p);
                     }
-                    outdir = new File(
-                            sf.getOutputDataMetOfficeDataPointDir(),
-                            path + scale);
-                    name = layerName;
-
-                    SARIC_Wissey sw;
-                    sw = se.getWissey();
-                    p.setBounds(sw.getBounds());
-
-                    Grids_Grid2DSquareCellDouble swg;
-                    swg = sw.get1KMGrid();
-
-                    process(indirs, outdirNames, outdir, layerName, name, cellsize, p, lp, r, swg);
-                }
-                if (doTeifi) {
-                    area = "Teifi";
-                    System.out.println("Area " + area);
-                    path = "inspire/view/wmts/" + area + "/" + layerName + "/EPSG_27700_";
-                    System.out.println("scale " + scale);
-                    indir = new File(
-                            sf.getInputDataMetOfficeDataPointDir(),
-                            path + scale);
-                    indirs = indir.listFiles();
-                    // initialise outdirs
-                    outdirNames = new HashSet<String>();
-                    for (int j = 0; j < indirs.length; j++) {
-                        outdirNames.add(indirs[j].getName().split("T")[0]);
+                    nrows = r.getNrows(tileMatrix);
+                    ncols = r.getNcols(tileMatrix);
+                    bounds = r.getDimensions(cellsize, nrows, ncols, tileMatrix, p.TwoFiveSix);
+                    System.out.println(bounds.toString());
+                    p.setBounds(bounds);
+                    if (doWissey) {
+                        area = "Wissey";
+                        System.out.println("Area " + area);
+                        path = "inspire/view/wmts/" + area + "/" + layerName + "/EPSG_27700_";
+                        System.out.println("scale " + scale);
+                        indir = new File(
+                                sf.getInputDataMetOfficeDataPointDir(),
+                                path + scale);
+                        indirs = indir.listFiles();
+                        /**
+                         * indirs should contain data for all dates. The data
+                         * for some dates actually refers to forecasts for the
+                         * following day or even for the day after that as the
+                         * forecasts are for the following 36 hours.
+                         *
+                         * It is imperative to have an ordered list of
+                         * directories for each date, so we create one when
+                         * initialising outdirs as this already involves going
+                         * through indirs.
+                         */
+                        orderedIndirs = new TreeMap<SARIC_Time, File>();
+                        orderedOutDirNames = new TreeMap<SARIC_Time, String>();
+                        for (int j = 0; j < indirs.length; j++) {
+                            s = indirs[j].getName();
+                            time = new SARIC_Time(s);
+                            orderedOutDirNames.put(time, s);
+                            orderedIndirs.put(time, indirs[j]);
+                        }
+                        outdir = new File(
+                                sf.getOutputDataMetOfficeDataPointDir(),
+                                path + scale);
+                        name = layerName;
+//                    p.setBounds(sw.getBounds());
+                        Grids_Grid2DSquareCellDouble swg;
+                        swg = sw.get1KMGrid();
+                        processForecasts(orderedIndirs, orderedOutDirNames, outdir, layerName, name, cellsize, p, lp, r, swg);
                     }
-                    outdir = new File(
-                            sf.getOutputDataMetOfficeDataPointDir(),
-                            path + scale);
-                    name = layerName;
 
-                    SARIC_Teifi st;
-                    st = se.getTeifi();
-                    p.setBounds(st.getBounds());
+                }
+            }
 
-                    Grids_Grid2DSquareCellDouble stg;
-                    stg = st.get1KMGrid();
-
-                    process(indirs, outdirNames, outdir, layerName, name, cellsize, p, lp, r, stg);
+            if (doObservationsTileFromWMTSService) {
+                HashSet<String> outdirNames;
+                layerName = "RADAR_UK_Composite_Highres";
+                for (int scale = 4; scale < 5; scale++) {
+                    tileMatrix = tileMatrixSet + ":" + scale;
+                    metOfficeLayerParameters = p.getMetOfficeLayerParameters();
+                    SARIC_MetOfficeLayerParameters lp;
+                    lp = metOfficeLayerParameters.get(tileMatrix);
+                    cellsize = r.getCellsize(tileMatrix);
+                    if (lp == null) {
+                        lp = new SARIC_MetOfficeLayerParameters(se, cellsize, p);
+                    }
+                    nrows = r.getNrows(tileMatrix);
+                    ncols = r.getNcols(tileMatrix);
+                    bounds = r.getDimensions(cellsize, nrows, ncols, tileMatrix, p.TwoFiveSix);
+                    System.out.println(bounds.toString());
+                    p.setBounds(bounds);
+                    if (doWissey) {
+                        area = "Wissey";
+                        System.out.println("Area " + area);
+                        path = "inspire/view/wmts0/" + area + "/" + layerName + "/EPSG_27700_";
+                        System.out.println("scale " + scale);
+                        indir = new File(
+                                sf.getInputDataMetOfficeDataPointDir(),
+                                path + scale);
+                        indirs = indir.listFiles();
+                        // initialise outdirs
+                        outdirNames = new HashSet<String>();
+                        for (int j = 0; j < indirs.length; j++) {
+                            outdirNames.add(indirs[j].getName());
+                        }
+                        outdir = new File(
+                                sf.getOutputDataMetOfficeDataPointDir(),
+                                path + scale);
+                        name = layerName;
+//                    p.setBounds(sw.getBounds());
+                        Grids_Grid2DSquareCellDouble swg;
+                        swg = sw.get1KMGrid();
+                        processObservations(indirs, outdirNames, outdir, layerName, name, cellsize, p, lp, r, swg);
+                    }
+                    if (doTeifi) {
+                        area = "Teifi";
+                        System.out.println("Area " + area);
+                        path = "inspire/view/wmts0/" + area + "/" + layerName + "/EPSG_27700_";
+                        System.out.println("scale " + scale);
+                        indir = new File(
+                                sf.getInputDataMetOfficeDataPointDir(),
+                                path + scale);
+                        indirs = indir.listFiles();
+                        // initialise outdirs
+                        outdirNames = new HashSet<String>();
+                        for (int j = 0; j < indirs.length; j++) {
+                            outdirNames.add(indirs[j].getName().split("T")[0]);
+                        }
+                        outdir = new File(
+                                sf.getOutputDataMetOfficeDataPointDir(),
+                                path + scale);
+                        name = layerName;
+//                    p.setBounds(st.getBounds());
+                        Grids_Grid2DSquareCellDouble stg;
+                        stg = st.get1KMGrid();
+                        processObservations(indirs, outdirNames, outdir, layerName, name, cellsize, p, lp, r, stg);
+                    }
                 }
             }
         }
     }
 
-    public void process(
+    /**
+     *
+     * @param orderedForecastdirs
+     * @param orderedOutdirNames
+     * @param outdir
+     * @param layerName
+     * @param name
+     * @param cellsize
+     * @param p
+     * @param lp
+     * @param r
+     * @param a1KMGrid
+     */
+    public void processForecasts(
+            TreeMap<SARIC_Time, File> orderedForecastdirs,
+            TreeMap<SARIC_Time, String> orderedOutdirNames,
+            File outdir,
+            String layerName,
+            String name,
+            BigDecimal cellsize,
+            SARIC_MetOfficeParameters p,
+            SARIC_MetOfficeLayerParameters lp,
+            SARIC_MetOfficeCapabilitiesXMLDOMReader r,
+            Grids_Grid2DSquareCellDouble a1KMGrid) {
+        String methodName;
+        methodName = "processForecasts("
+                + "TreeMap<SARIC_Time, File>,"
+                + "TreeMap<SARIC_Time, String>,"
+                + "HashSet<String>,FileString,String,"
+                + "BigDecimal,SARIC_MetOfficeParameters,"
+                + "SARIC_MetOfficeLayerParameters,"
+                + "SARIC_MetOfficeCapabilitiesXMLDOMReader,"
+                + "Grids_Grid2DSquareCellDouble)";
+        Vector_Envelope2D tileBounds;
+        Boolean HandleOutOfMemoryError = true;
+        double weight;
+        weight = 1d;
+        String outDirName;
+        String outDirNameCheck;
+        String indirname;
+        String indirname2;
+        File[] indirs2;
+        File[] infiles;
+        File[] unorderedForecastdirs2;
+        File indir;
+        String rowCol;
+//        int row;
+//        int col;
+        double x;
+        double y;
+        double halfcellsize;
+        halfcellsize = cellsize.doubleValue() / 2.0d;
+        Grids_Grid2DSquareCellDouble g;
+        File outascii;
+        File outpng;
+        SARIC_Time time;
+        SARIC_Time time2;
+        SARIC_Time time3;
+        SARIC_Time time4;
+        Iterator<SARIC_Time> ite;
+        ite = orderedOutdirNames.keySet().iterator();
+        /**
+         * With a full set of forecasts there are essentially 7 forecasts of
+         * rainfall for each 3 hourly time snapshot. However, there is a need to
+         * start and end somewhere, so for the first dates we only have the
+         * forecasts from that time going forwards and likewise for the most
+         * recent dates, there may be more forecasts to come...
+         */
+        HashMap<SARIC_Time, Grids_Grid2DSquareCellDouble> output1kmGrids;
+        output1kmGrids = new HashMap<SARIC_Time, Grids_Grid2DSquareCellDouble>();
+        HashMap<SARIC_Time, HashMap<String, Grids_Grid2DSquareCellDouble>> gridsAll;
+        gridsAll = new HashMap<SARIC_Time, HashMap<String, Grids_Grid2DSquareCellDouble>>();
+        HashMap<String, Grids_Grid2DSquareCellDouble> grids;
+        HashMap<SARIC_Time, Integer> counts;
+        counts = new HashMap<SARIC_Time, Integer>();
+        File outdir2;
+        while (ite.hasNext()) {
+            time = ite.next();
+            /**
+             * At the end of this iteration we should be able to output the
+             * grids from this time as everything that can be added will be
+             * added by this stage. Also the grids can be set to null to free
+             * memory.
+             */
+            outDirName = orderedOutdirNames.get(time); // outDirName could also be derived from date perhaps via a toString() method!
+            System.out.println(outDirName);
+            outdir2 = new File(
+                    outdir,
+                    outDirName);
+            outascii = new File(
+                    outdir2,
+                    name + ".asc");
+            if (!overwrite && outascii.exists()) {
+                System.out.println("Not overwriting and " + outascii.toString() + " exists.");
+            } else {
+                /**
+                 * In the fullness of time (assuming all the forecasts are
+                 * collected), there should be four indirs, one for each of the
+                 * 4 forecasts made for the proceeding 36 hours. The scheduled
+                 * forecasts are from 3am, 9am, 3pm and 9pm each day. So if
+                 * there are fewer than 4 directories, the processing could be
+                 * for the current date, rather than being processing for a day
+                 * in the past for which the generalised data are still wanted
+                 * for validation purposes.
+                 */
+                outdir2.mkdirs();
+                indir = orderedForecastdirs.get(time);
+                unorderedForecastdirs2 = indir.listFiles();
+
+                TreeMap<SARIC_Time, File> orderedForecastDirs2;
+                orderedForecastDirs2 = new TreeMap<SARIC_Time, File>();
+                for (int i = 0; i < unorderedForecastdirs2.length; i++) {
+                    time3 = new SARIC_Time(unorderedForecastdirs2[i].getName());
+                    orderedForecastDirs2.put(time3, unorderedForecastdirs2[i]);
+                }
+
+                Iterator<SARIC_Time> ite2;
+                ite2 = orderedForecastDirs2.keySet().iterator();
+                while (ite2.hasNext()) {
+                    time3 = ite2.next();
+                    File dir;
+                    dir = orderedForecastDirs2.get(time3);
+                    
+                    if (dir == null) {
+                        int debug = 1;
+                    dir = orderedForecastDirs2.get(time3);
+                    dir = orderedForecastDirs2.get(time3);
+                    dir = orderedForecastDirs2.get(time3);
+                        
+                    }
+                    
+                    indirname2 = dir.getName();
+                    for (int k = 0; k <= 36; k += 3) {
+                        time2 = new SARIC_Time(time3);
+                        time2.addHours(k);
+                        /**
+                         * Set time4 to be the right day. There is only a need
+                         * to add up to 2 days as only looking forward 36 hours.
+                         */
+                        time4 = new SARIC_Time(time3);
+                        if (time2.getDayOfMonth() != time4.getDayOfMonth()) {
+                            time4.addDays(1);
+                            if (time2.getDayOfMonth() != time4.getDayOfMonth()) {
+                                time4.addDays(1);
+                            }
+                        }
+                        // Initialise grids and counts
+                        if (gridsAll.containsKey(time4)) {
+                            grids = gridsAll.get(time4);
+                        } else {
+                            grids = new HashMap<String, Grids_Grid2DSquareCellDouble>();
+                            gridsAll.put(time4, grids);
+                        }
+                        File indir3;
+                        indir3 = new File(
+                                dir,
+                                "" + k);
+                        infiles = indir3.listFiles();
+                        if (infiles == null) {
+                            int DEBUG = 1;
+                        } else {
+                            for (int i = 0; i < infiles.length; i++) {
+                                rowCol = infiles[i].getName().split(indirname2)[1];
+                                int[] rowColint;
+                                rowColint = getRowCol(rowCol);
+                                tileBounds = lp.getTileBounds(rowColint[0], rowColint[1]);
+                                System.out.println("Infile " + infiles[i]);
+                                g = getGrid(infiles[i], cellsize, tileBounds, layerName, rowColint);
+                                if (g != null) {
+                                    if (grids.containsKey(rowCol)) {
+                                        Grids_Grid2DSquareCellDouble gridToAddTo;
+                                        gridToAddTo = grids.get(rowCol);
+                                        gp.addToGrid(gridToAddTo, g, weight, true);
+                                    } else {
+                                        grids.put(rowCol, g);
+                                    }
+                                }
+                            }
+                            if (counts.containsKey(time4)) {
+                                counts.put(time4, counts.get(time4) + 1);
+                            } else {
+                                counts.put(time4, 1);
+                            }
+                        }
+                    }
+                }
+                ite2 = orderedForecastDirs2.keySet().iterator();
+                while (ite2.hasNext()) {
+                    time3 = ite2.next();
+                    grids = gridsAll.get(time3);
+                    Iterator<String> gridsIte;
+                    gridsIte = grids.keySet().iterator();
+                    Grids_Grid2DSquareCellDouble b1KMGrid = null;
+                    if (output1kmGrids.containsKey(time3)) {
+                        b1KMGrid = output1kmGrids.get(time3);
+                    } else {
+                        b1KMGrid = (Grids_Grid2DSquareCellDouble) f.create(a1KMGrid);
+                        output1kmGrids.put(time3, b1KMGrid);
+                    }
+                    long nrows = b1KMGrid.get_NRows(true);
+                    long ncols = b1KMGrid.get_NCols(true);
+                    while (gridsIte.hasNext()) {
+                        rowCol = gridsIte.next();
+                        int[] rowColint;
+                        rowColint = getRowCol(rowCol);
+                        g = grids.get(rowCol);
+                        // Iterate over grid and get values
+                        for (long row = 0; row < nrows; row++) {
+                            y = b1KMGrid.getCellYDouble(row, true) + halfcellsize; // adding half a cellsize is in an attempt to prevent striping where images join.
+                            for (long col = 0; col < ncols; col++) {
+                                x = b1KMGrid.getCellXDouble(col, true) + halfcellsize; // adding half a cellsize is in an attempt to prevent striping where images join.
+                                b1KMGrid.addToCell(row, col, g.getCell(x, y, true), true);
+                            }
+                        }
+                    }
+                }
+            }
+            g = output1kmGrids.get(time);
+            Grids_AbstractGridStatistics gs;
+            gs = g.getGridStatistics(true);
+            double max = gs.getMaxDouble(true);
+            double min = gs.getMinDouble(true);
+            /**
+             * The scaleFactor is the number of grids divided by the number of hours in the day
+             */
+            double scaleFactor = counts.get(time) / 24d; 
+            g = gp.rescale(g, null, min * scaleFactor, max * scaleFactor, true);
+            ae.toAsciiFile(g, outascii, HandleOutOfMemoryError);
+            outpng = new File(
+                    outdir2,
+                    name + ".png");
+            ie.toGreyScaleImage(g, gp, outpng, "png", HandleOutOfMemoryError);
+            /**
+             * Having output, we can now clear some space
+             */
+            output1kmGrids.remove(time);
+            gridsAll.remove(time);
+        }
+    }
+
+    public void processObservations(
             File[] indirs,
             HashSet<String> outdirNames,
             File outdir,
@@ -243,6 +535,12 @@ public class SARIC_ImageProcessor extends SARIC_Object {
             SARIC_MetOfficeLayerParameters lp,
             SARIC_MetOfficeCapabilitiesXMLDOMReader r,
             Grids_Grid2DSquareCellDouble a1KMGrid) {
+        String methodName;
+        methodName = "processObservations(File[],HashSet<String>,FileString,"
+                + "String,BigDecimal,SARIC_MetOfficeParameters,"
+                + "SARIC_MetOfficeLayerParameters,"
+                + "SARIC_MetOfficeCapabilitiesXMLDOMReader,"
+                + "Grids_Grid2DSquareCellDouble)";
         Vector_Envelope2D tileBounds;
         Boolean HandleOutOfMemoryError = true;
         double weight;
@@ -258,7 +556,8 @@ public class SARIC_ImageProcessor extends SARIC_Object {
 //        int col;
         double x;
         double y;
-
+        double halfcellsize;
+        halfcellsize = cellsize.doubleValue() / 2.0d;
         Grids_Grid2DSquareCellDouble g;
         File outascii;
         File outpng;
@@ -268,80 +567,101 @@ public class SARIC_ImageProcessor extends SARIC_Object {
             HashMap<String, Grids_Grid2DSquareCellDouble> grids;
             grids = new HashMap<String, Grids_Grid2DSquareCellDouble>();
             outDirName = outdirNamesIte.next();
-            for (int k = 0; k < indirs.length; k++) {
-                indirname = indirs[k].getName();
-                outDirNameCheck = indirname;
-                if (outDirName.equalsIgnoreCase(outDirNameCheck)) {
-                    indirs2 = indirs[k].listFiles();
-                    for (int j = 0; j < indirs2.length; j++) {
-                        indirname2 = indirs2[j].getName();
-                        infiles = indirs2[j].listFiles();
-                        for (int i = 0; i < infiles.length; i++) {
-                            rowCol = infiles[i].getName().split(indirname2)[1];
-                            int[] rowColint;
-                            rowColint = getRowCol(rowCol);
-                            tileBounds = lp.getTileBounds(rowColint[0], rowColint[1]);
-                            System.out.println("Infile " + infiles[i]);
-                            g = getGrid(infiles[i], cellsize, tileBounds, layerName);
-                            if (grids.containsKey(rowCol)) {
-                                Grids_Grid2DSquareCellDouble gridToAddTo;
-                                gridToAddTo = grids.get(rowCol);
-                                gp.addToGrid(gridToAddTo, g, weight, true);
-                            } else {
-                                grids.put(rowCol, g);
-                            }
-                        }
-                    }
-                }
-            }
-            Iterator<String> gridsIte;
-            gridsIte = grids.keySet().iterator();
-            Grids_Grid2DSquareCellDouble b1KMGrid = null;
+            System.out.println(outDirName);
             File outdir2;
             outdir2 = new File(
                     outdir,
                     outDirName);
-            outdir2.mkdirs();
-            while (gridsIte.hasNext()) {
-                b1KMGrid = (Grids_Grid2DSquareCellDouble) f.create(a1KMGrid);
-                rowCol = gridsIte.next();
-                int[] rowColint;
-                rowColint = getRowCol(rowCol);
-                g = grids.get(rowCol);
-                tileBounds = lp.getTileBounds(rowColint[0], rowColint[1]);
-//                // If bounds intersect add
-//                if (p.getBounds().getIntersects(tileBounds)) {
-                // Iterate over grid and get values
-                long nrows = b1KMGrid.get_NRows(true);
-                long ncols = b1KMGrid.get_NCols(true);
-                for (long row = 0; row < nrows; row++) {
-                    y = b1KMGrid.getCellYDouble(row, true);
-                    for (long col = 0; col < ncols; col++) {
-                        x = b1KMGrid.getCellXDouble(col, true);
-                        b1KMGrid.addToCell(row, col, g.getCell(x, y, true), true);
-                    }
-                }
-//                }
-                // Output as tiles
-                outascii = new File(
-                        outdir2,
-                        name + "_" + rowColint[0] + "_" + rowColint[1] + ".asc");
-                outpng = new File(
-                        outdir2,
-                        name + "_" + rowColint[0] + "_" + rowColint[1] + ".png.png");
-                ae.toAsciiFile(g, outascii, HandleOutOfMemoryError);
-                ie.toGreyScaleImage(g, gp, outpng, "png", HandleOutOfMemoryError);
-            }
-            // Output result grid
             outascii = new File(
                     outdir2,
                     name + ".asc");
-            outpng = new File(
-                    outdir2,
-                    name + ".png");
-            ae.toAsciiFile(b1KMGrid, outascii, HandleOutOfMemoryError);
-            ie.toGreyScaleImage(b1KMGrid, gp, outpng, "png", HandleOutOfMemoryError);
+            if (!overwrite && outascii.exists()) {
+                System.out.println("Not overwriting and " + outascii.toString() + " exists.");
+            } else {
+                outdir2.mkdirs();
+                for (int k = 0; k < indirs.length; k++) {
+                    indirname = indirs[k].getName();
+                    outDirNameCheck = indirname;
+                    if (outDirName.equalsIgnoreCase(outDirNameCheck)) {
+                        indirs2 = indirs[k].listFiles();
+                        if (indirs2 != null) {
+                            for (int j = 0; j < indirs2.length; j++) {
+                                if (!indirs2[j].isDirectory()) {
+                                    System.out.println(this.getClass().getName() + "." + methodName + ": "
+                                            + "Input directory given by " + indirs2[j] + " is not a directory.");
+                                } else {
+                                    indirname2 = indirs2[j].getName();
+                                    infiles = indirs2[j].listFiles();
 
+                                    if (infiles == null) {
+                                        int DEBUG = 1;
+                                    } else {
+                                        for (int i = 0; i < infiles.length; i++) {
+                                            rowCol = infiles[i].getName().split(indirname2)[1];
+                                            int[] rowColint;
+                                            rowColint = getRowCol(rowCol);
+                                            tileBounds = lp.getTileBounds(rowColint[0], rowColint[1]);
+                                            System.out.println("Infile " + infiles[i]);
+                                            g = getGrid(infiles[i], cellsize, tileBounds, layerName, rowColint);
+                                            if (g != null) {
+                                                if (grids.containsKey(rowCol)) {
+                                                    Grids_Grid2DSquareCellDouble gridToAddTo;
+                                                    gridToAddTo = grids.get(rowCol);
+                                                    gp.addToGrid(gridToAddTo, g, weight, true);
+                                                } else {
+                                                    grids.put(rowCol, g);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                Iterator<String> gridsIte;
+                gridsIte = grids.keySet().iterator();
+                Grids_Grid2DSquareCellDouble b1KMGrid = null;
+                b1KMGrid = (Grids_Grid2DSquareCellDouble) f.create(a1KMGrid);
+                while (gridsIte.hasNext()) {
+                    rowCol = gridsIte.next();
+                    int[] rowColint;
+                    rowColint = getRowCol(rowCol);
+                    g = grids.get(rowCol);
+                    tileBounds = lp.getTileBounds(rowColint[0], rowColint[1]);
+//                // If bounds intersect add
+//                if (p.getBounds().getIntersects(tileBounds)) {
+                    // Iterate over grid and get values
+                    long nrows = b1KMGrid.get_NRows(true);
+                    long ncols = b1KMGrid.get_NCols(true);
+                    for (long row = 0; row < nrows; row++) {
+                        y = b1KMGrid.getCellYDouble(row, true) + halfcellsize; // adding half a cellsize is in an attempt to prevent striping where images join.
+                        for (long col = 0; col < ncols; col++) {
+                            x = b1KMGrid.getCellXDouble(col, true) + halfcellsize; // adding half a cellsize is in an attempt to prevent striping where images join.
+                            b1KMGrid.addToCell(row, col, g.getCell(x, y, true), true);
+                        }
+                    }
+//                }
+                    // Output as tiles
+                    outascii = new File(
+                            outdir2,
+                            name + "_" + rowColint[0] + "_" + rowColint[1] + ".asc");
+                    outpng = new File(
+                            outdir2,
+                            name + "_" + rowColint[0] + "_" + rowColint[1] + ".png.png");
+                    ae.toAsciiFile(g, outascii, HandleOutOfMemoryError);
+                    ie.toGreyScaleImage(g, gp, outpng, "png", HandleOutOfMemoryError);
+                }
+                // Output result grid
+                outascii = new File(
+                        outdir2,
+                        name + ".asc");
+                outpng = new File(
+                        outdir2,
+                        name + ".png");
+                ae.toAsciiFile(b1KMGrid, outascii, HandleOutOfMemoryError);
+                ie.toGreyScaleImage(b1KMGrid, gp, outpng, "png", HandleOutOfMemoryError);
+            }
         }
     }
 
@@ -367,14 +687,19 @@ public class SARIC_ImageProcessor extends SARIC_Object {
      * @param cellsize
      * @param tileBounds
      * @param layerName
+     * @param rowColint This has length 2 the first element is the row and the
+     * second the column of the tile.
      * @return
      */
     public Grids_Grid2DSquareCellDouble getGrid(
             File in,
             BigDecimal cellsize,
             Vector_Envelope2D tileBounds,
-            String layerName) {
-        Grids_Grid2DSquareCellDouble result;
+            String layerName,
+            int[] rowColint) {
+        String methodName;
+        methodName = "getGrid(File,BigDecimal,Vector_Envelope2D,String,int[])";
+        Grids_Grid2DSquareCellDouble result = null;
         Boolean HandleOutOfMemoryError = true;
         Image image = null;
         int width;
@@ -384,36 +709,41 @@ public class SARIC_ImageProcessor extends SARIC_Object {
         } catch (IOException io) {
             io.printStackTrace(System.err);
         }
-        // Grab the pixels.
-        width = image.getWidth(null);
-        height = image.getHeight(null);
-
-        BigDecimal[] dimensions;
-        dimensions = new BigDecimal[5];
-        dimensions[0] = cellsize;
-        dimensions[1] = tileBounds._xmin;
-        dimensions[2] = tileBounds._ymin;
-        dimensions[3] = tileBounds._xmax;
-        dimensions[4] = tileBounds._ymax;
-
-        result = (Grids_Grid2DSquareCellDouble) f.create(height, width, dimensions);
-
-        int[] pixels = new int[width * height];
-        PixelGrabber pg = new PixelGrabber(image, 0, 0, width, height, pixels, 0, width);
         try {
-            pg.grabPixels();
-        } catch (InterruptedException ie) {
-            ie.printStackTrace();
-        }
-        long row = height - 1;
-        long col = 0;
-        for (int i = 0; i < pixels.length; i++) {
-            if (col == width) {
-                col = 0;
-                row--;
+            // Grab the pixels.
+            width = image.getWidth(null);
+            height = image.getHeight(null);
+
+            BigDecimal[] dimensions;
+            dimensions = new BigDecimal[5];
+            dimensions[0] = cellsize;
+            dimensions[1] = tileBounds._xmin;
+            dimensions[2] = tileBounds._ymin;
+            dimensions[3] = tileBounds._xmax;
+            dimensions[4] = tileBounds._ymax;
+//        dimensions[1] = tileBounds._xmin.subtract(cellsize.multiply(new BigDecimal(rowColint[1]).multiply(new BigDecimal(height)))); //XMIN
+//        dimensions[4] = tileBounds._ymax.subtract(cellsize.multiply(new BigDecimal(rowColint[0]).multiply(new BigDecimal(width)))); //YMAX
+//        dimensions[2] = dimensions[4].subtract(cellsize.multiply(new BigDecimal(height))); //YMIN
+//        dimensions[3] = dimensions[1].subtract(cellsize.multiply(new BigDecimal(width)));  //XMAX
+
+            result = (Grids_Grid2DSquareCellDouble) f.create(height, width, dimensions);
+
+            int[] pixels = new int[width * height];
+            PixelGrabber pg = new PixelGrabber(image, 0, 0, width, height, pixels, 0, width);
+            try {
+                pg.grabPixels();
+            } catch (InterruptedException ie) {
+                ie.printStackTrace();
             }
-            //System.out.println("row, col = " + row + ", " + col);
-            // Process the pixels.
+            long row = height - 1;
+            long col = 0;
+            for (int i = 0; i < pixels.length; i++) {
+                if (col == width) {
+                    col = 0;
+                    row--;
+                }
+                //System.out.println("row, col = " + row + ", " + col);
+                // Process the pixels.
 //      Colour: ColourHex: Official Range: Mid range value used in mm/hr
 //      Blue: #0000FE: 0.01 - 0.5: 0.25 mm/hr
 //      Light Blue: #3265FE: 0.5 - 1: 0.75
@@ -423,25 +753,25 @@ public class SARIC_ImageProcessor extends SARIC_Object {
 //      Red: #FE0000: 8 - 16: 12
 //      Pink: #FE00FE: 16 - 32: 24
 //      Pale Blue: #E5FEFE: 32+: 48
-            Color pixel = new Color(pixels[i]);
-            if (pixel.equals(Blue)) {
-                result.setCell(row, col, 0.25d, HandleOutOfMemoryError);
-            } else if (pixel.equals(LightBlue)) {
-                result.setCell(row, col, 0.5d, HandleOutOfMemoryError);
-            } else if (pixel.equals(MuddyGreen)) {
-                result.setCell(row, col, 1.5d, HandleOutOfMemoryError);
-            } else if (pixel.equals(Yellow)) {
-                result.setCell(row, col, 3d, HandleOutOfMemoryError);
-            } else if (pixel.equals(Orange)) {
-                result.setCell(row, col, 6d, HandleOutOfMemoryError);
-            } else if (pixel.equals(Red)) {
-                result.setCell(row, col, 12d, HandleOutOfMemoryError);
-            } else if (pixel.equals(Pink)) {
-                result.setCell(row, col, 24d, HandleOutOfMemoryError);
-            } else if (pixel.equals(PaleBlue)) {
-                result.setCell(row, col, 48d, HandleOutOfMemoryError);
-            } else if (pixel.equals(Color.BLACK)) {
-                result.setCell(row, col, 0.0d, HandleOutOfMemoryError);
+                Color pixel = new Color(pixels[i]);
+                if (pixel.equals(Blue)) {
+                    result.setCell(row, col, 0.25d, HandleOutOfMemoryError);
+                } else if (pixel.equals(LightBlue)) {
+                    result.setCell(row, col, 0.5d, HandleOutOfMemoryError);
+                } else if (pixel.equals(MuddyGreen)) {
+                    result.setCell(row, col, 1.5d, HandleOutOfMemoryError);
+                } else if (pixel.equals(Yellow)) {
+                    result.setCell(row, col, 3d, HandleOutOfMemoryError);
+                } else if (pixel.equals(Orange)) {
+                    result.setCell(row, col, 6d, HandleOutOfMemoryError);
+                } else if (pixel.equals(Red)) {
+                    result.setCell(row, col, 12d, HandleOutOfMemoryError);
+                } else if (pixel.equals(Pink)) {
+                    result.setCell(row, col, 24d, HandleOutOfMemoryError);
+                } else if (pixel.equals(PaleBlue)) {
+                    result.setCell(row, col, 48d, HandleOutOfMemoryError);
+                } else if (pixel.equals(Color.BLACK)) {
+                    result.setCell(row, col, 0.0d, HandleOutOfMemoryError);
 //                if (scale == 0) {
 //                    if (row == height - 1 && col == 0) {
 //                        // There is no lower resolution image.
@@ -567,14 +897,20 @@ public class SARIC_ImageProcessor extends SARIC_Object {
 //                        result.setCell(row, col, 0.0d, HandleOutOfMemoryError);
 //                    }
 //                }
-            } else {
-                result.setCell(row, col, 0.0d, HandleOutOfMemoryError);
+                } else {
+                    result.setCell(row, col, 0.0d, HandleOutOfMemoryError);
+                }
+                col++;
             }
-            col++;
-        }
 
-        // Describe result
-        System.out.println(result.toString(0, HandleOutOfMemoryError));
+            // Describe result
+            System.out.println(result.toString(0, HandleOutOfMemoryError));
+        } catch (NullPointerException e) {
+            System.out.println("File " + in.toString() + " exists in "
+                    + this.getClass().getName() + "." + methodName
+                    + ", but is empty or there is some other problem with it "
+                    + "being loaded as an image, returning null.");
+        }
         return result;
     }
 }

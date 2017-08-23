@@ -32,6 +32,7 @@ import org.geotools.map.FeatureLayer;
 import org.geotools.map.Layer;
 import org.geotools.map.MapContent;
 import org.geotools.map.MapViewport;
+import org.geotools.renderer.style.LineStyle2D;
 import org.geotools.styling.SLD;
 import org.geotools.styling.Style;
 import org.geotools.swing.JMapFrame;
@@ -48,12 +49,13 @@ import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
  *
  * @author geoagdt
  */
-public class SARIC_CatchmentViewer extends AGDT_DisplayShapefile {
+public class SARIC_CatchmentViewer extends AGDT_DisplayShapefile implements Runnable {
 
     SARIC_Environment se;
     SARIC_Files sf;
-    
-    private SARIC_CatchmentViewer() {}
+
+    private SARIC_CatchmentViewer() {
+    }
 
     public SARIC_CatchmentViewer(SARIC_Environment se) {
         this.se = se;
@@ -70,47 +72,51 @@ public class SARIC_CatchmentViewer extends AGDT_DisplayShapefile {
 
         AGDT_Shapefile as;
         FeatureLayer fl;
-        
+
         MapContent mc;
         ReferencedEnvelope re;
-        
+
         mc = new MapContent();
 
         // Wissey
+        
+        dir = new File(
+                this.sf.getInputDataCEHDir(),
+                "WGS84");
+        name = "ihu_catchments.shp";
+        f = AGDT_Geotools.getShapefile(dir, name, false);
+        files.add(f);
+        
         SARIC_Wissey sw;
         sw = new SARIC_Wissey(se);
         as = sw.getNRFAAGDT_Shapefile();
         files.add(as.getFile());
-        mc.addLayer(as.getFeatureLayer());
-        as = sw.getAnglianAGDT_Shapefile();
+        fl = as.getFeatureLayer();
+        mc.addLayer(fl);
+        as = sw.getWaterCompanyAGDT_Shapefile();
         files.add(as.getFile());
         fl = as.getFeatureLayer();
         mc.addLayer(fl);
         re = fl.getBounds();
         printBounds(re);
-        
+
         // Teifi
         SARIC_Teifi st;
         st = new SARIC_Teifi(se);
         as = st.getNRFAAGDT_Shapefile();
         files.add(as.getFile());
-        mc.addLayer(as.getFeatureLayer());
-        as = st.getWWAGDT_Shapefile();
+        fl = as.getFeatureLayer();
+        mc.addLayer(fl);
+        as = st.getWaterCompanyAGDT_Shapefile();
         files.add(as.getFile());
         fl = as.getFeatureLayer();
         mc.addLayer(fl);
         re = fl.getBounds();
         printBounds(re);
         re = mc.getMaxBounds();
-                printBounds(re);
+        printBounds(re);
+
         
-        
-         dir = new File(
-                this.sf.getInputDataCEHDir(),
-                "WGS84");
-        name = "ihu_catchments.shp";
-        f = AGDT_Geotools.getShapefile(dir, name, false);
-        files.add(f);
 
         try {
             displayShapefiles(files, 800, 600, re);
@@ -118,7 +124,7 @@ public class SARIC_CatchmentViewer extends AGDT_DisplayShapefile {
             Logger.getLogger(AGDT_DisplayShapefile.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
     public void printBounds(ReferencedEnvelope re) {
         double minx;
         double maxx;
@@ -133,13 +139,13 @@ public class SARIC_CatchmentViewer extends AGDT_DisplayShapefile {
         System.out.println("miny " + miny);
         System.out.println("maxy " + maxy);
     }
-    
+
     /**
      * @param files
      * @param displayWidth
      * @param displayHeight
      * @param re Used to set MapViewport
-     * @throws Exception 
+     * @throws Exception
      */
     @Override
     protected void displayShapefiles(
@@ -165,29 +171,31 @@ public class SARIC_CatchmentViewer extends AGDT_DisplayShapefile {
 //        crs = store.getSchema().getCoordinateReferenceSystem();
 //        System.out.println(crs.toWKT());
 //        System.out.println(crs.toString());
-            Color outlineColor;
-            Color fillColor;
-            float opacity;
-            if (i == 0) {
-               outlineColor = Color.BLACK;
-               fillColor = Color.LIGHT_GRAY;
-                       opacity = 0;
-            } else if (i == 1) {
-                outlineColor = Color.BLUE;
-                fillColor = Color.WHITE;
-                       opacity = 0;
-            } else {
-                outlineColor = Color.CYAN;
-                fillColor = Color.WHITE;
-                       opacity = 0;
-            }
             Style style;
-            //style = SLD.createSimpleStyle(fs.getSchema());
-            style = SLD.createPolygonStyle(outlineColor, fillColor, opacity);
+            switch (i) {
+                case 0:
+                    style = getStyleIHU();
+                    break;
+                case 1:
+                    style = getStyleNRFA();
+                    break;
+                case 2:
+                    style = getStyleWaterCompany();
+                    break;
+                case 3:
+                    style = getStyleNRFA();
+                    break;
+                case 4:
+                    style = getStyleWaterCompany();
+                    break;
+                default:
+                    style = getStyleIHU();
+                    break;
+            }
             Layer layer;
             layer = new FeatureLayer(fs, style);
             mc.layers().add(layer);
-            i ++;
+            i++;
         }
         // Create a JMapFrame with custom toolbar buttons
         JMapFrame mapFrame = new JMapFrame(mc);
@@ -207,7 +215,45 @@ public class SARIC_CatchmentViewer extends AGDT_DisplayShapefile {
             mvp.setBounds(re);
             mc.setViewport(mvp);
         }
-        
+
         mapFrame.setVisible(true);
+    }
+    
+    
+    public Style getStyleNRFA() {
+        Style result;
+        Color outlineColor;
+        Color fillColor;
+        float opacity;
+        outlineColor = Color.BLACK;
+        fillColor = Color.LIGHT_GRAY;
+        opacity = 0;
+        result = SLD.createPolygonStyle(outlineColor, fillColor, opacity);
+        return result;
+    }
+    
+    public Style getStyleWaterCompany() {
+        Style result;
+        Color outlineColor;
+        Color fillColor;
+        float opacity;
+        outlineColor = Color.BLUE;
+        fillColor = Color.DARK_GRAY;
+        opacity = 0;
+        result = SLD.createPolygonStyle(outlineColor, fillColor, opacity);
+        return result;
+    }
+    
+    
+    public Style getStyleIHU() {
+        Style result;
+        Color outlineColor;
+        Color fillColor;
+        float opacity;
+        outlineColor = Color.CYAN;
+        fillColor = Color.WHITE;
+        opacity = 0;
+        result = SLD.createPolygonStyle(outlineColor, fillColor, opacity);
+        return result;
     }
 }

@@ -1,0 +1,378 @@
+/*
+ * Copyright (C) 2017 geoagdt.
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301  USA
+ */
+package uk.ac.leeds.ccg.andyt.projects.saric.process;
+
+import java.awt.Color;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.geotools.coverage.grid.GridCoverage2D;
+import org.geotools.data.FileDataStore;
+import org.geotools.data.FileDataStoreFinder;
+import org.geotools.data.simple.SimpleFeatureSource;
+import org.geotools.gce.arcgrid.ArcGridReader;
+import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.geotools.map.FeatureLayer;
+import org.geotools.map.GridCoverageLayer;
+import org.geotools.map.Layer;
+import org.geotools.map.MapContent;
+import org.geotools.map.MapViewport;
+import org.geotools.styling.SLD;
+import org.geotools.styling.Style;
+import org.geotools.swing.JMapFrame;
+import uk.ac.leeds.ccg.andyt.agdtgeotools.AGDT_Geotools;
+import uk.ac.leeds.ccg.andyt.agdtgeotools.AGDT_LegendItem;
+import uk.ac.leeds.ccg.andyt.agdtgeotools.AGDT_Maps;
+import uk.ac.leeds.ccg.andyt.agdtgeotools.AGDT_Shapefile;
+import uk.ac.leeds.ccg.andyt.agdtgeotools.AGDT_Style;
+import uk.ac.leeds.ccg.andyt.agdtgeotools.AGDT_StyleParameters;
+import uk.ac.leeds.ccg.andyt.agdtgeotools.demo.AGDT_DisplayShapefile;
+import uk.ac.leeds.ccg.andyt.grids.core.Grids_Grid2DSquareCellDouble;
+import uk.ac.leeds.ccg.andyt.grids.core.Grids_Grid2DSquareCellDoubleFactory;
+import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
+import uk.ac.leeds.ccg.andyt.projects.saric.data.catchment.SARIC_Teifi;
+import uk.ac.leeds.ccg.andyt.projects.saric.data.catchment.SARIC_Wissey;
+import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
+
+/**
+ *
+ * @author geoagdt
+ */
+public class SARIC_DataViewer extends AGDT_DisplayShapefile implements Runnable {
+
+    SARIC_Environment se;
+    SARIC_Files sf;
+
+    boolean doWissey;
+    boolean doTeifi;
+    boolean addGBHRUs;
+    ArrayList<GridCoverageLayer> gcls;
+
+    private SARIC_DataViewer() {
+    }
+
+    public SARIC_DataViewer(SARIC_Environment se, boolean doWissey, boolean doTeifi, boolean addGBHRUs) {
+        this.se = se;
+        this.sf = se.getFiles();
+        this.doWissey = doWissey;
+        this.doTeifi = doTeifi;
+        this.addGBHRUs = addGBHRUs;
+    }
+
+    @Override
+    public void run() {
+
+        // Ititalise gcl
+        gcls = getGridCoverageLayers();
+
+        MapContent mc;
+        ReferencedEnvelope re;
+
+        mc = new MapContent();
+
+        addGridCoverageLayersToMapContent(mc);
+        re = mc.getMaxBounds();
+
+        HashMap<Integer, File> files;
+        files = new HashMap<Integer, File>();
+        String name;
+
+        AGDT_Shapefile as;
+        FeatureLayer fl;
+
+        if (addGBHRUs) {
+            File dir;
+            File f;
+            dir = new File(
+                    this.sf.getInputDataCEHDir(),
+                    "WGS84");
+            name = "ihu_catchments.shp";
+            f = AGDT_Geotools.getShapefile(dir, name, false);
+            files.put(0, f);
+        }
+
+        if (doWissey) {
+            // Wissey
+            SARIC_Wissey sw;
+            sw = new SARIC_Wissey(se);
+            as = sw.getNRFAAGDT_Shapefile();
+            files.put(1, as.getFile());
+            fl = as.getFeatureLayer();
+            mc.addLayer(fl);
+            as = sw.getWaterCompanyAGDT_Shapefile();
+            files.put(2, as.getFile());
+            fl = as.getFeatureLayer();
+            mc.addLayer(fl);
+            re = fl.getBounds();
+            printBounds(re);
+        }
+
+        if (doTeifi) {
+            // Teifi
+            SARIC_Teifi st;
+            st = new SARIC_Teifi(se);
+            as = st.getNRFAAGDT_Shapefile();
+            files.put(3, as.getFile());
+            fl = as.getFeatureLayer();
+            mc.addLayer(fl);
+            as = st.getWaterCompanyAGDT_Shapefile();
+            files.put(4, as.getFile());
+            fl = as.getFeatureLayer();
+            mc.addLayer(fl);
+            re = fl.getBounds();
+            printBounds(re);
+            re = mc.getMaxBounds();
+            printBounds(re);
+        }
+
+        try {
+            displayShapefiles(files, 800, 600, re);
+        } catch (Exception ex) {
+            Logger.getLogger(AGDT_DisplayShapefile.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public void printBounds(ReferencedEnvelope re) {
+        double minx;
+        double maxx;
+        double miny;
+        double maxy;
+        minx = re.getMinX();
+        maxx = re.getMaxX();
+        miny = re.getMinY();
+        maxy = re.getMaxY();
+        System.out.println("minx " + minx);
+        System.out.println("maxx " + maxx);
+        System.out.println("miny " + miny);
+        System.out.println("maxy " + maxy);
+    }
+
+    /**
+     * @param files
+     * @param displayWidth
+     * @param displayHeight
+     * @param re Used to set MapViewport
+     * @throws Exception
+     */
+    protected void displayShapefiles(
+            HashMap<Integer, File> files,
+            int displayWidth,
+            int displayHeight,
+            ReferencedEnvelope re) throws Exception {
+        MapContent mc;
+        mc = new MapContent();
+
+        File f;
+        Style style;
+
+        if (addGBHRUs) {
+            f = files.get(0);
+            style = getStyleIHU();
+            addToMap(mc, f, style);
+        }
+        // First add 
+        addGridCoverageLayersToMapContent(mc);
+
+        int id;
+        id = 0;
+        Iterator<Integer> ite;
+        ite = files.keySet().iterator();
+        while (ite.hasNext()) {
+            id = ite.next();
+            if (id != 0) {
+//        CoordinateReferenceSystem crs;
+//        crs = store.getSchema().getCoordinateReferenceSystem();
+//        System.out.println(crs.toWKT());
+//        System.out.println(crs.toString());
+                switch (id) {
+                    case 1:
+                        style = getStyleNRFA();
+                        break;
+                    case 2:
+                        style = getStyleWaterCompany();
+                        break;
+                    case 3:
+                        style = getStyleNRFA();
+                        break;
+                    case 4:
+                        style = getStyleWaterCompany();
+                        break;
+                    default:
+                        style = getStyleIHU();
+                        break;
+                }
+                addToMap(mc, files.get(id), style);
+            }
+        }
+
+        // Create a JMapFrame with custom toolbar buttons
+        JMapFrame mapFrame = new JMapFrame(mc);
+        mapFrame.enableToolBar(true);
+        mapFrame.enableStatusBar(true);
+
+//        JToolBar toolbar = mapFrame.getToolBar();
+//        toolbar.addSeparator();
+//        toolbar.add(new JButton(new ValidateGeometryAction()));
+//        toolbar.add(new JButton(new ExportShapefileAction()));
+        // Display the map frame. When it is closed the application will exit
+        mapFrame.setSize(800, 600);
+
+        if (re != null) {
+            MapViewport mvp;
+            mvp = mc.getViewport();
+            mvp.setBounds(re);
+            mc.setViewport(mvp);
+        }
+
+        mapFrame.setVisible(true);
+    }
+
+    public void addToMap(MapContent mc, File f, Style s) {
+        FileDataStore fds;
+        SimpleFeatureSource fs;
+        Layer layer;
+        try {
+            fds = FileDataStoreFinder.getDataStore(f);
+            fs = fds.getFeatureSource();
+            layer = new FeatureLayer(fs, s);
+            mc.layers().add(layer);
+        } catch (IOException ex) {
+            Logger.getLogger(SARIC_DataViewer.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public Style getStyleNRFA() {
+        Style result;
+        Color outlineColor;
+        Color fillColor;
+        float opacity;
+        outlineColor = Color.BLACK;
+        fillColor = Color.LIGHT_GRAY;
+        opacity = 0;
+        result = SLD.createPolygonStyle(outlineColor, fillColor, opacity);
+        return result;
+    }
+
+    public Style getStyleWaterCompany() {
+        Style result;
+        Color outlineColor;
+        Color fillColor;
+        float opacity;
+        outlineColor = Color.BLUE;
+        fillColor = Color.DARK_GRAY;
+        opacity = 0;
+        result = SLD.createPolygonStyle(outlineColor, fillColor, opacity);
+        return result;
+    }
+
+    public Style getStyleIHU() {
+        Style result;
+        Color outlineColor;
+        Color fillColor;
+        float opacity;
+        outlineColor = Color.CYAN;
+        fillColor = Color.WHITE;
+        opacity = 0;
+        result = SLD.createPolygonStyle(outlineColor, fillColor, opacity);
+        return result;
+    }
+
+    public ArrayList<GridCoverageLayer> getGridCoverageLayers() {
+        ArrayList<GridCoverageLayer> result;
+        result = new ArrayList<GridCoverageLayer>();
+
+        File dir;
+        File f;
+        String name = "RADAR_UK_Composite_Highres.asc";
+
+        if (doWissey) {
+            dir = new File(sf.getOutputDataMetOfficeDataPointDir(),
+                    "inspire/view/wmts/Wissey/RADAR_UK_Composite_Highres/EPSG_27700_4/2017-08-09");
+            GridCoverageLayer gcl;
+            gcl = getGridCoverageLayer(dir, name);
+            result.add(gcl);
+        }
+
+        if (doTeifi) {
+            dir = new File(sf.getOutputDataMetOfficeDataPointDir(),
+                    "inspire/view/wmts/Teifi/RADAR_UK_Composite_Highres/EPSG_27700_4/2017-08-09");
+            GridCoverageLayer gcl;
+            gcl = getGridCoverageLayer(dir, name);
+            result.add(gcl);
+        }
+
+        return result;
+    }
+
+    public GridCoverageLayer getGridCoverageLayer(File dir, String name) {
+        GridCoverageLayer result;
+        File f;
+        f = new File(dir, name);
+
+        AGDT_StyleParameters styleParameters;
+        styleParameters = new AGDT_StyleParameters();
+        styleParameters.setnClasses(9);
+        styleParameters.setPaletteName("Reds");
+        styleParameters.setAddWhiteForZero(true);
+        styleParameters.setClassificationFunctionName("EqualInterval");
+
+        ArcGridReader agr;
+        agr = AGDT_Maps.getArcGridReader(f);
+
+        GridCoverage2D gc;
+        gc = AGDT_Maps.getGridCoverage2D(agr);
+
+        Grids_Grid2DSquareCellDoubleFactory gf;
+        gf = se.getGrids_Environment().get_Grid2DSquareCellProcessor()._Grid2DSquareCellDoubleFactory;
+        Grids_Grid2DSquareCellDouble g;
+        g = (Grids_Grid2DSquareCellDouble) gf.create(f);
+
+        double normalisation = 1.0d;;
+
+        Object[] styleAndLegendItems;
+        styleAndLegendItems = AGDT_Style.getStyleAndLegendItems(
+                normalisation,
+                g,
+                gc,
+                styleParameters.getClassificationFunctionName(),
+                styleParameters.getnClasses(),
+                styleParameters.getPaletteName(),
+                styleParameters.isAddWhiteForZero());
+        Style style;
+        style = (Style) styleAndLegendItems[0];
+//        ArrayList<AGDT_LegendItem> legendItems;
+//        legendItems = (ArrayList<AGDT_LegendItem>) styleAndLegendItems[1];
+        result = new GridCoverageLayer(gc, style);
+        return result;
+    }
+
+    protected void addGridCoverageLayersToMapContent(MapContent mc) {
+        Iterator<GridCoverageLayer> ite;
+        ite = gcls.iterator();
+        GridCoverageLayer gcl;
+        while (ite.hasNext()) {
+            gcl = ite.next();
+            mc.addLayer(gcl);
+        }
+    }
+}

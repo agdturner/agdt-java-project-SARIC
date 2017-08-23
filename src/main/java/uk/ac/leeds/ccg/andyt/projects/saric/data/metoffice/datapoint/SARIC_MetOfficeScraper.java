@@ -28,14 +28,11 @@ import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import sun.util.calendar.BaseCalendar;
 import uk.ac.leeds.ccg.andyt.generic.io.Generic_StaticIO;
 import uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Time;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
@@ -65,7 +62,6 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
     SARIC_Strings ss;
 
     Vector_Environment ve;
-
 
     // Variables
     String path;
@@ -842,81 +838,82 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
         String tileMatrix;
 //        BigDecimal[] tileDimensions;
         Vector_Envelope2D tileBounds;
-        int matrix = 4;
         String tileMatrixFormatted;
         String tileRow;
-            String tileCol;
-            String time;
-            String dateYYYYMMDD;
-            String timeformatted;
-            Iterator<String> ite;
+        String tileCol;
+        String time;
+        String dateYYYYMMDD;
+        String timeformatted;
+        Iterator<String> ite;
+        int matrix = 4;
         //for (matrix = 0; matrix < 7; matrix += 1) {
         //for (matrix = 0; matrix < 5; matrix += 1) {
-            tileMatrix = tileMatrixSet + ":" + matrix; // British National Grid
-            tileMatrixFormatted = tileMatrix.replace(':', '_');
+        tileMatrix = tileMatrixSet + ":" + matrix; // British National Grid
+        tileMatrixFormatted = tileMatrix.replace(':', '_');
 
-            //tileMatrix = "EPSG:4326:0"; // WGS84
-            //System.out.println("tileMatrix " + tileMatrix);
-            lp = metOfficeLayerParameters.get(tileMatrix);
-            if (lp == null) {
-                lp = new SARIC_MetOfficeLayerParameters(se, r.getCellsize(tileMatrix), p);
-                System.out.println("Cellsize " + lp.getCellsize());
-            }
-            lp.setNrows(r.getNrows(tileMatrix));
-            lp.setNcols(r.getNcols(tileMatrix));
-            //http://datapoint.metoffice.gov.uk/public/data/inspire/view/wmts?REQUEST=gettile&LAYER=<layer required>&FORMAT=image/png&TILEMATRIXSET=<projection>&TILEMATRIX=<projection zoom level required>&TILEROW=<tile row required>&TILECOL=<tile column required>&TIME=<time required>&STYLE=<style required>&key=<API key>
-            //http://datapoint.metoffice.gov.uk/public/data/inspire/view/wmts?REQUEST=gettile&LAYER=Precipitation_Rate&FORMAT=image/png&TILEMATRIXSET=EPSG:4258&TILEMATRIX=EPSG:4258:0&TILEROW=0&TILECOL=0&DIM_RUN=2013-11-20T03:00:00Z&DIM_FORECAST=%2B9&STYLE=Bitmap%20Blue-Pale%20blue%20gradient%200.01%20to%20greater%20than%2032mm%2Fhr&key=<API key>Note that the + character has been URL encoded to %2B and the / character to %2F
-            path = "inspire/view/wmts";
-            ite = times.iterator();
-            while (ite.hasNext()) {
-                time = ite.next();
-                System.out.println(time);
-                timeformatted = time.replace(':', '_');
-                dateYYYYMMDD = time.split("T")[0];
-                for (int row = 0; row < lp.nrows; row++) {
-                    //System.out.println("row " + row);
-                    for (int col = 0; col < lp.ncols; col++) {
-                        //System.out.println("col " + col);
-                        tileBounds = lp.getTileBounds(row, col);
-                        boolean intersects;
-                        intersects = tileBounds.getIntersects(AreaBoundingBox);
-                        if (intersects) {
-                            System.out.println("Intersection in row " + row + ", col " + col);
-                            System.out.println(tileBounds.toString());
-                            tileRow = Integer.toString(row);
-                            tileCol = Integer.toString(col);
-                            url = BASE_URL
-                                    + path
-                                    + "?REQUEST=gettile"
-                                    + "&LAYER=" + layerName
-                                    + "&FORMAT=image%2Fpng" //+ "&FORMAT=image/png" // The / character is URL encoded to %2B
-                                    + "&TILEMATRIXSET=" + tileMatrixSet
-                                    + "&TILEMATRIX=" + tileMatrix
-                                    + "&TILEROW=" + tileRow
-                                    + "&TILECOL=" + tileCol
-                                    + "&TIME=" + time
-                                    + "&STYLE=Bitmap%201km%20Blue-Pale%20blue%20gradient%200.01%20to%2032mm%2Fhr" // The + character has been URL encoded to %2B and the / character to %2F
-                                    + "&key=" + API_KEY;
-                            //http://datapoint.metoffice.gov.uk/public/data/inspire/view/wmts?REQUEST=gettile&LAYER=Precipitation_Rate&FORMAT=image/png&TILEMATRIXSET=EPSG:4258&TILEMATRIX=EPSG:4258:0&TILEROW=0&TILECOL=0
-                            String outputFilenameWithoutExtension;
-                            outputFilenameWithoutExtension = layerName + "_"
-                                    + tileMatrixFormatted + "_"
-                                    + timeformatted + "_"
-                                    + tileRow + "_" + tileCol;
-                            String pathDummy = path;
-                             path += "/" + layerName
+        //tileMatrix = "EPSG:4326:0"; // WGS84
+        //System.out.println("tileMatrix " + tileMatrix);
+        lp = metOfficeLayerParameters.get(tileMatrix);
+        if (lp == null) {
+            lp = new SARIC_MetOfficeLayerParameters(se, r.getCellsize(tileMatrix), p);
+            System.out.println("Cellsize " + lp.getCellsize());
+        }
+        lp.setNrows(r.getNrows(tileMatrix));
+        lp.setNcols(r.getNcols(tileMatrix));
+        //http://datapoint.metoffice.gov.uk/public/data/inspire/view/wmts?REQUEST=gettile&LAYER=<layer required>&FORMAT=image/png&TILEMATRIXSET=<projection>&TILEMATRIX=<projection zoom level required>&TILEROW=<tile row required>&TILECOL=<tile column required>&TIME=<time required>&STYLE=<style required>&key=<API key>
+        //http://datapoint.metoffice.gov.uk/public/data/inspire/view/wmts?REQUEST=gettile&LAYER=Precipitation_Rate&FORMAT=image/png&TILEMATRIXSET=EPSG:4258&TILEMATRIX=EPSG:4258:0&TILEROW=0&TILECOL=0&DIM_RUN=2013-11-20T03:00:00Z&DIM_FORECAST=%2B9&STYLE=Bitmap%20Blue-Pale%20blue%20gradient%200.01%20to%20greater%20than%2032mm%2Fhr&key=<API key>Note that the + character has been URL encoded to %2B and the / character to %2F
+        path = "inspire/view/wmts";
+        ite = times.iterator();
+        while (ite.hasNext()) {
+            time = ite.next();
+            System.out.println(time);
+            timeformatted = time.replace(':', '_');
+            dateYYYYMMDD = time.split("T")[0];
+            for (int row = 0; row < lp.nrows; row++) {
+                //System.out.println("row " + row);
+                for (int col = 0; col < lp.ncols; col++) {
+                    //System.out.println("col " + col);
+                    tileBounds = lp.getTileBounds(row, col);
+                    boolean intersects;
+                    intersects = tileBounds.getIntersects(AreaBoundingBox);
+                    if (intersects) {
+                        System.out.println("Intersection in row " + row + ", col " + col);
+                        System.out.println(tileBounds.toString());
+                        tileRow = Integer.toString(row);
+                        tileCol = Integer.toString(col);
+                        url = BASE_URL
+                                + path
+                                + "?REQUEST=gettile"
+                                + "&LAYER=" + layerName
+                                + "&FORMAT=image%2Fpng" //+ "&FORMAT=image/png" // The / character is URL encoded to %2B
+                                + "&TILEMATRIXSET=" + tileMatrixSet
+                                + "&TILEMATRIX=" + tileMatrix
+                                + "&TILEROW=" + tileRow
+                                + "&TILECOL=" + tileCol
+                                + "&TIME=" + time
+                                + "&STYLE=Bitmap%201km%20Blue-Pale%20blue%20gradient%200.01%20to%2032mm%2Fhr" // The + character has been URL encoded to %2B and the / character to %2F
+                                + "&key=" + API_KEY;
+                        //http://datapoint.metoffice.gov.uk/public/data/inspire/view/wmts?REQUEST=gettile&LAYER=Precipitation_Rate&FORMAT=image/png&TILEMATRIXSET=EPSG:4258&TILEMATRIX=EPSG:4258:0&TILEROW=0&TILECOL=0
+                        String outputFilenameWithoutExtension;
+                        outputFilenameWithoutExtension = layerName + "_"
+                                + tileMatrixFormatted + "_"
+                                + timeformatted + "_"
+                                + tileRow + "_" + tileCol;
+                        String pathDummy = path;
+                        path += "/" + areaName
+                                + "/" + layerName
                                 + "/" + tileMatrixFormatted
                                 + "/" + dateYYYYMMDD
                                 + "/" + timeformatted;
-                            getPNG(outputFilenameWithoutExtension, overwrite);
-                            path = pathDummy;
-                        }
-                        //break; // For testing
+                        getPNG(outputFilenameWithoutExtension, overwrite);
+                        path = pathDummy;
                     }
+                    //break; // For testing
                 }
-                //break; // For testing
-                //System.exit(0);
             }
+            //break; // For testing
+            //System.exit(0);
+        }
         //}
         //System.exit(0);
     }
@@ -953,34 +950,33 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
         String tileMatrix;
 //        BigDecimal[] tileDimensions;
         Vector_Envelope2D tileBounds;
-        int matrix = 4;
         String tileMatrixFormatted;
         String timeFormatted;
         String dateYYYYMMDD;
+        int matrix = 4;
         //for (matrix = 0; matrix < 7; matrix += 1) {
         //for (matrix = 0; matrix < 5; matrix += 1) {
-            tileMatrix = tileMatrixSet + ":" + matrix; // British National Grid
-            tileMatrixFormatted = tileMatrix.replace(':', '_');
-            //tileMatrix = "EPSG:4326:0"; // WGS84
-            //System.out.println("tileMatrix " + tileMatrix);
-            lp = metOfficeLayerParameters.get(tileMatrix);
-            if (lp == null) {
-                lp = new SARIC_MetOfficeLayerParameters(se, r.getCellsize(tileMatrix), p);
-                System.out.println("Cellsize " + lp.getCellsize());
-            }
-            lp.setNrows(r.getNrows(tileMatrix));
-            lp.setNcols(r.getNcols(tileMatrix));
-            //http://datapoint.metoffice.gov.uk/public/data/inspire/view/wmts?REQUEST=gettile&LAYER=<layer required>&FORMAT=image/png&TILEMATRIXSET=<projection>&TILEMATRIX=<projection zoom level required>&TILEROW=<tile row required>&TILECOL=<tile column required>&TIME=<time required>&STYLE=<style required>&key=<API key>
-            //http://datapoint.metoffice.gov.uk/public/data/inspire/view/wmts?REQUEST=gettile&LAYER=Precipitation_Rate&FORMAT=image/png&TILEMATRIXSET=EPSG:4258&TILEMATRIX=EPSG:4258:0&TILEROW=0&TILECOL=0&DIM_RUN=2013-11-20T03:00:00Z&DIM_FORECAST=%2B9&STYLE=Bitmap%20Blue-Pale%20blue%20gradient%200.01%20to%20greater%20than%2032mm%2Fhr&key=<API key>Note that the + character has been URL encoded to %2B and the / character to %2F
-            path = "inspire/view/wmts";
-            String tileRow;
-            String tileCol;
-            String time = null;
-            Iterator<String> ite;
-            ite = times.iterator();
-            while (ite.hasNext()) {
-                time = ite.next();
-            }
+        tileMatrix = tileMatrixSet + ":" + matrix; // British National Grid
+        tileMatrixFormatted = tileMatrix.replace(':', '_');
+        //tileMatrix = "EPSG:4326:0"; // WGS84
+        //System.out.println("tileMatrix " + tileMatrix);
+        lp = metOfficeLayerParameters.get(tileMatrix);
+        if (lp == null) {
+            lp = new SARIC_MetOfficeLayerParameters(se, r.getCellsize(tileMatrix), p);
+            System.out.println("Cellsize " + lp.getCellsize());
+        }
+        lp.setNrows(r.getNrows(tileMatrix));
+        lp.setNcols(r.getNcols(tileMatrix));
+        //http://datapoint.metoffice.gov.uk/public/data/inspire/view/wmts?REQUEST=gettile&LAYER=<layer required>&FORMAT=image/png&TILEMATRIXSET=<projection>&TILEMATRIX=<projection zoom level required>&TILEROW=<tile row required>&TILECOL=<tile column required>&TIME=<time required>&STYLE=<style required>&key=<API key>
+        //http://datapoint.metoffice.gov.uk/public/data/inspire/view/wmts?REQUEST=gettile&LAYER=Precipitation_Rate&FORMAT=image/png&TILEMATRIXSET=EPSG:4258&TILEMATRIX=EPSG:4258:0&TILEROW=0&TILECOL=0&DIM_RUN=2013-11-20T03:00:00Z&DIM_FORECAST=%2B9&STYLE=Bitmap%20Blue-Pale%20blue%20gradient%200.01%20to%20greater%20than%2032mm%2Fhr&key=<API key>Note that the + character has been URL encoded to %2B and the / character to %2F
+        path = "inspire/view/wmts";
+        String tileRow;
+        String tileCol;
+        String time = null;
+        Iterator<String> ite;
+        ite = times.iterator();
+        while (ite.hasNext()) {
+            time = ite.next();
             System.out.println(time);
             timeFormatted = time.replace(':', '_');
             dateYYYYMMDD = time.split("T")[0];
@@ -1016,16 +1012,17 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
                                     + "&key=" + API_KEY;
 
                             String outputFilenameWithoutExtension;
-                            outputFilenameWithoutExtension = layerName 
-                                    + "_" + tileMatrixFormatted 
+                            outputFilenameWithoutExtension = layerName
+                                    + "_" + tileMatrixFormatted
                                     + "_" + timeFormatted
                                     + "_" + tileRow + "_" + tileCol;
                             String pathDummy = path;
-                            path += "/" + areaName 
-                                    + "/" + layerName 
-                                + "/" + tileMatrixFormatted
-                                + "/" + dateYYYYMMDD
-                                + "/" + timeFormatted;
+                            path += "/" + areaName
+                                    + "/" + layerName
+                                    + "/" + tileMatrixFormatted
+                                    + "/" + dateYYYYMMDD
+                                    + "/" + timeFormatted
+                                    + "/" + forecastTime;
                             getPNG(outputFilenameWithoutExtension, overwrite);
                             path = pathDummy;
                         }
@@ -1036,6 +1033,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
                 //break; // For testing
                 //System.exit(0);
             }
+        }
         //}
         //System.exit(0);
     }
@@ -1198,7 +1196,8 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
                 path);
         outputDir.mkdirs();
         File png;
-        png = Generic_StaticIO.createNewFile(outputDir,
+        png = new File(
+                outputDir,
                 outputFilenameWithoutExtension + "." + ss.getString_png());
         if (!overwrite) {
             if (png.exists()) {
@@ -1355,6 +1354,5 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
             //e.printStackTrace(System.err);
         }
     }
-
 
 }
