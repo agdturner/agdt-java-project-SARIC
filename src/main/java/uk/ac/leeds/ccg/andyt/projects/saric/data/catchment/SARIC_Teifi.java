@@ -19,8 +19,11 @@
 package uk.ac.leeds.ccg.andyt.projects.saric.data.catchment;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import uk.ac.leeds.ccg.andyt.agdtgeotools.AGDT_Shapefile;
+import uk.ac.leeds.ccg.andyt.grids.core.Grids_AbstractGrid2DSquareCell.CellID;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
+import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.site.SARIC_Site;
 import uk.ac.leeds.ccg.andyt.vector.geometry.Vector_Envelope2D;
 
 /**
@@ -29,29 +32,39 @@ import uk.ac.leeds.ccg.andyt.vector.geometry.Vector_Envelope2D;
  */
 public class SARIC_Teifi extends SARIC_Catchment {
 
-    protected SARIC_Teifi(){}
-    
+    /**
+     * For storing a lookup of a 1km grid CellID to the nearest forecast site.
+     * The intention is to use this to assign a rainfall estimate from Met
+     * Office Data Point site forecasts.
+     */
+    HashMap<CellID, SARIC_Site> siteMap;
+
+    protected SARIC_Teifi() {
+    }
+
     public SARIC_Teifi(SARIC_Environment se) {
-        super(se, "Teifi");
+        super(se, se.getStrings().getString_Teifi());
     }
 
     /**
      * From the National River Flow Archive.
      * http://nrfa.ceh.ac.uk/data/station/spatial/62001
-     * @return 
+     *
+     * @return
      */
-    public AGDT_Shapefile getNRFAAGDT_Shapefile(){
+    public AGDT_Shapefile getNRFAAGDT_Shapefile() {
         return getNRFAAGDT_Shapefile("62001.shp");
     }
-    
+
     /**
      * Provided by Dwr Cymru.
-     * @return 
+     *
+     * @return
      */
-    public AGDT_Shapefile getWaterCompanyAGDT_Shapefile(){
+    public AGDT_Shapefile getWaterCompanyAGDT_Shapefile() {
         return getAGDT_Shapefile("WW_area.shp");
     }
-    
+
     /**
      * Teifi Bounding Box: MinX 218749.5025726173; MaxX 279871.8842591159; MinY
      * 231291.52626209427; MaxY 270891.8510279902.
@@ -65,11 +78,10 @@ public class SARIC_Teifi extends SARIC_Catchment {
                 new BigDecimal("279871.8842591159"),
                 new BigDecimal("270891.8510279902"));
     }
-    
+
     /**
-     * Teifi Bounding Box: MinX 218000; MaxX 280000; MinY
-     * 231000; MaxY 271000.
-     * 
+     * Teifi Bounding Box: MinX 218000; MaxX 280000; MinY 231000; MaxY 271000.
+     *
      * @return
      */
     public Vector_Envelope2D get1KMGridBounds() {

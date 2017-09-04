@@ -39,6 +39,7 @@ import uk.ac.leeds.ccg.andyt.grids.exchange.Grids_ImageExporter;
 import uk.ac.leeds.ccg.andyt.grids.process.Grid2DSquareCellProcessor;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Object;
+import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Strings;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.catchment.SARIC_Teifi;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.catchment.SARIC_Wissey;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.SARIC_MetOfficeCapabilitiesXMLDOMReader;
@@ -58,6 +59,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
      * For convenience
      */
     SARIC_Files sf;
+    SARIC_Strings ss;
     Grids_Environment ge;
     Grid2DSquareCellProcessor gp;
     Grids_Grid2DSquareCellDoubleFactory f;
@@ -107,6 +109,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
         this.doTeifi = doTeifi;
         this.overwrite = overwrite;
         sf = se.getFiles();
+        ss = se.getStrings();
         ge = se.getGrids_Environment();
         ae = new Grids_ESRIAsciiGridExporter(ge);
         ie = new Grids_ImageExporter(ge);
@@ -124,13 +127,46 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
 
     public void run() {
 
-        if (doTileFromWMTSService) {
-            File indir;
-            File[] indirs;
-            File infile;
-            File outdir;
+        if (doNonTiledFcs) {
+            //C:\Users\geoagdt\src\projects\saric\data\input\MetOffice\DataPoint\val\wxfcs\all\xml\site\3hourly\2017-09-04-11
+            String dataType;
+            dataType = ss.getString_xml();
             String path;
-            String name;
+            path = sf.getValDataTypePath(dataType, ss.getString_wxfcs());
+            File dir;
+            dir = new File(
+                    sf.getInputDataMetOfficeDataPointDir(),
+                    path);
+            System.out.println(dir);
+            String time;
+            time = ss.getString_3hourly();
+            dir = new File(
+                    dir,
+                    time);
+            dir = new File(
+                    dir,
+                    "2017-09-04-11");
+            String site;
+            site = "3482";
+            dir = new File(
+                    dir,
+                    site);
+            dir = new File(
+                    dir,
+                    dir.list()[0]);
+            String filename;
+            filename = site + time + ss.getSymbol_dot() + dataType;
+            File f;
+            f = new File(
+                    dir,
+                    filename);
+            
+            
+
+        }
+
+        if (doTileFromWMTSService) {
+            // Initial declaration
             File inspireWMTSCapabilities;
             SARIC_MetOfficeParameters p;
             SARIC_MetOfficeCapabilitiesXMLDOMReader r;
@@ -138,7 +174,6 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
             String layerName;
             String tileMatrixSet;
             String tileMatrix;
-
             HashMap<String, SARIC_MetOfficeLayerParameters> metOfficeLayerParameters;
             BigDecimal cellsize;
             int nrows;
@@ -146,22 +181,18 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
             Vector_Envelope2D bounds;
             SARIC_Wissey sw;
             SARIC_Teifi st;
-            String s;
-            SARIC_Time time;
-
+            // Initial assignment
             inspireWMTSCapabilities = sf.getInputDataMetOfficeDataPointInspireViewWmtsCapabilitiesFile();
             p = new SARIC_MetOfficeParameters();
             r = new SARIC_MetOfficeCapabilitiesXMLDOMReader(se, inspireWMTSCapabilities);
             tileMatrixSet = "EPSG:27700"; // British National Grid
             sw = se.getWissey();
             st = se.getTeifi();
-
+            // Forecasts
             if (doForecastsTileFromWMTSService) {
-                TreeMap<SARIC_Time, String> orderedOutDirNames;
-                TreeMap<SARIC_Time, File> orderedIndirs;
-
                 layerName = "Precipitation_Rate";
                 for (int scale = 4; scale < 5; scale++) {
+                    System.out.println("scale " + scale);
                     tileMatrix = tileMatrixSet + ":" + scale;
                     metOfficeLayerParameters = p.getMetOfficeLayerParameters();
                     SARIC_MetOfficeLayerParameters lp;
@@ -176,49 +207,22 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                     System.out.println(bounds.toString());
                     p.setBounds(bounds);
                     if (doWissey) {
-                        area = "Wissey";
-                        System.out.println("Area " + area);
-                        path = "inspire/view/wmts/" + area + "/" + layerName + "/EPSG_27700_";
-                        System.out.println("scale " + scale);
-                        indir = new File(
-                                sf.getInputDataMetOfficeDataPointDir(),
-                                path + scale);
-                        indirs = indir.listFiles();
-                        /**
-                         * indirs should contain data for all dates. The data
-                         * for some dates actually refers to forecasts for the
-                         * following day or even for the day after that as the
-                         * forecasts are for the following 36 hours.
-                         *
-                         * It is imperative to have an ordered list of
-                         * directories for each date, so we create one when
-                         * initialising outdirs as this already involves going
-                         * through indirs.
-                         */
-                        orderedIndirs = new TreeMap<SARIC_Time, File>();
-                        orderedOutDirNames = new TreeMap<SARIC_Time, String>();
-                        for (int j = 0; j < indirs.length; j++) {
-                            s = indirs[j].getName();
-                            time = new SARIC_Time(s);
-                            orderedOutDirNames.put(time, s);
-                            orderedIndirs.put(time, indirs[j]);
-                        }
-                        outdir = new File(
-                                sf.getOutputDataMetOfficeDataPointDir(),
-                                path + scale);
-                        name = layerName;
-//                    p.setBounds(sw.getBounds());
+                        area = ss.getString_Wissey();
                         Grids_Grid2DSquareCellDouble swg;
                         swg = sw.get1KMGrid();
-                        processForecasts(orderedIndirs, orderedOutDirNames, outdir, layerName, name, cellsize, p, lp, r, swg);
+                        processForecasts(area, scale, layerName, cellsize, p, lp, r, swg);
                     }
-
+                    if (doTeifi) {
+                        area = ss.getString_Teifi();
+                        Grids_Grid2DSquareCellDouble stg;
+                        stg = st.get1KMGrid();
+                        processForecasts(area, scale, layerName, cellsize, p, lp, r, stg);
+                    }
                 }
             }
-
+            // Observations
             if (doObservationsTileFromWMTSService) {
-                HashSet<String> outdirNames;
-                layerName = "RADAR_UK_Composite_Highres";
+                layerName = ss.getString_RADAR_UK_Composite_Highres();
                 for (int scale = 4; scale < 5; scale++) {
                     tileMatrix = tileMatrixSet + ":" + scale;
                     metOfficeLayerParameters = p.getMetOfficeLayerParameters();
@@ -234,50 +238,16 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                     System.out.println(bounds.toString());
                     p.setBounds(bounds);
                     if (doWissey) {
-                        area = "Wissey";
-                        System.out.println("Area " + area);
-                        path = "inspire/view/wmts0/" + area + "/" + layerName + "/EPSG_27700_";
-                        System.out.println("scale " + scale);
-                        indir = new File(
-                                sf.getInputDataMetOfficeDataPointDir(),
-                                path + scale);
-                        indirs = indir.listFiles();
-                        // initialise outdirs
-                        outdirNames = new HashSet<String>();
-                        for (int j = 0; j < indirs.length; j++) {
-                            outdirNames.add(indirs[j].getName());
-                        }
-                        outdir = new File(
-                                sf.getOutputDataMetOfficeDataPointDir(),
-                                path + scale);
-                        name = layerName;
-//                    p.setBounds(sw.getBounds());
+                        area = ss.getString_Wissey();
                         Grids_Grid2DSquareCellDouble swg;
                         swg = sw.get1KMGrid();
-                        processObservations(indirs, outdirNames, outdir, layerName, name, cellsize, p, lp, r, swg);
+                        processObservations(area, scale, layerName, cellsize, p, lp, r, swg);
                     }
                     if (doTeifi) {
-                        area = "Teifi";
-                        System.out.println("Area " + area);
-                        path = "inspire/view/wmts0/" + area + "/" + layerName + "/EPSG_27700_";
-                        System.out.println("scale " + scale);
-                        indir = new File(
-                                sf.getInputDataMetOfficeDataPointDir(),
-                                path + scale);
-                        indirs = indir.listFiles();
-                        // initialise outdirs
-                        outdirNames = new HashSet<String>();
-                        for (int j = 0; j < indirs.length; j++) {
-                            outdirNames.add(indirs[j].getName().split("T")[0]);
-                        }
-                        outdir = new File(
-                                sf.getOutputDataMetOfficeDataPointDir(),
-                                path + scale);
-                        name = layerName;
-//                    p.setBounds(st.getBounds());
+                        area = ss.getString_Teifi();
                         Grids_Grid2DSquareCellDouble stg;
                         stg = st.get1KMGrid();
-                        processObservations(indirs, outdirNames, outdir, layerName, name, cellsize, p, lp, r, stg);
+                        processObservations(area, scale, layerName, cellsize, p, lp, r, stg);
                     }
                 }
             }
@@ -286,11 +256,9 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
 
     /**
      *
-     * @param orderedForecastdirs
-     * @param orderedOutdirNames
-     * @param outdir
+     * @param area
+     * @param scale
      * @param layerName
-     * @param name
      * @param cellsize
      * @param p
      * @param lp
@@ -298,11 +266,9 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
      * @param a1KMGrid
      */
     public void processForecasts(
-            TreeMap<SARIC_Time, File> orderedForecastdirs,
-            TreeMap<SARIC_Time, String> orderedOutdirNames,
-            File outdir,
+            String area,
+            int scale,
             String layerName,
-            String name,
             BigDecimal cellsize,
             SARIC_MetOfficeParameters p,
             SARIC_MetOfficeLayerParameters lp,
@@ -317,6 +283,44 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                 + "SARIC_MetOfficeLayerParameters,"
                 + "SARIC_MetOfficeCapabilitiesXMLDOMReader,"
                 + "Grids_Grid2DSquareCellDouble)";
+        System.out.println("<" + methodName + ">");
+        // Initial declarations
+        String path;
+        File indir;
+        File[] indirs;
+        File outdir;
+        TreeMap<SARIC_Time, File> orderedForecastdirs;
+        TreeMap<SARIC_Time, String> orderedOutdirNames;
+        String s;
+        SARIC_Time time;
+        // Initial assignments
+        System.out.println("Area " + area);
+        path = "inspire/view/wmts0/" + area + "/" + layerName + "/EPSG_27700_";
+        indir = new File(
+                sf.getInputDataMetOfficeDataPointDir(),
+                path + scale);
+        indirs = indir.listFiles();
+        /**
+         * indirs should contain data for all dates. The data for some dates
+         * actually refers to forecasts for the following day or even for the
+         * day after that as the forecasts are for the following 36 hours.
+         *
+         * It is imperative to have an ordered list of directories for each
+         * date, so we create one when initialising outdirs as this already
+         * involves going through indirs.
+         */
+        orderedForecastdirs = new TreeMap<SARIC_Time, File>();
+        orderedOutdirNames = new TreeMap<SARIC_Time, String>();
+        for (int j = 0; j < indirs.length; j++) {
+            s = indirs[j].getName();
+            time = new SARIC_Time(s);
+            orderedOutdirNames.put(time, s);
+            orderedForecastdirs.put(time, indirs[j]);
+        }
+        outdir = new File(
+                sf.getOutputDataMetOfficeDataPointDir(),
+                path + scale);
+        // Further declarations
         Vector_Envelope2D tileBounds;
         Boolean HandleOutOfMemoryError = true;
         double weight;
@@ -328,7 +332,6 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
         File[] indirs2;
         File[] infiles;
         File[] unorderedForecastdirs2;
-        File indir;
         String rowCol;
 //        int row;
 //        int col;
@@ -339,18 +342,15 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
         Grids_Grid2DSquareCellDouble g;
         File outascii;
         File outpng;
-        SARIC_Time time;
         SARIC_Time time2;
         SARIC_Time time3;
         SARIC_Time time4;
-        Iterator<SARIC_Time> ite;
-        ite = orderedOutdirNames.keySet().iterator();
         /**
-         * With a full set of forecasts there are essentially 7 forecasts of
-         * rainfall for each 3 hourly time snapshot. However, there is a need to
-         * start and end somewhere, so for the first dates we only have the
-         * forecasts from that time going forwards and likewise for the most
-         * recent dates, there may be more forecasts to come...
+         * Main processing. With a full set of forecasts there are essentially 7
+         * forecasts of rainfall for each 3 hourly time snapshot. However, there
+         * is a need to start and end somewhere, so for the first dates we only
+         * have the forecasts from that time going forwards and likewise for the
+         * most recent dates, there may be more forecasts to come...
          */
         HashMap<SARIC_Time, Grids_Grid2DSquareCellDouble> output1kmGrids;
         output1kmGrids = new HashMap<SARIC_Time, Grids_Grid2DSquareCellDouble>();
@@ -360,8 +360,11 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
         HashMap<SARIC_Time, Integer> counts;
         counts = new HashMap<SARIC_Time, Integer>();
         File outdir2;
+        Iterator<SARIC_Time> ite;
+        ite = orderedOutdirNames.keySet().iterator();
         while (ite.hasNext()) {
             time = ite.next();
+            System.out.println("time " + time);
             /**
              * At the end of this iteration we should be able to output the
              * grids from this time as everything that can be added will be
@@ -375,7 +378,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                     outDirName);
             outascii = new File(
                     outdir2,
-                    name + ".asc");
+                    layerName + ".asc");
             if (!overwrite && outascii.exists()) {
                 System.out.println("Not overwriting and " + outascii.toString() + " exists.");
             } else {
@@ -406,15 +409,15 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                     time3 = ite2.next();
                     File dir;
                     dir = orderedForecastDirs2.get(time3);
-                    
+
                     if (dir == null) {
+                        System.out.println("dir " + dir + " == null!");
                         int debug = 1;
-                    dir = orderedForecastDirs2.get(time3);
-                    dir = orderedForecastDirs2.get(time3);
-                    dir = orderedForecastDirs2.get(time3);
-                        
+                        dir = orderedForecastDirs2.get(time3);
+                        dir = orderedForecastDirs2.get(time3);
+                        dir = orderedForecastDirs2.get(time3);
                     }
-                    
+
                     indirname2 = dir.getName();
                     for (int k = 0; k <= 36; k += 3) {
                         time2 = new SARIC_Time(time3);
@@ -423,7 +426,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                          * Set time4 to be the right day. There is only a need
                          * to add up to 2 days as only looking forward 36 hours.
                          */
-                        time4 = new SARIC_Time(time3);
+                        time4 = new SARIC_Time(time);
                         if (time2.getDayOfMonth() != time4.getDayOfMonth()) {
                             time4.addDays(1);
                             if (time2.getDayOfMonth() != time4.getDayOfMonth()) {
@@ -443,6 +446,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                                 "" + k);
                         infiles = indir3.listFiles();
                         if (infiles == null) {
+                            System.out.println("infiles == null : There are no files in " + indir3);
                             int DEBUG = 1;
                         } else {
                             for (int i = 0; i < infiles.length; i++) {
@@ -470,66 +474,71 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                         }
                     }
                 }
-                ite2 = orderedForecastDirs2.keySet().iterator();
-                while (ite2.hasNext()) {
-                    time3 = ite2.next();
-                    grids = gridsAll.get(time3);
-                    Iterator<String> gridsIte;
-                    gridsIte = grids.keySet().iterator();
-                    Grids_Grid2DSquareCellDouble b1KMGrid = null;
-                    if (output1kmGrids.containsKey(time3)) {
-                        b1KMGrid = output1kmGrids.get(time3);
-                    } else {
-                        b1KMGrid = (Grids_Grid2DSquareCellDouble) f.create(a1KMGrid);
-                        output1kmGrids.put(time3, b1KMGrid);
-                    }
-                    long nrows = b1KMGrid.get_NRows(true);
-                    long ncols = b1KMGrid.get_NCols(true);
-                    while (gridsIte.hasNext()) {
-                        rowCol = gridsIte.next();
-                        int[] rowColint;
-                        rowColint = getRowCol(rowCol);
-                        g = grids.get(rowCol);
-                        // Iterate over grid and get values
-                        for (long row = 0; row < nrows; row++) {
-                            y = b1KMGrid.getCellYDouble(row, true) + halfcellsize; // adding half a cellsize is in an attempt to prevent striping where images join.
-                            for (long col = 0; col < ncols; col++) {
-                                x = b1KMGrid.getCellXDouble(col, true) + halfcellsize; // adding half a cellsize is in an attempt to prevent striping where images join.
-                                b1KMGrid.addToCell(row, col, g.getCell(x, y, true), true);
-                            }
+            }
+            grids = gridsAll.get(time);
+            if (grids == null) {
+                System.out.println("No grid for time " + time);
+            } else {
+                Iterator<String> gridsIte;
+                gridsIte = grids.keySet().iterator();
+                Grids_Grid2DSquareCellDouble b1KMGrid = null;
+                if (output1kmGrids.containsKey(time)) {
+                    b1KMGrid = output1kmGrids.get(time);
+                } else {
+                    b1KMGrid = (Grids_Grid2DSquareCellDouble) f.create(a1KMGrid);
+                    output1kmGrids.put(time, b1KMGrid);
+                }
+                long nrows = b1KMGrid.get_NRows(true);
+                long ncols = b1KMGrid.get_NCols(true);
+                while (gridsIte.hasNext()) {
+                    rowCol = gridsIte.next();
+//                int[] rowColint;
+//                rowColint = getRowCol(rowCol);
+                    g = grids.get(rowCol);
+                    // Iterate over grid and get values
+                    for (long row = 0; row < nrows; row++) {
+                        y = b1KMGrid.getCellYDouble(row, true) + halfcellsize; // adding half a cellsize resolves an issue with striping where images join.
+                        for (long col = 0; col < ncols; col++) {
+                            x = b1KMGrid.getCellXDouble(col, true) + halfcellsize; // adding half a cellsize resolves an issue with striping where images join.
+                            b1KMGrid.addToCell(row, col, g.getCell(x, y, true), true);
                         }
                     }
                 }
+                g = output1kmGrids.get(time);
+                Grids_AbstractGridStatistics gs;
+                gs = g.getGridStatistics(true);
+                double max = gs.getMaxDouble(true);
+                double min = gs.getMinDouble(true);
+                /**
+                 * The scaleFactor is the number of grids divided by the number
+                 * of hours in the day
+                 */
+                double scaleFactor;
+                if (counts.get(time) == null) {
+                    System.out.println("counts.get(time) == null");
+                } else {
+                    scaleFactor = counts.get(time) / 24d;
+                    g = gp.rescale(g, null, min * scaleFactor, max * scaleFactor, true);
+                    ae.toAsciiFile(g, outascii, HandleOutOfMemoryError);
+                    outpng = new File(
+                            outdir2,
+                            layerName + ".png");
+                    ie.toGreyScaleImage(g, gp, outpng, "png", HandleOutOfMemoryError);
+                }
+                /**
+                 * Clear some space as these results are now output.
+                 */
+                output1kmGrids.remove(time);
+                gridsAll.remove(time);
             }
-            g = output1kmGrids.get(time);
-            Grids_AbstractGridStatistics gs;
-            gs = g.getGridStatistics(true);
-            double max = gs.getMaxDouble(true);
-            double min = gs.getMinDouble(true);
-            /**
-             * The scaleFactor is the number of grids divided by the number of hours in the day
-             */
-            double scaleFactor = counts.get(time) / 24d; 
-            g = gp.rescale(g, null, min * scaleFactor, max * scaleFactor, true);
-            ae.toAsciiFile(g, outascii, HandleOutOfMemoryError);
-            outpng = new File(
-                    outdir2,
-                    name + ".png");
-            ie.toGreyScaleImage(g, gp, outpng, "png", HandleOutOfMemoryError);
-            /**
-             * Having output, we can now clear some space
-             */
-            output1kmGrids.remove(time);
-            gridsAll.remove(time);
         }
+        System.out.println("</" + methodName + ">");
     }
 
     public void processObservations(
-            File[] indirs,
-            HashSet<String> outdirNames,
-            File outdir,
+            String area,
+            int scale,
             String layerName,
-            String name,
             BigDecimal cellsize,
             SARIC_MetOfficeParameters p,
             SARIC_MetOfficeLayerParameters lp,
@@ -541,6 +550,29 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                 + "SARIC_MetOfficeLayerParameters,"
                 + "SARIC_MetOfficeCapabilitiesXMLDOMReader,"
                 + "Grids_Grid2DSquareCellDouble)";
+        // Initial declaration
+        HashSet<String> outdirNames;
+        File outdir;
+        String path;
+        File indir;
+        File[] indirs;
+        // Initial assignment
+        System.out.println("Area " + area);
+        path = "inspire/view/wmts0/" + area + "/" + layerName + "/EPSG_27700_";
+        System.out.println("scale " + scale);
+        indir = new File(
+                sf.getInputDataMetOfficeDataPointDir(),
+                path + scale);
+        indirs = indir.listFiles();
+        // initialise outdirs
+        outdirNames = new HashSet<String>();
+        for (int j = 0; j < indirs.length; j++) {
+            outdirNames.add(indirs[j].getName().split("T")[0]);
+        }
+        outdir = new File(
+                sf.getOutputDataMetOfficeDataPointDir(),
+                path + scale);
+
         Vector_Envelope2D tileBounds;
         Boolean HandleOutOfMemoryError = true;
         double weight;
@@ -574,7 +606,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                     outDirName);
             outascii = new File(
                     outdir2,
-                    name + ".asc");
+                    layerName + ".asc");
             if (!overwrite && outascii.exists()) {
                 System.out.println("Not overwriting and " + outascii.toString() + " exists.");
             } else {
@@ -645,20 +677,20 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                     // Output as tiles
                     outascii = new File(
                             outdir2,
-                            name + "_" + rowColint[0] + "_" + rowColint[1] + ".asc");
+                            layerName + "_" + rowColint[0] + "_" + rowColint[1] + ".asc");
                     outpng = new File(
                             outdir2,
-                            name + "_" + rowColint[0] + "_" + rowColint[1] + ".png.png");
+                            layerName + "_" + rowColint[0] + "_" + rowColint[1] + ".png.png");
                     ae.toAsciiFile(g, outascii, HandleOutOfMemoryError);
                     ie.toGreyScaleImage(g, gp, outpng, "png", HandleOutOfMemoryError);
                 }
                 // Output result grid
                 outascii = new File(
                         outdir2,
-                        name + ".asc");
+                        layerName + ".asc");
                 outpng = new File(
                         outdir2,
-                        name + ".png");
+                        layerName + ".png");
                 ae.toAsciiFile(b1KMGrid, outascii, HandleOutOfMemoryError);
                 ie.toGreyScaleImage(b1KMGrid, gp, outpng, "png", HandleOutOfMemoryError);
             }

@@ -9,6 +9,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
 import java.io.File;
+import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.logging.Level;
@@ -21,11 +22,10 @@ import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import uk.ac.leeds.ccg.andyt.agdtgeotools.AGDT_Geotools;
-import uk.ac.leeds.ccg.andyt.agdtgeotools.AGDT_Point;
 import uk.ac.leeds.ccg.andyt.agdtgeotools.AGDT_Shapefile;
-import uk.ac.leeds.ccg.andyt.generic.io.Generic_StaticIO;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Object;
+import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Strings;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.catchment.SARIC_Teifi;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.catchment.SARIC_Wissey;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.site.SARIC_Site;
@@ -40,56 +40,90 @@ import uk.ac.leeds.ccg.andyt.vector.projection.Vector_OSGBtoLatLon;
  *
  * @author geoagdt
  */
-public class SARIC_CreatePointShapefile extends SARIC_Object implements Runnable {
+public class SARIC_CreatePointShapefiles extends SARIC_Object implements Runnable {
 
+    // For convenience
     SARIC_Files sf;
+    SARIC_Strings ss;
     Vector_Environment ve;
 
-    protected SARIC_CreatePointShapefile() {
+    // For processing
+    boolean doForecasts;
+    boolean doObservations;
+
+    protected SARIC_CreatePointShapefiles() {
     }
 
-    public SARIC_CreatePointShapefile(SARIC_Environment se) {
+    /**
+     *
+     * @param se
+     * @param doForecasts If true then shapefile created for sites where there
+     * are Forecasts.
+     * @param doObservations If true then shapefile created for sites where
+     * there are Observations.
+     */
+    public SARIC_CreatePointShapefiles(
+            SARIC_Environment se,
+            boolean doForecasts,
+            boolean doObservations) {
         super(se);
         sf = se.getFiles();
+        ss = se.getStrings();
         ve = se.getVector_Environment();
+        this.doForecasts = doForecasts;
+        this.doObservations = doObservations;
     }
 
     public static void main(String[] args) {
-        new SARIC_CreatePointShapefile().run();
+        new SARIC_CreatePointShapefiles().run();
     }
 
     public void run() {
         SARIC_SiteHandler sh;
         sh = new SARIC_SiteHandler(se);
-        sh.initForecastsSites();
         HashSet<SARIC_Site> sites;
-        sites = sh.getSites();
+        BigDecimal buffer;
+        if (doForecasts) {
+            buffer = null;
+            sites = sh.getForecastsSites();
+            run(ss.getString_Forecasts(), sites, buffer);
+        }
+        if (doObservations) {
+//            buffer = new BigDecimal(20000.0d);
+//            buffer = new BigDecimal(30000.0d);
+//            buffer = new BigDecimal(40000.0d);
+            buffer = new BigDecimal(60000.0d);
+            sites = sh.getObservationsSites();
+            run(ss.getString_Observations(), sites, buffer);
+        }
+    }
+
+    public void run(String type, HashSet<SARIC_Site> sites, BigDecimal buffer) {
+        // Initialise for Wissey
         SARIC_Wissey wissey;
         wissey = new SARIC_Wissey(se);
         Vector_Envelope2D wisseyBounds;
-        wisseyBounds = wissey.getBounds();
+        wisseyBounds = wissey.getBoundsBuffered(buffer);
+        
+        // Initialise for Teifi
         SARIC_Teifi teifi;
         teifi = new SARIC_Teifi(se);
         Vector_Envelope2D teifiBounds;
-        teifiBounds = teifi.getBounds();
-        HashSet<SARIC_Site> sitesInWissey;
-        sitesInWissey = new HashSet<SARIC_Site>();
-        HashSet<SARIC_Site> sitesInTeifi;
-        sitesInTeifi = new HashSet<SARIC_Site>();
-
+        teifiBounds = teifi.getBoundsBuffered(buffer);
+        
         SimpleFeatureType aPointSFT = null;
         try {
             aPointSFT = DataUtilities.createType(
                     "POINT",
-                    "the_geom:Point:srid=27700," 
-                            + "name:String," 
-                            + "ID:Integer," 
-                            + "Latitude:Double," 
-                            + "Longitude:Double,"
-                            + "Elevation:Double");
+                    "the_geom:Point:srid=27700,"
+                    + "name:String,"
+                    + "ID:Integer,"
+                    + "Latitude:Double,"
+                    + "Longitude:Double,"
+                    + "Elevation:Double");
             //srid=27700 is the Great_Britain_National_Grid
         } catch (SchemaException ex) {
-            Logger.getLogger(SARIC_CreatePointShapefile.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(SARIC_CreatePointShapefiles.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         TreeSetFeatureCollection tsfc;
@@ -140,9 +174,13 @@ public class SARIC_CreatePointShapefile extends SARIC_Object implements Runnable
         }
 
         // Write out sites in the Wissey/Teifi
+        File dir;
+        dir = new File(
+                sf.getGeneratedDataMetOfficeDataPointDir(),
+                type);
         File outfile;
         outfile = AGDT_Geotools.getOutputShapefile(
-                sf.getGeneratedDataMetOfficeDataPointDir(),
+                dir,
                 "Sites");
         outfile.getParentFile().mkdirs();
         AGDT_Shapefile.transact(
@@ -151,8 +189,8 @@ public class SARIC_CreatePointShapefile extends SARIC_Object implements Runnable
                 tsfc,
                 new ShapefileDataStoreFactory());
         outfile = AGDT_Geotools.getOutputShapefile(
-                sf.getGeneratedDataMetOfficeDataPointDir(),
-                "WisseySites");
+                dir,
+                ss.getString_Wissey() + "SitesBuffered");
         outfile.getParentFile().mkdirs();
         AGDT_Shapefile.transact(
                 outfile,
@@ -160,8 +198,8 @@ public class SARIC_CreatePointShapefile extends SARIC_Object implements Runnable
                 tsfcWissey,
                 new ShapefileDataStoreFactory());
         outfile = AGDT_Geotools.getOutputShapefile(
-                sf.getGeneratedDataMetOfficeDataPointDir(),
-                "TeifiSites");
+                dir,
+                ss.getString_Teifi() + "SitesBuffered");
         outfile.getParentFile().mkdirs();
         AGDT_Shapefile.transact(
                 outfile,

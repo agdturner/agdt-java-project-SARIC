@@ -50,6 +50,7 @@ import uk.ac.leeds.ccg.andyt.agdtgeotools.demo.AGDT_DisplayShapefile;
 import uk.ac.leeds.ccg.andyt.grids.core.Grids_Grid2DSquareCellDouble;
 import uk.ac.leeds.ccg.andyt.grids.core.Grids_Grid2DSquareCellDoubleFactory;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
+import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Strings;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.catchment.SARIC_Teifi;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.catchment.SARIC_Wissey;
 import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
@@ -62,6 +63,7 @@ public class SARIC_DataViewer extends AGDT_DisplayShapefile implements Runnable 
 
     SARIC_Environment se;
     SARIC_Files sf;
+    SARIC_Strings ss;
 
     boolean doWissey;
     boolean doTeifi;
@@ -77,6 +79,7 @@ public class SARIC_DataViewer extends AGDT_DisplayShapefile implements Runnable 
         this.doWissey = doWissey;
         this.doTeifi = doTeifi;
         this.addGBHRUs = addGBHRUs;
+        ss = se.getStrings();
     }
 
     @Override
@@ -303,7 +306,7 @@ public class SARIC_DataViewer extends AGDT_DisplayShapefile implements Runnable 
 
         File dir;
         File f;
-        String name = "RADAR_UK_Composite_Highres.asc";
+        String name = ss.getString_RADAR_UK_Composite_Highres() + ".asc";
 
         if (doWissey) {
             dir = new File(sf.getOutputDataMetOfficeDataPointDir(),

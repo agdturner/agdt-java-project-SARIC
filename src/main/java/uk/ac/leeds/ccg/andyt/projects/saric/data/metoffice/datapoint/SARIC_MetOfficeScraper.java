@@ -75,7 +75,8 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
     String BASE_URL = "http://datapoint.metoffice.gov.uk/public/data/";
 
     String name;
-    boolean CalculateSitesInStudyAreas;
+    boolean CalculateForecastsSitesInStudyAreas;
+    boolean CalculateObservationsSitesInStudyAreas;
     boolean Observations;
     boolean Forecasts;
     boolean TileFromWMTSService;
@@ -103,7 +104,8 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
 
     public SARIC_MetOfficeScraper(
             SARIC_Environment se,
-            boolean CalculateSitesInStudyAreas,
+            boolean CalculateForecastsSitesInStudyAreas,
+            boolean CalculateObservationsSitesInStudyAreas,
             boolean Observation,
             boolean Forecast,
             boolean TileFromWMTSService,
@@ -121,7 +123,8 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
         this.se = se;
         this.sf = se.getFiles();
         this.ss = se.getStrings();
-        this.CalculateSitesInStudyAreas = CalculateSitesInStudyAreas;
+        this.CalculateForecastsSitesInStudyAreas = CalculateForecastsSitesInStudyAreas;
+        this.CalculateObservationsSitesInStudyAreas = CalculateObservationsSitesInStudyAreas;
         this.Observations = Observation;
         this.Forecasts = Forecast;
         this.TileFromWMTSService = TileFromWMTSService;
@@ -138,57 +141,26 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
     }
 
     public void run() {
-        if (CalculateSitesInStudyAreas) {
-            SARIC_SiteHandler sh;
-            sh = new SARIC_SiteHandler(se);
+        File dir;
+        SARIC_SiteHandler sh;
+        HashSet<SARIC_Site> sites;
+        sh = new SARIC_SiteHandler(se);
+        if (CalculateForecastsSitesInStudyAreas) {
+            dir = sf.getGeneratedDataMetOfficeDataPointForecastsDir();
             sh.initForecastsSites();
-            HashSet<SARIC_Site> sites;
-            sites = sh.getSites();
-            SARIC_Wissey wissey;
-            wissey = new SARIC_Wissey(se);
-            Vector_Envelope2D wisseyBounds;
-            wisseyBounds = wissey.getBounds();
-            SARIC_Teifi teifi;
-            teifi = new SARIC_Teifi(se);
-            Vector_Envelope2D teifiBounds;
-            teifiBounds = teifi.getBounds();
-            HashSet<SARIC_Site> sitesInWissey;
-            sitesInWissey = new HashSet<SARIC_Site>();
-            HashSet<SARIC_Site> sitesInTeifi;
-            sitesInTeifi = new HashSet<SARIC_Site>();
-            Iterator<SARIC_Site> ite;
-            ite = sites.iterator();
-            SARIC_Site site;
-            double[] OSGBEastingAndNorthing;
-            Vector_Point2D p;
-            while (ite.hasNext()) {
-                site = ite.next();
-                OSGBEastingAndNorthing = Vector_OSGBtoLatLon.latlon2osgb(
-                        site.getLatitude(), site.getLongitude());
-                p = new Vector_Point2D(ve, OSGBEastingAndNorthing[0], OSGBEastingAndNorthing[1]);
-                if (wisseyBounds.getIntersects(p)) {
-                    sitesInWissey.add(site);
-                }
-                if (teifiBounds.getIntersects(p)) {
-                    sitesInTeifi.add(site);
-                }
-            }
-            System.out.println("There are " + sitesInWissey.size() + " sites in the Wissey.");
-            System.out.println("There are " + sitesInTeifi.size() + " sites in the Teifi.");
-            // Write out sites in the Wissey/Teifi
-            File outfile;
-            outfile = new File(
-                    sf.getGeneratedDataMetOfficeDataPointDir(),
-                    "Wissey_HashSet_SARIC_Site.dat");
-            outfile.getParentFile().mkdirs();
-            Generic_StaticIO.writeObject(sitesInWissey, outfile);
-            outfile = new File(
-                    sf.getGeneratedDataMetOfficeDataPointDir(),
-                    "Teifi_HashSet_SARIC_Site.dat");
-            Generic_StaticIO.writeObject(sitesInTeifi, outfile);
-//            HashSet<String> sites
-//            parseForecastsSiteList();
-            //getObservationsSiteList();
+            sites = sh.getForecastsSites();
+            calculateSitesInStudyAreas(sites, dir, null);
+        }
+
+        if (CalculateObservationsSitesInStudyAreas) {
+            dir = sf.getGeneratedDataMetOfficeDataPointObservationsDir();
+            BigDecimal buffer;
+//            buffer = new BigDecimal(20000.0d);
+//            buffer = new BigDecimal(30000.0d);
+//            buffer = new BigDecimal(40000.0d);
+            buffer = new BigDecimal(60000.0d);
+            sites = sh.getObservationsSites();
+            calculateSitesInStudyAreas(sites, dir, buffer);
         }
 
         // Set conmnection rate
@@ -219,6 +191,8 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
         API_KEY = getAPI_KEY();
         //System.out.println(API_KEY);
 
+        String lastSiteObservationsTime0 = null;
+
         int i = 0;
         while (true) {
             System.out.println("Iteration " + i + " of " + name);
@@ -228,7 +202,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
 //                layerName = "SATELLITE_Infrared_Fulldisk";
 //                layerName = "SATELLITE_Visible_N_Section";
 //                layerName = "SATELLITE_Visible_N_Section";
-                layerName = "RADAR_UK_Composite_Highres"; //Rainfall
+                layerName = ss.getString_RADAR_UK_Composite_Highres(); //Rainfall
                 getObservationLayer(layerName, overwrite);
             }
 
@@ -346,92 +320,100 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
                 Vector_Envelope2D teifiBounds;
                 teifiBounds = se.getTeifi().getBounds();
                 if (ObservationsTileFromWMTSService) {
-                    layerName = "RADAR_UK_Composite_Highres";
+                    layerName = ss.getString_RADAR_UK_Composite_Highres();
                     //getAllObservationsTilesFromWMTSService(layerName, tileMatrixSet, p, r, overwrite);
-                    getIntersectingObservationsTilesFromWMTSService(layerName, tileMatrixSet, p, r, wisseyBounds, "Wissey", overwrite);
-                    getIntersectingObservationsTilesFromWMTSService(layerName, tileMatrixSet, p, r, teifiBounds, "Teifi", overwrite);
+                    getIntersectingObservationsTilesFromWMTSService(
+                            layerName, tileMatrixSet, p, r, wisseyBounds, ss.getString_Wissey(), overwrite);
+                    getIntersectingObservationsTilesFromWMTSService(
+                            layerName, tileMatrixSet, p, r, teifiBounds, ss.getString_Teifi(), overwrite);
                 }
                 if (ForecastsTileFromWMTSService) {
                     layerName = "Precipitation_Rate";
-                    getIntersectingForecastsTilesFromWMTSService(layerName, tileMatrixSet, p, r, wisseyBounds, "Wissey", overwrite);
-                    getIntersectingForecastsTilesFromWMTSService(layerName, tileMatrixSet, p, r, teifiBounds, "Teifi", overwrite);
+                    getIntersectingForecastsTilesFromWMTSService(
+                            layerName, tileMatrixSet, p, r, wisseyBounds, ss.getString_Wissey(), overwrite);
+                    getIntersectingForecastsTilesFromWMTSService(
+                            layerName, tileMatrixSet, p, r, teifiBounds, ss.getString_Teifi(), overwrite);
                 }
             }
 
             if (ObservationsSiteList) {
-                getObservationsSiteCapabilities();
                 getObservationsSiteList();
             }
 
             if (ForecastsSiteList) {
-                getForecastsSiteCapabilities();
-                getForecastsSiteList();
+                boolean ForecastsForSitesDaily;
+                boolean ForecastsForSites3Hourly;
+                ForecastsForSitesDaily = true;
+                ForecastsForSites3Hourly = true;
+                String time;
+                if (ForecastsForSitesDaily) {
+                    time = ss.getString_daily();
+                    getForecastsSiteCapabilities(time);
+                    getForecastsSiteList(time);
+                }
+                if (ForecastsForSites3Hourly) {
+                    time = ss.getString_3hourly();
+                    getForecastsSiteCapabilities(time);
+                    getForecastsSiteList(time);
+                }
             }
 
             if (ForecastsForSites) {
-                File f;
-                f = new File(
-                        sf.getGeneratedDataMetOfficeDataPointDir(),
-                        "Wissey_HashSet_SARIC_Site.dat");
-                HashSet<SARIC_Site> wisseySites;
-                wisseySites = (HashSet<SARIC_Site>) Generic_StaticIO.readObject(f);
-                f = new File(
-                        sf.getGeneratedDataMetOfficeDataPointDir(),
-                        "Teifi_HashSet_SARIC_Site.dat");
-                HashSet<SARIC_Site> teifiSites;
-                teifiSites = (HashSet<SARIC_Site>) Generic_StaticIO.readObject(f);
-                SARIC_Site site;
-                Iterator<SARIC_Site> ite;
-                ite = wisseySites.iterator();
-                while (ite.hasNext()) {
-                    site = ite.next();
-                    getForecastsSite(site.getId());
+                // Switches
+                boolean ForecastsForSites3Hourly;
+                boolean ForecastsForSitesDaily;
+                ForecastsForSites3Hourly = true;
+//                ForecastsForSites3Hourly = false;
+                ForecastsForSitesDaily = true;
+//                ForecastsForSitesDaily = false;
+                String time;
+                File forecastsSiteCapabilities;
+                String[] timeRange;
+                if (ForecastsForSites3Hourly) {
+                    time = ss.getString_3hourly();
+                    forecastsSiteCapabilities = getForecastsSiteCapabilities(time);
+                    timeRange = getTimeRange(forecastsSiteCapabilities);
+                    getForecastsForSites(ss.getString_Wissey(), null, time, timeRange[0]);
+                    getForecastsForSites(ss.getString_Teifi(), null, time, timeRange[0]);
                 }
-                ite = teifiSites.iterator();
-                while (ite.hasNext()) {
-                    site = ite.next();
-                    getForecastsSite(site.getId());
+                if (ForecastsForSitesDaily) {
+                    time = ss.getString_daily();
+                    forecastsSiteCapabilities = getForecastsSiteCapabilities(time);
+                    timeRange = getTimeRange(forecastsSiteCapabilities);
+                    getForecastsForSites(ss.getString_Wissey(), null, time, timeRange[0]);
+                    getForecastsForSites(ss.getString_Teifi(), null, time, timeRange[0]);
                 }
-//                getForecastsSiteCapabilities();
-                //<Location unitaryAuthArea="Norfolk" region="ee" name="Cromer" longitude="1.3036" latitude="52.9311" id="324251" elevation="15.0"/>
-                //               getForecastsSite(324251);
-                //<Location unitaryAuthArea="Powys" region="wl" name="Llanfair Caereinion" longitude="-3.325" latitude="52.6451" id="352338" elevation="139.0"/>
-                //             getForecastsSite(352338);
-                /**
-                 * <Location unitaryAuthArea="Caerphilly" region="wl" name="Cwmcarn Forest Drive" longitude="-3.1187" latitude="51.6393" id="351139" elevation="128.0"/>
-                 * <Location unitaryAuthArea="Cardiff" region="wl" name="Llandaff" longitude="-3.2132" latitude="51.4923" id="352324" elevation="19.0"/>
-                 * <Location unitaryAuthArea="Cardiff" region="wl" name="Llanishen" longitude="-3.1892" latitude="51.5291" id="352349" elevation="48.0"/>
-                 * <Location unitaryAuthArea="Carmarthenshire" region="wl" name="Llandovery" longitude="-3.8007" latitude="51.9964" id="324262" elevation="65.0"/>
-                 * <Location unitaryAuthArea="Carmarthenshire" region="wl" name="National Botanic Garden Of Wales" longitude="-4.1403" latitude="51.8443" id="352741" elevation="54.0"/>
-                 * <Location unitaryAuthArea="Ceredigion" region="wl" name="Cardigan" longitude="-4.6597" latitude="52.0834" id="350764" elevation="10.0"/>
-                 * <Location unitaryAuthArea="Ceredigion" region="wl" name="Llangybi" longitude="-4.0341" latitude="52.1594" id="352347" elevation="137.0"/>
-                 * <Location unitaryAuthArea="Conwy" region="wl" name="Conwy Youth Hostel" longitude="-3.8418" latitude="53.2785" id="351006" elevation="63.0"/>
-                 * <Location unitaryAuthArea="Conwy" region="wl" name="Llandudno" longitude="-3.8263" latitude="53.3238" id="352333" elevation="1.0"/>
-                 * <Location unitaryAuthArea="Conwy" region="wl" name="Llandudno Ski & Snowboard Centre" longitude="-3.8371" latitude="53.3286" id="352334" elevation="73.0"/>
-                 * <Location unitaryAuthArea="Conwy" region="wl" name="Lledr Valley Youth Hostel" longitude="-3.8654" latitude="53.0658" id="352357" elevation="162.0" nationalPark="Snowdonia National Park"/>
-                 * <Location unitaryAuthArea="Gwynedd" region="wl" name="Abersoch" longitude="-4.5042" latitude="52.8242" id="324078" elevation="9.0"/>
-                 * <Location unitaryAuthArea="Gwynedd" region="wl" name="Llanbedr" longitude="-4.124" latitude="52.802" id="3407" elevation="9.0" nationalPark="Snowdonia National Park"/>
-                 * <Location unitaryAuthArea="Gwynedd" region="wl" name="Tywyn" longitude="-4.086" latitude="52.5867" id="354010" elevation="9.0"/>
-                 * <Location unitaryAuthArea="Monmouthshire" region="wl" name="Monmouth Youth Hostel" longitude="-2.7221" latitude="51.8184" id="352666" elevation="33.0"/>
-                 * <Location unitaryAuthArea="Monmouthshire" region="wl" name="Usk" longitude="-2.9022" latitude="51.7049" id="354037" elevation="43.0"/>
-                 * <Location unitaryAuthArea="Newport" region="wl" name="Newport (Newport)" longitude="-2.9963" latitude="51.5837" id="310113" elevation="46.0"/>
-                 * <Location unitaryAuthArea="Newport" region="wl" name="Tredegar House Newport" longitude="-3.0256" latitude="51.5612" id="353971" elevation="9.0"/>
-                 * <Location unitaryAuthArea="Pembrokeshire" region="wl" name="Cc2000 Cross Hands" longitude="-4.8083" latitude="51.775" id="350846" elevation="91.0"/>
-                 * <Location unitaryAuthArea="Pembrokeshire" region="wl" name="Dale" longitude="-5.164" latitude="51.7072" id="351148" elevation="0.0"/>
-                 * <Location unitaryAuthArea="Pembrokeshire" region="wl" name="Narberth" longitude="-4.7425" latitude="51.8" id="352740" elevation="95.0"/>
-                 * <Location unitaryAuthArea="Pembrokeshire" region="wl" name="Newport Bay" longitude="-4.8676" latitude="52.0342" id="352812" elevation="0.0"/>
-                 * <Location unitaryAuthArea="Pembrokeshire" region="wl" name="Newport Youth Hostel" longitude="-4.8352" latitude="52.0172" id="352814" elevation="23.0" nationalPark="Pembrokeshire Coast National Park"/>
-                 * <Location unitaryAuthArea="Pembrokeshire" region="wl" name="Pembroke" longitude="-4.9084" latitude="51.6731" id="310217" elevation="9.0"/>
-                 * <Location unitaryAuthArea="Rhondda Cynon Taff" region="wl" name="Treherbert" longitude="-3.5359" latitude="51.6746" id="353974" elevation="183.0"/>
-                 * <Location unitaryAuthArea="Vale of Glamorgan" region="wl" name="St-Athan" longitude="-3.44" latitude="51.405" id="3716" elevation="49.0"/>
-                 * <Location unitaryAuthArea="Wrexham" region="wl" name="Chirk" longitude="-3.0566" latitude="52.9326" id="350909" elevation="106.0"/>
-                 *
-                 */
             }
 
             if (ObservationsForSites) {
-                getObservationsSiteCapabilities();
-                getObservationsSite(324251); //<Location unitaryAuthArea="Norfolk" region="ee" name="Cromer" longitude="1.3036" latitude="52.9311" id="324251" elevation="15.0"/>
+                /**
+                 * The UK observations data feeds provide access to the hourly
+                 * weather observations made over the 24 hour period preceding
+                 * the time at which the web service was last updated.
+                 * Observation data is only collected at some of the sites for
+                 * which forecasts are provided.
+                 */
+                File observationsSiteCapabilities;
+                observationsSiteCapabilities = getObservationsSiteCapabilities();
+                String[] timeRange;
+                timeRange = getTimeRange(observationsSiteCapabilities);
+                BigDecimal buffer;
+//            buffer = new BigDecimal(20000.0d);
+//            buffer = new BigDecimal(30000.0d);
+//            buffer = new BigDecimal(40000.0d);
+                buffer = new BigDecimal(60000.0d);
+                if (lastSiteObservationsTime0 == null) {
+                    lastSiteObservationsTime0 = timeRange[2];
+                    getObservationsForSites(ss.getString_Wissey(), buffer, timeRange[0]);
+                    getObservationsForSites(ss.getString_Teifi(), buffer, timeRange[0]);
+                } else {
+                    if (lastSiteObservationsTime0.equalsIgnoreCase(timeRange[2])) {
+                        // Do nothing as we already have all the data.
+                    } else {
+                        getObservationsForSites(ss.getString_Wissey(), buffer, timeRange[0]);
+                        getObservationsForSites(ss.getString_Teifi(), buffer, timeRange[0]);
+                    }
+                }
             }
 
             synchronized (this) {
@@ -469,8 +451,8 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
      * @param siteID The ID of the site for which the forecast is requested.
      * @return The File where the data is stored.
      */
-    protected File getForecastsSite(int siteID) {
-        return getForecastsSite(Integer.toString(siteID));
+    protected File getForecastsSite(int siteID, String res, String timeRange) {
+        return getForecastsSite(Integer.toString(siteID), res, timeRange);
     }
 
     /**
@@ -478,22 +460,30 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
      *
      * @param siteID The ID of the site for which the forecast is requested. If
      * siteID.equalsIgnoreCase("all") then forecasts for all sites are returned.
+     * @param res
+     * @param timeRange
      * @return The File where the data is stored.
      */
-    protected File getForecastsSite(String siteID) {
+    protected File getForecastsSite(String siteID, String res, String timeRange) {
         File result;
-        path = getValDataTypePath(dataType, ss.getString_wxfcs())
+        path = sf.getValDataTypePath(dataType, ss.getString_wxfcs(), this)
                 + siteID;
-        String res;
-        res = ss.getString_3hourly();
         url = BASE_URL
                 + path
                 + ss.getSymbol_questionmark()
                 + ss.getString_res() + ss.getSymbol_equals() + res
                 + ss.getSymbol_ampersand()
                 + ss.getString_key() + ss.getSymbol_equals() + API_KEY;
-        System.out.println(url);
-        result = getXML(siteID + res, false, true);
+        //System.out.println(url);
+        // Reset path
+        String currentTime;
+        currentTime = Generic_Time.getDateAndTimeHourDir();
+        path = sf.getValDataTypePath(dataType, ss.getString_wxfcs(), this)
+                + ss.getString_site() + ss.getSymbol_backslash()
+                + res + ss.getSymbol_backslash()
+                + currentTime + ss.getSymbol_backslash()
+                + siteID;
+        result = getXML(siteID + res, -1, timeRange);
         return result;
     }
 
@@ -503,8 +493,8 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
      * @param siteID The ID of the site for which the observation is requested.
      * @return The File where the data is stored.
      */
-    protected File getObservationsSite(int siteID) {
-        return getObservationsSite(Integer.toString(siteID));
+    protected File getObservationsSite(int siteID, String timeRange) {
+        return getObservationsSite(Integer.toString(siteID), timeRange);
     }
 
     /**
@@ -513,11 +503,12 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
      * @param siteID The ID of the site for which the observation is requested.
      * If siteID.equalsIgnoreCase("all") then forecasts for all sites are
      * returned.
+     * @param timeRange
      * @return The File where the data is stored.
      */
-    protected File getObservationsSite(String siteID) {
+    protected File getObservationsSite(String siteID, String timeRange) {
         File result;
-        path = getValDataTypePath(dataType, ss.getString_wxobs())
+        path = sf.getValDataTypePath(dataType, ss.getString_wxobs(), this)
                 + siteID;
         String res;
         res = ss.getString_hourly();
@@ -527,7 +518,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
                 + ss.getString_res() + ss.getSymbol_equals() + res
                 + ss.getSymbol_ampersand()
                 + ss.getString_key() + ss.getSymbol_equals() + API_KEY;
-        result = getXML(siteID + res, false, true);
+        result = getXML(siteID + res, 1, timeRange);
         return result;
     }
 
@@ -562,32 +553,47 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
      * Get observation site list.
      */
     protected void getObservationsSiteList() {
-        getSiteList(ss.getString_wxobs());
+        getSiteList(ss.getString_wxobs(), null);
     }
 
     /**
      * Get forecast site list.
+     *
+     * @param time Expect "3hourly" or "daily".
      */
-    protected void getForecastsSiteList() {
-        getSiteList(ss.getString_wxfcs());
+    protected void getForecastsSiteList(String time) {
+        getSiteList(ss.getString_wxfcs(), time);
     }
 
     /**
-     * Get observation site list.
+     * Get forecast site list.
      *
-     * @param obs_or_fcs
+     * @param type Expected either "wxfcs" or "wxobs".
+     * @param time Expected null for observations, or "daily" or "3hourly" for
+     * forecasts.
      */
-    protected void getSiteList(String obs_or_fcs) {
-        path = getValDataTypePath(dataType, obs_or_fcs)
+    protected void getSiteList(String type, String time) {
+        path = sf.getValDataTypePath(dataType, type, this)
                 + ss.getString_sitelist();
+        //http://datapoint.metoffice.gov.uk/public/data/val/wxobs/all/xml/sitelist?key=382c1804-3077-48cf-a301-f6f95e396794
+        //http://datapoint.metoffice.gov.uk/public/data/val/wxfcs/all/xml/sitelist?res=daily&key=382c1804-3077-48cf-a301-f6f95e396794
+        //http://datapoint.metoffice.gov.uk/public/data/val/wxfcs/all/xml/sitelist?res=3hourly&key=382c1804-3077-48cf-a301-f6f95e396794
         url = BASE_URL
                 + path
-                + ss.getSymbol_questionmark()
-                + ss.getString_key() + ss.getSymbol_equals() + API_KEY;
+                + ss.getSymbol_questionmark();
+        if (time != null) {
+            url += ss.getString_res() + ss.getSymbol_equals() + time + ss.getSymbol_ampersand();
+        }
+        url += ss.getString_key() + ss.getSymbol_equals() + API_KEY;
         File dir;
         dir = new File(
                 sf.getInputDataMetOfficeDataPointDir(),
                 path);
+        if (time != null) {
+            dir = new File(
+                    dir,
+                    time);
+        }
         dir.mkdirs();
         File xml;
         xml = new File(dir,
@@ -595,18 +601,6 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
         getXML(url, xml);
     }
 
-    /**
-     *
-     * @param dataType Either "xml" or "json".
-     * @param obs_or_fcs Either "wxobs" or "wxfcs".
-     * @return
-     */
-    public String getValDataTypePath(String dataType, String obs_or_fcs) {
-        return ss.getString_val() + ss.getSymbol_backslash()
-                + obs_or_fcs + ss.getSymbol_backslash()
-                + ss.getString_all() + ss.getSymbol_backslash()
-                + dataType + ss.getSymbol_backslash();
-    }
 
     /**
      * Get times from observationLayerCapabilities
@@ -1051,7 +1045,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
                 + "?REQUEST=get" + ss.getString_capabilities()
                 + ss.getSymbol_ampersand()
                 + ss.getString_key() + ss.getSymbol_equals() + API_KEY;
-        File result = getXML(ss.getString_capabilities(), false, false);
+        File result = getXML(ss.getString_capabilities(), -1, null);
         return result;
     }
 
@@ -1063,9 +1057,9 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
      */
     protected File getObservationsLayerCapabilities() {
         // http://datapoint.metoffice.gov.uk/public/data/layer/wxobs/all/xml/capabilities?key=<API key>
-        initPath(ss.getString_val(), ss.getString_wxobs(), dataType);
+        setPath(ss.getString_val(), ss.getString_wxobs(), dataType);
         addCapabilitiesToPath();
-        return getCapabilities(false);
+        return getCapabilities(-1);
     }
 
     /**
@@ -1074,24 +1068,26 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
      * @return
      */
     protected File getObservationsSiteCapabilities() {
-        initPath(ss.getString_val(), ss.getString_wxobs(), dataType);
+        setPath(ss.getString_val(), ss.getString_wxobs(), dataType);
         addCapabilitiesToPath();
         path += ss.getString_res() + ss.getSymbol_equals() + ss.getString_hourly() + ss.getSymbol_ampersand();
-        return getCapabilities(true);
+        return getCapabilities(0);
     }
 
     /**
      * Download capabilities document for current WMTS observation layer in XML
      * format
      *
+     * @param parsePath This will determine if path is parsed and how. The path
+     * can be parsed and amended to write out data in a specific location.
      * @return
      */
-    protected File getCapabilities(boolean parsePath) {
+    protected File getCapabilities(int parsePath) {
         File result;
         url = BASE_URL
                 + path
                 + ss.getString_key() + ss.getSymbol_equals() + API_KEY;
-        result = getXML(ss.getString_capabilities(), parsePath, false);
+        result = getXML(ss.getString_capabilities(), parsePath, null);
         return result;
     }
 
@@ -1102,25 +1098,26 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
      */
     protected File getForecastsLayerCapabilities() {
         // http://datapoint.metoffice.gov.uk/public/data/layer/wxfcs/all/xml/capabilities?key=<API key>
-        initPath(ss.getString_val(), ss.getString_wxfcs(), dataType);
+        setPath(ss.getString_val(), ss.getString_wxfcs(), dataType);
         addCapabilitiesToPath();
-        return getCapabilities(false);
+        return getCapabilities(-1);
     }
 
     /**
      * Download capabilities document for the forecast sites in XML format
      *
+     * @param time Expecting "daily" or 3hourly
      * @return
      */
-    protected File getForecastsSiteCapabilities() {
+    protected File getForecastsSiteCapabilities(String time) {
         // http://datapoint.metoffice.gov.uk/public/data/val/wxfcs/all/xml/capabilities?res=3hourly&key=01234567-89ab-cdef-0123-456789abcdef
-        initPath(ss.getString_val(), ss.getString_wxfcs(), dataType);
-        path += ss.getString_res() + ss.getSymbol_equals() + ss.getString_3hourly();
+        setPath(ss.getString_val(), ss.getString_wxfcs(), dataType);
         addCapabilitiesToPath();
-        return getCapabilities(true);
+        path += ss.getString_res() + ss.getSymbol_equals() + time + ss.getSymbol_ampersand();
+        return getCapabilities(0);
     }
 
-    protected void initPath(
+    protected void setPath(
             String val_Or_layer,
             String wxfcs_Or_Wxobs,
             String dataType) {
@@ -1130,11 +1127,20 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
                 + dataType + ss.getSymbol_backslash();
     }
 
-    public String getParsedPath() {
+    public String getParsedPath0() {
         String result;
         String[] parts;
         parts = path.split("capabilities\\?res=");
         result = parts[0] + parts[1].substring(0, parts[1].length() - 1);
+        return result;
+    }
+
+    public String getParsedPath1() {
+        String result;
+        String[] parts;
+        parts = path.split(ss.getString_xml());
+        result = parts[0] + ss.getString_xml() + ss.getSymbol_backslash()
+                + ss.getString_site() + ss.getSymbol_backslash() + parts[1];
         return result;
     }
 
@@ -1145,38 +1151,50 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
     /**
      *
      * @param name
-     * @param parsePath If parsePath == true then the path is parsed to ensure
-     * the right directories are set up for writing the XML. Currently the
-     * parsing is only done one way and to change this in future something with
-     * more values than a boolean would have to be passed in instead and the
-     * code would need a refactoring accordingly.
-     * @param addDate If addDate is true then the date is added to the outputDir
-     * path.
+     * @param parsePath This will determine if path is parsed and how. The path
+     * can be parsed and amended to write out data in a specific location. If
+     * parsePath == 0 then the path is parsed to ensure the right directories
+     * are set up for writing the XML for a get capabilities style request as in
+     * pasePath0(). if parsePath == 1 then the path is parsed to add a couple of
+     * directories for tidiness and for the time range as in parsePath1().
+     * @param endDir If null then nothing is added to the path otherwise endDir
+     * is added to the outputDir. path.
      * @return
      */
-    protected File getXML(String name, boolean parsePath, boolean addDate) {
+    protected File getXML(String name, int parsePath, String endDir) {
         File outputDir;
-        if (parsePath) {
-            outputDir = new File(
-                    sf.getInputDataMetOfficeDataPointDir(),
-                    getParsedPath());
-        } else {
-            outputDir = new File(
-                    sf.getInputDataMetOfficeDataPointDir(),
-                    path);
+        switch (parsePath) {
+            case 0:
+                outputDir = new File(
+                        sf.getInputDataMetOfficeDataPointDir(),
+                        getParsedPath0());
+                break;
+            case 1:
+                outputDir = new File(
+                        sf.getInputDataMetOfficeDataPointDir(),
+                        getParsedPath1());
+                break;
+            default:
+                outputDir = new File(
+                        sf.getInputDataMetOfficeDataPointDir(),
+                        path);
+                break;
         }
-        if (addDate) {
+        if (endDir != null) {
             outputDir = new File(
                     outputDir,
-                    Generic_Time.getDateAndTimeHourDir());
+                    endDir);
         }
         outputDir.mkdirs();
         File xml;
-        xml = Generic_StaticIO.createNewFile(
+        xml = new File(
                 outputDir,
                 name + "." + dataType);
-        getXML(url,
-                xml);
+//        xml = Generic_StaticIO.createNewFile(
+//                outputDir,
+//                name + "." + dataType);
+        // http://datapoint.metoffice.gov.uk/public/data/val/wxfcs/all/xml/sitelist?res=daily&key=382c1804-3077-48cf-a301-f6f95e396794
+        getXML(url, xml);
         return xml;
     }
 
@@ -1212,6 +1230,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
     /**
      * Download three hourly five day forecast for Dunkeswell Aerodrome
      */
+    @Deprecated
     protected void downloadThreeHourlyFiveDayForecastForDunkeswellAerodrome() {
         // http://datapoint.metoffice.gov.uk/public/data/val/wxfcs/all/xml/3840?res=3hourly&key=01234567-89ab-cdef-0123-456789abcdef
         path = ss.getString_val() + ss.getSymbol_backslash()
@@ -1223,7 +1242,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
                 + path + ss.getSymbol_questionmark()
                 + "res" + ss.getSymbol_equals() + "3hourly&"
                 + ss.getString_key() + ss.getSymbol_equals() + API_KEY;
-        getXML("test", false, false);
+        getXML("test", -1, null);
     }
 
     /**
@@ -1355,4 +1374,132 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
         }
     }
 
+    /**
+     *
+     * @param sites
+     * @param dir
+     * @param buffer
+     */
+    protected void calculateSitesInStudyAreas(
+            HashSet<SARIC_Site> sites,
+            File dir,
+            BigDecimal buffer) {
+        // Wissey
+        SARIC_Wissey wissey;
+        wissey = new SARIC_Wissey(se);
+        Vector_Envelope2D wisseyBounds;
+        wisseyBounds = wissey.getBoundsBuffered(buffer);
+        // Teifi
+        SARIC_Teifi teifi;
+        teifi = new SARIC_Teifi(se);
+        Vector_Envelope2D teifiBounds;
+        teifiBounds = teifi.getBoundsBuffered(buffer);
+
+        HashSet<SARIC_Site> sitesInWissey;
+        sitesInWissey = new HashSet<SARIC_Site>();
+        HashSet<SARIC_Site> sitesInTeifi;
+        sitesInTeifi = new HashSet<SARIC_Site>();
+        Iterator<SARIC_Site> ite;
+        ite = sites.iterator();
+        SARIC_Site site;
+        double[] OSGBEastingAndNorthing;
+        Vector_Point2D p;
+        while (ite.hasNext()) {
+            site = ite.next();
+            OSGBEastingAndNorthing = Vector_OSGBtoLatLon.latlon2osgb(
+                    site.getLatitude(), site.getLongitude());
+            p = new Vector_Point2D(ve, OSGBEastingAndNorthing[0], OSGBEastingAndNorthing[1]);
+            if (wisseyBounds.getIntersects(p)) {
+                sitesInWissey.add(site);
+            }
+            if (teifiBounds.getIntersects(p)) {
+                sitesInTeifi.add(site);
+            }
+        }
+        System.out.println("There are " + sitesInWissey.size() + " sites in the Wissey.");
+        System.out.println("There are " + sitesInTeifi.size() + " sites in the Teifi.");
+        // Write out sites in the Wissey/Teifi
+
+        File outfile;
+        outfile = getSitesFile(ss.getString_Wissey(), buffer, dir);
+        Generic_StaticIO.writeObject(sitesInWissey, outfile);
+        outfile = getSitesFile(ss.getString_Teifi(), buffer, dir);
+        Generic_StaticIO.writeObject(sitesInTeifi, outfile);
+    }
+
+    protected File getSitesFile(String name, BigDecimal buffer, File dir) {
+        File result;
+        if (buffer == null) {
+            result = new File(
+                    dir,
+                    name + "_HashSet_SARIC_Site.dat");
+        } else {
+            result = new File(
+                    dir,
+                    name + "_" + buffer.toPlainString() + "_HashSet_SARIC_Site.dat");
+        }
+        return result;
+    }
+
+    protected HashSet<SARIC_Site> getSites(String name, BigDecimal buffer, File dir) {
+        HashSet<SARIC_Site> result;
+        File f;
+        f = getSitesFile(name, buffer, dir);
+        result = (HashSet<SARIC_Site>) Generic_StaticIO.readObject(f);
+        return result;
+    }
+
+    protected void getForecastsForSites(String name, BigDecimal buffer, String res, String timeRange) {
+        File dir;
+        dir = sf.getGeneratedDataMetOfficeDataPointForecastsDir();
+        HashSet<SARIC_Site> sites;
+        sites = getSites(name, buffer, dir);
+        SARIC_Site site;
+        Iterator<SARIC_Site> ite;
+        ite = sites.iterator();
+        while (ite.hasNext()) {
+            site = ite.next();
+            getForecastsSite(site.getId(), res, timeRange);
+        }
+    }
+
+    protected void getObservationsForSites(String name, BigDecimal buffer, String timeRange) {
+        File dir;
+        dir = sf.getGeneratedDataMetOfficeDataPointObservationsDir();
+        HashSet<SARIC_Site> sites;
+        sites = getSites(name, buffer, dir);
+        SARIC_Site site;
+        Iterator<SARIC_Site> ite;
+        ite = sites.iterator();
+        while (ite.hasNext()) {
+            site = ite.next();
+            getObservationsSite(site.getId(), timeRange);
+        }
+    }
+
+    /**
+     *
+     * @param f
+     * @return String[3] where: String[0] is a simplified timeRange; String[1]
+     * is the firstTime; String[2] is the lastTime.
+     */
+    protected String[] getTimeRange(File f) {
+        String[] result;
+        result = new String[3];
+        SARIC_MetOfficeCapabilitiesXMLDOMReader r;
+        r = new SARIC_MetOfficeCapabilitiesXMLDOMReader(se, f);
+        ArrayList<String> times;
+        times = r.getTimes();
+        String firstTime;
+        String lastTime;
+        firstTime = times.get(0);
+        lastTime = times.get(times.size() - 1);
+        result[0] = firstTime.substring(0, firstTime.length() - 4);
+        result[0] += ss.getSymbol_underscore() + ss.getSymbol_underscore();
+        result[0] += lastTime.substring(0, lastTime.length() - 4);
+        result[0] = result[0].replaceAll(ss.getSymbol_colon(), ss.getSymbol_underscore());
+        result[1] = firstTime;
+        result[2] = lastTime;
+        return result;
+    }
 }

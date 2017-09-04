@@ -22,6 +22,7 @@ import java.io.File;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Object;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Strings;
+import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.SARIC_MetOfficeScraper;
 
 /**
  *
@@ -49,6 +50,8 @@ public class SARIC_Files {
     protected File GeneratedDataCatchmentDir;
     protected File GeneratedDataMetOfficeDir;
     protected File GeneratedDataMetOfficeDataPointDir;
+    protected File GeneratedDataMetOfficeDataPointForecastsDir;
+    protected File GeneratedDataMetOfficeDataPointObservationsDir;
     protected File OutputDataDir;
     protected File OutputDataMetOfficeDir;
     protected File OutputDataMetOfficeDataPointDir;
@@ -155,6 +158,24 @@ public class SARIC_Files {
         return GeneratedDataMetOfficeDataPointDir;
     }
 
+    public File getGeneratedDataMetOfficeDataPointForecastsDir() {
+        if (GeneratedDataMetOfficeDataPointForecastsDir == null) {
+            GeneratedDataMetOfficeDataPointForecastsDir = new File(
+                    getGeneratedDataMetOfficeDataPointDir(),
+                    ss.getString_Forecasts());
+        }
+        return GeneratedDataMetOfficeDataPointForecastsDir;
+    }
+
+    public File getGeneratedDataMetOfficeDataPointObservationsDir() {
+        if (GeneratedDataMetOfficeDataPointForecastsDir == null) {
+            GeneratedDataMetOfficeDataPointForecastsDir = new File(
+                    getGeneratedDataMetOfficeDataPointDir(),
+                    ss.getString_Observations());
+        }
+        return GeneratedDataMetOfficeDataPointForecastsDir;
+    }
+
     public File getInputDataDir() {
         if (InputDataDir == null) {
             InputDataDir = new File(
@@ -242,7 +263,7 @@ public class SARIC_Files {
                     getInputDataMetOfficeDir(),
                     ss.getString_Nimrod());
         }
-        return InputDataMetOfficeDir;
+        return InputDataMetOfficeNimrodDir;
     }
 
     public File getInputDataCEHDir() {
@@ -261,5 +282,18 @@ public class SARIC_Files {
                     ss.getString_CatchmentBoundaries());
         }
         return InputDataCatchmentBoundariesDir;
+    }
+
+    /**
+     *
+     * @param dataType Expecting either "xml" or "json".
+     * @param obs_or_fcs Expecting either "wxobs" or "wxfcs".
+     * @return
+     */
+    public String getValDataTypePath(String dataType, String obs_or_fcs) {
+        return ss.getString_val() + ss.getSymbol_backslash()
+                + obs_or_fcs + ss.getSymbol_backslash()
+                + ss.getString_all() + ss.getSymbol_backslash()
+                + dataType + ss.getSymbol_backslash();
     }
 }

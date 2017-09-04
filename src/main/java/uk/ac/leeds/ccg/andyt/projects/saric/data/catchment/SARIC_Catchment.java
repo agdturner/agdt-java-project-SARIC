@@ -41,14 +41,14 @@ public abstract class SARIC_Catchment extends SARIC_Object {
     // For convenience
     SARIC_Files sf;
     Grids_Environment ge;
-    
+
     String catchmentName;
 
     protected SARIC_Catchment() {
     }
 
     public SARIC_Catchment(
-            SARIC_Environment se, 
+            SARIC_Environment se,
             String catchmentName) {
         super(se);
         sf = se.getFiles();
@@ -62,16 +62,16 @@ public abstract class SARIC_Catchment extends SARIC_Object {
         result = new AGDT_Shapefile(f);
         return result;
     }
-    
-    public AGDT_Shapefile getNRFAAGDT_Shapefile(String name){
+
+    public AGDT_Shapefile getNRFAAGDT_Shapefile(String name) {
         AGDT_Shapefile result;
         result = getAGDT_Shapefile(name);
         return result;
     }
-    
+
     public abstract AGDT_Shapefile getWaterCompanyAGDT_Shapefile();
-    
-    public AGDT_Shapefile getAGDT_Shapefile(String name){
+
+    public AGDT_Shapefile getAGDT_Shapefile(String name) {
         AGDT_Shapefile result;
         File dir = new File(
                 sf.getInputDataCatchmentBoundariesDir(),
@@ -79,12 +79,14 @@ public abstract class SARIC_Catchment extends SARIC_Object {
         result = SARIC_Catchment.this.getAGDT_Shapefile(name, dir);
         return result;
     }
-    
+
+    public abstract Vector_Envelope2D getBounds();
+
     public Vector_Envelope2D getBounds(
-        BigDecimal xmin,
-        BigDecimal ymin,
-        BigDecimal xmax,
-        BigDecimal ymax) {
+            BigDecimal xmin,
+            BigDecimal ymin,
+            BigDecimal xmax,
+            BigDecimal ymax) {
         Vector_Envelope2D result;
         Vector_Point2D aPoint;
         aPoint = new Vector_Point2D(
@@ -99,11 +101,12 @@ public abstract class SARIC_Catchment extends SARIC_Object {
         result = new Vector_Envelope2D(aPoint, bPoint);
         return result;
     }
-    
+
     public abstract Vector_Envelope2D get1KMGridBounds();
-    
+
     /**
      * https://www.ordnancesurvey.co.uk/resources/maps-and-geographic-resources/the-national-grid.html
+     *
      * @return
      */
     public Grids_Grid2DSquareCellDouble get1KMGrid() {
@@ -129,5 +132,19 @@ public abstract class SARIC_Catchment extends SARIC_Object {
         nrows = Generic_BigDecimal.divideNoRounding(dimensions[4].subtract(dimensions[2]), dimensions[0]).longValueExact();
         result = f.create(dir, nrows, ncols, dimensions, ge, true);
         return result;
+    }
+
+    public Vector_Envelope2D getBoundsBuffered(BigDecimal buffer) {
+        Vector_Envelope2D bounds;
+        bounds = getBounds();
+        // Buffer
+        if (buffer != null) {
+            // Add buffer to bounds
+            bounds._xmin = bounds._xmin.subtract(buffer);
+            bounds._xmax = bounds._xmax.add(buffer);
+            bounds._ymin = bounds._ymin.subtract(buffer);
+            bounds._ymax = bounds._ymax.add(buffer);
+        }
+        return bounds;
     }
 }

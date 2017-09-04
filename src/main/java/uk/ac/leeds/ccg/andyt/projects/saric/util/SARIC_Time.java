@@ -191,10 +191,10 @@ public class SARIC_Time
             result += "0";
         }
         result += Integer.toString(month);
+        result += "-";
         if (day < 10) {
             result += "0";
         }
-        result += "-";
         result += Integer.toString(day);
         result += "T";
         if (hour < 10) {

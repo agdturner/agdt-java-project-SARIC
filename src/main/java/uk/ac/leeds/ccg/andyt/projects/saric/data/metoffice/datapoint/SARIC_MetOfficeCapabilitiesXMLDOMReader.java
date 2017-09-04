@@ -187,10 +187,9 @@ public class SARIC_MetOfficeCapabilitiesXMLDOMReader extends SARIC_XMLDOMReader 
         return result;
     }
 
-
     /**
-     * Parses the Forecast Service Capabilities XML and returns a list of times
-     * at which forecasts are suppose to be available.
+     * Parses WMTS Forecast Capabilities XML and returns a list of times at
+     * which forecasts are suppose to be available.
      *
      * @param layerName The name of the forecast layer.
      * @return A list of times at which forecasts are suppose to be available.
@@ -271,6 +270,38 @@ public class SARIC_MetOfficeCapabilitiesXMLDOMReader extends SARIC_XMLDOMReader 
                         System.out.println(timeString);
                         result.add(time.toString());
                     }
+                }
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Parses Site Capabilities XML and returns a list of times at which
+     * forecasts or observations are suppose to be available.
+     *
+     * @return A list of times at which forecasts are suppose to be available.
+     */
+    protected ArrayList<String> getTimes() {
+        ArrayList<String> result;
+        result = new ArrayList<String>();
+        boolean found;
+        found = false;
+        for (int i = 0; i < nodeList.getLength(); i++) {
+            Node n;
+            n = nodeList.item(i);
+            String nNodeName;
+            nNodeName = n.getNodeName();
+//            System.out.println(nodeName);
+            if (!found) {
+                if (nNodeName.equalsIgnoreCase("TimeSteps")) {
+                    found = true;
+                }
+            } else {
+                if (nNodeName.equalsIgnoreCase("TS")) {
+                    String v;
+                    v = n.getTextContent();
+                    result.add(v);
                 }
             }
         }

@@ -38,6 +38,8 @@ import org.geotools.swing.JMapFrame;
 import uk.ac.leeds.ccg.andyt.agdtgeotools.AGDT_Geotools;
 import uk.ac.leeds.ccg.andyt.agdtgeotools.AGDT_Shapefile;
 import uk.ac.leeds.ccg.andyt.agdtgeotools.demo.AGDT_DisplayShapefile;
+import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
+import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Strings;
 import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
 
 /**
@@ -46,10 +48,13 @@ import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
  */
 public class SARIC_MetOfficeDataPointViewer extends AGDT_DisplayShapefile {
 
+    // For convenience
+//    SARIC_Environment se;
     SARIC_Files sf;
+//    SARIC_Strings ss;
     
     public SARIC_MetOfficeDataPointViewer() {
-        sf = new SARIC_Files("data");     
+        sf = new SARIC_Files("data");   
     }
 
     public static void main(String[] args) {

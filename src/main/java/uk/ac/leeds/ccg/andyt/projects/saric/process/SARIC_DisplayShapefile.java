@@ -28,6 +28,7 @@ import uk.ac.leeds.ccg.andyt.agdtgeotools.AGDT_Geotools;
 import uk.ac.leeds.ccg.andyt.agdtgeotools.AGDT_Shapefile;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Object;
+import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Strings;
 import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
 
 /**
@@ -36,7 +37,9 @@ import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
  */
 public class SARIC_DisplayShapefile extends SARIC_Object {
 
+    // For convenience
     SARIC_Files sf;
+    SARIC_Strings ss;
     
     protected SARIC_DisplayShapefile() {
     }
@@ -44,6 +47,7 @@ public class SARIC_DisplayShapefile extends SARIC_Object {
     protected SARIC_DisplayShapefile(SARIC_Environment se) {
         super(se);
         sf = se.getFiles();
+        ss = se.getStrings();
     }
     
     public static void main(String[] args) {
@@ -58,9 +62,16 @@ public class SARIC_DisplayShapefile extends SARIC_Object {
         File f;
 
 //        name = "Sites.shp";
-        name = "WisseySites.shp";
-//        name = "TeifiSites.shp";
-        dir = sf.getGeneratedDataMetOfficeDataPointDir();
+//        name = ss.getString_Wissey() + "Sites.shp";
+//        name = ss.getString_Teifi() + "Sites.shp";
+//        name = ss.getString_Wissey() + "SitesBuffered.shp";
+        name = ss.getString_Teifi()  + "SitesBuffered.shp";
+//        dir = new File(
+//                sf.getGeneratedDataMetOfficeDataPointDir(),
+//                ss.getString_Forecasts());
+        dir = new File(
+                sf.getGeneratedDataMetOfficeDataPointDir(),
+                ss.getString_Observations());
         f = AGDT_Geotools.getShapefile(dir, name, false);
         files.add(f);
 

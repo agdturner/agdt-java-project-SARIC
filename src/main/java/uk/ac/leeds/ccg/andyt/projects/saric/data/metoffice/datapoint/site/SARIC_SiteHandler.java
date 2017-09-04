@@ -22,6 +22,7 @@ import java.io.File;
 import java.util.HashSet;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Object;
+import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Strings;
 import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
 
 /**
@@ -32,6 +33,7 @@ public class SARIC_SiteHandler extends SARIC_Object {
 
     // For convenience
     SARIC_Files files;
+    SARIC_Strings strings;
 
     HashSet<SARIC_Site> forecastsSites;
     HashSet<SARIC_Site> observationsSites;
@@ -42,33 +44,59 @@ public class SARIC_SiteHandler extends SARIC_Object {
     public SARIC_SiteHandler(SARIC_Environment se) {
         super(se);
         files = se.getFiles();
+        strings = se.getStrings();
     }
 
     public void initForecastsSites() {
-        File f;
-        f = new File(
-                files.getInputDataMetOfficeDataPointDir(),
-                "/val/wxfcs/all/xml/sitelist/sitelist.xml");
-        SARIC_MetOfficeSiteListXMLSAXHandler r;
-        r = new SARIC_MetOfficeSiteListXMLSAXHandler(se, f);
-        forecastsSites = r.parse();
-    }
-    
-    public void initObservationsSites() {
-        File f;
-        f = new File(
-                files.getInputDataMetOfficeDataPointDir(),
-                "/val/wxobs/all/xml/sitelist/sitelist.xml");
-        SARIC_MetOfficeSiteListXMLSAXHandler r;
-        r = new SARIC_MetOfficeSiteListXMLSAXHandler(se, f);
-        forecastsSites = r.parse();
+        forecastsSites = getSites(strings.getString_wxfcs());
     }
 
-    public HashSet<SARIC_Site> getSites() {
+    public void initObservationsSites() {
+        observationsSites = getSites(strings.getString_wxobs());
+    }
+
+    /**
+     *
+     * @param type either wxobs or wxfcs
+     * @return
+     */
+    public HashSet<SARIC_Site> getSites(String type) {
+        HashSet<SARIC_Site> result;
+        String filename;
+        filename = strings.getString_sitelist()
+                + strings.getSymbol_dot() + strings.getString_xml();
+        String path;
+        path = strings.getString_val() + strings.getSymbol_backslash()
+                + type + strings.getSymbol_backslash()
+                + strings.getString_all() + strings.getSymbol_backslash()
+                + strings.getString_xml() + strings.getSymbol_backslash()
+                + strings.getString_sitelist() + strings.getSymbol_backslash();
+        File dir;
+        dir = new File(
+                files.getInputDataMetOfficeDataPointDir(),
+                path);
+        File f;
+        f = new File(
+                dir,
+                filename);
+        SARIC_MetOfficeSiteListXMLSAXHandler r;
+        r = new SARIC_MetOfficeSiteListXMLSAXHandler(se, f);
+        result = r.parse();
+        return result;
+    }
+
+    public HashSet<SARIC_Site> getForecastsSites() {
         if (forecastsSites == null) {
             initForecastsSites();
         }
         return forecastsSites;
+    }
+
+    public HashSet<SARIC_Site> getObservationsSites() {
+        if (observationsSites == null) {
+            initObservationsSites();
+        }
+        return observationsSites;
     }
 
 }

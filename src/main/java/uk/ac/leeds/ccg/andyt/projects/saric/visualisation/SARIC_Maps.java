@@ -19,19 +19,9 @@
 package uk.ac.leeds.ccg.andyt.projects.saric.visualisation;
 
 import uk.ac.leeds.ccg.andyt.agdtgeotools.AGDT_StyleParameters;
-import uk.ac.leeds.ccg.andyt.agdtgeotools.AGDT_Point;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.MultiPolygon;
-import com.vividsolutions.jts.geom.Polygon;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
-import java.io.StreamTokenizer;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Set;
-import java.util.TreeMap;
 import java.util.TreeSet;
 import org.geotools.data.collection.TreeSetFeatureCollection;
 import org.geotools.data.shapefile.ShapefileDataStoreFactory;
@@ -44,8 +34,6 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import uk.ac.leeds.ccg.andyt.agdtgeotools.AGDT_Maps;
 import uk.ac.leeds.ccg.andyt.agdtgeotools.AGDT_Shapefile;
-import uk.ac.leeds.ccg.andyt.generic.io.Generic_StaticIO;
-import uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Collections;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
 
@@ -55,8 +43,8 @@ import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
  */
 public class SARIC_Maps extends AGDT_Maps {
 
-    protected transient SARIC_Environment env;
-    protected transient SARIC_Files SARIC_Files;
+    protected transient SARIC_Environment se;
+    protected transient SARIC_Files sf;
     
     /**
      * For storing level(s) (OA, LSOA, MSOA, PostcodeSector, PostcodeUnit, ...)
@@ -66,8 +54,8 @@ public class SARIC_Maps extends AGDT_Maps {
     public boolean doDebug;
 
     public SARIC_Maps(SARIC_Environment env) {
-        this.env = env;
-        SARIC_Files = env.getFiles();
+        this.se = env;
+        sf = env.getFiles();
     }
 
     /*
@@ -141,8 +129,8 @@ public class SARIC_Maps extends AGDT_Maps {
         //name = "62001.shp";
         name = "WW_area.shp";
         File dir = new File(
-                env.getFiles().getInputDataCatchmentBoundariesDir(),
-                "Teifi");
+                sf.getInputDataCatchmentBoundariesDir(),
+                se.getStrings().getString_Teifi());
         dir = new File(dir, name);
         File f;
         f = new File(

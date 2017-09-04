@@ -20,6 +20,7 @@ package uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.site;
 
 import java.io.File;
 import java.io.*;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -28,28 +29,29 @@ import org.xml.sax.helpers.DefaultHandler;
 import org.apache.xerces.parsers.SAXParser;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
+import uk.ac.leeds.ccg.andyt.projects.saric.util.SARIC_Time;
 
 /**
  *
  * @author geoagdt
  */
-public class SARIC_MetOfficeSiteListXMLSAXHandler extends DefaultHandler {
+public class SARIC_MetOfficeSiteXMLSAXHandler extends DefaultHandler {
 
-    SARIC_Files files;
+    SARIC_Files sf;
     SARIC_Environment se;
 
     File f;
     SAXParser parser;
-    HashSet<SARIC_Site> sites;
+    HashMap<SARIC_Time, SARIC_SiteForecastRecord> forecasts;
 
-    public SARIC_MetOfficeSiteListXMLSAXHandler(
+    public SARIC_MetOfficeSiteXMLSAXHandler(
             SARIC_Environment se,
             File f) {
         this.se = se;
-        files = se.getFiles();
         this.f = f;
+        sf = se.getFiles();
         parser = new SAXParser();
-        sites = new HashSet<SARIC_Site>();
+        forecasts = new HashMap<SARIC_Time, SARIC_SiteForecastRecord>();
     }
 
     public static void main(String[] args) {
@@ -59,8 +61,8 @@ public class SARIC_MetOfficeSiteListXMLSAXHandler extends DefaultHandler {
             File f = new File(
                     se.getFiles().getInputDataMetOfficeDataPointDir(),
                     "/val/wxfcs/all/xml/sitelist/sitelist.xml");
-            SARIC_MetOfficeSiteListXMLSAXHandler r;
-            r = new SARIC_MetOfficeSiteListXMLSAXHandler(se, f);
+            SARIC_MetOfficeSiteXMLSAXHandler r;
+            r = new SARIC_MetOfficeSiteXMLSAXHandler(se, f);
             r.parser.setContentHandler(r);
             try {
                 r.parser.parse(f.toString());
@@ -78,10 +80,10 @@ public class SARIC_MetOfficeSiteListXMLSAXHandler extends DefaultHandler {
         try {
             parser.parse(f.toString());
         } catch (SAXException ex) {
-            Logger.getLogger(SARIC_MetOfficeSiteListXMLSAXHandler.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(SARIC_MetOfficeSiteXMLSAXHandler.class.getName()).log(Level.SEVERE, null, ex);
             ex.printStackTrace(System.err);
         } catch (IOException ex) {
-            Logger.getLogger(SARIC_MetOfficeSiteListXMLSAXHandler.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(SARIC_MetOfficeSiteXMLSAXHandler.class.getName()).log(Level.SEVERE, null, ex);
             ex.printStackTrace(System.err);
         }
         return sites;

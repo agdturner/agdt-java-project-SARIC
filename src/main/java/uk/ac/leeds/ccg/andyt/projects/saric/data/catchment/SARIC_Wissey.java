@@ -32,7 +32,7 @@ public class SARIC_Wissey extends SARIC_Catchment {
     protected SARIC_Wissey(){}
     
     public SARIC_Wissey(SARIC_Environment se) {
-        super(se, "Wissey");
+        super(se, se.getStrings().getString_Wissey());
     }
 
     /**
@@ -79,5 +79,4 @@ public class SARIC_Wissey extends SARIC_Catchment {
                 new BigDecimal("600000"),
                 new BigDecimal("314000"));
     }
-    
 }
