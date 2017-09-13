@@ -18,9 +18,29 @@
  */
 package uk.ac.leeds.ccg.andyt.projects.saric.data.catchment;
 
+import com.vividsolutions.jts.geom.Geometry;
+import java.io.File;
 import java.math.BigDecimal;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.geotools.data.FileDataStore;
+import org.geotools.data.FileDataStoreFinder;
+import org.geotools.data.simple.SimpleFeatureSource;
+import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.FeatureIterator;
+import org.geotools.geometry.jts.JTS;
+import org.geotools.map.MapContent;
+import org.geotools.referencing.CRS;
+import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.geometry.MismatchedDimensionException;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.operation.MathTransform;
+import org.opengis.referencing.operation.TransformException;
 import uk.ac.leeds.ccg.andyt.agdtgeotools.AGDT_Shapefile;
+import uk.ac.leeds.ccg.andyt.generic.io.Generic_StaticIO;
 import uk.ac.leeds.ccg.andyt.grids.core.Grids_AbstractGrid2DSquareCell.CellID;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.site.SARIC_Site;
@@ -65,6 +85,75 @@ public class SARIC_Teifi extends SARIC_Catchment {
         return getAGDT_Shapefile("WW_area.shp");
     }
 
+    public AGDT_Shapefile getOSMAGDT_Shapefile(String name) {
+        AGDT_Shapefile result;
+        File dir = new File(
+                sf.getGeneratedDataOSMDir(),
+                "wales-latest-free.shp");
+////        result = getAGDT_Shapefile(name, dir);
+//
+//         File sourceFile;
+//         SimpleFeatureSource featureSource;
+//         MapContent map;
+//        
+//
+//        FileDataStore store = FileDataStoreFinder.getDataStore(sourceFile);
+//        featureSource = store.getFeatureSource();
+//        
+//     
+//        SimpleFeatureType schema = featureSource.getSchema();
+//        
+//        FeatureCollection fc;
+//        fc = result.getFeatureCollection();
+//        FeatureIterator fi;
+//        fi = fc.features();
+//        SimpleFeature f;
+//        CoordinateReferenceSystem sourceCRS;
+//        CoordinateReferenceSystem targetCRS;
+//        Geometry g;
+//        Geometry targetGeometry;
+//        try {
+//            sourceCRS = CRS.decode("EPSG:4326");
+//            targetCRS = CRS.decode("EPSG:27700");
+//            while (fi.hasNext()) {
+//                f = (SimpleFeature) fi.next();
+//               // g = (Geometry) f.getAttribute("GEOMETRY");
+//                g =  (Geometry) f.getAttribute( 0 );
+//                MathTransform transform = CRS.findMathTransform(sourceCRS, targetCRS);
+//                try {
+//                    if (g != null) {
+//                        targetGeometry = JTS.transform(g, transform);
+//                        //f.setAttribute("GEOMETRY", targetGeometry);
+//                        f.setAttribute(0, targetGeometry);
+//                    }
+//                } catch (MismatchedDimensionException ex) {
+//                    Logger.getLogger(SARIC_Teifi.class.getName()).log(Level.SEVERE, null, ex);
+//                } catch (TransformException ex) {
+//                    Logger.getLogger(SARIC_Teifi.class.getName()).log(Level.SEVERE, null, ex);
+//                }
+//            }
+//        } catch (FactoryException ex) {
+//            Logger.getLogger(SARIC_Teifi.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+
+        result = getAGDT_Shapefile(name, dir);
+        return result;
+    }
+    
+    @Override
+    public HashSet<SARIC_Site> getForecastsSitesInStudyArea(String time) {
+        HashSet<SARIC_Site> result;
+        File f;
+        f = sf.getGeneratedDataMetOfficeDataPointForecastsSitesInTeifiFile();
+        if (f.exists()) {
+            result = (HashSet<SARIC_Site>) Generic_StaticIO.readObject(f);
+        } else {
+            result = super.getForecastsSitesInStudyArea(time);
+            Generic_StaticIO.writeObject(result, f);
+        }
+        return result;
+    }
+
     /**
      * Teifi Bounding Box: MinX 218749.5025726173; MaxX 279871.8842591159; MinY
      * 231291.52626209427; MaxY 270891.8510279902.
@@ -91,5 +180,4 @@ public class SARIC_Teifi extends SARIC_Catchment {
                 new BigDecimal("280000"),
                 new BigDecimal("271000"));
     }
-
 }

@@ -147,8 +147,10 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
         sh = new SARIC_SiteHandler(se);
         if (CalculateForecastsSitesInStudyAreas) {
             dir = sf.getGeneratedDataMetOfficeDataPointForecastsDir();
-            sh.initForecastsSites();
-            sites = sh.getForecastsSites();
+            String time;
+            //time = ss.getString_daily();
+            time = ss.getString_3hourly();
+            sites = sh.getForecastsSites(time);
             calculateSitesInStudyAreas(sites, dir, null);
         }
 
@@ -364,8 +366,8 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
                 boolean ForecastsForSitesDaily;
                 ForecastsForSites3Hourly = true;
 //                ForecastsForSites3Hourly = false;
-                ForecastsForSitesDaily = true;
-//                ForecastsForSitesDaily = false;
+//                ForecastsForSitesDaily = true;
+                ForecastsForSitesDaily = false;
                 String time;
                 File forecastsSiteCapabilities;
                 String[] timeRange;
@@ -466,7 +468,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
      */
     protected File getForecastsSite(String siteID, String res, String timeRange) {
         File result;
-        path = sf.getValDataTypePath(dataType, ss.getString_wxfcs(), this)
+        path = sf.getValDataTypePath(dataType, ss.getString_wxfcs())
                 + siteID;
         url = BASE_URL
                 + path
@@ -478,7 +480,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
         // Reset path
         String currentTime;
         currentTime = Generic_Time.getDateAndTimeHourDir();
-        path = sf.getValDataTypePath(dataType, ss.getString_wxfcs(), this)
+        path = sf.getValDataTypePath(dataType, ss.getString_wxfcs())
                 + ss.getString_site() + ss.getSymbol_backslash()
                 + res + ss.getSymbol_backslash()
                 + currentTime + ss.getSymbol_backslash()
@@ -508,7 +510,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
      */
     protected File getObservationsSite(String siteID, String timeRange) {
         File result;
-        path = sf.getValDataTypePath(dataType, ss.getString_wxobs(), this)
+        path = sf.getValDataTypePath(dataType, ss.getString_wxobs())
                 + siteID;
         String res;
         res = ss.getString_hourly();
@@ -573,7 +575,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
      * forecasts.
      */
     protected void getSiteList(String type, String time) {
-        path = sf.getValDataTypePath(dataType, type, this)
+        path = sf.getValDataTypePath(dataType, type)
                 + ss.getString_sitelist();
         //http://datapoint.metoffice.gov.uk/public/data/val/wxobs/all/xml/sitelist?key=382c1804-3077-48cf-a301-f6f95e396794
         //http://datapoint.metoffice.gov.uk/public/data/val/wxfcs/all/xml/sitelist?res=daily&key=382c1804-3077-48cf-a301-f6f95e396794

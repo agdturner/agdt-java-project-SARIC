@@ -46,12 +46,17 @@ public class SARIC_Files {
     protected File InputDataMetOfficeDataPointConfigDir;
     protected File InputDataMetOfficeDataPointAPIKeyFile;
     protected File InputDataMetOfficeNimrodDir;
+    protected File InputDataOSMDir;
     protected File GeneratedDataDir;
     protected File GeneratedDataCatchmentDir;
     protected File GeneratedDataMetOfficeDir;
     protected File GeneratedDataMetOfficeDataPointDir;
     protected File GeneratedDataMetOfficeDataPointForecastsDir;
+    protected File GeneratedDataMetOfficeDataPointForecastsSitesDir;
+    protected File GeneratedDataMetOfficeDataPointForecastsSitesInTeifiFile;
+    protected File GeneratedDataMetOfficeDataPointForecastsSitesInWisseyFile;
     protected File GeneratedDataMetOfficeDataPointObservationsDir;
+    protected File GeneratedDataOSMDir;
     protected File OutputDataDir;
     protected File OutputDataMetOfficeDir;
     protected File OutputDataMetOfficeDataPointDir;
@@ -116,7 +121,7 @@ public class SARIC_Files {
     public File getOutputDataMetOfficeDataPointDir() {
         if (OutputDataMetOfficeDataPointDir == null) {
             OutputDataMetOfficeDataPointDir = new File(
-                    getOutputDataDir(),
+                    getOutputDataMetOfficeDir(),
                     ss.getString_DataPoint());
         }
         return OutputDataMetOfficeDataPointDir;
@@ -166,6 +171,33 @@ public class SARIC_Files {
         }
         return GeneratedDataMetOfficeDataPointForecastsDir;
     }
+    
+    public File getGeneratedDataMetOfficeDataPointForecastsSitesDir() {
+        if (GeneratedDataMetOfficeDataPointForecastsSitesDir == null) {
+            GeneratedDataMetOfficeDataPointForecastsSitesDir = new File(
+                    getGeneratedDataMetOfficeDataPointForecastsDir(),
+                    ss.getString_Sites());
+        }
+        return GeneratedDataMetOfficeDataPointForecastsSitesDir;
+    }
+    
+    public File getGeneratedDataMetOfficeDataPointForecastsSitesInTeifiFile() {
+        if (GeneratedDataMetOfficeDataPointForecastsSitesInTeifiFile == null) {
+            GeneratedDataMetOfficeDataPointForecastsSitesInTeifiFile = new File(
+                    getGeneratedDataMetOfficeDataPointForecastsSitesDir(),
+                    ss.getString_Teifi() + ".dat");
+        }
+        return GeneratedDataMetOfficeDataPointForecastsSitesInTeifiFile;
+    }    
+
+    public File getGeneratedDataMetOfficeDataPointForecastsSitesInWisseyFile() {
+        if (GeneratedDataMetOfficeDataPointForecastsSitesInWisseyFile == null) {
+            GeneratedDataMetOfficeDataPointForecastsSitesInWisseyFile = new File(
+                    getGeneratedDataMetOfficeDataPointForecastsSitesDir(),
+                    ss.getString_Wissey() + ".dat");
+        }
+        return GeneratedDataMetOfficeDataPointForecastsSitesInWisseyFile;
+    }    
 
     public File getGeneratedDataMetOfficeDataPointObservationsDir() {
         if (GeneratedDataMetOfficeDataPointForecastsDir == null) {
@@ -176,6 +208,14 @@ public class SARIC_Files {
         return GeneratedDataMetOfficeDataPointForecastsDir;
     }
 
+    public File getGeneratedDataOSMDir() {
+        if (GeneratedDataOSMDir == null) {
+            GeneratedDataOSMDir = new File(
+                    getGeneratedDataDir(),
+                    ss.getString_OSM());
+        }
+        return GeneratedDataOSMDir;
+    }
     public File getInputDataDir() {
         if (InputDataDir == null) {
             InputDataDir = new File(
@@ -210,6 +250,15 @@ public class SARIC_Files {
                     ss.getString_MetOffice());
         }
         return InputDataMetOfficeDir;
+    }
+    
+    public File getInputDataOSMDir() {
+        if (InputDataOSMDir == null) {
+            InputDataOSMDir = new File(
+                    getInputDataDir(),
+                    ss.getString_OSM());
+        }
+        return InputDataOSMDir;
     }
 
     public File getInputDataMetOfficeDataPointDir() {

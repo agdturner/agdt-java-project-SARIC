@@ -54,28 +54,7 @@ public class SARIC_MetOfficeSiteXMLSAXHandler extends DefaultHandler {
         forecasts = new HashMap<SARIC_Time, SARIC_SiteForecastRecord>();
     }
 
-    public static void main(String[] args) {
-        try {
-            SARIC_Environment se;
-            se = new SARIC_Environment("C:/Users/geoagdt/src/projects/saric/data");
-            File f = new File(
-                    se.getFiles().getInputDataMetOfficeDataPointDir(),
-                    "/val/wxfcs/all/xml/sitelist/sitelist.xml");
-            SARIC_MetOfficeSiteXMLSAXHandler r;
-            r = new SARIC_MetOfficeSiteXMLSAXHandler(se, f);
-            r.parser.setContentHandler(r);
-            try {
-                r.parser.parse(f.toString());
-            } catch (Exception e) {
-                e.printStackTrace(System.err);
-            }
-            System.out.println(r.sites);
-        } catch (Exception e) {
-            e.printStackTrace(System.err);
-        }  // catch exeptions
-    }
-
-    public HashSet<SARIC_Site> parse() {
+    public HashMap<SARIC_Time, SARIC_SiteForecastRecord> parse() {
         parser.setContentHandler(this);
         try {
             parser.parse(f.toString());
@@ -86,28 +65,75 @@ public class SARIC_MetOfficeSiteXMLSAXHandler extends DefaultHandler {
             Logger.getLogger(SARIC_MetOfficeSiteXMLSAXHandler.class.getName()).log(Level.SEVERE, null, ex);
             ex.printStackTrace(System.err);
         }
-        return sites;
+        return forecasts;
     }
     
+    protected SARIC_Time t0;
+    protected SARIC_Time t1;
+    protected SARIC_Time t2;
+    protected int rep;
+    protected int daysToAdd;
+    protected int minutesToAdd;
+    boolean inRepElement = false;
+    SARIC_SiteForecastRecord rec;
+            
+            
     // override the startElement() method
     @Override
     public void startElement(String uri, String localName,
             String rawName, Attributes attributes) {
-        if (rawName.equals("Location")) {
-            SARIC_Site site;
-            site = new SARIC_Site();
-            sites.add(site);
-            site.setName(attributes.getValue("name"));
-            site.setLongitude(new Double(attributes.getValue("longitude")));
-            site.setLatitude(new Double(attributes.getValue("latitude")));
-            site.setId(new Integer(attributes.getValue("id")));
-            if (attributes.getValue("elevation") != null) {
-                site.setElevation(new Double(attributes.getValue("elevation")));
-            } else {
-                site.setElevation(Double.NaN);
+        //System.out.println("rawName " + rawName);
+        if (rawName.equalsIgnoreCase("DV")) {
+            String time;
+            time = attributes.getValue("dataDate");
+            t0 = new SARIC_Time(time.replaceAll(":", "_"));
+        }
+        if (rawName.equalsIgnoreCase("Period")) {
+            String time;
+            time = attributes.getValue("value");
+            SARIC_Time t;
+            t1 = new SARIC_Time(time.substring(0, time.length() - 1));
+            SARIC_Time t00;
+            t00 = new SARIC_Time(t0);
+            t00.setHourOfDay(0);
+            t00.setMinuteOfHour(0);
+            daysToAdd = 0;
+            while (t00.compareTo(t1) != 0) {
+                t00.addDays(1);
+                daysToAdd++;
             }
-            System.out.println(site.toString());
+        }
+        if (rawName.equalsIgnoreCase("Rep")) {
+            inRepElement = true;
+            t2 = new SARIC_Time(t1);
+//            int minutes;
+//            minutes = new Integer(attributes.getValue(rawName));
+//            t.addMinutes(minutes);
+            int weatherType;
+            weatherType = new Integer(attributes.getValue("W"));
+            int precipitationProbability;
+            precipitationProbability = new Integer(attributes.getValue("Pp"));
+            rec = new SARIC_SiteForecastRecord();
+            rec.setWeatherType(weatherType);
+            rec.setPrecipitationProbability(precipitationProbability);
         }
     }
+    
+    @Override
+    public void endElement(String uri, String localName, String qName)
+            throws SAXException {
+        if(qName.equalsIgnoreCase("Rep")) {
+            t2.addDays(daysToAdd);
+            t2.addMinutes(minutesToAdd);
+            forecasts.put(t2, rec);
+        }
+        inRepElement = false;
+    }
 
+    @Override
+    public void characters(char[] ch, int start, int length) throws SAXException {
+        if (inRepElement) {
+            minutesToAdd = new Integer(new String(ch, start, length));
+        }
+    }
 }

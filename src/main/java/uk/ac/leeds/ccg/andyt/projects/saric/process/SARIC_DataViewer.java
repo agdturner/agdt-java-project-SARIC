@@ -41,7 +41,6 @@ import org.geotools.styling.SLD;
 import org.geotools.styling.Style;
 import org.geotools.swing.JMapFrame;
 import uk.ac.leeds.ccg.andyt.agdtgeotools.AGDT_Geotools;
-import uk.ac.leeds.ccg.andyt.agdtgeotools.AGDT_LegendItem;
 import uk.ac.leeds.ccg.andyt.agdtgeotools.AGDT_Maps;
 import uk.ac.leeds.ccg.andyt.agdtgeotools.AGDT_Shapefile;
 import uk.ac.leeds.ccg.andyt.agdtgeotools.AGDT_Style;
@@ -134,10 +133,12 @@ public class SARIC_DataViewer extends AGDT_DisplayShapefile implements Runnable 
             // Teifi
             SARIC_Teifi st;
             st = new SARIC_Teifi(se);
+            // Add NRFA Catchment boundary
             as = st.getNRFAAGDT_Shapefile();
             files.put(3, as.getFile());
             fl = as.getFeatureLayer();
             mc.addLayer(fl);
+            // Add Water Company Catchment boundary
             as = st.getWaterCompanyAGDT_Shapefile();
             files.put(4, as.getFile());
             fl = as.getFeatureLayer();
@@ -146,6 +147,33 @@ public class SARIC_DataViewer extends AGDT_DisplayShapefile implements Runnable 
             printBounds(re);
             re = mc.getMaxBounds();
             printBounds(re);
+            
+            // Add OSM data
+            String osmLayerName;
+            // Roads
+            osmLayerName = "gis.osm_roads_free_1.shp";
+            as = st.getOSMAGDT_Shapefile(osmLayerName);
+            files.put(5, as.getFile());
+            fl = as.getFeatureLayer();
+            mc.addLayer(fl);
+            // Railways
+            osmLayerName = "gis.osm_railways_free_1.shp";
+            as = st.getOSMAGDT_Shapefile(osmLayerName);
+            files.put(6, as.getFile());
+            fl = as.getFeatureLayer();
+            mc.addLayer(fl);
+            // Water
+            osmLayerName = "gis.osm_water_a_free_1.shp";
+            as = st.getOSMAGDT_Shapefile(osmLayerName);
+            files.put(7, as.getFile());
+            fl = as.getFeatureLayer();
+            mc.addLayer(fl);
+            // Waterways
+            osmLayerName = "gis.osm_waterways_free_1.shp";
+            as = st.getOSMAGDT_Shapefile(osmLayerName);
+            files.put(8, as.getFile());
+            fl = as.getFeatureLayer();
+            mc.addLayer(fl);
         }
 
         try {
@@ -220,6 +248,18 @@ public class SARIC_DataViewer extends AGDT_DisplayShapefile implements Runnable 
                     case 4:
                         style = getStyleWaterCompany();
                         break;
+                    case 5:
+                        style = getStyleOSMRoad(); // This is for showing road.
+                        break;
+                    case 6:
+                        style = getStyleOSMRailway(); // This is for showing road.
+                        break;
+                    case 7:
+                        style = getStyleOSMWater(); // This is for showing road.
+                        break;
+                    case 8:
+                        style = getStyleOSMWaterWay(); // This is for showing road.
+                        break;
                     default:
                         style = getStyleIHU();
                         break;
@@ -281,13 +321,61 @@ public class SARIC_DataViewer extends AGDT_DisplayShapefile implements Runnable 
         Color outlineColor;
         Color fillColor;
         float opacity;
-        outlineColor = Color.BLUE;
+        outlineColor = Color.PINK;
         fillColor = Color.DARK_GRAY;
         opacity = 0;
         result = SLD.createPolygonStyle(outlineColor, fillColor, opacity);
         return result;
     }
 
+    public Style getStyleOSMRoad() {
+        Style result;
+        Color outlineColor;
+        Color fillColor;
+        float opacity;
+        outlineColor = Color.LIGHT_GRAY;
+        fillColor = Color.DARK_GRAY;
+        opacity = 0;
+        result = SLD.createPolygonStyle(outlineColor, fillColor, opacity);
+        return result;
+    }
+    
+    public Style getStyleOSMRailway() {
+        Style result;
+        Color outlineColor;
+        Color fillColor;
+        float opacity;
+        outlineColor = Color.RED;
+        fillColor = Color.DARK_GRAY;
+        opacity = 0;
+        result = SLD.createPolygonStyle(outlineColor, fillColor, opacity);
+        return result;
+    }
+    
+    public Style getStyleOSMWater() {
+        Style result;
+        Color outlineColor;
+        Color fillColor;
+        float opacity;
+        outlineColor = Color.BLUE;
+        fillColor = Color.DARK_GRAY;
+        opacity = 0;
+        result = SLD.createPolygonStyle(outlineColor, fillColor, opacity);
+        return result;
+    }
+    
+    public Style getStyleOSMWaterWay() {
+        Style result;
+        Color outlineColor;
+        Color fillColor;
+        float opacity;
+        outlineColor = Color.BLUE;
+        fillColor = Color.DARK_GRAY;
+        opacity = 0;
+        result = SLD.createPolygonStyle(outlineColor, fillColor, opacity);
+        return result;
+    }
+    
     public Style getStyleIHU() {
         Style result;
         Color outlineColor;
@@ -318,7 +406,7 @@ public class SARIC_DataViewer extends AGDT_DisplayShapefile implements Runnable 
 
         if (doTeifi) {
             dir = new File(sf.getOutputDataMetOfficeDataPointDir(),
-                    "inspire/view/wmts/Teifi/RADAR_UK_Composite_Highres/EPSG_27700_4/2017-08-09");
+                    "inspire/view/wmts0/Teifi/RADAR_UK_Composite_Highres/EPSG_27700_4/2017-08-09");
             GridCoverageLayer gcl;
             gcl = getGridCoverageLayer(dir, name);
             result.add(gcl);
@@ -350,7 +438,7 @@ public class SARIC_DataViewer extends AGDT_DisplayShapefile implements Runnable 
         Grids_Grid2DSquareCellDouble g;
         g = (Grids_Grid2DSquareCellDouble) gf.create(f);
 
-        double normalisation = 1.0d;;
+        double normalisation = 1.0d;
 
         Object[] styleAndLegendItems;
         styleAndLegendItems = AGDT_Style.getStyleAndLegendItems(

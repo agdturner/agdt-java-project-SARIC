@@ -47,54 +47,64 @@ public class SARIC_SiteHandler extends SARIC_Object {
         strings = se.getStrings();
     }
 
-    public void initForecastsSites() {
-        forecastsSites = getSites(strings.getString_wxfcs());
-    }
-
-    public void initObservationsSites() {
-        observationsSites = getSites(strings.getString_wxobs());
-    }
-
     /**
-     *
-     * @param type either wxobs or wxfcs
-     * @return
+     * 
+     * @param time Expecting "3hourly" or "daily".
+     * @return 
      */
-    public HashSet<SARIC_Site> getSites(String type) {
-        HashSet<SARIC_Site> result;
-        String filename;
-        filename = strings.getString_sitelist()
-                + strings.getSymbol_dot() + strings.getString_xml();
-        String path;
-        path = strings.getString_val() + strings.getSymbol_backslash()
-                + type + strings.getSymbol_backslash()
-                + strings.getString_all() + strings.getSymbol_backslash()
-                + strings.getString_xml() + strings.getSymbol_backslash()
-                + strings.getString_sitelist() + strings.getSymbol_backslash();
-        File dir;
-        dir = new File(
-                files.getInputDataMetOfficeDataPointDir(),
-                path);
-        File f;
-        f = new File(
-                dir,
-                filename);
-        SARIC_MetOfficeSiteListXMLSAXHandler r;
-        r = new SARIC_MetOfficeSiteListXMLSAXHandler(se, f);
-        result = r.parse();
-        return result;
-    }
-
-    public HashSet<SARIC_Site> getForecastsSites() {
+    public HashSet<SARIC_Site> getForecastsSites(String time) {
         if (forecastsSites == null) {
-            initForecastsSites();
+            String type;
+            type = strings.getString_wxfcs();
+            String filename;
+            filename = strings.getString_sitelist()
+                    + strings.getSymbol_dot() + strings.getString_xml();
+            String path;
+            path = strings.getString_val() + strings.getSymbol_backslash()
+                    + type + strings.getSymbol_backslash()
+                    + strings.getString_all() + strings.getSymbol_backslash()
+                    + strings.getString_xml() + strings.getSymbol_backslash()
+                    + strings.getString_sitelist() + strings.getSymbol_backslash()
+                    + time + strings.getSymbol_backslash() ;
+            File dir;
+            dir = new File(
+                    files.getInputDataMetOfficeDataPointDir(),
+                    path);
+            File f;
+            f = new File(
+                    dir,
+                    filename);
+            SARIC_MetOfficeSiteListXMLSAXHandler r;
+            r = new SARIC_MetOfficeSiteListXMLSAXHandler(se, f);
+            forecastsSites = r.parse();
         }
         return forecastsSites;
     }
 
     public HashSet<SARIC_Site> getObservationsSites() {
         if (observationsSites == null) {
-            initObservationsSites();
+            String type;
+            type = strings.getString_wxobs();
+            String filename;
+            filename = strings.getString_sitelist()
+                    + strings.getSymbol_dot() + strings.getString_xml();
+            String path;
+            path = strings.getString_val() + strings.getSymbol_backslash()
+                    + type + strings.getSymbol_backslash()
+                    + strings.getString_all() + strings.getSymbol_backslash()
+                    + strings.getString_xml() + strings.getSymbol_backslash()
+                    + strings.getString_sitelist() + strings.getSymbol_backslash();
+            File dir;
+            dir = new File(
+                    files.getInputDataMetOfficeDataPointDir(),
+                    path);
+            File f;
+            f = new File(
+                    dir,
+                    filename);
+            SARIC_MetOfficeSiteListXMLSAXHandler r;
+            r = new SARIC_MetOfficeSiteListXMLSAXHandler(se, f);
+            observationsSites = r.parse();
         }
         return observationsSites;
     }

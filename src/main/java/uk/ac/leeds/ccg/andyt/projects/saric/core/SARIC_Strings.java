@@ -51,6 +51,7 @@ public class SARIC_Strings {
     String string_layer;
     String string_MetOffice;
     String string_Nimrod;
+    String string_OSM;
     String string_output;
     String string_Observations;
     String string_Precipitation_Rate;
@@ -59,6 +60,7 @@ public class SARIC_Strings {
     String string_RADAR_UK_Composite_Highres;
     String string_res;
     String string_site;
+    String string_Sites;
     String string_sitelist;
     String string_Teifi;
     String string_val;
@@ -246,6 +248,14 @@ public class SARIC_Strings {
         return string_MetOffice;
     }
 
+    public String getString_OSM() {
+        if (string_OSM == null) {
+            string_OSM = "OSM";
+        }
+        return string_OSM;
+    }
+
+    
     public String getString_Nimrod() {
         if (string_Nimrod == null) {
             string_Nimrod = "Nimrod";
@@ -300,6 +310,13 @@ public class SARIC_Strings {
             string_site = "site";
         }
         return string_site;
+    }
+    
+    public String getString_Sites() {
+        if (string_Sites == null) {
+            string_Sites = "Sites";
+        }
+        return string_Sites;
     }
 
     public String getString_sitelist() {

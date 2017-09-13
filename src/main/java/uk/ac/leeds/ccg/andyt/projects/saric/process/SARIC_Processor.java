@@ -73,6 +73,7 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
     public void run() {
         try {
             // Main switches
+//            RunProjectShapefiles = true;
 //            RunCatchmentViewer = true;
 //            RunSARIC_MetOfficeScraper = true;
             RunSARIC_ImageProcessor = true;
@@ -83,6 +84,21 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
             /**
              * Run SARIC_MetOfficeScraper
              */
+            if (RunProjectShapefiles) {
+//                doWissey = true;
+                doTeifi = true;
+//                addGBHRUs = true;
+                SARIC_ProjectShapefiles p;
+                p = new SARIC_ProjectShapefiles(se, doWissey, doTeifi);
+                //sdv.run();
+                Thread t;
+                t = new Thread(p);
+                t.start();
+            }
+            
+            /**
+             * Run SARIC_MetOfficeScraper
+             */
             if (RunCatchmentViewer) {
 //                SARIC_CatchmentViewer scv;
 //                scv = new SARIC_CatchmentViewer(se);
@@ -90,8 +106,8 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
 //                Thread scvThread;
 //                    scvThread = new Thread(scv);
 //                    scvThread.start();
-                doWissey = true;
-//                doTeifi = true;
+//                doWissey = true;
+                doTeifi = true;
 //                addGBHRUs = true;
                 SARIC_DataViewer sdv;
                 sdv = new SARIC_DataViewer(se, doWissey, doTeifi, addGBHRUs);
@@ -111,14 +127,14 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
                 // Main Switches
 //                doCalculateSitesInStudyAreas = true; // This is usually a one off.
 //                doNonTiledObs = true;
-//                doNonTiledFcs = true;
+                doNonTiledFcs = true;
 //                doTileFromWMTSService = true;
 //                doObservationsTileFromWMTSService = true;
 //                doTileFromWMTSService = true;
 //                doForecastsTileFromWMTSService = true;
 //                // All
 //                doNonTiledObs = true;
-                doNonTiledFcs = true;
+//                doNonTiledFcs = true;
 //                doTileFromWMTSService = true;
 //                doForecastsTileFromWMTSService = true;
 //                doObservationsTileFromWMTSService = true;
@@ -341,8 +357,8 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
             if (RunSARIC_ImageProcessor) {
 
                 // Main Switches
-//                doImageProcessObservations = true;
                 doImageProcessObservations = false;
+//                doImageProcessObservations = true;
                 doImageProcessForecasts = true;
 //                doImageProcessForecasts = false;
 
@@ -478,6 +494,7 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
     boolean doImageProcessForecasts = false;
 
     // Main switches
+    boolean RunProjectShapefiles = false;
     boolean RunCatchmentViewer = false;
     boolean RunSARIC_MetOfficeScraper = false;
     boolean RunSARIC_ImageProcessor = false;

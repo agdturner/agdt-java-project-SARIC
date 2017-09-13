@@ -21,28 +21,33 @@ package uk.ac.leeds.ccg.andyt.projects.saric.util;
 import java.io.Serializable;
 import java.util.Calendar;
 
-public class SARIC_Time
+public class SARIC_Time extends SARIC_Date
         implements Serializable, Comparable {
 
-    private final Calendar calendar;
-    private int YEAR;
-    private int MONTH;
-    private int DAY_OF_MONTH;
     private int HOUR_OF_DAY;
     private int MINUTE;
     private int SECOND;
 
     public SARIC_Time() {
-        calendar = Calendar.getInstance();
+        super();
     }
 
     public SARIC_Time(SARIC_Time t) {
         this(t.calendar.get(Calendar.YEAR),
                 t.calendar.get(Calendar.MONTH),
                 t.calendar.get(Calendar.DAY_OF_MONTH),
-                t.calendar.get(Calendar.HOUR),
+                t.calendar.get(Calendar.HOUR_OF_DAY),
                 t.calendar.get(Calendar.MINUTE),
                 t.calendar.get(Calendar.SECOND));
+    }
+
+    public SARIC_Time(SARIC_Date d) {
+        this(d.calendar.get(Calendar.YEAR),
+                d.calendar.get(Calendar.MONTH),
+                d.calendar.get(Calendar.DAY_OF_MONTH),
+                d.calendar.get(Calendar.HOUR_OF_DAY),
+                d.calendar.get(Calendar.MINUTE),
+                d.calendar.get(Calendar.SECOND));
     }
 
     public SARIC_Time(
@@ -54,11 +59,11 @@ public class SARIC_Time
             int secondOfMinute) {
         this();
         calendar.set(
-                year, 
-                month, 
-                dayOfMonth, 
-                hourOfDay, 
-                minuteOfHour, 
+                year,
+                month,
+                dayOfMonth,
+                hourOfDay,
+                minuteOfHour,
                 secondOfMinute);
         normalise();
     }
@@ -111,25 +116,6 @@ public class SARIC_Time
                 SECOND);
     }
 
-    public void setYear(int year) {
-        YEAR = year;
-        calendar.set(Calendar.YEAR, year);
-    }
-
-    public void setMonth(int month) {
-        MONTH = month;
-        calendar.set(Calendar.MONTH, month);
-    }
-
-    public int getDayOfMonth() {
-        return calendar.get(Calendar.DAY_OF_MONTH);
-    }
-
-    public void setDayOfMonth(int day) {
-        DAY_OF_MONTH = day;
-        calendar.set(Calendar.DAY_OF_MONTH, day);
-    }
-
     public void setHourOfDay(int hour) {
         HOUR_OF_DAY = hour;
         calendar.set(Calendar.HOUR_OF_DAY, hour);
@@ -152,15 +138,10 @@ public class SARIC_Time
     }
 
     public void addHours(int hours) {
-        calendar.add(Calendar.HOUR, hours);
+        calendar.add(Calendar.HOUR_OF_DAY, hours);
         normalise();
     }
 
-    public void addDays(int days) {
-        calendar.add(Calendar.DAY_OF_YEAR, days);
-        normalise();
-    }
-    
     private void normalise() {
         YEAR = calendar.get(Calendar.YEAR);
         MONTH = calendar.get(Calendar.MONTH);
@@ -169,15 +150,19 @@ public class SARIC_Time
         MINUTE = calendar.get(Calendar.MINUTE);
         SECOND = calendar.get(Calendar.SECOND);
     }
-
+    
+    public SARIC_Date getDate() {
+        SARIC_Date result;
+        result = new SARIC_Date(this);
+        return result;
+    }
+    
+    public String getDateString() {
+        return super.toString();
+    }
+    
     @Override
     public String toString() {
-        int year;
-        year = calendar.get(Calendar.YEAR);
-        int month;
-        month = calendar.get(Calendar.MONTH);
-        int day;
-        day = calendar.get(Calendar.DAY_OF_MONTH);
         int hour;
         hour = calendar.get(Calendar.HOUR_OF_DAY);
         int minute;
@@ -185,17 +170,7 @@ public class SARIC_Time
         int second;
         second = calendar.get(Calendar.SECOND);
         String result;
-        result = Integer.toString(year);
-        result += "-";
-        if (month < 10) {
-            result += "0";
-        }
-        result += Integer.toString(month);
-        result += "-";
-        if (day < 10) {
-            result += "0";
-        }
-        result += Integer.toString(day);
+        result = super.toString();
         result += "T";
         if (hour < 10) {
             result += "0";
@@ -259,7 +234,6 @@ public class SARIC_Time
 //        hash = 89 * hash + (this.calendar != null ? this.calendar.hashCode() : 0);
 //        return hash;
 //    }
-
     public int compareTo(Object o) {
         if (o == null) {
             return 1;

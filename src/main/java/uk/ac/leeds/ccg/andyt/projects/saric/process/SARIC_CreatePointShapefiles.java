@@ -84,8 +84,11 @@ public class SARIC_CreatePointShapefiles extends SARIC_Object implements Runnabl
         HashSet<SARIC_Site> sites;
         BigDecimal buffer;
         if (doForecasts) {
+            String time;
+            //time = ss.getString_daily();
+            time = ss.getString_3hourly();
             buffer = null;
-            sites = sh.getForecastsSites();
+            sites = sh.getForecastsSites(time);
             run(ss.getString_Forecasts(), sites, buffer);
         }
         if (doObservations) {

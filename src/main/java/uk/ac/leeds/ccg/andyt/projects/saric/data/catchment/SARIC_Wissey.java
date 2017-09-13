@@ -18,9 +18,13 @@
  */
 package uk.ac.leeds.ccg.andyt.projects.saric.data.catchment;
 
+import java.io.File;
 import java.math.BigDecimal;
+import java.util.HashSet;
 import uk.ac.leeds.ccg.andyt.agdtgeotools.AGDT_Shapefile;
+import uk.ac.leeds.ccg.andyt.generic.io.Generic_StaticIO;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
+import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.site.SARIC_Site;
 import uk.ac.leeds.ccg.andyt.vector.geometry.Vector_Envelope2D;
 
 /**
@@ -50,6 +54,20 @@ public class SARIC_Wissey extends SARIC_Catchment {
      */
     public AGDT_Shapefile getWaterCompanyAGDT_Shapefile() {
         return getAGDT_Shapefile("WISSEY_RBMP2.shp");
+    }
+    
+    @Override
+    public HashSet<SARIC_Site> getForecastsSitesInStudyArea(String time) {
+        HashSet<SARIC_Site> result;
+        File f;
+        f = sf.getGeneratedDataMetOfficeDataPointForecastsSitesInWisseyFile();
+        if (f.exists()) {
+            result = (HashSet<SARIC_Site>) Generic_StaticIO.readObject(f);
+        } else {
+            result = super.getForecastsSitesInStudyArea(time);
+            Generic_StaticIO.writeObject(result, f);
+        }
+        return result;
     }
     
     /**
