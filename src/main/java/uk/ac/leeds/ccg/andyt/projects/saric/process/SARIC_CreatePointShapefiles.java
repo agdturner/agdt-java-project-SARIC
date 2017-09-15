@@ -50,6 +50,7 @@ public class SARIC_CreatePointShapefiles extends SARIC_Object implements Runnabl
     // For processing
     boolean doForecasts;
     boolean doObservations;
+    boolean overwrite;
 
     protected SARIC_CreatePointShapefiles() {
     }
@@ -65,17 +66,22 @@ public class SARIC_CreatePointShapefiles extends SARIC_Object implements Runnabl
     public SARIC_CreatePointShapefiles(
             SARIC_Environment se,
             boolean doForecasts,
-            boolean doObservations) {
+            boolean doObservations,
+            boolean overwrite) {
         super(se);
         sf = se.getFiles();
         ss = se.getStrings();
         ve = se.getVector_Environment();
         this.doForecasts = doForecasts;
         this.doObservations = doObservations;
+        this.overwrite = overwrite;
     }
 
     public static void main(String[] args) {
-        new SARIC_CreatePointShapefiles().run();
+        SARIC_CreatePointShapefiles p;
+        p = new SARIC_CreatePointShapefiles();
+        p.overwrite = true;
+        p.run();
     }
 
     public void run() {
@@ -89,7 +95,7 @@ public class SARIC_CreatePointShapefiles extends SARIC_Object implements Runnabl
             time = ss.getString_3hourly();
             buffer = null;
             sites = sh.getForecastsSites(time);
-            run(ss.getString_Forecasts(), sites, buffer);
+            run(overwrite, ss.getString_Forecasts(), sites, buffer);
         }
         if (doObservations) {
 //            buffer = new BigDecimal(20000.0d);
@@ -97,118 +103,135 @@ public class SARIC_CreatePointShapefiles extends SARIC_Object implements Runnabl
 //            buffer = new BigDecimal(40000.0d);
             buffer = new BigDecimal(60000.0d);
             sites = sh.getObservationsSites();
-            run(ss.getString_Observations(), sites, buffer);
+            run(overwrite, ss.getString_Observations(), sites, buffer);
         }
     }
 
-    public void run(String type, HashSet<SARIC_Site> sites, BigDecimal buffer) {
-        // Initialise for Wissey
-        SARIC_Wissey wissey;
-        wissey = new SARIC_Wissey(se);
-        Vector_Envelope2D wisseyBounds;
-        wisseyBounds = wissey.getBoundsBuffered(buffer);
-        
-        // Initialise for Teifi
-        SARIC_Teifi teifi;
-        teifi = new SARIC_Teifi(se);
-        Vector_Envelope2D teifiBounds;
-        teifiBounds = teifi.getBoundsBuffered(buffer);
-        
-        SimpleFeatureType aPointSFT = null;
-        try {
-            aPointSFT = DataUtilities.createType(
-                    "POINT",
-                    "the_geom:Point:srid=27700,"
-                    + "name:String,"
-                    + "ID:Integer,"
-                    + "Latitude:Double,"
-                    + "Longitude:Double,"
-                    + "Elevation:Double");
-            //srid=27700 is the Great_Britain_National_Grid
-        } catch (SchemaException ex) {
-            Logger.getLogger(SARIC_CreatePointShapefiles.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-        TreeSetFeatureCollection tsfc;
-        TreeSetFeatureCollection tsfcWissey;
-        TreeSetFeatureCollection tsfcTeifi;
-        tsfc = new TreeSetFeatureCollection();
-        tsfcWissey = new TreeSetFeatureCollection();
-        tsfcTeifi = new TreeSetFeatureCollection();
-        SimpleFeatureBuilder sfb;
-        sfb = new SimpleFeatureBuilder(aPointSFT);
-
-        // Create SimpleFeatureBuilder
-        //FeatureFactory ff = FactoryFinder.getGeometryFactories();
-        GeometryFactory gF;
-        gF = new GeometryFactory();
-        String name;
-        Coordinate c;
-        Point point;
-        SimpleFeature feature;
-
-        Iterator<SARIC_Site> ite;
-        ite = sites.iterator();
-        SARIC_Site site;
-        double[] OSGBEastingAndNorthing;
-        Vector_Point2D p;
-        while (ite.hasNext()) {
-            site = ite.next();
-            name = site.getName();
-            OSGBEastingAndNorthing = Vector_OSGBtoLatLon.latlon2osgb(
-                    site.getLatitude(), site.getLongitude());
-            p = new Vector_Point2D(ve, OSGBEastingAndNorthing[0], OSGBEastingAndNorthing[1]);
-            c = new Coordinate(p._x.doubleValue(), p._y.doubleValue());
-            point = gF.createPoint(c);
-            sfb.add(point);
-            sfb.add(name);
-            sfb.add(site.getId());
-            sfb.add(site.getLatitude());
-            sfb.add(site.getLongitude());
-            sfb.add(site.getElevation());
-            feature = sfb.buildFeature(name);
-            tsfc.add(feature);
-            if (wisseyBounds.getIntersects(p)) {
-                tsfcWissey.add(feature);
-            }
-            if (teifiBounds.getIntersects(p)) {
-                tsfcTeifi.add(feature);
-            }
-        }
-
-        // Write out sites in the Wissey/Teifi
+    /**
+     *
+     * @param overwrite If overwrite == true then the results are recreated.
+     * @param type Expecting either "Observations" or "Forecasts";
+     * @param sites Set of all sites.
+     * @param buffer Distance to buffer the bounding box of the catchment for
+     * selecting sites.
+     */
+    public void run(
+            boolean overwrite,
+            String type,
+            HashSet<SARIC_Site> sites,
+            BigDecimal buffer) {
         File dir;
         dir = new File(
                 sf.getGeneratedDataMetOfficeDataPointDir(),
                 type);
-        File outfile;
-        outfile = AGDT_Geotools.getOutputShapefile(
+        File outfileAll;
+        outfileAll = AGDT_Geotools.getOutputShapefile(
                 dir,
                 "Sites");
-        outfile.getParentFile().mkdirs();
-        AGDT_Shapefile.transact(
-                outfile,
-                aPointSFT,
-                tsfc,
-                new ShapefileDataStoreFactory());
-        outfile = AGDT_Geotools.getOutputShapefile(
-                dir,
-                ss.getString_Wissey() + "SitesBuffered");
-        outfile.getParentFile().mkdirs();
-        AGDT_Shapefile.transact(
-                outfile,
-                aPointSFT,
-                tsfcWissey,
-                new ShapefileDataStoreFactory());
-        outfile = AGDT_Geotools.getOutputShapefile(
-                dir,
-                ss.getString_Teifi() + "SitesBuffered");
-        outfile.getParentFile().mkdirs();
-        AGDT_Shapefile.transact(
-                outfile,
-                aPointSFT,
-                tsfcTeifi,
-                new ShapefileDataStoreFactory());
+        if (!outfileAll.exists() || overwrite == true) {
+            outfileAll.getParentFile().mkdirs();
+            File outfileWissey;
+            outfileWissey = AGDT_Geotools.getOutputShapefile(
+                    dir,
+                    ss.getString_Wissey() + "SitesBuffered");
+            outfileWissey.getParentFile().mkdirs();
+            File outfileTeifi;
+            outfileTeifi = AGDT_Geotools.getOutputShapefile(
+                    dir,
+                    ss.getString_Teifi() + "SitesBuffered");
+            outfileTeifi.getParentFile().mkdirs();
+
+            // Initialise for Wissey
+            SARIC_Wissey wissey;
+            wissey = new SARIC_Wissey(se);
+            Vector_Envelope2D wisseyBounds;
+            wisseyBounds = wissey.getBoundsBuffered(buffer);
+
+            // Initialise for Teifi
+            SARIC_Teifi teifi;
+            teifi = new SARIC_Teifi(se);
+            Vector_Envelope2D teifiBounds;
+            teifiBounds = teifi.getBoundsBuffered(buffer);
+
+            SimpleFeatureType aPointSFT = null;
+            try {
+                aPointSFT = DataUtilities.createType(
+                        "POINT",
+                        "the_geom:Point:srid=27700,"
+                        + "name:String,"
+                        + "ID:Integer,"
+                        + "Latitude:Double,"
+                        + "Longitude:Double,"
+                        + "Elevation:Double");
+                //srid=27700 is the Great_Britain_National_Grid
+            } catch (SchemaException ex) {
+                Logger.getLogger(SARIC_CreatePointShapefiles.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+            TreeSetFeatureCollection tsfc;
+            TreeSetFeatureCollection tsfcWissey;
+            TreeSetFeatureCollection tsfcTeifi;
+            tsfc = new TreeSetFeatureCollection();
+            tsfcWissey = new TreeSetFeatureCollection();
+            tsfcTeifi = new TreeSetFeatureCollection();
+            SimpleFeatureBuilder sfb;
+            sfb = new SimpleFeatureBuilder(aPointSFT);
+
+            // Create SimpleFeatureBuilder
+            //FeatureFactory ff = FactoryFinder.getGeometryFactories();
+            GeometryFactory gF;
+            gF = new GeometryFactory();
+            String name;
+            Coordinate c;
+            Point point;
+            SimpleFeature feature;
+
+            Iterator<SARIC_Site> ite;
+            ite = sites.iterator();
+            SARIC_Site site;
+            double[] OSGBEastingAndNorthing;
+            Vector_Point2D p;
+            while (ite.hasNext()) {
+                site = ite.next();
+                name = site.getName();
+                OSGBEastingAndNorthing = Vector_OSGBtoLatLon.latlon2osgb(
+                        site.getLatitude(), site.getLongitude());
+                p = new Vector_Point2D(ve, OSGBEastingAndNorthing[0], OSGBEastingAndNorthing[1]);
+                c = new Coordinate(p._x.doubleValue(), p._y.doubleValue());
+                point = gF.createPoint(c);
+                sfb.add(point);
+                sfb.add(name);
+                sfb.add(site.getId());
+                sfb.add(site.getLatitude());
+                sfb.add(site.getLongitude());
+                sfb.add(site.getElevation());
+                feature = sfb.buildFeature(name);
+                tsfc.add(feature);
+                if (wisseyBounds.getIntersects(p)) {
+                    tsfcWissey.add(feature);
+                }
+                if (teifiBounds.getIntersects(p)) {
+                    tsfcTeifi.add(feature);
+                }
+            }
+
+            // Write out sites in the Wissey/Teifi
+            AGDT_Shapefile.transact(
+                    outfileAll,
+                    aPointSFT,
+                    tsfc,
+                    new ShapefileDataStoreFactory());
+            AGDT_Shapefile.transact(
+                    outfileWissey,
+                    aPointSFT,
+                    tsfcWissey,
+                    new ShapefileDataStoreFactory());
+            AGDT_Shapefile.transact(
+                    outfileTeifi,
+                    aPointSFT,
+                    tsfcTeifi,
+                    new ShapefileDataStoreFactory());
+        }
     }
 
 }

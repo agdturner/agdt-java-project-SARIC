@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import uk.ac.leeds.ccg.andyt.generic.io.Generic_StaticIO;
@@ -42,6 +43,8 @@ import uk.ac.leeds.ccg.andyt.projects.saric.data.catchment.SARIC_Wissey;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.site.SARIC_Site;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.site.SARIC_SiteHandler;
 import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
+import uk.ac.leeds.ccg.andyt.projects.saric.util.SARIC_Date;
+import uk.ac.leeds.ccg.andyt.projects.saric.util.SARIC_Time;
 import uk.ac.leeds.ccg.andyt.vector.core.Vector_Environment;
 import uk.ac.leeds.ccg.andyt.vector.geometry.Vector_Envelope2D;
 import uk.ac.leeds.ccg.andyt.vector.geometry.Vector_Point2D;
@@ -441,7 +444,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
         // Download capabilities document for the observation layers in XML format
         File observationLayerCapabilities;
         observationLayerCapabilities = getObservationsLayerCapabilities();
-        ArrayList<String> times;
+        TreeSet<SARIC_Time> times;
         times = getObservationsLayerTimes(layerName, observationLayerCapabilities);
         // Download observation web map
         downloadObservationImages(layerName, times, overwrite);
@@ -603,7 +606,6 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
         getXML(url, xml);
     }
 
-
     /**
      * Get times from observationLayerCapabilities
      *
@@ -628,10 +630,10 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
      * @param xml
      * @return
      */
-    protected ArrayList<String> getObservationsLayerTimes(
+    protected TreeSet<SARIC_Time> getObservationsLayerTimes(
             String layerName,
             File xml) {
-        ArrayList<String> result;
+        TreeSet<SARIC_Time> result;
         SARIC_MetOfficeCapabilitiesXMLDOMReader r;
         r = new SARIC_MetOfficeCapabilitiesXMLDOMReader(se, xml);
         String nodeName;
@@ -687,15 +689,15 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
      */
     protected void downloadObservationImages(
             String layerName,
-            ArrayList<String> times,
+            TreeSet<SARIC_Time> times,
             boolean overwrite) {
         //http://datapoint.metoffice.gov.uk/public/data/layer/wxobs/{LayerName}/{ImageFormat}?TIME={Time}Z&key={key}
         String imageFormat;
         imageFormat = ss.getString_png();
-        Iterator<String> ite;
+        SARIC_Time time;
+        Iterator<SARIC_Time> ite;
         ite = times.iterator();
         while (ite.hasNext()) {
-            String time;
             time = ite.next();
             //System.out.println(time);
             //if (time.contains("00:00")) {
@@ -709,7 +711,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
                     + "TIME" + ss.getSymbol_equals() + time + "Z"
                     + ss.getSymbol_ampersand() + ss.getString_key() + ss.getSymbol_equals() + API_KEY;
             String outputFilenameWithoutExtension;
-            outputFilenameWithoutExtension = layerName + time.replace(':', '_');
+            outputFilenameWithoutExtension = layerName + time.toString();
             getPNG(outputFilenameWithoutExtension, overwrite);
             //}
         }
@@ -732,7 +734,9 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
             SARIC_MetOfficeParameters p,
             SARIC_MetOfficeCapabilitiesXMLDOMReader r,
             boolean overwrite) {
-        ArrayList<String> times;
+//        ArrayList<String> times;
+//        times = r.getTimesInspireWMTS(layerName);
+        TreeSet<SARIC_Time> times;
         times = r.getTimesInspireWMTS(layerName);
         p.setTimes(times);
         HashMap<String, SARIC_MetOfficeLayerParameters> metOfficeLayerParameters;
@@ -755,16 +759,21 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
             path = "inspire/view/wmts";
             String tileRow;
             String tileCol;
-            String time;
-            String dateYYYYMMDD;
+            //String time;
+            SARIC_Time time;
+            String dateString;
             String timeformatted;
-            Iterator<String> ite;
+            String yearMonth;
+            Iterator<SARIC_Time> ite;
             ite = times.iterator();
+//            Iterator<String> ite;
+//            ite = times.iterator();
             while (ite.hasNext()) {
                 time = ite.next();
                 System.out.println(time);
-                timeformatted = time.replace(':', '_');
-                dateYYYYMMDD = time.split("T")[0];
+                timeformatted = time.toString();
+                dateString = time.getDateString();
+                yearMonth = time.getYearMonth();
                 for (int row = 0; row < lp.nrows; row++) {
                     for (int col = 0; col < lp.ncols; col++) {
                         tileRow = Integer.toString(row);
@@ -789,7 +798,8 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
                         String pathDummy = path;
                         path += "/" + layerName
                                 + "/" + tileMatrixFormatted
-                                + "/" + dateYYYYMMDD
+                                + "/" + yearMonth
+                                + "/" + dateString
                                 + "/" + timeformatted;
                         getPNG(outputFilenameWithoutExtension, overwrite);
                         path = pathDummy;
@@ -825,7 +835,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
             String areaName,
             boolean overwrite) {
         System.out.println("AreaBoundingBox " + AreaBoundingBox);
-        ArrayList<String> times;
+        TreeSet<SARIC_Time> times;
         times = r.getTimesInspireWMTS(layerName);
         p.setTimes(times);
         HashMap<String, SARIC_MetOfficeLayerParameters> metOfficeLayerParameters;
@@ -837,10 +847,11 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
         String tileMatrixFormatted;
         String tileRow;
         String tileCol;
-        String time;
-        String dateYYYYMMDD;
+        SARIC_Time time;
+        String dateString;
         String timeformatted;
-        Iterator<String> ite;
+        String yearMonth;
+        Iterator<SARIC_Time> ite;
         int matrix = 4;
         //for (matrix = 0; matrix < 7; matrix += 1) {
         //for (matrix = 0; matrix < 5; matrix += 1) {
@@ -863,8 +874,9 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
         while (ite.hasNext()) {
             time = ite.next();
             System.out.println(time);
-            timeformatted = time.replace(':', '_');
-            dateYYYYMMDD = time.split("T")[0];
+            timeformatted = time.toFormattedString();
+            dateString = time.getDateString();
+            yearMonth = time.getYearMonth();
             for (int row = 0; row < lp.nrows; row++) {
                 //System.out.println("row " + row);
                 for (int col = 0; col < lp.ncols; col++) {
@@ -899,7 +911,8 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
                         path += "/" + areaName
                                 + "/" + layerName
                                 + "/" + tileMatrixFormatted
-                                + "/" + dateYYYYMMDD
+                                + "/" + yearMonth
+                                + "/" + dateString
                                 + "/" + timeformatted;
                         getPNG(outputFilenameWithoutExtension, overwrite);
                         path = pathDummy;
@@ -937,7 +950,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
             String areaName,
             boolean overwrite) {
         System.out.println("AreaBoundingBox " + AreaBoundingBox);
-        ArrayList<String> times;
+        TreeSet<SARIC_Time> times;
         times = r.getTimesInspireWMTS(layerName);
         p.setTimes(times);
         HashMap<String, SARIC_MetOfficeLayerParameters> metOfficeLayerParameters;
@@ -948,7 +961,8 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
         Vector_Envelope2D tileBounds;
         String tileMatrixFormatted;
         String timeFormatted;
-        String dateYYYYMMDD;
+        String dateString;
+        String yearMonth;
         int matrix = 4;
         //for (matrix = 0; matrix < 7; matrix += 1) {
         //for (matrix = 0; matrix < 5; matrix += 1) {
@@ -968,14 +982,15 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
         path = "inspire/view/wmts";
         String tileRow;
         String tileCol;
-        String time = null;
-        Iterator<String> ite;
+        SARIC_Time time;
+        Iterator<SARIC_Time> ite;
         ite = times.iterator();
         while (ite.hasNext()) {
             time = ite.next();
             System.out.println(time);
-            timeFormatted = time.replace(':', '_');
-            dateYYYYMMDD = time.split("T")[0];
+            timeFormatted = time.toFormattedString();
+            dateString = time.getDateString();
+            yearMonth = time.getYearMonth();
             for (int forecastTime = 0; forecastTime <= 36; forecastTime += 3) {
                 for (int row = 0; row < lp.nrows; row++) {
                     //System.out.println("row " + row);
@@ -1016,7 +1031,8 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
                             path += "/" + areaName
                                     + "/" + layerName
                                     + "/" + tileMatrixFormatted
-                                    + "/" + dateYYYYMMDD
+                                    + "_" + yearMonth
+                                    + "/" + dateString
                                     + "/" + timeFormatted
                                     + "/" + forecastTime;
                             getPNG(outputFilenameWithoutExtension, overwrite);

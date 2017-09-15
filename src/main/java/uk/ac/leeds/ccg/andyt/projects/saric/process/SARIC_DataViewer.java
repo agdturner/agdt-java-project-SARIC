@@ -394,11 +394,11 @@ public class SARIC_DataViewer extends AGDT_DisplayShapefile implements Runnable 
 
         File dir;
         File f;
-        String name = ss.getString_RADAR_UK_Composite_Highres() + ".asc";
+        String name = "2017-08-09" + ss.getString_RADAR_UK_Composite_Highres() + ".asc";
 
         if (doWissey) {
             dir = new File(sf.getOutputDataMetOfficeDataPointDir(),
-                    "inspire/view/wmts/Wissey/RADAR_UK_Composite_Highres/EPSG_27700_4/2017-08-09");
+                    "inspire/view/wmts/Wissey/RADAR_UK_Composite_Highres/EPSG_27700_4/2017-08/2017-08-09");
             GridCoverageLayer gcl;
             gcl = getGridCoverageLayer(dir, name);
             result.add(gcl);
@@ -406,7 +406,7 @@ public class SARIC_DataViewer extends AGDT_DisplayShapefile implements Runnable 
 
         if (doTeifi) {
             dir = new File(sf.getOutputDataMetOfficeDataPointDir(),
-                    "inspire/view/wmts0/Teifi/RADAR_UK_Composite_Highres/EPSG_27700_4/2017-08-09");
+                    "inspire/view/wmts0/Teifi/RADAR_UK_Composite_Highres/EPSG_27700_4/2017-08/2017-08-09");
             GridCoverageLayer gcl;
             gcl = getGridCoverageLayer(dir, name);
             result.add(gcl);

@@ -75,8 +75,8 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
             // Main switches
 //            RunProjectShapefiles = true;
 //            RunCatchmentViewer = true;
-//            RunSARIC_MetOfficeScraper = true;
-            RunSARIC_ImageProcessor = true;
+            RunSARIC_MetOfficeScraper = true;
+//            RunSARIC_ImageProcessor = true;
 //            RunSARIC_CreatePointShapefile = true;
 //            RunSARIC_DisplayShapefile = true;
 //            RunSARIC_DataForWASIM = true;
@@ -127,17 +127,17 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
                 // Main Switches
 //                doCalculateSitesInStudyAreas = true; // This is usually a one off.
 //                doNonTiledObs = true;
-                doNonTiledFcs = true;
+//                doNonTiledFcs = true;
 //                doTileFromWMTSService = true;
 //                doObservationsTileFromWMTSService = true;
 //                doTileFromWMTSService = true;
 //                doForecastsTileFromWMTSService = true;
 //                // All
 //                doNonTiledObs = true;
-//                doNonTiledFcs = true;
-//                doTileFromWMTSService = true;
-//                doForecastsTileFromWMTSService = true;
-//                doObservationsTileFromWMTSService = true;
+                doNonTiledFcs = true;
+                doTileFromWMTSService = true;
+                doForecastsTileFromWMTSService = true;
+                doObservationsTileFromWMTSService = true;
                 /**
                  * This thread parses the site list and returns an
                  * ArrayList<Integer> of siteIDs for the sites that are within
@@ -357,8 +357,8 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
             if (RunSARIC_ImageProcessor) {
 
                 // Main Switches
-                doImageProcessObservations = false;
-//                doImageProcessObservations = true;
+//                doImageProcessObservations = false;
+                doImageProcessObservations = true;
                 doImageProcessForecasts = true;
 //                doImageProcessForecasts = false;
 
@@ -403,8 +403,8 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
                     doTileFromWMTSService = false;
 //                    doTileFromWMTSService = true;
                     doObservationsTileFromWMTSService = false;
-//                    doForecastsTileFromWMTSService = true;
-                    doForecastsTileFromWMTSService = false;
+                    doForecastsTileFromWMTSService = true;
+//                    doForecastsTileFromWMTSService = false;
                     overwrite = false;
                     File dirIn;
                     dirIn = se.getFiles().getInputDataMetOfficeDataPointDir();
@@ -446,10 +446,12 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
         if (RunSARIC_CreatePointShapefile) {
             boolean doForecasts;
             boolean doObservations;
+            boolean overwrite;
             doForecasts = true;
             doObservations = true;
+            overwrite = false;
             SARIC_CreatePointShapefiles p;
-            p = new SARIC_CreatePointShapefiles(se, doForecasts, doObservations);
+            p = new SARIC_CreatePointShapefiles(se, doForecasts, doObservations, overwrite);
             p.run();
         }
 

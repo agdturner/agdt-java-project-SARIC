@@ -69,14 +69,14 @@ public class SARIC_Time extends SARIC_Date
     }
 
     /**
-     * Expects s to be of the form "YYYY-MM-DD" or "YYYY-MM-DDTHH_MM_SSZ"
+     * Expects s to be of the form "YYYY-MM-DD" or "YYYY-MM-DDTHH:MM:SSZ"
      *
      * @param s
      */
     public SARIC_Time(String s) {
-        this();
         String[] splitT;
         splitT = s.split("T");
+        //super(split[0]);
         String[] split;
         split = splitT[0].split("-");
         YEAR = new Integer(split[0]);
@@ -95,7 +95,7 @@ public class SARIC_Time extends SARIC_Date
         MINUTE = 0;
         SECOND = 0;
         if (splitT.length == 2) {
-            split = splitT[1].split("_");
+            split = splitT[1].split(":");
             s2 = split[0];
             if (s2.startsWith("0")) {
                 s2 = s2.substring(1);
@@ -161,6 +161,14 @@ public class SARIC_Time extends SARIC_Date
         return super.toString();
     }
     
+    public String toFormattedString() {
+        return toFormattedString(toString());
+    }
+    
+    public String toFormattedString(String unformattedString) {
+        return unformattedString.replaceAll(":", "_");
+    }
+    
     @Override
     public String toString() {
         int hour;
@@ -186,6 +194,7 @@ public class SARIC_Time extends SARIC_Date
             result += "0";
         }
         result += Integer.toString(second);
+        result += "Z";
         return result;
     }
 
