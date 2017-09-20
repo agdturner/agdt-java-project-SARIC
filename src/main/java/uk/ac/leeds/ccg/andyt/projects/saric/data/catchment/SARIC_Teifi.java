@@ -41,7 +41,7 @@ import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 import uk.ac.leeds.ccg.andyt.agdtgeotools.AGDT_Shapefile;
 import uk.ac.leeds.ccg.andyt.generic.io.Generic_StaticIO;
-import uk.ac.leeds.ccg.andyt.grids.core.Grids_AbstractGrid2DSquareCell.CellID;
+import uk.ac.leeds.ccg.andyt.grids.core.Grids_2D_ID_long;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.site.SARIC_Site;
 import uk.ac.leeds.ccg.andyt.vector.geometry.Vector_Envelope2D;
@@ -57,7 +57,7 @@ public class SARIC_Teifi extends SARIC_Catchment {
      * The intention is to use this to assign a rainfall estimate from Met
      * Office Data Point site forecasts.
      */
-    HashMap<CellID, SARIC_Site> siteMap;
+    HashMap<Grids_2D_ID_long, SARIC_Site> siteMap;
 
     protected SARIC_Teifi() {
     }

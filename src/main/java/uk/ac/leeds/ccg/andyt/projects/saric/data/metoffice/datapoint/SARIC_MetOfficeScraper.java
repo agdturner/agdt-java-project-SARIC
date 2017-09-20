@@ -1031,7 +1031,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
                             path += "/" + areaName
                                     + "/" + layerName
                                     + "/" + tileMatrixFormatted
-                                    + "_" + yearMonth
+                                    + "/" + yearMonth
                                     + "/" + dateString
                                     + "/" + timeFormatted
                                     + "/" + forecastTime;
