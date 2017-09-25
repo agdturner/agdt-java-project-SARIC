@@ -23,6 +23,7 @@ import uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Time;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Object;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.SARIC_MetOfficeScraper;
+import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.nimrod.SARIC_NIMRODDataHandler;
 
 /**
  * This is the main processor/controller for SARIC processing. Everything is
@@ -75,11 +76,12 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
             // Main switches
 //            RunProjectShapefiles = true;
 //            RunCatchmentViewer = true;
-            RunSARIC_MetOfficeScraper = true;
+//            RunSARIC_MetOfficeScraper = true;
 //            RunSARIC_ImageProcessor = true;
 //            RunSARIC_CreatePointShapefile = true;
 //            RunSARIC_DisplayShapefile = true;
 //            RunSARIC_DataForWASIM = true;
+            RunSARIC_ProcessNIMROD = true;
 
             /**
              * Run SARIC_MetOfficeScraper
@@ -466,6 +468,12 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
             p = new SARIC_DataForWASIM(se);
             p.run();
         }
+        
+        if (RunSARIC_ProcessNIMROD) {
+            SARIC_NIMRODDataHandler p;
+            p = new SARIC_NIMRODDataHandler(se);
+            p.run();
+        }
     }
 
     // Parameters
@@ -503,4 +511,5 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
     boolean RunSARIC_CreatePointShapefile = false;
     boolean RunSARIC_DisplayShapefile = false;
     boolean RunSARIC_DataForWASIM = false;
+    boolean RunSARIC_ProcessNIMROD = true;
 }

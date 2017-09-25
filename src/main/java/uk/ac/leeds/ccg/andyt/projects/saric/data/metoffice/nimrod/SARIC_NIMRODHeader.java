@@ -1,6 +1,7 @@
 package uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.nimrod;
 
 import java.io.DataInputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -384,141 +385,426 @@ public class SARIC_NIMRODHeader {
     String TitleOfField;
 
     /**
-     * The radar number for a single site image (set to zero for a radar composite).
+     * The radar number for a single site image (set to zero for a radar
+     * composite).
      */
     short RadarNumber;
-    
+
     /**
-     * The radar sites which have gone into forming a composite image. Each site is represented by a particular bit which is set to 1 if the site was available, and 0 if it was not. Radar site 1 will be represented by the least significant bit of element 109.
+     * The radar sites which have gone into forming a composite image. Each site
+     * is represented by a particular bit which is set to 1 if the site was
+     * available, and 0 if it was not. Radar site 1 will be represented by the
+     * least significant bit of element 109.
      */
     short RadarSites;
-    
+
     /**
-     * As element 110 for additional radar sites. This will only be required if the number of operational sites exceeds 16.
+     * As element 110 for additional radar sites. This will only be required if
+     * the number of operational sites exceeds 16.
      */
     short RadarSites2;
-    
+
     /**
      * Clutter map number.
      */
     short ClutterMapNumber;
-    
+
     /**
-     * 
+     * Calibration Type. (0=uncalibrated, 1=frontal, 2=showers, 3=rain shadow,
+     * 4=bright band ; the negatives of these values can be used to indicate a
+     * calibration which has subsequently been removed.
      */
-    
-    
-    
-    
-    
-    
-    
-    
+    short CalibrationType;
+
+    /**
+     * Bright band height (units of 10m).
+     */
+    short BrightBandHeight;
+
+    /**
+     * Bright band intensity. This is defined as the enhancement of the rainfall
+     * in the bright band relative to the rain beneath it.
+     */
+    short BrightBandIntensity;
+
+    /**
+     * Bright band test parameter 1. This is the percentage of sectors (24 in
+     * all) which have detected a possible bright band.
+     */
+    short BrightBandTestParameter1;
+
+    /**
+     * Bright band test parameter 2. This is the percentage of the sectors in
+     * entry 30 which agree with the bright band height of 28.
+     */
+    short BrightBandTestParameter2;
+
+    /**
+     * Infill Flag (for level 4.1)
+     */
+    short InfillFlag;
+
+    /**
+     * Stop Elevation (for level 4.1)
+     */
+    short StopElevation;
+
+    /**
+     * Sensor identifier (Satellite data)
+     */
+    short SensorIdentifier;
+
+    /**
+     * Meteosat identifier (currently 5 or 6)
+     */
+    short MeteosatIdentifier;
+
+    /**
+     * Availability of synop meteosat and forecast alphas in combined alphas
+     * field (e.g 111 all available, 100, only synop)
+     */
+    short AvailabilityOfSynopMeteosatAndForecastAlphasInCombinedAlphasField;
+
+    /**
+     * Period of interest for accumulation, average or probability (seconds).
+     * Only used when element 26 is set to +32767.
+     */
+    short PeriodOfInterestForAccumulationAverageOrProbability;
+
     private SARIC_NIMRODHeader() {
     }
 
-    public SARIC_NIMRODHeader(DataInputStream dis) {
+    public SARIC_NIMRODHeader(FileInputStream fis, DataInputStream dis) {
         try {
+            // i is effectively the element number of the header
+            int i;
+            i = 0;
             int FortranHousekeeping;
             FortranHousekeeping = dis.readInt();
             System.out.println("FortranHousekeeping " + FortranHousekeeping);
+            i++;
+            /**
+             * Read general header entries (Bytes 1 - 62, Element numbers 1 to
+             * 31).
+             */
             VT_year = dis.readShort();
+            System.out.println("VT_year " + VT_year);
+            i++;
             VT_month = dis.readShort();
+            System.out.println("VT_month " + VT_month);
+            i++;
             VT_day = dis.readShort();
+            System.out.println("VT_day " + VT_day);
+            i++;
             VT_hour = dis.readShort();
+            System.out.println("VT_hour " + VT_hour);
+            i++;
             VT_minute = dis.readShort();
+            System.out.println("VT_minute " + VT_minute);
+            i++;
             VT_second = dis.readShort();
+            System.out.println("VT_second " + VT_second);
+            i++;
             DT_year = dis.readShort();
+            System.out.println("DT_year " + DT_year);
+            i++;
             DT_month = dis.readShort();
+            System.out.println("DT_month " + DT_month);
+            i++;
             DT_day = dis.readShort();
+            System.out.println("DT_day " + DT_day);
+            i++;
             DT_hour = dis.readShort();
+            System.out.println("DT_hour " + DT_hour);
+            i++;
             DT_minute = dis.readShort();
+            System.out.println("DT_minute " + DT_minute);
+            i++;
             dataType = dis.readShort();
             System.out.println("dataType " + dataType);
+            i++;
             NumberOfBytesForEachDataElement = dis.readShort();
             System.out.println("NumberOfBytesForEachDataElement " + NumberOfBytesForEachDataElement);
+            i++;
             ExperimentNumber = dis.readShort();
             System.out.println("ExperimentNumber " + ExperimentNumber);
+            i++;
             HorizontalGridType = dis.readShort();
+            System.out.println("HorizontalGridType " + HorizontalGridType);
+            i++;
             nrows = dis.readShort();
             System.out.println("nrows " + nrows);
+            i++;
             ncols = dis.readShort();
             System.out.println("ncols " + ncols);
+            i++;
             HeaderFileReleaseNumber = dis.readShort();
+            System.out.println("HeaderFileReleaseNumber " + HeaderFileReleaseNumber);
+            i++;
             FieldCodeNumber = dis.readShort();
+            System.out.println("FieldCodeNumber " + FieldCodeNumber);
+            i++;
             VerticalCoordinateType = dis.readShort();
+            System.out.println("VerticalCoordinateType " + VerticalCoordinateType);
+            i++;
             VerticalCoordinateOfReferenceLevel = dis.readShort();
+            System.out.println("VerticalCoordinateOfReferenceLevel " + VerticalCoordinateOfReferenceLevel);
+            i++;
             NumberOfElementsOfDataSpecificInformationStartingAtElement60 = dis.readShort();
+            System.out.println("NumberOfElementsOfDataSpecificInformationStartingAtElement60 " + NumberOfElementsOfDataSpecificInformationStartingAtElement60);
+            i++;
             NumberOfElementsOfDataSpecificInformationStartingAtElement109 = dis.readShort();
+            System.out.println("NumberOfElementsOfDataSpecificInformationStartingAtElement109 " + NumberOfElementsOfDataSpecificInformationStartingAtElement109);
+            i++;
             LocationOfOriginOfData = dis.readShort();
+            System.out.println("LocationOfOriginOfData " + LocationOfOriginOfData);
+            i++;
             IntegerMissingDataValue = dis.readShort();
+            System.out.println("IntegerMissingDataValue " + IntegerMissingDataValue);
+            i++;
             PeriodOfInterestForAccumulationAverageOrProbabilityInMinutes = dis.readShort();
+            System.out.println("PeriodOfInterestForAccumulationAverageOrProbabilityInMinutes " + PeriodOfInterestForAccumulationAverageOrProbabilityInMinutes);
+            i++;
             NumberOfModelLevelsAvailableForThisParameter = dis.readShort();
+            System.out.println("NumberOfModelLevelsAvailableForThisParameter " + NumberOfModelLevelsAvailableForThisParameter);
+            i++;
             ProjectionBiaxialEllipsoid = dis.readShort();
+            System.out.println("ProjectionBiaxialEllipsoid " + ProjectionBiaxialEllipsoid);
+            i++;
             EnsembleMemberID = dis.readShort();
+            System.out.println("EnsembleMemberID " + EnsembleMemberID);
+            i++;
             OriginModelID = dis.readShort();
+            System.out.println("OriginModelID " + OriginModelID);
+            i++;
             LBPROC = dis.readShort();
+            System.out.println("LBPROC " + LBPROC);
+            i++;
+            /**
+             * Read general header entries (Bytes 63 - 174, Element numbers 32
+             * to 59).
+             */
             ValueOfVerticalCoordinate = dis.readFloat();
+            System.out.println("ValueOfVerticalCoordinate " + ValueOfVerticalCoordinate);
+            i++;
             ValueOfReferenceVerticalCoordinate = dis.readFloat();
+            System.out.println("ValueOfReferenceVerticalCoordinate " + ValueOfReferenceVerticalCoordinate);
+            i++;
             NorthingOrLatitudeOrStartLineOfFirstRowOfData = dis.readFloat();
+            System.out.println("NorthingOrLatitudeOrStartLineOfFirstRowOfData " + NorthingOrLatitudeOrStartLineOfFirstRowOfData);
+            i++;
             IntervalBetweenRows = dis.readFloat();
+            System.out.println("IntervalBetweenRows " + IntervalBetweenRows);
+            i++;
             EastingOrLongitudeOrStartPixelOfFirstPointOfFirstRowOfData = dis.readFloat();
+            System.out.println("EastingOrLongitudeOrStartPixelOfFirstPointOfFirstRowOfData " + EastingOrLongitudeOrStartPixelOfFirstPointOfFirstRowOfData);
+            i++;
             IntervalBetweenColumns = dis.readFloat();
+            System.out.println("IntervalBetweenColumns " + IntervalBetweenColumns);
+            i++;
             RealMissingDataValue = dis.readFloat();
+            System.out.println("RealMissingDataValue " + RealMissingDataValue);
+            i++;
             MKSScalingFactor = dis.readFloat();
+            System.out.println("MKSScalingFactor " + MKSScalingFactor);
+            i++;
             DataOffsetValue = dis.readFloat();
+            System.out.println("DataOffsetValue " + DataOffsetValue);
+            i++;
             XOffsetOfModelDataFromGridpoints = dis.readFloat();
+            System.out.println("XOffsetOfModelDataFromGridpoints " + XOffsetOfModelDataFromGridpoints);
+            i++;
             YOffsetOfModelDataFromGridpoints = dis.readFloat();
+            System.out.println("YOffsetOfModelDataFromGridpoints " + YOffsetOfModelDataFromGridpoints);
+            i++;
             StandardLatitudeOrLatitudeOfTrueOrigin = dis.readFloat();
+            System.out.println("StandardLatitudeOrLatitudeOfTrueOrigin " + StandardLatitudeOrLatitudeOfTrueOrigin);
+            i++;
             StandardLongitudeOrLongitudeOfTrueOrigin = dis.readFloat();
+            System.out.println("StandardLongitudeOrLongitudeOfTrueOrigin " + StandardLongitudeOrLongitudeOfTrueOrigin);
+            i++;
             EastinOfTrueOrigin = dis.readFloat();
+            System.out.println("EastinOfTrueOrigin " + EastinOfTrueOrigin);
+            i++;
             NorthingOfTrueOrigin = dis.readFloat();
+            System.out.println("NorthingOfTrueOrigin " + NorthingOfTrueOrigin);
+            i++;
             ScaleFactorOnCentralMeridian = dis.readFloat();
+            System.out.println("ScaleFactorOnCentralMeridian " + ScaleFactorOnCentralMeridian);
+            i++;
             ThresholdValue = dis.readFloat();
-            dis.readFloat();
-            dis.readFloat();
-            NorthingOrLatitudeOfTopLeftCornerOfTheImage = dis.readFloat();
-            EastingOrLongitudeOfTopLeftCornerOfTheImage = dis.readFloat();
-            NorthingOrLatitudeOfTopRightCornerOfTheImage = dis.readFloat();
-            EastingOrLongitudeOfTopRightCornerOfTheImage = dis.readFloat();
-            NorthingOrLatitudeOfBottomRightCornerOfTheImage = dis.readFloat();
-            EastingOrLongitudeOfBottomRightCornerOfTheImage = dis.readFloat();
-            NorthingOrLatitudeOfBottomLeftCornerOfTheImage = dis.readFloat();
-            EastingOrLongitudeOfBottomLeftCornerOfTheImage = dis.readFloat();
-            SatelliteCalibrationCoefficient = dis.readFloat();
-            SpaceCountSatelliteData = dis.readFloat();
-            DuctingIndex = dis.readFloat();
-            ElevationAngle = dis.readFloat();
-            NeighbourhoodSizeInKmForProbabilities = dis.readFloat();
-            RadiusOfInterestInKmForProbabilities = dis.readFloat();
-            RecursiveFilterStrengthForProbabilities = dis.readFloat();
-            FuzzyThresholdParameter = dis.readFloat();
-            FuzzyDurationOfOccurrence = dis.readFloat();
-            for (int i = 0; i < 28; i++) {
+            System.out.println("ThresholdValue " + ThresholdValue);
+            i++;
+            for (int j = 0; j < 11; j++) {
                 dis.readFloat();
+                i++;
             }
-            int stringLength;
-            char[] c;
-            stringLength = 4;
-            c = new char[stringLength];
-            for (int i = 0; i < stringLength; i++) {
-                c[i] = dis.readChar();
+            System.out.println("Element Number " + i);
+            /**
+             * Read data specific header entries (Bytes 175-354, Element numbers
+             * 60 to 104). These elements were previously used for a colour
+             * table.
+             */
+            NorthingOrLatitudeOfTopLeftCornerOfTheImage = dis.readFloat();
+            System.out.println("NorthingOrLatitudeOfTopLeftCornerOfTheImage " + NorthingOrLatitudeOfTopLeftCornerOfTheImage);
+            i++;
+            EastingOrLongitudeOfTopLeftCornerOfTheImage = dis.readFloat();
+            System.out.println("EastingOrLongitudeOfTopLeftCornerOfTheImage " + EastingOrLongitudeOfTopLeftCornerOfTheImage);
+            i++;
+            NorthingOrLatitudeOfTopRightCornerOfTheImage = dis.readFloat();
+            System.out.println("NorthingOrLatitudeOfTopRightCornerOfTheImage " + NorthingOrLatitudeOfTopRightCornerOfTheImage);
+            i++;
+            EastingOrLongitudeOfTopRightCornerOfTheImage = dis.readFloat();
+            System.out.println("EastingOrLongitudeOfTopRightCornerOfTheImage " + EastingOrLongitudeOfTopRightCornerOfTheImage);
+            i++;
+            NorthingOrLatitudeOfBottomRightCornerOfTheImage = dis.readFloat();
+            System.out.println("NorthingOrLatitudeOfBottomRightCornerOfTheImage " + NorthingOrLatitudeOfBottomRightCornerOfTheImage);
+            i++;
+            EastingOrLongitudeOfBottomRightCornerOfTheImage = dis.readFloat();
+            System.out.println("EastingOrLongitudeOfBottomRightCornerOfTheImage " + EastingOrLongitudeOfBottomRightCornerOfTheImage);
+            i++;
+            NorthingOrLatitudeOfBottomLeftCornerOfTheImage = dis.readFloat();
+            System.out.println("NorthingOrLatitudeOfBottomLeftCornerOfTheImage " + NorthingOrLatitudeOfBottomLeftCornerOfTheImage);
+            i++;
+            EastingOrLongitudeOfBottomLeftCornerOfTheImage = dis.readFloat();
+            System.out.println("EastingOrLongitudeOfBottomLeftCornerOfTheImage " + EastingOrLongitudeOfBottomLeftCornerOfTheImage);
+            i++;
+            SatelliteCalibrationCoefficient = dis.readFloat();
+            System.out.println("SatelliteCalibrationCoefficient " + SatelliteCalibrationCoefficient);
+            i++;
+            SpaceCountSatelliteData = dis.readFloat();
+            System.out.println("SpaceCountSatelliteData " + SpaceCountSatelliteData);
+            i++;
+            DuctingIndex = dis.readFloat();
+            System.out.println("DuctingIndex " + DuctingIndex);
+            i++;
+            ElevationAngle = dis.readFloat();
+            System.out.println("ElevationAngle " + ElevationAngle);
+            i++;
+            NeighbourhoodSizeInKmForProbabilities = dis.readFloat();
+            System.out.println("NeighbourhoodSizeInKmForProbabilities " + NeighbourhoodSizeInKmForProbabilities);
+            i++;
+            RadiusOfInterestInKmForProbabilities = dis.readFloat();
+            System.out.println("RadiusOfInterestInKmForProbabilities " + RadiusOfInterestInKmForProbabilities);
+            i++;
+            RecursiveFilterStrengthForProbabilities = dis.readFloat();
+            System.out.println("RecursiveFilterStrengthForProbabilities " + RecursiveFilterStrengthForProbabilities);
+            i++;
+            FuzzyThresholdParameter = dis.readFloat();
+            System.out.println("FuzzyThresholdParameter " + FuzzyThresholdParameter);
+            i++;
+            FuzzyDurationOfOccurrence = dis.readFloat();
+            System.out.println("FuzzyDurationOfOccurrence " + FuzzyDurationOfOccurrence);
+            i++;
+            for (int j = 0; j < 28; j++) {
+                dis.readFloat();
+                i++;
             }
-            UnitsOfTheField = new String(c);
-            System.out.println("UnitsOfTheField " + UnitsOfTheField);
-            stringLength = 12;
-            c = new char[stringLength];
-            for (int i = 0; i < stringLength; i++) {
-                c[i] = dis.readChar();
+            System.out.println("Element Number " + i);
+            /**
+             * Read Character header entries (Bytes 355-410, Element numbers 105
+             * to 107).
+             */
+            try {
+                //fis.skip(358L);
+                int stringLength;
+                char[] c;
+                stringLength = 8;
+                c = new char[stringLength];
+                for (int j = 0; j < stringLength; j++) {
+                    c[j] = (char) fis.read();
+                }
+                UnitsOfTheField = new String(c);
+                System.out.println("UnitsOfTheField " + UnitsOfTheField);
+                stringLength = 24;
+                c = new char[stringLength];
+                for (int j = 0; j < stringLength; j++) {
+                    c[j] = (char) fis.read();
+                }
+                SourceOfTheData = new String(c);
+                System.out.println("SourceOfTheData " + SourceOfTheData);
+                c = new char[stringLength];
+                for (int j = 0; j < stringLength; j++) {
+                    c[j] = (char) fis.read();
+                }
+                TitleOfField = new String(c);
+            } catch (IOException ex) {
+                Logger.getLogger(SARIC_NIMRODHeader.class.getName()).log(Level.SEVERE, null, ex);
             }
-            SourceOfTheData = new String(c);
-            System.out.println("SourceOfTheData " + SourceOfTheData);
-            c = new char[stringLength];
-            for (int i = 0; i < stringLength; i++) {
-                c[i] = dis.readChar();
-            }
-            TitleOfField = new String(c);
             System.out.println("TitleOfField " + TitleOfField);
+            System.out.println("Element Number " + i);
+            i += 3;
+            /**
+             * Read data specific header entries (Bytes 411-512, Element numbers
+             * 108 to 159). Table 1: Radar-specific entries.
+             */
+            RadarNumber = dis.readShort();
+            System.out.println("RadarNumber " + RadarNumber);
+            i++;
+            RadarSites = dis.readShort();
+            System.out.println("RadarSites " + RadarSites);
+            i++;
+            RadarSites2 = dis.readShort();
+            System.out.println("RadarSites2 " + RadarSites2);
+            i++;
+            ClutterMapNumber = dis.readShort();
+            System.out.println("ClutterMapNumber " + ClutterMapNumber);
+            i++;
+            System.out.println("Element Number " + i);
+            CalibrationType = dis.readShort();
+            System.out.println("CalibrationType " + CalibrationType);
+            i++;
+            BrightBandHeight = dis.readShort();
+            System.out.println("BrightBandHeight " + BrightBandHeight);
+            i++;
+            BrightBandIntensity = dis.readShort();
+            System.out.println("BrightBandIntensity " + BrightBandIntensity);
+            i++;
+            BrightBandTestParameter1 = dis.readShort();
+            System.out.println("BrightBandTestParameter1 " + BrightBandTestParameter1);
+            i++;
+            BrightBandTestParameter2 = dis.readShort();
+            System.out.println("BrightBandTestParameter2 " + BrightBandTestParameter2);
+            i++;
+            InfillFlag = dis.readShort();
+            System.out.println("InfillFlag " + InfillFlag);
+            i++;
+            StopElevation = dis.readShort();
+            System.out.println("StopElevation " + StopElevation);
+            i++;
+            System.out.println("Element Number " + i);
+            for (int j = 0; j < 13; j++) {
+                System.out.println(dis.readShort());
+                i++;
+            }
+            System.out.println("Element Number " + i);
+            for (int j = 0; j < 8; j++) {
+                System.out.println(NorthingOrLatitudeOfTopLeftCornerOfTheImage);
+                System.out.println(dis.readShort());
+                i++;
+            }
+            System.out.println("Element Number " + i);
+            SensorIdentifier = dis.readShort();
+            System.out.println("SensorIdentifier " + SensorIdentifier);
+            i++;
+            MeteosatIdentifier = dis.readShort();
+            System.out.println("MeteosatIdentifier " + MeteosatIdentifier);
+            i++;
+            AvailabilityOfSynopMeteosatAndForecastAlphasInCombinedAlphasField = dis.readShort();
+            System.out.println("AvailabilityOfSynopMeteosatAndForecastAlphasInCombinedAlphasField " + AvailabilityOfSynopMeteosatAndForecastAlphasInCombinedAlphasField);
+            i++;
+            System.out.println("Element Number " + i);
+            for (int j = 0; j < 16; j++) {
+                System.out.println(dis.readShort());
+                i++;
+            }
+            System.out.println("Element Number " + i);
+            PeriodOfInterestForAccumulationAverageOrProbability = dis.readShort();
+            System.out.println("PeriodOfInterestForAccumulationAverageOrProbability " + PeriodOfInterestForAccumulationAverageOrProbability);
+            i++;
+            System.out.println("Element Number " + i);
+            FortranHousekeeping = dis.readShort();
+            System.out.println("FortranHousekeeping " + FortranHousekeeping);
         } catch (IOException ex) {
             Logger.getLogger(SARIC_NIMRODHeader.class.getName()).log(Level.SEVERE, null, ex);
         }
