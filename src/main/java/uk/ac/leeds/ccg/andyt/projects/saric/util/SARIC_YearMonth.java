@@ -20,30 +20,46 @@ package uk.ac.leeds.ccg.andyt.projects.saric.util;
 
 import java.io.Serializable;
 import java.util.Calendar;
+import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
+import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Object;
+import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Strings;
 
 /**
  *
  * @author geoagdt
  */
-public class SARIC_YearMonth implements Serializable, Comparable {
+public class SARIC_YearMonth extends SARIC_Object implements Serializable, Comparable {
 
+    // For convenience
+    protected transient SARIC_Strings ss;
+    
     protected final Calendar calendar;
     protected int YEAR;
     protected int MONTH;
 
-    public SARIC_YearMonth() {
+    protected SARIC_YearMonth() {
+        calendar = Calendar.getInstance();
+    }
+    
+    public SARIC_YearMonth(SARIC_Environment se) {
+        super(se);
+        ss = se.getStrings();
         calendar = Calendar.getInstance();
     }
 
-    public SARIC_YearMonth(SARIC_YearMonth t) {
-        this(t.calendar.get(Calendar.YEAR),
+    public SARIC_YearMonth(
+            SARIC_Environment se,
+            SARIC_YearMonth t) {
+        this(se,
+                t.calendar.get(Calendar.YEAR),
                 t.calendar.get(Calendar.MONTH));
     }
 
     public SARIC_YearMonth(
+            SARIC_Environment se,
             int year,
             int month) {
-        this();
+        this(se);
         calendar.set(
                 Calendar.YEAR,
                 year);
@@ -56,10 +72,13 @@ public class SARIC_YearMonth implements Serializable, Comparable {
     /**
      * Expects s to be of the form "YYYY-MM"
      *
+     * @param se
      * @param s
      */
-    public SARIC_YearMonth(String s) {
-        this();
+    public SARIC_YearMonth(
+            SARIC_Environment se,
+            String s) {
+        this(se);
         String[] split;
         split = s.split("-");
         YEAR = new Integer(split[0]);
@@ -117,22 +136,40 @@ public class SARIC_YearMonth implements Serializable, Comparable {
     }
 
     /**
+     * Assume the year has 4 digits.
+     * @return 
+     */
+    public String getYYYY() {
+        return Integer.toString(YEAR);
+    }
+
+    /**
+     * Assume the year has 4 digits.
+     * @return 
+     */
+    public String getMM() {
+        String result = "";
+        if (MONTH < 10) {
+            result = ss.symbol_0;
+        }
+        result += Integer.toString(MONTH);
+        return result;
+    }
+    
+    /**
      *
      * @return String representing year and month in YYYY-MM format
      */
    @Override
     public String toString() {
+        return toString("-");
+    }
+
+    public String toString(String delimeter) {
         String result;
-        int year;
-        year = calendar.get(Calendar.YEAR);
-        int month;
-        month = calendar.get(Calendar.MONTH);
-        result = Integer.toString(year);
-        result += "-";
-        if (month < 10) {
-            result += "0";
-        }
-        result += Integer.toString(month);
+        result = getYYYY();
+        result += delimeter;
+        result += getMM();
         return result;
     }
 

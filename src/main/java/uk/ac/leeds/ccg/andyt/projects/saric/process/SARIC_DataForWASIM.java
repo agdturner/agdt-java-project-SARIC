@@ -166,7 +166,7 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
         long ID;
         ID = 0;
         SARIC_Time t0;
-        t0 = new SARIC_Time(day);
+        t0 = new SARIC_Time(se, day);
         SARIC_Time t;
         t = new SARIC_Time(t0);
 
@@ -338,7 +338,7 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
         SARIC_Time t0;
         for (int i = 0; i < files.length; i++) {
             System.out.println(files[i]);
-            t0 = new SARIC_Time(files[i]);
+            t0 = new SARIC_Time(se, files[i]);
             if (t1.equals(t0)) {
                 System.out.println(t1);
                 dir2 = new File(
@@ -389,7 +389,7 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
         // Load each grid
         for (int i = 0; i < files.length; i++) {
             System.out.println(files[i]);
-            t = new SARIC_Time(files[i]);
+            t = new SARIC_Time(se, files[i]);
             System.out.println(t);
             dir2 = new File(
                     dir,

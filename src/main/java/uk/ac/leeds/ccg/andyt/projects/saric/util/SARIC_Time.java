@@ -20,6 +20,7 @@ package uk.ac.leeds.ccg.andyt.projects.saric.util;
 
 import java.io.Serializable;
 import java.util.Calendar;
+import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 
 public class SARIC_Time extends SARIC_Date
         implements Serializable, Comparable {
@@ -28,12 +29,17 @@ public class SARIC_Time extends SARIC_Date
     private int MINUTE;
     private int SECOND;
 
-    public SARIC_Time() {
+    protected SARIC_Time() {
         super();
     }
 
+    public SARIC_Time(SARIC_Environment se) {
+        super(se);
+    }
+
     public SARIC_Time(SARIC_Time t) {
-        this(t.calendar.get(Calendar.YEAR),
+        this(t.se,
+                t.calendar.get(Calendar.YEAR),
                 t.calendar.get(Calendar.MONTH),
                 t.calendar.get(Calendar.DAY_OF_MONTH),
                 t.calendar.get(Calendar.HOUR_OF_DAY),
@@ -42,22 +48,27 @@ public class SARIC_Time extends SARIC_Date
     }
 
     public SARIC_Time(SARIC_Date d) {
-        this(d.calendar.get(Calendar.YEAR),
+        this(d.se,
+                d.calendar.get(Calendar.YEAR),
                 d.calendar.get(Calendar.MONTH),
                 d.calendar.get(Calendar.DAY_OF_MONTH),
-                d.calendar.get(Calendar.HOUR_OF_DAY),
-                d.calendar.get(Calendar.MINUTE),
-                d.calendar.get(Calendar.SECOND));
+                0,
+                0,
+                0);
+//                d.calendar.get(Calendar.HOUR_OF_DAY),
+//                d.calendar.get(Calendar.MINUTE),
+//                d.calendar.get(Calendar.SECOND));
     }
 
     public SARIC_Time(
+            SARIC_Environment se,
             int year,
             int month,
             int dayOfMonth,
             int hourOfDay,
             int minuteOfHour,
             int secondOfMinute) {
-        this();
+        this(se);
         calendar.set(
                 year,
                 month,
@@ -71,23 +82,29 @@ public class SARIC_Time extends SARIC_Date
     /**
      * Expects s to be of the form "YYYY-MM-DD" or "YYYY-MM-DDTHH:MM:SSZ"
      *
+     * @param se
      * @param s
      */
-    public SARIC_Time(String s) {
+    public SARIC_Time(
+            SARIC_Environment se,
+            String s) {
+        super(se);
         String[] splitT;
-        splitT = s.split("T");
+        splitT = s.split(ss.string_T);
         //super(split[0]);
         String[] split;
-        split = splitT[0].split("-");
+        split = splitT[0].split(ss.symbol_minus);
         YEAR = new Integer(split[0]);
+        String s_0;
+        s_0 = ss.symbol_0;
         String s2;
         s2 = split[1];
-        if (s2.startsWith("0")) {
+        if (s2.startsWith(s_0)) {
             s2 = s2.substring(1);
         }
         MONTH = new Integer(s2);
         s2 = split[2];
-        if (s2.startsWith("0")) {
+        if (s2.startsWith(s_0)) {
             s2 = s2.substring(1);
         }
         DAY_OF_MONTH = new Integer(s2);
@@ -95,14 +112,14 @@ public class SARIC_Time extends SARIC_Date
         MINUTE = 0;
         SECOND = 0;
         if (splitT.length == 2) {
-            split = splitT[1].split(":");
+            split = splitT[1].split(ss.symbol_colon);
             s2 = split[0];
-            if (s2.startsWith("0")) {
+            if (s2.startsWith(s_0)) {
                 s2 = s2.substring(1);
             }
             HOUR_OF_DAY = new Integer(s2);
             s2 = split[1];
-            if (s2.startsWith("0")) {
+            if (s2.startsWith(s_0)) {
                 s2 = s2.substring(1);
             }
             MINUTE = new Integer(s2);
@@ -150,51 +167,112 @@ public class SARIC_Time extends SARIC_Date
         MINUTE = calendar.get(Calendar.MINUTE);
         SECOND = calendar.get(Calendar.SECOND);
     }
-    
+
     public SARIC_Date getDate() {
         SARIC_Date result;
         result = new SARIC_Date(this);
         return result;
     }
-    
+
     public String getDateString() {
         return super.toString();
     }
-    
-    public String toFormattedString() {
-        return toFormattedString(toString());
+
+    /**
+     *
+     * @return YYYY-MM-DDTHH:MM:SSZ
+     */
+    public String toFormattedString0() {
+        return toString(
+                ss.symbol_minus,
+                ss.string_T,
+                ss.symbol_colon,
+                ss.string_Z);
     }
-    
-    public String toFormattedString(String unformattedString) {
-        return unformattedString.replaceAll(":", "_");
+
+    /**
+     *
+     * @return YYYY-MM-DDTHH_MM_SSZ
+     */
+    public String toFormattedString1() {
+        return toString(
+                ss.symbol_minus,
+                ss.string_T,
+                ss.symbol_underscore,
+                ss.string_Z);
     }
-    
+
+    public String toFormattedString2() {
+        return toString(
+                ss.emptyString,
+                ss.emptyString,
+                ss.emptyString,
+                ss.emptyString);
+    }
+
+    public String getYYYYMMDDHHMM() {
+        String result;
+        result = getYYYY() + super.getMM() + getDD() + getHH() + getMM();
+        return result;
+    }
+
+    public String getHH() {
+        String result = "";
+        if (HOUR_OF_DAY < 10) {
+            result += ss.symbol_0;
+        }
+        result += Integer.toString(HOUR_OF_DAY);
+        return result;
+    }
+
+    /**
+     * Not to be confused with SARIC_YearMonth.getMM() which gets the months
+     * rather than the minutes!
+     *
+     * @return
+     */
+    @Override
+    public String getMM() {
+        String result = "";
+        if (MINUTE < 10) {
+            result += ss.symbol_0;
+        }
+        result += Integer.toString(MINUTE);
+        return result;
+    }
+
+    public String getSS() {
+        String result = "";
+        if (SECOND < 10) {
+            result += ss.symbol_0;
+        }
+        result += Integer.toString(SECOND);
+        return result;
+    }
+
     @Override
     public String toString() {
-        int hour;
-        hour = calendar.get(Calendar.HOUR_OF_DAY);
-        int minute;
-        minute = calendar.get(Calendar.MINUTE);
-        int second;
-        second = calendar.get(Calendar.SECOND);
+        return toString(
+                ss.symbol_minus,
+                ss.string_T,
+                ss.symbol_colon,
+                ss.emptyString);
+    }
+
+    public String toString(
+            String dateComponentDelimitter,
+            String dateTimeDivider,
+            String timeComponentDivider,
+            String resultEnding) {
         String result;
-        result = super.toString();
-        result += "T";
-        if (hour < 10) {
-            result += "0";
-        }
-        result += Integer.toString(hour);
-        result += ":";
-        if (minute < 10) {
-            result += "0";
-        }
-        result += Integer.toString(minute);
-        result += ":";
-        if (second < 10) {
-            result += "0";
-        }
-        result += Integer.toString(second);
-        result += "Z";
+        result = super.toString(dateComponentDelimitter);
+        result += dateTimeDivider;
+        result += getHH();
+        result += timeComponentDivider;
+        result += getMM();
+        result += timeComponentDivider;
+        result += getSS();
+        result += resultEnding;
         return result;
     }
 

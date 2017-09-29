@@ -24,14 +24,32 @@ package uk.ac.leeds.ccg.andyt.projects.saric.core;
  */
 public class SARIC_Strings {
 
+    // Empty String
+    public final String emptyString = "";
+    
     // Symbols
-    String symbol_ampersand;
-    String symbol_dot;
-    String symbol_equals;
-    String string_datatype;
-    String symbol_backslash;
-    String symbol_colon;
-    String symbol_underscore;
+    public final String symbol_0 = "0";
+    public final String symbol_1 = "1";
+    public final String symbol_2 = "2";
+    public final String symbol_3 = "3";
+    public final String symbol_4 = "4";
+    public final String symbol_5 = "5";
+    public final String symbol_6 = "6";
+    public final String symbol_7 = "7";
+    public final String symbol_8 = "8";
+    public final String symbol_9 = "9";
+    public final String symbol_ampersand = "&";
+    public final String symbol_dot = ".";
+    public final String symbol_equals = "=";
+    public final String symbol_minus = "-";
+    public final String symbol_questionmark = "?";
+    public final String symbol_backslash = "/";
+    public final String symbol_colon = ":";
+    public final String symbol_underscore = "_";
+    // For alphabet upper and lower case
+    public final String string_T = "T";
+    public final String string_Z = "Z";
+    
     // Normal strings listed alphabetically
     String string_3hourly;
     String string_all;
@@ -42,6 +60,7 @@ public class SARIC_Strings {
     String string_config;
     String string_daily;
     String string_DataPoint;
+    String string_datatype;
     String string_Forecasts;
     String string_Generated;
     String string_hourly;
@@ -56,7 +75,6 @@ public class SARIC_Strings {
     String string_Observations;
     String string_Precipitation_Rate;
     String string_png;
-    String symbol_questionmark;
     String string_RADAR_UK_Composite_Highres;
     String string_res;
     String string_site;
@@ -71,57 +89,6 @@ public class SARIC_Strings {
     String string_wxobs;
     String string_xml;
 
-    // Special symbols
-    public String getSymbol_ampersand() {
-        if (symbol_ampersand == null) {
-            symbol_ampersand = "&";
-        }
-        return symbol_ampersand;
-    }
-
-    public String getSymbol_backslash() {
-        if (symbol_backslash == null) {
-            symbol_backslash = "/";
-        }
-        return symbol_backslash;
-    }
-
-    public String getSymbol_colon() {
-        if (symbol_colon == null) {
-            symbol_colon = ":";
-        }
-        return symbol_colon;
-    }
-
-    public String getSymbol_dot() {
-        if (symbol_dot == null) {
-            symbol_dot = ".";
-        }
-        return symbol_dot;
-    }
-
-    public String getSymbol_equals() {
-        if (symbol_equals == null) {
-            symbol_equals = "=";
-        }
-        return symbol_equals;
-    }
-
-    public String getSymbol_questionmark() {
-        if (symbol_questionmark == null) {
-            symbol_questionmark = "?";
-        }
-        return symbol_questionmark;
-    }
-
-    public String getSymbol_underscore() {
-        if (symbol_underscore == null) {
-            symbol_underscore = "_";
-        }
-        return symbol_underscore;
-    }
-
-    // Strings
     public String getString_3hourly() {
         if (string_3hourly == null) {
             string_3hourly = "3" + getString_hourly();

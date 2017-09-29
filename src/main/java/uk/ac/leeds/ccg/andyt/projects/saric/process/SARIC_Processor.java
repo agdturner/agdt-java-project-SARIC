@@ -97,7 +97,7 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
                 t = new Thread(p);
                 t.start();
             }
-            
+
             /**
              * Run SARIC_MetOfficeScraper
              */
@@ -462,16 +462,23 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
             p = new SARIC_DisplayShapefile(se);
             p.run();
         }
-        
+
         if (RunSARIC_DataForWASIM) {
             SARIC_DataForWASIM p;
             p = new SARIC_DataForWASIM(se);
             p.run();
         }
-        
+
         if (RunSARIC_ProcessNIMROD) {
+            doWissey = true;
+//            doWissey = false;
+            doTeifi = true;
+//            doTeifi = false;
             SARIC_NIMRODDataHandler p;
-            p = new SARIC_NIMRODDataHandler(se);
+            p = new SARIC_NIMRODDataHandler(
+                    se,
+                    doWissey,
+                    doTeifi);
             p.run();
         }
     }

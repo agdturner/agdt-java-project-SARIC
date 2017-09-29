@@ -86,13 +86,14 @@ public class SARIC_MetOfficeSiteXMLSAXHandler extends DefaultHandler {
         if (rawName.equalsIgnoreCase("DV")) {
             String time;
             time = attributes.getValue("dataDate");
-            t0 = new SARIC_Time(time.replaceAll(":", "_"));
+            t0 = new SARIC_Time(se, time.replaceAll(":", "_"));
+            //t0 = new SARIC_Time(se, time);
         }
         if (rawName.equalsIgnoreCase("Period")) {
             String time;
             time = attributes.getValue("value");
             SARIC_Time t;
-            t1 = new SARIC_Time(time.substring(0, time.length() - 1));
+            t1 = new SARIC_Time(se, time.substring(0, time.length() - 1));
             SARIC_Time t00;
             t00 = new SARIC_Time(t0);
             t00.setHourOfDay(0);

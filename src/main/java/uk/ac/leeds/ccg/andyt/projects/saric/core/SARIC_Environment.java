@@ -48,7 +48,7 @@ public class SARIC_Environment {
     public SARIC_Environment(String dataDir) {
         ss = new SARIC_Strings();
         sf = new SARIC_Files(ss,dataDir);
-        time = new SARIC_Time();
+        time = new SARIC_Time(this);
         metOfficeParameters = new SARIC_MetOfficeParameters();
         ge = new Grids_Environment();
         ve = new Vector_Environment();

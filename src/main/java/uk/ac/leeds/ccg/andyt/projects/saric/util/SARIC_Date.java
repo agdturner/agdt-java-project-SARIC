@@ -20,6 +20,7 @@ package uk.ac.leeds.ccg.andyt.projects.saric.util;
 
 import java.io.Serializable;
 import java.util.Calendar;
+import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 
 /**
  *
@@ -29,21 +30,28 @@ public class SARIC_Date extends SARIC_YearMonth implements Serializable, Compara
 
     protected int DAY_OF_MONTH;
 
-    public SARIC_Date() {
+    protected SARIC_Date(){
         super();
     }
-
-    public SARIC_Date(SARIC_Date t) {
-        this(t.calendar.get(Calendar.YEAR),
-                t.calendar.get(Calendar.MONTH),
-                t.calendar.get(Calendar.DAY_OF_MONTH));
+    
+    public SARIC_Date(SARIC_Environment se) {
+        super(se);
     }
 
     public SARIC_Date(
+            SARIC_Date d) {
+        this(d.se,
+                d.calendar.get(Calendar.YEAR),
+                d.calendar.get(Calendar.MONTH),
+                d.calendar.get(Calendar.DAY_OF_MONTH));
+    }
+
+    public SARIC_Date(
+            SARIC_Environment se,
             int year,
             int month,
             int dayOfMonth) {
-        this();
+        this(se);
         calendar.set(
                 year,
                 month,
@@ -54,10 +62,13 @@ public class SARIC_Date extends SARIC_YearMonth implements Serializable, Compara
     /**
      * Expects s to be of the form "YYYY-MM-DD"
      *
+     * @param se
      * @param s
      */
-    public SARIC_Date(String s) {
-        this();
+    public SARIC_Date(
+            SARIC_Environment se,
+            String s) {
+        this(se);
         String[] split;
         split = s.split("-");
         YEAR = new Integer(split[0]);
@@ -114,20 +125,38 @@ public class SARIC_Date extends SARIC_YearMonth implements Serializable, Compara
         return super.toString();
     }
 
-    @Override
-    public String toString() {
-        String result;
-        int day;
-        day = calendar.get(Calendar.DAY_OF_MONTH);
-        result = getYearMonth();
-        result += "-";
-        if (day < 10) {
-            result += "0";
+    public String getDD(){
+        String result = "";
+        if (DAY_OF_MONTH < 10) {
+            result += ss.symbol_0;
         }
-        result += Integer.toString(day);
+        result += Integer.toString(DAY_OF_MONTH);
         return result;
     }
+    
+    /**
+     * @return A String representation of this in the format YYYY-MM-DD.
+     */
+    @Override
+    public String toString() {
+        return toString("-");
+    }
 
+    /**
+     * @param dateComponentDelimitter String used to separateComponents of
+     * the date.
+     * @return A String representation of this in the format YYYY-MM-DD where
+     * the - is replaced by dateComponentDelimitter.
+     */
+    @Override
+    public String toString(String dateComponentDelimitter) {
+        String result;
+        result = super.toString(dateComponentDelimitter);
+        result += dateComponentDelimitter;
+        result += getDD();
+        return result;
+    }
+    
     @Override
     public boolean equals(Object o) {
         if (o instanceof SARIC_Time) {

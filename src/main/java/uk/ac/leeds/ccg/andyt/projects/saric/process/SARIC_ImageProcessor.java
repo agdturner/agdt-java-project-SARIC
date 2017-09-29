@@ -57,6 +57,7 @@ import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
 import uk.ac.leeds.ccg.andyt.projects.saric.util.SARIC_Date;
 import uk.ac.leeds.ccg.andyt.projects.saric.util.SARIC_Time;
 import uk.ac.leeds.ccg.andyt.projects.saric.util.SARIC_YearMonth;
+import uk.ac.leeds.ccg.andyt.projects.saric.visualisation.SARIC_Colour;
 import uk.ac.leeds.ccg.andyt.vector.geometry.Vector_Envelope2D;
 
 /**
@@ -140,10 +141,14 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
         gp._Grid2DSquareCellDoubleFactory = gf;
     }
 
+    @Override
     public void run() {
 
+        SARIC_Colour sc;
+        sc = new SARIC_Colour(se);
+        
         TreeMap<Double, Color> colorMap;
-        colorMap = getColorMap();
+        colorMap = sc.getColorMap();
         Color noDataValueColor;
         noDataValueColor = Color.BLACK;
 
@@ -191,7 +196,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
             TreeSet<SARIC_Date> dates0;
             dates0 = new TreeSet<>();
             for (int i = 0; i < list.length; i++) {
-                dates0.add(new SARIC_Date(list[i]));
+                dates0.add(new SARIC_Date(se, list[i]));
             }
             SARIC_Date date0;
             String time0;
@@ -307,7 +312,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                                         indir2,
                                         dirname);
                                 String filename;
-                                filename = siteID + ss.getString_3hourly() + ss.getSymbol_dot() + dataType;
+                                filename = siteID + ss.getString_3hourly() + ss.symbol_dot + dataType;
                                 File f;
                                 f = new File(
                                         indir2,
@@ -535,14 +540,14 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
         indirs0 = indir0.listFiles();
         for (int i = 0; i < indirs0.length; i++) {
             s = indirs0[i].getName();
-            ym = new SARIC_YearMonth(s);
+            ym = new SARIC_YearMonth(se, s);
             dates = new TreeSet<>();
             ymDates.put(ym, dates);
             indir1 = new File(indir0, s);
             indirs1 = indir1.listFiles();
             // initialise outdirs
             for (int j = 0; j < indirs1.length; j++) {
-                dates.add(new SARIC_Date(indirs1[j].getName().split("T")[0]));
+                dates.add(new SARIC_Date(se, indirs1[j].getName().split("T")[0]));
             }
         }
 
@@ -644,7 +649,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                                         + "Input directory given by " + indirs0[j] + " is not a directory.");
                             } else {
                                 indirname2 = indirs0[j].getName();
-                                time0 = new SARIC_Time(indirname2);
+                                time0 = new SARIC_Time(se, indirname2);
                                 for (int k = 0; k <= 36; k += 3) {
                                     time1 = new SARIC_Time(time0);
                                     time1.addHours(k);
@@ -1155,14 +1160,14 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
         indirs0 = indir0.listFiles();
         for (int i = 0; i < indirs0.length; i++) {
             s = indirs0[i].getName();
-            ym = new SARIC_YearMonth(s);
+            ym = new SARIC_YearMonth(se, s);
             dates = new TreeSet<>();
             ymDates.put(ym, dates);
             indir1 = new File(indir0, s);
             indirs1 = indir1.listFiles();
             // initialise outdirs
             for (int j = 0; j < indirs1.length; j++) {
-                dates.add(new SARIC_Date(indirs1[j].getName().split("T")[0]));
+                dates.add(new SARIC_Date(se, indirs1[j].getName().split("T")[0]));
             }
         }
 
@@ -1624,35 +1629,5 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
         }
     }
 
-    //      Colour: ColourHex: Official Range: Mid range value used in mm/hr
-    //      Blue: #0000FE: 0.01 - 0.5: 0.25 mm/hr
-    //      Light Blue: #3265FE: 0.5 - 1: 0.75
-    //      Muddy Green: #7F7F00: 1 - 2: 1.5
-    //      Yellow: #FECB00: 2 - 4: 3
-    //      Orange: #FE9800: 4 - 8: 6
-    //      Red: #FE0000: 8 - 16: 12
-    //      Pink: #FE00FE: 16 - 32: 24
-    //      Pale Blue: #E5FEFE: 32+: 48
-    protected TreeMap<Double, Color> getColorMap() {
-        TreeMap<Double, Color> result;
-        result = new TreeMap<Double, Color>();
-        result.put(0d, Color.WHITE);
-        Color Blue = Color.decode("#0000FE");
-        result.put(1.0d, Blue);
-        Color LightBlue = Color.decode("#3265FE");
-        result.put(2.0d, LightBlue);
-        Color MuddyGreen = Color.decode("#7F7F00");
-        result.put(4.0d, MuddyGreen);
-        Color Yellow = Color.decode("#FECB00");
-        result.put(8.0d, Yellow);
-        Color Orange = Color.decode("#FE9800");
-        result.put(16d, Orange);
-        Color Red = Color.decode("#FE0000");
-        result.put(32.0d, Red);
-        Color Pink = Color.decode("#FE00FE");
-        result.put(64.0d, Pink);
-        Color PaleBlue = Color.decode("#E5FEFE");
-        result.put(1000.0d, PaleBlue);
-        return result;
-    }
+    
 }

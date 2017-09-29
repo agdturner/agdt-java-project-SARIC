@@ -475,18 +475,18 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
                 + siteID;
         url = BASE_URL
                 + path
-                + ss.getSymbol_questionmark()
-                + ss.getString_res() + ss.getSymbol_equals() + res
-                + ss.getSymbol_ampersand()
-                + ss.getString_key() + ss.getSymbol_equals() + API_KEY;
+                + ss.symbol_questionmark
+                + ss.getString_res() + ss.symbol_equals + res
+                + ss.symbol_ampersand
+                + ss.getString_key() + ss.symbol_equals + API_KEY;
         //System.out.println(url);
         // Reset path
         String currentTime;
         currentTime = Generic_Time.getDateAndTimeHourDir();
         path = sf.getValDataTypePath(dataType, ss.getString_wxfcs())
-                + ss.getString_site() + ss.getSymbol_backslash()
-                + res + ss.getSymbol_backslash()
-                + currentTime + ss.getSymbol_backslash()
+                + ss.getString_site() + ss.symbol_backslash
+                + res + ss.symbol_backslash
+                + currentTime + ss.symbol_backslash
                 + siteID;
         result = getXML(siteID + res, -1, timeRange);
         return result;
@@ -519,10 +519,10 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
         res = ss.getString_hourly();
         url = BASE_URL
                 + path
-                + ss.getSymbol_questionmark()
-                + ss.getString_res() + ss.getSymbol_equals() + res
-                + ss.getSymbol_ampersand()
-                + ss.getString_key() + ss.getSymbol_equals() + API_KEY;
+                + ss.symbol_questionmark
+                + ss.getString_res() + ss.symbol_equals + res
+                + ss.symbol_ampersand
+                + ss.getString_key() + ss.symbol_equals + API_KEY;
         result = getXML(siteID + res, 1, timeRange);
         return result;
     }
@@ -585,11 +585,11 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
         //http://datapoint.metoffice.gov.uk/public/data/val/wxfcs/all/xml/sitelist?res=3hourly&key=382c1804-3077-48cf-a301-f6f95e396794
         url = BASE_URL
                 + path
-                + ss.getSymbol_questionmark();
+                + ss.symbol_questionmark;
         if (time != null) {
-            url += ss.getString_res() + ss.getSymbol_equals() + time + ss.getSymbol_ampersand();
+            url += ss.getString_res() + ss.symbol_equals + time + ss.symbol_ampersand;
         }
-        url += ss.getString_key() + ss.getSymbol_equals() + API_KEY;
+        url += ss.getString_key() + ss.symbol_equals + API_KEY;
         File dir;
         dir = new File(
                 sf.getInputDataMetOfficeDataPointDir(),
@@ -663,16 +663,16 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
         for (int step = 0; step <= 36; step += 3) {
             timeStep = Integer.toString(step);
             System.out.println("Getting forecast for time " + timeStep);
-            path = ss.getString_layer() + ss.getSymbol_backslash()
-                    + ss.getString_wxfcs() + ss.getSymbol_backslash()
-                    + layerName + ss.getSymbol_backslash()
+            path = ss.getString_layer() + ss.symbol_backslash
+                    + ss.getString_wxfcs() + ss.symbol_backslash
+                    + layerName + ss.symbol_backslash
                     + imageFormat;
             url = BASE_URL
                     + path
-                    + ss.getSymbol_questionmark()
-                    + "RUN" + ss.getSymbol_equals() + time + "Z"
-                    + ss.getSymbol_ampersand() + "FORECAST" + ss.getSymbol_equals() + timeStep
-                    + ss.getSymbol_ampersand() + ss.getString_key() + ss.getSymbol_equals() + API_KEY;
+                    + ss.symbol_questionmark
+                    + "RUN" + ss.symbol_equals + time + "Z"
+                    + ss.symbol_ampersand + "FORECAST" + ss.symbol_equals + timeStep
+                    + ss.symbol_ampersand + ss.getString_key() + ss.symbol_equals + API_KEY;
             outputFilenameWithoutExtension = layerName + time.replace(':', '_') + timeStep;
             getPNG(outputFilenameWithoutExtension, overwrite);
         }
@@ -701,17 +701,17 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
             time = ite.next();
             //System.out.println(time);
             //if (time.contains("00:00")) {
-            path = ss.getString_layer() + ss.getSymbol_backslash()
-                    + ss.getString_wxobs() + ss.getSymbol_backslash()
-                    + layerName + ss.getSymbol_backslash()
+            path = ss.getString_layer() + ss.symbol_backslash
+                    + ss.getString_wxobs() + ss.symbol_backslash
+                    + layerName + ss.symbol_backslash
                     + imageFormat;
             url = BASE_URL
                     + path
-                    + ss.getSymbol_questionmark()
-                    + "TIME" + ss.getSymbol_equals() + time + "Z"
-                    + ss.getSymbol_ampersand() + ss.getString_key() + ss.getSymbol_equals() + API_KEY;
+                    + ss.symbol_questionmark
+                    + "TIME" + ss.symbol_equals + time + ss.string_Z
+                    + ss.symbol_ampersand + ss.getString_key() + ss.symbol_equals + API_KEY;
             String outputFilenameWithoutExtension;
-            outputFilenameWithoutExtension = layerName + time.toString();
+            outputFilenameWithoutExtension = layerName + time.toFormattedString0();
             getPNG(outputFilenameWithoutExtension, overwrite);
             //}
         }
@@ -771,7 +771,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
             while (ite.hasNext()) {
                 time = ite.next();
                 System.out.println(time);
-                timeformatted = time.toString();
+                timeformatted = time.toFormattedString0();
                 dateString = time.getDateString();
                 yearMonth = time.getYearMonth();
                 for (int row = 0; row < lp.nrows; row++) {
@@ -874,7 +874,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
         while (ite.hasNext()) {
             time = ite.next();
             System.out.println(time);
-            timeformatted = time.toFormattedString();
+            timeformatted = time.toFormattedString0();
             dateString = time.getDateString();
             yearMonth = time.getYearMonth();
             for (int row = 0; row < lp.nrows; row++) {
@@ -988,7 +988,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
         while (ite.hasNext()) {
             time = ite.next();
             System.out.println(time);
-            timeFormatted = time.toFormattedString();
+            timeFormatted = time.toFormattedString1();
             dateString = time.getDateString();
             yearMonth = time.getYearMonth();
             for (int forecastTime = 0; forecastTime <= 36; forecastTime += 3) {
@@ -1061,8 +1061,8 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
         url = BASE_URL
                 + path
                 + "?REQUEST=get" + ss.getString_capabilities()
-                + ss.getSymbol_ampersand()
-                + ss.getString_key() + ss.getSymbol_equals() + API_KEY;
+                + ss.symbol_ampersand
+                + ss.getString_key() + ss.symbol_equals + API_KEY;
         File result = getXML(ss.getString_capabilities(), -1, null);
         return result;
     }
@@ -1088,7 +1088,8 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
     protected File getObservationsSiteCapabilities() {
         setPath(ss.getString_val(), ss.getString_wxobs(), dataType);
         addCapabilitiesToPath();
-        path += ss.getString_res() + ss.getSymbol_equals() + ss.getString_hourly() + ss.getSymbol_ampersand();
+        path += ss.getString_res() + ss.symbol_equals + ss.getString_hourly() 
+                + ss.symbol_ampersand;
         return getCapabilities(0);
     }
 
@@ -1104,7 +1105,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
         File result;
         url = BASE_URL
                 + path
-                + ss.getString_key() + ss.getSymbol_equals() + API_KEY;
+                + ss.getString_key() + ss.symbol_equals + API_KEY;
         result = getXML(ss.getString_capabilities(), parsePath, null);
         return result;
     }
@@ -1131,7 +1132,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
         // http://datapoint.metoffice.gov.uk/public/data/val/wxfcs/all/xml/capabilities?res=3hourly&key=01234567-89ab-cdef-0123-456789abcdef
         setPath(ss.getString_val(), ss.getString_wxfcs(), dataType);
         addCapabilitiesToPath();
-        path += ss.getString_res() + ss.getSymbol_equals() + time + ss.getSymbol_ampersand();
+        path += ss.getString_res() + ss.symbol_equals + time + ss.symbol_ampersand;
         return getCapabilities(0);
     }
 
@@ -1139,10 +1140,10 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
             String val_Or_layer,
             String wxfcs_Or_Wxobs,
             String dataType) {
-        path = val_Or_layer + ss.getSymbol_backslash()
-                + wxfcs_Or_Wxobs + ss.getSymbol_backslash()
-                + ss.getString_all() + ss.getSymbol_backslash()
-                + dataType + ss.getSymbol_backslash();
+        path = val_Or_layer + ss.symbol_backslash
+                + wxfcs_Or_Wxobs + ss.symbol_backslash
+                + ss.getString_all() + ss.symbol_backslash
+                + dataType + ss.symbol_backslash;
     }
 
     public String getParsedPath0() {
@@ -1157,13 +1158,13 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
         String result;
         String[] parts;
         parts = path.split(ss.getString_xml());
-        result = parts[0] + ss.getString_xml() + ss.getSymbol_backslash()
-                + ss.getString_site() + ss.getSymbol_backslash() + parts[1];
+        result = parts[0] + ss.getString_xml() + ss.symbol_backslash
+                + ss.getString_site() + ss.symbol_backslash + parts[1];
         return result;
     }
 
     protected void addCapabilitiesToPath() {
-        path += ss.getString_capabilities() + ss.getSymbol_questionmark();
+        path += ss.getString_capabilities() + ss.symbol_questionmark;
     }
 
     /**
@@ -1243,24 +1244,6 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
         }
         getPNG(url,
                 png);
-    }
-
-    /**
-     * Download three hourly five day forecast for Dunkeswell Aerodrome
-     */
-    @Deprecated
-    protected void downloadThreeHourlyFiveDayForecastForDunkeswellAerodrome() {
-        // http://datapoint.metoffice.gov.uk/public/data/val/wxfcs/all/xml/3840?res=3hourly&key=01234567-89ab-cdef-0123-456789abcdef
-        path = ss.getString_val() + ss.getSymbol_backslash()
-                + ss.getString_wxfcs() + ss.getSymbol_backslash()
-                + ss.getString_all() + ss.getSymbol_backslash()
-                + dataType + ss.getSymbol_backslash()
-                + "3840";
-        url = BASE_URL
-                + path + ss.getSymbol_questionmark()
-                + "res" + ss.getSymbol_equals() + "3hourly&"
-                + ss.getString_key() + ss.getSymbol_equals() + API_KEY;
-        getXML("test", -1, null);
     }
 
     /**
@@ -1513,9 +1496,9 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
         firstTime = times.get(0);
         lastTime = times.get(times.size() - 1);
         result[0] = firstTime.substring(0, firstTime.length() - 4);
-        result[0] += ss.getSymbol_underscore() + ss.getSymbol_underscore();
+        result[0] += ss.symbol_underscore + ss.symbol_underscore;
         result[0] += lastTime.substring(0, lastTime.length() - 4);
-        result[0] = result[0].replaceAll(ss.getSymbol_colon(), ss.getSymbol_underscore());
+        result[0] = result[0].replaceAll(ss.symbol_colon, ss.symbol_underscore);
         result[1] = firstTime;
         result[2] = lastTime;
         return result;
