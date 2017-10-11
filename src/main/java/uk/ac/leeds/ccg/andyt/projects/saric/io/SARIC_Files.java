@@ -174,7 +174,7 @@ public class SARIC_Files {
     public File getGeneratedDataMetOfficeDataPointDir() {
         if (GeneratedDataMetOfficeDataPointDir == null) {
             GeneratedDataMetOfficeDataPointDir = new File(
-                    getGeneratedDataDir(),
+                    getGeneratedDataMetOfficeDir(),
                     ss.getString_DataPoint());
         }
         return GeneratedDataMetOfficeDataPointDir;

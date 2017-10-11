@@ -41,7 +41,7 @@ import uk.ac.leeds.ccg.andyt.grids.core.Grids_Grid2DSquareCellDouble;
 import uk.ac.leeds.ccg.andyt.grids.core.Grids_Grid2DSquareCellDoubleFactory;
 import uk.ac.leeds.ccg.andyt.grids.exchange.Grids_ESRIAsciiGridExporter;
 import uk.ac.leeds.ccg.andyt.grids.exchange.Grids_ImageExporter;
-import uk.ac.leeds.ccg.andyt.grids.process.Grid2DSquareCellProcessor;
+import uk.ac.leeds.ccg.andyt.grids.process.Grids_Processor;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Object;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Strings;
@@ -72,7 +72,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
     SARIC_Files sf;
     SARIC_Strings ss;
     Grids_Environment ge;
-    Grid2DSquareCellProcessor gp;
+    Grids_Processor gp;
     Grids_Grid2DSquareCellDoubleFactory gf;
     double noDataValue = -9999.0;
     Grids_ESRIAsciiGridExporter ae;
@@ -230,7 +230,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
             ite0 = dates0.iterator();
             while (ite0.hasNext()) {
                 date0 = ite0.next();
-                time0 = date0.toString();
+                time0 = date0.getYYYYMMDD();
 
                 indir1 = new File(
                         indir0,
@@ -271,7 +271,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                         forecasts = new HashMap<>();
 
                         forecastsForTime2 = (Grids_Grid2DSquareCellDouble) gf.create(nearestForecastsSitesGrid);
-                        name = time0 + "-00" + "_ForecastFor_" + date1.toString();
+                        name = time0 + "-00" + "_ForecastFor_" + date1.getYYYYMMDD();
                         outascii = new File(
                                 outdir1,
                                 name + ".asc");
@@ -369,8 +369,8 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                             }
                             ae.toAsciiFile(forecastsForTime2, outascii, true);
                             ie.toGreyScaleImage(forecastsForTime2, gp, outpng, "png", true);
-                            ie.toColourImage(0, colorMap, Color.BLACK, forecastsForTime2, gp, outpng2, "png", true);
-                            ie.toColourImage(8, colorMap, Color.BLACK, forecastsForTime2, gp, outpng3, "png", true);
+                            ie.toColourImage(0, colorMap, Color.BLACK, forecastsForTime2, outpng2, "png", true);
+                            ie.toColourImage(8, colorMap, Color.BLACK, forecastsForTime2, outpng3, "png", true);
                         }
                     }
                 }
@@ -602,7 +602,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
         ite0 = ymDates.keySet().iterator();
         while (ite0.hasNext()) {
             ym = ite0.next();
-            s = ym.toString();
+            s = ym.getYYYYMM();
             dates = ymDates.get(ym);
             System.out.println(s);
             outdir1 = new File(
@@ -614,7 +614,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
             ite1 = dates.iterator();
             while (ite1.hasNext()) {
                 date0 = ite1.next();
-                s = date0.toString();
+                s = date0.getYYYYMMDD();
                 /**
                  * This forecast is for the next 36 hours, so for 3AM and 9AM
                  * forecasts there will be output for today and tomorrow. For a
@@ -636,9 +636,9 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                 name0 = s + "_ForecastFor_";
                 outascii = new File(
                         outdir2,
-                        name0 + date0.toString() + ".asc");
+                        name0 + date0.getYYYYMMDD() + ".asc");
                 if (!overwrite && outascii.exists()) {
-                    System.out.println("Not computing for " + date0.toString() + " output already exists. To recompute delete or rename output.");
+                    System.out.println("Not computing for " + date0.getYYYYMMDD() + " output already exists. To recompute delete or rename output.");
                 } else {
                     outdir2.mkdirs();
                     indirs0 = indir2.listFiles();
@@ -773,12 +773,12 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                                         name1 + "_" + rowColint[0] + "_" + rowColint[1] + "Color.png");
                                 ae.toAsciiFile(g, outascii, HandleOutOfMemoryError);
                                 ie.toGreyScaleImage(g, gp, outpng, "png", HandleOutOfMemoryError);
-                                ie.toColourImage(0, colorMap, noDataValueColor, g, gp, outpng2, "png", HandleOutOfMemoryError);
+                                ie.toColourImage(0, colorMap, noDataValueColor, g, outpng2, "png", HandleOutOfMemoryError);
                             }
 
                             outascii = new File(
                                     outdir2,
-                                    s + "_ForecastFor_" + date1.toString() + ".asc");
+                                    s + "_ForecastFor_" + date1.getYYYYMMDD() + ".asc");
                         }
                         gs = b1KMGrid.getGridStatistics(true);
                         max = gs.getMaxDouble(true);
@@ -806,8 +806,8 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                                 name1 + "Counts.txt");
                         ae.toAsciiFile(g, outascii, HandleOutOfMemoryError);
                         ie.toGreyScaleImage(g, gp, outpng, "png", HandleOutOfMemoryError);
-                        ie.toColourImage(0, colorMap, noDataValueColor, g, gp, outpng2, "png", HandleOutOfMemoryError);
-                        ie.toColourImage(8, colorMap, noDataValueColor, g, gp, outpng3, "png", HandleOutOfMemoryError);
+                        ie.toColourImage(0, colorMap, noDataValueColor, g, outpng2, "png", HandleOutOfMemoryError);
+                        ie.toColourImage(8, colorMap, noDataValueColor, g, outpng3, "png", HandleOutOfMemoryError);
                         try {
                             PrintWriter pw;
                             pw = new PrintWriter(outtxt);
@@ -1203,7 +1203,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
         ite0 = ymDates.keySet().iterator();
         while (ite0.hasNext()) {
             ym = ite0.next();
-            s = ym.toString();
+            s = ym.getYYYYMM();
             dates = ymDates.get(ym);
             System.out.println(s);
             outdir1 = new File(
@@ -1215,7 +1215,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
             ite1 = dates.iterator();
             while (ite1.hasNext()) {
                 date0 = ite1.next();
-                s = date0.toString();
+                s = date0.getYYYYMMDD();
                 outdir2 = new File(
                         outdir1,
                         s);
@@ -1320,7 +1320,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                                 layerName + "_" + rowColint[0] + "_" + rowColint[1] + "Color.png");
                         ae.toAsciiFile(g, outascii, HandleOutOfMemoryError);
                         ie.toGreyScaleImage(g, gp, outpng, "png", HandleOutOfMemoryError);
-                        ie.toColourImage(0, colorMap, noDataValueColor, g, gp, outpng2, "png", HandleOutOfMemoryError);
+                        ie.toColourImage(0, colorMap, noDataValueColor, g, outpng2, "png", HandleOutOfMemoryError);
                     }
                     // Output result grid
                     outascii = new File(
@@ -1337,8 +1337,8 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                             s + layerName + "Color8.png");
                     ae.toAsciiFile(b1KMGrid, outascii, HandleOutOfMemoryError);
                     ie.toGreyScaleImage(b1KMGrid, gp, outpng, "png", HandleOutOfMemoryError);
-                    ie.toColourImage(0, colorMap, noDataValueColor, b1KMGrid, gp, outpng2, "png", HandleOutOfMemoryError);
-                    ie.toColourImage(8, colorMap, noDataValueColor, b1KMGrid, gp, outpng3, "png", HandleOutOfMemoryError);
+                    ie.toColourImage(0, colorMap, noDataValueColor, b1KMGrid, outpng2, "png", HandleOutOfMemoryError);
+                    ie.toColourImage(8, colorMap, noDataValueColor, b1KMGrid, outpng3, "png", HandleOutOfMemoryError);
                     init_gf();
                 }
             }

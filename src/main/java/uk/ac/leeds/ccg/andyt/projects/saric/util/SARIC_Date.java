@@ -117,14 +117,6 @@ public class SARIC_Date extends SARIC_YearMonth implements Serializable, Compara
         return false;
     }
 
-    /**
-     *
-     * @return String representing year and month in YYYY-MM format
-     */
-    public String getYearMonth() {
-        return super.toString();
-    }
-
     public String getDD(){
         String result = "";
         if (DAY_OF_MONTH < 10) {
@@ -137,9 +129,8 @@ public class SARIC_Date extends SARIC_YearMonth implements Serializable, Compara
     /**
      * @return A String representation of this in the format YYYY-MM-DD.
      */
-    @Override
-    public String toString() {
-        return toString("-");
+    public String getYYYYMMDD() {
+        return getYYYYMMDD("-");
     }
 
     /**
@@ -148,10 +139,9 @@ public class SARIC_Date extends SARIC_YearMonth implements Serializable, Compara
      * @return A String representation of this in the format YYYY-MM-DD where
      * the - is replaced by dateComponentDelimitter.
      */
-    @Override
-    public String toString(String dateComponentDelimitter) {
+    public String getYYYYMMDD(String dateComponentDelimitter) {
         String result;
-        result = super.toString(dateComponentDelimitter);
+        result = getYYYYMM(dateComponentDelimitter);
         result += dateComponentDelimitter;
         result += getDD();
         return result;

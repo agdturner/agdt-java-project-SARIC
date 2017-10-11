@@ -87,13 +87,32 @@ public class SARIC_Time extends SARIC_Date
      */
     public SARIC_Time(
             SARIC_Environment se,
-            String s) {
+            String s){
+        this(se, s, se.getStrings().symbol_minus, se.getStrings().string_T, 
+                se.getStrings().symbol_colon);
+    }
+    
+    /**
+     * Expects s to be of the form "YYYY-MM-DD" or "YYYY-MM-DDTHH:MM:SSZ"
+     *
+     * @param se
+     * @param s
+     * @param dateDelimeter
+     * @param timedateSeparator
+     * @param timeDelimeter
+     */
+    public SARIC_Time(
+            SARIC_Environment se,
+            String s,
+            String dateDelimeter,
+            String timedateSeparator,
+            String timeDelimeter) {
         super(se);
         String[] splitT;
-        splitT = s.split(ss.string_T);
+        splitT = s.split(timedateSeparator);
         //super(split[0]);
         String[] split;
-        split = splitT[0].split(ss.symbol_minus);
+        split = splitT[0].split(dateDelimeter);
         YEAR = new Integer(split[0]);
         String s_0;
         s_0 = ss.symbol_0;
@@ -112,7 +131,7 @@ public class SARIC_Time extends SARIC_Date
         MINUTE = 0;
         SECOND = 0;
         if (splitT.length == 2) {
-            split = splitT[1].split(ss.symbol_colon);
+            split = splitT[1].split(timeDelimeter);
             s2 = split[0];
             if (s2.startsWith(s_0)) {
                 s2 = s2.substring(1);
@@ -174,16 +193,12 @@ public class SARIC_Time extends SARIC_Date
         return result;
     }
 
-    public String getDateString() {
-        return super.toString();
-    }
-
     /**
      *
      * @return YYYY-MM-DDTHH:MM:SSZ
      */
     public String toFormattedString0() {
-        return toString(
+        return getYYYYMMDDHHMMSS(
                 ss.symbol_minus,
                 ss.string_T,
                 ss.symbol_colon,
@@ -195,7 +210,7 @@ public class SARIC_Time extends SARIC_Date
      * @return YYYY-MM-DDTHH_MM_SSZ
      */
     public String toFormattedString1() {
-        return toString(
+        return getYYYYMMDDHHMMSS(
                 ss.symbol_minus,
                 ss.string_T,
                 ss.symbol_underscore,
@@ -203,7 +218,7 @@ public class SARIC_Time extends SARIC_Date
     }
 
     public String toFormattedString2() {
-        return toString(
+        return getYYYYMMDDHHMMSS(
                 ss.emptyString,
                 ss.emptyString,
                 ss.emptyString,
@@ -212,7 +227,7 @@ public class SARIC_Time extends SARIC_Date
 
     public String getYYYYMMDDHHMM() {
         String result;
-        result = getYYYY() + super.getMM() + getDD() + getHH() + getMM();
+        result = getYYYY() + getMM() + getDD() + getHH() + getMins();
         return result;
     }
 
@@ -226,13 +241,11 @@ public class SARIC_Time extends SARIC_Date
     }
 
     /**
-     * Not to be confused with SARIC_YearMonth.getMM() which gets the months
-     * rather than the minutes!
-     *
+     * So as not to confuse with SARIC_YearMonth.getMM() this is called 
+     * getMins() instead of getMM();
      * @return
      */
-    @Override
-    public String getMM() {
+    public String getMins() {
         String result = "";
         if (MINUTE < 10) {
             result += ss.symbol_0;
@@ -250,26 +263,29 @@ public class SARIC_Time extends SARIC_Date
         return result;
     }
 
-    @Override
-    public String toString() {
-        return toString(
-                ss.symbol_minus,
-                ss.string_T,
-                ss.symbol_colon,
-                ss.emptyString);
+    public String getYYYYMMDDHHMMSS() {
+        String result;
+        result = super.toString();
+        result += ss.string_T;
+        result += getHH();
+        result += ss.symbol_colon;
+        result += getMins();
+        result += ss.symbol_colon;
+        result += getSS();
+        return result;
     }
 
-    public String toString(
+    public String getYYYYMMDDHHMMSS(
             String dateComponentDelimitter,
             String dateTimeDivider,
             String timeComponentDivider,
             String resultEnding) {
         String result;
-        result = super.toString(dateComponentDelimitter);
+        result = getYYYYMMDD(dateComponentDelimitter);
         result += dateTimeDivider;
         result += getHH();
         result += timeComponentDivider;
-        result += getMM();
+        result += getMins();
         result += timeComponentDivider;
         result += getSS();
         result += resultEnding;

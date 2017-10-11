@@ -28,13 +28,14 @@ import java.math.BigDecimal;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import uk.ac.leeds.ccg.andyt.generic.io.Generic_StaticIO;
 import uk.ac.leeds.ccg.andyt.grids.core.Grids_Environment;
 import uk.ac.leeds.ccg.andyt.grids.core.Grids_Grid2DSquareCellDouble;
 import uk.ac.leeds.ccg.andyt.grids.core.Grids_Grid2DSquareCellDoubleChunkArrayFactory;
 import uk.ac.leeds.ccg.andyt.grids.core.Grids_Grid2DSquareCellDoubleFactory;
 import uk.ac.leeds.ccg.andyt.grids.core.Grids_GridStatistics1;
 import uk.ac.leeds.ccg.andyt.grids.exchange.Grids_ImageExporter;
-import uk.ac.leeds.ccg.andyt.grids.process.Grid2DSquareCellProcessor;
+import uk.ac.leeds.ccg.andyt.grids.process.Grids_Processor;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Object;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Strings;
@@ -54,7 +55,7 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
     SARIC_Files sf;
     SARIC_Strings ss;
     Grids_Environment ge;
-    Grid2DSquareCellProcessor gp;
+    Grids_Processor gp;
     Grids_Grid2DSquareCellDoubleFactory gf;
 
     boolean doWissey;
@@ -92,22 +93,22 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
         File inputDir;
         File generatedDir0;
         File generatedDir1;
+        File generatedDir2 = null;
         File outputDir0;
         File outputDir1;
         path0 = "data/composite/uk-1km/";
         generatedDir0 = new File(
                 sf.getGeneratedDataMetOfficeNimrodDir(),
                 path0);
+        generatedDir0 = new File(
+                generatedDir0,
+                "Grids");
         outputDir0 = new File(
                 sf.getOutputDataMetOfficeNimrodDir(),
                 path0);
-        gf.set_Directory(generatedDir0);
         outputDir0.mkdirs();
         //metoffice-c-band-rain-radar_uk_201706270000_1km-composite.dat
         File gpDir;
-        gpDir = new File(generatedDir0, "gp");
-        gpDir.mkdirs();
-        gp.set_Directory(gpDir, false, true);
 
         String YYYY;
         String MM;
@@ -124,20 +125,12 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
         inputDir = new File(
                 sf.getInputDataMetOfficeNimrodDir(),
                 path0 + path);
-        generatedDir0 = new File(
+        generatedDir1 = new File(
                 generatedDir0,
                 path);
-
-        generatedDir0 = new File(
-                generatedDir0,
-                "" + System.currentTimeMillis());
-
-        generatedDir0.mkdirs();
-        gf.set_Directory(generatedDir0);
-        gpDir = new File(generatedDir0, "gp");
-        gpDir.mkdirs();
-
-        gp.set_Directory(gpDir, false, true);
+        outputDir1 = new File(
+        outputDir0,
+        path);
 
         //metoffice-c-band-rain-radar_uk_201706270000_1km-composite.dat
         int numberOf5MinutePeriodsIn24Hours;
@@ -148,7 +141,7 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
         SARIC_Time st;
         st = new SARIC_Time(date);
         String name;
-        System.out.println("Time " + st.toString());
+        System.out.println("Time " + st.getYYYYMMDDHHMM());
         FileInputStream fis;
         DataInputStream dis;
         Grids_Grid2DSquareCellDouble g;
@@ -165,7 +158,17 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
         tg = teifi.get1KMGridMaskedToCatchment();
         tg0 = (Grids_Grid2DSquareCellDouble) tg[0];
         tgf = (Grids_Grid2DSquareCellDoubleFactory) tg[1];
-        tg1 = (Grids_Grid2DSquareCellDouble) tgf.create(tg0);
+        File dirt1;
+        File dirt2;
+        dirt1 = new File(
+                tgf.get_Directory(true),
+                "TG1");
+        tgf.set_Directory(dirt1);
+        tg1 = (Grids_Grid2DSquareCellDouble) tgf.create(dirt1, tg0, 0, 0, tg0.get_NRows(true) - 1, tg0.get_NCols(true) - 1);
+        dirt2 = new File(
+                tgf.get_Directory(true),
+                "TG2");
+        tgf.set_Directory(dirt2);
 
         // Wissey
         SARIC_Wissey wissey;
@@ -178,16 +181,61 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
         wg = wissey.get1KMGridMaskedToCatchment();
         wg0 = (Grids_Grid2DSquareCellDouble) wg[0];
         wgf = (Grids_Grid2DSquareCellDoubleFactory) wg[1];
-        wg1 = (Grids_Grid2DSquareCellDouble) wgf.create(wg0);
+        File dirw1;
+        File dirw2;
+        dirw1 = new File(
+                wgf.get_Directory(true),
+                "WG1");
+        wgf.set_Directory(dirw1);
+        wg1 = (Grids_Grid2DSquareCellDouble) wgf.create(dirw1, wg0, 0, 0, wg0.get_NRows(true) - 1, wg0.get_NCols(true) - 1);
+        dirw2 = new File(
+                wgf.get_Directory(true),
+                "WG2");
+        wgf.set_Directory(dirw2);
+        // Set archive parameters
+        long GridID;
+        //long maxID;
+        int range;
+        GridID = 0L;
+        //maxID = 10000L;
+        range = 100;
 
         for (int i = 0; i < numberOf5MinutePeriodsIn24Hours; i++) {
-            tg2 = (Grids_Grid2DSquareCellDouble) tgf.create(tg0);
-            wg2 = (Grids_Grid2DSquareCellDouble) wgf.create(wg0);
+            tg2 = (Grids_Grid2DSquareCellDouble) tgf.create(dirt2, tg0, 0, 0, tg0.get_NRows(true) - 1, tg0.get_NCols(true) - 1);
+            wg2 = (Grids_Grid2DSquareCellDouble) wgf.create(dirw2, wg0, 0, 0, wg0.get_NRows(true) - 1, wg0.get_NCols(true) - 1);
             f = new File(
                     inputDir,
                     "metoffice-c-band-rain-radar_uk_" + st.getYYYYMMDDHHMM() + "_1km-composite.dat");
             if (f.exists()) {
                 try {
+                    // Set archive for storing grids
+                    if (generatedDir2 == null) {
+//                        try {
+//                            Generic_StaticIO.initialiseArchive(generatedDir1, range, maxID);
+//                        } catch (IOException ex) {
+//                            Logger.getLogger(SARIC_NIMRODDataHandler.class.getName()).log(Level.SEVERE, null, ex);
+//                        }
+//                        generatedDir2 = Generic_StaticIO.getObjectDirectory(
+//                                generatedDir1,
+//                                GridID,
+//                                maxID,
+//                                range);
+                        Generic_StaticIO.initialiseArchive(generatedDir1, range);
+                        generatedDir2 = Generic_StaticIO.getObjectDirectory(
+                                generatedDir1,
+                                GridID,
+                                GridID,
+                                range);
+                    } else {
+                        GridID++;
+                        generatedDir2 = Generic_StaticIO.addToArchive(generatedDir1, range, GridID);
+                    }
+                    generatedDir2.mkdirs();
+                    gf.set_Directory(generatedDir2);
+//                    gpDir = new File(generatedDir2, "Processor");
+//                    gpDir.mkdirs();
+//                    gp.set_Directory(gpDir, false, true);
+                    // Initialise streams for reading
                     fis = new FileInputStream(f);
                     dis = new DataInputStream(fis);
                     SARIC_NIMRODHeader snh;
@@ -201,13 +249,12 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
                     dimensions[4] = new BigDecimal(snh.NorthingOrLatitudeOfTopRightCornerOfTheImage); // Ymax
                     gf.set_NoDataValue(-1d);
                     gf.set_Dimensions(dimensions);
-                    gf.set_Directory(generatedDir0);
                     gf.set_ChunkNCols(345);
                     gf.set_ChunkNRows(435);
                     gf.set_GridStatistics(new Grids_GridStatistics1());
                     gf.setGrid2DSquareCellDoubleChunkFactory(new Grids_Grid2DSquareCellDoubleChunkArrayFactory());
                     gp._Grid2DSquareCellDoubleFactory = gf;
-                    g = (Grids_Grid2DSquareCellDouble) gf.create(generatedDir0, snh.nrows, snh.ncols, dimensions, ge, true);
+                    g = (Grids_Grid2DSquareCellDouble) gf.create(generatedDir2, snh.nrows, snh.ncols, dimensions, ge, true);
                     try {
                         for (long row = 0; row < snh.nrows; row++) {
                             for (long col = 0; col < snh.ncols; col++) {
@@ -231,7 +278,7 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
                         gp.addToGrid(tg1, g, true);
                         gp.addToGrid(tg2, g, true);
                         outputImages(
-                                outputDir0.getParentFile(),
+                                outputDir1,
                                 ss.getString_Teifi(),
                                 name,
                                 tgf,
@@ -244,7 +291,7 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
                         gp.addToGrid(wg1, g, true);
                         gp.addToGrid(wg2, g, true);
                         outputImages(
-                                outputDir0.getParentFile(),
+                                outputDir1,
                                 ss.getString_Wissey(),
                                 name,
                                 wgf,
@@ -265,13 +312,13 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
                 } catch (FileNotFoundException ex) {
                     Logger.getLogger(SARIC_NIMRODDataHandler.class.getName()).log(Level.SEVERE, null, ex);
                 }
-                System.out.println("Aggregated " + st.toString());
+                System.out.println("Aggregated " + st.getYYYYMMDDHHMM());
             }
             st.addMinutes(5);
         }
         if (doTeifi) {
             outputImages(
-                    outputDir0.getParentFile(),
+                    outputDir1,
                     ss.getString_Teifi(),
                     "",
                     tgf,
@@ -282,7 +329,7 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
         }
         if (doWissey) {
             outputImages(
-                    outputDir0.getParentFile(),
+                    outputDir1,
                     ss.getString_Wissey(),
                     "",
                     wgf,
@@ -318,6 +365,6 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
         outfile = new File(
                 outputDir1,
                 area + "Colour" + name + ".png");
-        ie.toColourImage(0, cm, Color.BLACK, g, gp, outfile, "PNG", true);
+        ie.toColourImage(0, cm, Color.BLACK, g, outfile, "PNG", true);
     }
 }

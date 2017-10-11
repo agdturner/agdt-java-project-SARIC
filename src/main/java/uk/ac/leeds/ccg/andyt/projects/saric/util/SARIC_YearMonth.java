@@ -144,7 +144,11 @@ public class SARIC_YearMonth extends SARIC_Object implements Serializable, Compa
     }
 
     /**
-     * Assume the year has 4 digits.
+     * The month always has 2 characters.
+     * 01 is January
+     * 02 is February
+     * ...
+     * 12 is December
      * @return 
      */
     public String getMM() {
@@ -156,23 +160,24 @@ public class SARIC_YearMonth extends SARIC_Object implements Serializable, Compa
         return result;
     }
     
+    public String toString(){return "";}
+    
     /**
      *
      * @return String representing year and month in YYYY-MM format
      */
-   @Override
-    public String toString() {
-        return toString("-");
+    public String getYYYYMM() {
+        return getYYYYMM("-");
     }
 
-    public String toString(String delimeter) {
+    public String getYYYYMM(String delimeter) {
         String result;
         result = getYYYY();
         result += delimeter;
         result += getMM();
         return result;
     }
-
+    
     @Override
     public boolean equals(Object o) {
         if (o instanceof SARIC_Time) {

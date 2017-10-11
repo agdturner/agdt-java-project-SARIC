@@ -711,7 +711,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
                     + "TIME" + ss.symbol_equals + time + ss.string_Z
                     + ss.symbol_ampersand + ss.getString_key() + ss.symbol_equals + API_KEY;
             String outputFilenameWithoutExtension;
-            outputFilenameWithoutExtension = layerName + time.toFormattedString0();
+            outputFilenameWithoutExtension = layerName + time.toFormattedString1();
             getPNG(outputFilenameWithoutExtension, overwrite);
             //}
         }
@@ -771,9 +771,9 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
             while (ite.hasNext()) {
                 time = ite.next();
                 System.out.println(time);
-                timeformatted = time.toFormattedString0();
-                dateString = time.getDateString();
-                yearMonth = time.getYearMonth();
+                timeformatted = time.toFormattedString1();
+                dateString = time.getYYYYMMDD(); 
+                yearMonth = time.getYYYYMM();
                 for (int row = 0; row < lp.nrows; row++) {
                     for (int col = 0; col < lp.ncols; col++) {
                         tileRow = Integer.toString(row);
@@ -874,9 +874,9 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
         while (ite.hasNext()) {
             time = ite.next();
             System.out.println(time);
-            timeformatted = time.toFormattedString0();
-            dateString = time.getDateString();
-            yearMonth = time.getYearMonth();
+            timeformatted = time.toFormattedString1();
+            dateString = time.getYYYYMMDD();
+            yearMonth = time.getYYYYMM();
             for (int row = 0; row < lp.nrows; row++) {
                 //System.out.println("row " + row);
                 for (int col = 0; col < lp.ncols; col++) {
@@ -989,8 +989,8 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
             time = ite.next();
             System.out.println(time);
             timeFormatted = time.toFormattedString1();
-            dateString = time.getDateString();
-            yearMonth = time.getYearMonth();
+            dateString = time.getYYYYMMDD();
+            yearMonth = time.getYYYYMM();
             for (int forecastTime = 0; forecastTime <= 36; forecastTime += 3) {
                 for (int row = 0; row < lp.nrows; row++) {
                     //System.out.println("row " + row);

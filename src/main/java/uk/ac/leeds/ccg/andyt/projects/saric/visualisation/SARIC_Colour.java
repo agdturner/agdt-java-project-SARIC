@@ -53,4 +53,36 @@ public class SARIC_Colour extends SARIC_Object {
         result.put(1000.0d, PaleBlue);
         return result;
     }
+    
+    //      Colour: ColourHex: Official Range: Mid range value used in mm/hr
+    //      Blue: #0000FE: 0.0 - 0.4
+    //      Light Blue: #3265FE: 0.4 - 0.8
+    //      Muddy Green: #7F7F00: 0.8 - 1.2
+    //      Yellow: #FECB00: 1.2 - 1.6
+    //      Orange: #FE9800: 1.6 - 2.0
+    //      Red: #FE0000: 2.0 - 2.4
+    //      Pink: #FE00FE: 2.4 - 2.8
+    //      Pale Blue: #E5FEFE: 2.8 +
+    public TreeMap<Double, Color> getVarianceColorMap() {
+        TreeMap<Double, Color> result;
+        result = new TreeMap<Double, Color>();
+        result.put(0d, Color.WHITE);
+        Color Blue = Color.decode("#0000FE");
+        result.put(0.2d, Blue);
+        Color LightBlue = Color.decode("#3265FE");
+        result.put(0.6d, LightBlue);
+        Color MuddyGreen = Color.decode("#7F7F00");
+        result.put(1d, MuddyGreen);
+        Color Yellow = Color.decode("#FECB00");
+        result.put(1.4d, Yellow);
+        Color Orange = Color.decode("#FE9800");
+        result.put(1.8d, Orange);
+        Color Red = Color.decode("#FE0000");
+        result.put(2.2d, Red);
+        Color Pink = Color.decode("#FE00FE");
+        result.put(2.6d, Pink);
+        Color PaleBlue = Color.decode("#E5FEFE");
+        result.put(1000.0d, PaleBlue);
+        return result;
+    }
 }

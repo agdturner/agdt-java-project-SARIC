@@ -24,6 +24,7 @@ import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Object;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.SARIC_MetOfficeScraper;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.nimrod.SARIC_NIMRODDataHandler;
+import uk.ac.leeds.ccg.andyt.projects.saric.util.SARIC_Time;
 
 /**
  * This is the main processor/controller for SARIC processing. Everything is
@@ -61,6 +62,9 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
             System.exit(0);
         } else {
             SARIC_Environment se = new SARIC_Environment(args[0]);
+            SARIC_Time st;
+            st = new SARIC_Time(se);
+            se.setTime(st);
             SARIC_Processor sp;
             sp = new SARIC_Processor(se);
             sp.run();
@@ -71,17 +75,19 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
      * This is the main run method for the Digital welfare project.
      *
      */
+    @Override
     public void run() {
         try {
             // Main switches
 //            RunProjectShapefiles = true;
 //            RunCatchmentViewer = true;
-//            RunSARIC_MetOfficeScraper = true;
+            RunSARIC_MetOfficeScraper = true; 
 //            RunSARIC_ImageProcessor = true;
 //            RunSARIC_CreatePointShapefile = true;
 //            RunSARIC_DisplayShapefile = true;
 //            RunSARIC_DataForWASIM = true;
-            RunSARIC_ProcessNIMROD = true;
+//            RunSARIC_ProcessNIMROD = true;
+//            RunSARIC_RainfallStatistics = true;
 
             /**
              * Run SARIC_MetOfficeScraper
@@ -361,12 +367,12 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
                 // Main Switches
 //                doImageProcessObservations = false;
                 doImageProcessObservations = true;
-                doImageProcessForecasts = true;
+//                doImageProcessForecasts = true;
 //                doImageProcessForecasts = false;
 
-//                doWissey = true;
-                doWissey = false;
-                doTeifi = true;
+                doWissey = true;
+//                doWissey = false;
+//                doTeifi = true;
 //                doTeifi = false;
 
                 if (doImageProcessObservations) {
@@ -481,6 +487,27 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
                     doTeifi);
             p.run();
         }
+
+        if (RunSARIC_RainfallStatistics) {
+            doWissey = true;
+            doWissey = false;
+            doTeifi = true;
+//            doTeifi = false;
+            overwrite = true;
+            File dirIn;
+            dirIn = se.getFiles().getInputDataMetOfficeDataPointDir();
+            File dirOut;
+            dirOut = se.getFiles().getOutputDataMetOfficeDataPointDir();
+            SARIC_RainfallStatistics p;
+            p = new SARIC_RainfallStatistics(
+                    se,
+                    dirIn,
+                    dirOut,
+                    doWissey,
+                    doTeifi,
+                    overwrite);
+            p.run();
+        }
     }
 
     // Parameters
@@ -518,5 +545,6 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
     boolean RunSARIC_CreatePointShapefile = false;
     boolean RunSARIC_DisplayShapefile = false;
     boolean RunSARIC_DataForWASIM = false;
-    boolean RunSARIC_ProcessNIMROD = true;
+    boolean RunSARIC_ProcessNIMROD = false;
+    boolean RunSARIC_RainfallStatistics = false;
 }

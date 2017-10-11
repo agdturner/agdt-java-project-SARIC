@@ -46,7 +46,7 @@ import uk.ac.leeds.ccg.andyt.grids.core.Grids_Environment;
 import uk.ac.leeds.ccg.andyt.grids.core.Grids_Grid2DSquareCellDouble;
 import uk.ac.leeds.ccg.andyt.grids.core.Grids_Grid2DSquareCellDoubleFactory;
 import uk.ac.leeds.ccg.andyt.grids.core.Grids_GridStatistics0;
-import uk.ac.leeds.ccg.andyt.grids.process.Grid2DSquareCellProcessor;
+import uk.ac.leeds.ccg.andyt.grids.process.Grids_Processor;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Object;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Strings;
@@ -67,7 +67,7 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
     SARIC_Files sf;
     SARIC_Strings ss;
     Grids_Environment ge;
-    Grid2DSquareCellProcessor gp;
+    Grids_Processor gp;
     Grids_Grid2DSquareCellDoubleFactory gf;
     Vector_Environment ve;
 

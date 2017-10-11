@@ -19,7 +19,7 @@
 package uk.ac.leeds.ccg.andyt.projects.saric.core;
 
 import uk.ac.leeds.ccg.andyt.grids.core.Grids_Environment;
-import uk.ac.leeds.ccg.andyt.grids.process.Grid2DSquareCellProcessor;
+import uk.ac.leeds.ccg.andyt.grids.process.Grids_Processor;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.catchment.SARIC_Teifi;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.catchment.SARIC_Wissey;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.SARIC_MetOfficeParameters;
@@ -48,12 +48,15 @@ public class SARIC_Environment {
     public SARIC_Environment(String dataDir) {
         ss = new SARIC_Strings();
         sf = new SARIC_Files(ss,dataDir);
-        time = new SARIC_Time(this);
         metOfficeParameters = new SARIC_MetOfficeParameters();
         ge = new Grids_Environment();
         ve = new Vector_Environment();
     }
 
+    public void setTime(SARIC_Time st) {
+        this.time = st;
+    }
+    
     public SARIC_Files getFiles() {
         return sf;
     }
