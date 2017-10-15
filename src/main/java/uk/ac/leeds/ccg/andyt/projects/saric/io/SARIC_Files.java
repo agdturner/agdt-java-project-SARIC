@@ -46,6 +46,7 @@ public class SARIC_Files {
     protected File InputDataOSMDir;
     protected File GeneratedDataDir;
     protected File GeneratedDataCatchmentDir;
+    protected File GeneratedDataGridsDir;
     protected File GeneratedDataMetOfficeDir;
     protected File GeneratedDataMetOfficeDataPointDir;
     protected File GeneratedDataMetOfficeDataPointForecastsDir;
@@ -151,6 +152,15 @@ public class SARIC_Files {
                     ss.getString_Catchment());
         }
         return GeneratedDataCatchmentDir;
+    }
+    
+    public File getGeneratedDataGridsDir() {
+        if (GeneratedDataGridsDir == null) {
+            GeneratedDataGridsDir = new File(
+                    getGeneratedDataDir(),
+                    ss.getString_Grids());
+        }
+        return GeneratedDataGridsDir;
     }
 
     public File getGeneratedDataMetOfficeDir() {

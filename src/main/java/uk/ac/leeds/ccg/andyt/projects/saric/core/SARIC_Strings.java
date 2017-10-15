@@ -63,6 +63,7 @@ public class SARIC_Strings {
     String string_datatype;
     String string_Forecasts;
     String string_Generated;
+    String string_Grids;
     String string_hourly;
     String string_input;
     String string_inspire;
@@ -168,9 +169,16 @@ public class SARIC_Strings {
 
     public String getString_Generated() {
         if (string_Generated == null) {
-            string_Generated = "generated";
+            string_Generated = "Generated";
         }
         return string_Generated;
+    }
+
+    public String getString_Grids() {
+        if (string_Grids == null) {
+            string_Grids = "Grids";
+        }
+        return string_Grids;
     }
 
     public String getString_hourly() {
