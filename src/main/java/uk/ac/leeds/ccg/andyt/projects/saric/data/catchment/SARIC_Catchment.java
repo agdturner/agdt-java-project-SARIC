@@ -169,7 +169,7 @@ public abstract class SARIC_Catchment extends SARIC_Object {
         f.set_Directory(dir);
         f.set_Dimensions(dimensions);
         f.setGrid2DSquareCellDoubleChunkFactory(new Grids_Grid2DSquareCellDoubleChunkArrayFactory());
-        f.set_GridStatistics(new Grids_GridStatistics0());
+        f.set_GridStatistics(new Grids_GridStatistics0(ge));
         grid = f.create(dir, nrows, ncols, dimensions, ge, true);
         result[0] = grid;
         result[1] = f;

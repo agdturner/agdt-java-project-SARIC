@@ -84,7 +84,7 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
         gf.set_ChunkNCols(62);
         gf.set_ChunkNRows(40);
         Grids_GridStatistics0 gs;
-        gs = new Grids_GridStatistics0();
+        gs = new Grids_GridStatistics0(ge);
         gf.set_GridStatistics(gs);
         ve = se.getVector_Environment();
     }

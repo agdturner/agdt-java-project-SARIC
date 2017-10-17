@@ -29,7 +29,10 @@ public abstract class SARIC_Object implements Serializable {
 
     public transient SARIC_Environment se;
 
-    public SARIC_Object(){}
+    /**
+     * Default constructor.
+     */
+    protected SARIC_Object(){}
     
     public SARIC_Object(SARIC_Environment se) {
         this.se = se;
