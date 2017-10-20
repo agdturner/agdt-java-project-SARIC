@@ -80,12 +80,12 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
         ss = se.getStrings();
         ge = se.getGrids_Environment();
         gp = ge.get_Grid2DSquareCellProcessor();
-        gf = gp._Grid2DSquareCellDoubleFactory;
-        gf.set_ChunkNCols(62);
-        gf.set_ChunkNRows(40);
+        gf = gp.Grid2DSquareCellDoubleFactory;
+        gf.setChunkNCols(62);
+        gf.setChunkNRows(40);
         Grids_GridStatistics0 gs;
         gs = new Grids_GridStatistics0(ge);
-        gf.set_GridStatistics(gs);
+        gf.setGridStatistics(gs);
         ve = se.getVector_Environment();
     }
 
@@ -159,8 +159,8 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
         g = observationsGrids.firstEntry().getValue();
         long nrows;
         long ncols;
-        nrows = g.get_NRows(true);
-        ncols = g.get_NCols(true);
+        nrows = g.getNRows(true);
+        ncols = g.getNCols(true);
         int numberOfDaysSinceLastRainfallEventGT2mm;
         double accumulation;
         long ID;
@@ -189,7 +189,7 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
 
         // Assuming all grids have the same noDataValue.
         double noDataValue;
-        noDataValue = g.get_NoDataValue(true);
+        noDataValue = g.getNoDataValue(true);
 
         Iterator<SARIC_Time> ite;
         for (long row = 0; row < nrows; row++) {

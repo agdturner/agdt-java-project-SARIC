@@ -34,6 +34,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import uk.ac.leeds.ccg.andyt.grids.core.Grids_Dimensions;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.chunk.Grids_AbstractGrid2DSquareCellDoubleChunkFactory;
 import uk.ac.leeds.ccg.andyt.grids.core.statistics.Grids_AbstractGridStatistics;
 import uk.ac.leeds.ccg.andyt.grids.core.Grids_Environment;
@@ -131,14 +132,14 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
 
     private void init_gf() {
         gf = new Grids_Grid2DSquareCellDoubleFactory(
-                gp.get_Directory(true),
+                gp.getDirectory(true),
                 256,
                 256,
                 (Grids_AbstractGrid2DSquareCellDoubleChunkFactory) gp._Grid2DSquareCellDoubleChunkArrayFactory,
                 ge,
                 true);
         gf.set_NoDataValue(noDataValue);
-        gp._Grid2DSquareCellDoubleFactory = gf;
+        gp.Grid2DSquareCellDoubleFactory = gf;
     }
 
     @Override
@@ -146,7 +147,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
 
         SARIC_Colour sc;
         sc = new SARIC_Colour(se);
-        
+
         TreeMap<Double, Color> colorMap;
         colorMap = sc.getColorMap();
         Color noDataValueColor;
@@ -220,10 +221,10 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
             sites = st.getForecastsSitesInStudyArea(ss.getString_3hourly());
             nearestForecastsSitesGridAndFactory = st.getNearestForecastsSitesGrid(sites);
             nearestForecastsSitesGrid = (Grids_Grid2DSquareCellDouble) nearestForecastsSitesGridAndFactory[0];
-            noDataValue1 = nearestForecastsSitesGrid.get_NoDataValue(true);
+            noDataValue1 = nearestForecastsSitesGrid.getNoDataValue(true);
             gf.set_NoDataValue(noDataValue1);
-            nrows = nearestForecastsSitesGrid.get_NRows(true);
-            ncols = nearestForecastsSitesGrid.get_NCols(true);
+            nrows = nearestForecastsSitesGrid.getNRows(true);
+            ncols = nearestForecastsSitesGrid.getNCols(true);
             Grids_Grid2DSquareCellDouble forecastsForTime2;
 
             Iterator<SARIC_Date> ite0;
@@ -291,7 +292,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                                 outdir1.mkdirs();
                             }
                             double estimate;
-                            double noDataValue = forecastsForTime2.get_NoDataValue(true);
+                            double noDataValue = forecastsForTime2.getNoDataValue(true);
                             double v;
 
                             Iterator<SARIC_Site> ite;
@@ -725,8 +726,8 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                             rowColint = getRowCol(rowCol);
                             g = grids1.get(rowCol);
                             // Iterate over grid and get values
-                            long nrows = b1KMGrid.get_NRows(true);
-                            long ncols = b1KMGrid.get_NCols(true);
+                            long nrows = b1KMGrid.getNRows(true);
+                            long ncols = b1KMGrid.getNCols(true);
                             for (long row = 0; row < nrows; row++) {
                                 //y = b1KMGrid.getCellYDouble(row, true);
                                 y = b1KMGrid.getCellYDouble(row, true) + halfcellsize; // adding half a cellsize is in an attempt to prevent striping where images join.
@@ -1064,8 +1065,8 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
     //                    b1KMGrid = (Grids_Grid2DSquareCellDouble) f.create((Grids_Grid2DSquareCellDouble) a1KMGrid[0]);
     //                    output1kmGrids.put(time, b1KMGrid);
     //                }
-    //                long nrows = b1KMGrid.get_NRows(true);
-    //                long ncols = b1KMGrid.get_NCols(true);
+    //                long nrows = b1KMGrid.getNRows(true);
+    //                long ncols = b1KMGrid.getNCols(true);
     //                while (gridsIte.hasNext()) {
     //                    rowCol = gridsIte.next();
     ////                int[] rowColint;
@@ -1287,8 +1288,8 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
 //                // If bounds intersect add
 //                if (p.getBounds().getIntersects(tileBounds)) {
                         // Iterate over grid and get values
-                        long nrows = b1KMGrid.get_NRows(true);
-                        long ncols = b1KMGrid.get_NCols(true);
+                        long nrows = b1KMGrid.getNRows(true);
+                        long ncols = b1KMGrid.getNCols(true);
                         for (long row = 0; row < nrows; row++) {
                             //y = b1KMGrid.getCellYDouble(row, true);
                             y = b1KMGrid.getCellYDouble(row, true) + halfcellsize; // adding half a cellsize is in an attempt to prevent striping where images join.
@@ -1395,13 +1396,13 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
             width = image.getWidth(null);
             height = image.getHeight(null);
 
-            BigDecimal[] dimensions;
-            dimensions = new BigDecimal[5];
-            dimensions[0] = cellsize;
-            dimensions[1] = tileBounds._xmin;
-            dimensions[2] = tileBounds._ymin;
-            dimensions[3] = tileBounds._xmax;
-            dimensions[4] = tileBounds._ymax;
+            Grids_Dimensions dimensions;
+            dimensions = new Grids_Dimensions(
+                    tileBounds._xmin,
+                    tileBounds._ymin,
+                    tileBounds._xmax,
+                    tileBounds._ymax,
+                    cellsize);
 //        dimensions[1] = tileBounds._xmin.subtract(cellsize.multiply(new BigDecimal(rowColint[1]).multiply(new BigDecimal(height)))); //XMIN
 //        dimensions[4] = tileBounds._ymax.subtract(cellsize.multiply(new BigDecimal(rowColint[0]).multiply(new BigDecimal(width)))); //YMAX
 //        dimensions[2] = dimensions[4].subtract(cellsize.multiply(new BigDecimal(height))); //YMIN
@@ -1629,5 +1630,4 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
         }
     }
 
-    
 }

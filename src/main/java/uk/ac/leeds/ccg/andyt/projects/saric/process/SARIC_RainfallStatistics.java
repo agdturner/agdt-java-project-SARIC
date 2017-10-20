@@ -23,22 +23,15 @@ import java.awt.Image;
 import java.io.File;
 import javax.imageio.ImageIO;
 import java.awt.image.PixelGrabber;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import uk.ac.leeds.ccg.andyt.generic.io.Generic_StaticIO;
-import uk.ac.leeds.ccg.andyt.grids.core.Grids_2D_ID_int;
-import uk.ac.leeds.ccg.andyt.grids.core.grid.chunk.Grids_AbstractGrid2DSquareCellDoubleChunk;
+import uk.ac.leeds.ccg.andyt.grids.core.Grids_Dimensions;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.chunk.Grids_AbstractGrid2DSquareCellDoubleChunkFactory;
-import uk.ac.leeds.ccg.andyt.grids.core.statistics.Grids_AbstractGridStatistics;
 import uk.ac.leeds.ccg.andyt.grids.core.Grids_Environment;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_Grid2DSquareCellDouble;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_Grid2DSquareCellDoubleFactory;
@@ -53,8 +46,6 @@ import uk.ac.leeds.ccg.andyt.projects.saric.data.catchment.SARIC_Wissey;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.SARIC_MetOfficeCapabilitiesXMLDOMReader;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.SARIC_MetOfficeLayerParameters;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.SARIC_MetOfficeParameters;
-import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.site.SARIC_MetOfficeSiteXMLSAXHandler;
-import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.site.SARIC_Site;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.site.SARIC_SiteForecastRecord;
 import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
 import uk.ac.leeds.ccg.andyt.projects.saric.util.SARIC_Date;
@@ -119,14 +110,14 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
 
     private void init_gf() {
         gf = new Grids_Grid2DSquareCellDoubleFactory(
-                gp.get_Directory(true),
+                gp.getDirectory(true),
                 256,
                 256,
                 (Grids_AbstractGrid2DSquareCellDoubleChunkFactory) gp._Grid2DSquareCellDoubleChunkArrayFactory,
                 ge,
                 true);
         gf.set_NoDataValue(noDataValue);
-        gp._Grid2DSquareCellDoubleFactory = gf;
+        gp.Grid2DSquareCellDoubleFactory = gf;
     }
 
     @Override
@@ -407,14 +398,14 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
                         while (iteT2.hasNext()) {
                             rowCol = iteT2.next();
                             sum = grids.get(rowCol);
-                            NRows = sum.get_NRows(true);
-                            NCols = sum.get_NCols(true);
+                            NRows = sum.getNRows(true);
+                            NCols = sum.getNCols(true);
                             if (variances.containsKey(rowCol)) {
                                 variance = variances.get(rowCol);
                             } else {
                                 variance = gf.create(
-                                        Generic_StaticIO.createNewFile(gf.get_Directory(true)),
-                                        NRows, NCols, sum.get_Dimensions(true), ge, true);
+                                        Generic_StaticIO.createNewFile(gf.getDirectory(true)),
+                                        NRows, NCols, sum.getDimensions(true), true);
                                 variances.put(rowCol, variance);
                             }
                             g = tg.get(rowCol);
@@ -427,8 +418,8 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
                                     variance.addToCell(row, col, (v - m) * (v - m), true);
                                 }
                             }
-//                            int NChunkRows = g.get_NChunkRows(true);
-//                            int NChunkCols = g.get_NChunkCols(true);
+//                            int NChunkRows = g.getNChunkRows(true);
+//                            int NChunkCols = g.getNChunkCols(true);
 //                            Grids_AbstractGrid2DSquareCellDoubleChunk sChunk;
 //                            Grids_AbstractGrid2DSquareCellDoubleChunk gChunk;
 //                            Grids_2D_ID_int chunkID;
@@ -476,8 +467,8 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
 //                // If bounds intersect add
 //                if (p.getBounds().getIntersects(tileBounds)) {
                         // Iterate over grid and get values
-                        long nrows = b1KMGrid.get_NRows(true);
-                        long ncols = b1KMGrid.get_NCols(true);
+                        long nrows = b1KMGrid.getNRows(true);
+                        long ncols = b1KMGrid.getNCols(true);
                         for (long row = 0; row < nrows; row++) {
                             //y = b1KMGrid.getCellYDouble(row, true);
                             y = b1KMGrid.getCellYDouble(row, true) + halfcellsize; // adding half a cellsize is in an attempt to prevent striping where images join.
@@ -584,20 +575,20 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
             width = image.getWidth(null);
             height = image.getHeight(null);
 
-            BigDecimal[] dimensions;
-            dimensions = new BigDecimal[5];
-            dimensions[0] = cellsize;
-            dimensions[1] = tileBounds._xmin;
-            dimensions[2] = tileBounds._ymin;
-            dimensions[3] = tileBounds._xmax;
-            dimensions[4] = tileBounds._ymax;
+            Grids_Dimensions dimensions;
+            dimensions = new Grids_Dimensions(
+                    tileBounds._xmin,
+                    tileBounds._ymin,
+                    tileBounds._xmax,
+                    tileBounds._ymax,
+                    cellsize);
 //        dimensions[1] = tileBounds._xmin.subtract(cellsize.multiply(new BigDecimal(rowColint[1]).multiply(new BigDecimal(height)))); //XMIN
 //        dimensions[4] = tileBounds._ymax.subtract(cellsize.multiply(new BigDecimal(rowColint[0]).multiply(new BigDecimal(width)))); //YMAX
 //        dimensions[2] = dimensions[4].subtract(cellsize.multiply(new BigDecimal(height))); //YMIN
 //        dimensions[3] = dimensions[1].subtract(cellsize.multiply(new BigDecimal(width)));  //XMAX
 
             result = (Grids_Grid2DSquareCellDouble) gf.create(
-                    Generic_StaticIO.createNewFile(gf.get_Directory(true)),
+                    Generic_StaticIO.createNewFile(gf.getDirectory(true)),
                     height,
                     width,
                     dimensions);

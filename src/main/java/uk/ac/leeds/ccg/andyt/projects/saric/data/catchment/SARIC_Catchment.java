@@ -42,6 +42,7 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import uk.ac.leeds.ccg.andyt.agdtgeotools.AGDT_Geotools;
 import uk.ac.leeds.ccg.andyt.agdtgeotools.AGDT_Shapefile;
 import uk.ac.leeds.ccg.andyt.generic.math.Generic_BigDecimal;
+import uk.ac.leeds.ccg.andyt.grids.core.Grids_Dimensions;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_AbstractGrid2DSquareCell;
 import uk.ac.leeds.ccg.andyt.grids.core.Grids_Environment;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_Grid2DSquareCellDouble;
@@ -149,28 +150,29 @@ public abstract class SARIC_Catchment extends SARIC_Object {
         dir = new File(
                 sf.getGeneratedDataCatchmentBoundariesDir(),
                 catchmentName);
-        BigDecimal[] dimensions;
-        dimensions = new BigDecimal[5];
-        dimensions[0] = new BigDecimal("1000"); //Cellsize
-        dimensions[1] = bounds._xmin; //XMIN
-        dimensions[2] = bounds._ymin; //YMIN
-        dimensions[3] = bounds._xmax; //XMAX
-        dimensions[4] = bounds._ymax; //YMAX
+        BigDecimal cellsize = new BigDecimal("1000");
+        Grids_Dimensions dimensions;
+        dimensions = new Grids_Dimensions(
+                bounds._xmin,
+                bounds._ymin,
+                bounds._xmax,
+                bounds._ymax,
+                cellsize);
         long nrows;
         long ncols;
-        ncols = Generic_BigDecimal.divideNoRounding(dimensions[3].subtract(dimensions[1]), dimensions[0]).longValueExact();
-        nrows = Generic_BigDecimal.divideNoRounding(dimensions[4].subtract(dimensions[2]), dimensions[0]).longValueExact();
+        ncols = Generic_BigDecimal.divideNoRounding(bounds._xmax.subtract(bounds._xmin), cellsize).longValueExact();
+        nrows = Generic_BigDecimal.divideNoRounding(bounds._ymax.subtract(bounds._ymin), cellsize).longValueExact();
         //inf = se.getGrids_Environment().get_Grid2DSquareCellProcessor()._Grid2DSquareCellDoubleFactory;
         Grids_Grid2DSquareCellDoubleFactory f;
         f = new Grids_Grid2DSquareCellDoubleFactory(ge, true);
         f.set_NoDataValue(-9999.0d);
-        f.set_ChunkNRows((int) nrows);
-        f.set_ChunkNCols((int) ncols);
-        f.set_Directory(dir);
-        f.set_Dimensions(dimensions);
-        f.setGrid2DSquareCellDoubleChunkFactory(new Grids_Grid2DSquareCellDoubleChunkArrayFactory());
-        f.set_GridStatistics(new Grids_GridStatistics0(ge));
-        grid = f.create(dir, nrows, ncols, dimensions, ge, true);
+        f.setChunkNRows((int) nrows);
+        f.setChunkNCols((int) ncols);
+        f.setDirectory(dir);
+        f.setDimensions(dimensions);
+        f.setChunkFactory(new Grids_Grid2DSquareCellDoubleChunkArrayFactory());
+        f.setGridStatistics(new Grids_GridStatistics0(ge));
+        grid = f.create(dir, nrows, ncols, dimensions, true);
         result[0] = grid;
         result[1] = f;
         return result;
@@ -209,9 +211,9 @@ public abstract class SARIC_Catchment extends SARIC_Object {
         String name;
         long nrows;
         long ncols;
-        nrows = resultGrid.get_NRows(true);
-        ncols = resultGrid.get_NCols(true);
-        //double noDataValue = result.get_NoDataValue(true);
+        nrows = resultGrid.getNRows(true);
+        ncols = resultGrid.getNCols(true);
+        //double noDataValue = result.getNoDataValue(true);
         //double value;
         double cellsize;
         cellsize = resultGrid.getCellsizeDouble(true);
@@ -274,13 +276,13 @@ public abstract class SARIC_Catchment extends SARIC_Object {
         resultGrid = (Grids_Grid2DSquareCellDouble) result[0];
         long nrows;
         long ncols;
-        nrows = resultGrid.get_NRows(true);
-        ncols = resultGrid.get_NCols(true);
+        nrows = resultGrid.getNRows(true);
+        ncols = resultGrid.getNCols(true);
         double x;
         double y;
         double v;
         double[] OSGBEastingAndNorthing;
-        double noDataValue = resultGrid.get_NoDataValue(true);
+        double noDataValue = resultGrid.getNoDataValue(true);
         double distance;
         double minDistance = Double.MAX_VALUE;
         Iterator<SARIC_Site> ite;
