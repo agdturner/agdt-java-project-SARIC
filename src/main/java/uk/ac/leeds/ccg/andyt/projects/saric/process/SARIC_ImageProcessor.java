@@ -752,8 +752,8 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                              * the number of hours in the day
                              */
                             gs = g.getGridStatistics(true);
-                            max = gs.getMaxDouble(true);
-                            min = gs.getMinDouble(true);
+                            max = gs.getMaxDouble(true, true);
+                            min = gs.getMinDouble(true, true);
                             System.out.println("max " + max);
                             System.out.println("min " + min);
 
@@ -782,8 +782,8 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                                     s + "_ForecastFor_" + date1.getYYYYMMDD() + ".asc");
                         }
                         gs = b1KMGrid.getGridStatistics(true);
-                        max = gs.getMaxDouble(true);
-                        min = gs.getMinDouble(true);
+                        max = gs.getMaxDouble(true, true);
+                        min = gs.getMinDouble(true, true);
                         System.out.println("max " + max);
                         System.out.println("min " + min);
                         scaleFactor = 24.0d / (double) counts.get(date1);
