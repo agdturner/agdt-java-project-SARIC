@@ -73,7 +73,7 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
         sf = se.getFiles();
         ss = se.getStrings();
         ge = se.getGrids_Environment();
-        gp = ge.get_Grid2DSquareCellProcessor();
+        gp = ge.getGridProcessor();
         gf = gp.Grid2DSquareCellDoubleFactory;
         this.doWissey = doWissey;
         this.doTeifi = doTeifi;

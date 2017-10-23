@@ -104,7 +104,7 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
         ge = se.getGrids_Environment();
         ae = new Grids_ESRIAsciiGridExporter(ge);
         ie = new Grids_ImageExporter(ge);
-        gp = ge.get_Grid2DSquareCellProcessor();
+        gp = ge.getGridProcessor();
         init_gf();
     }
 

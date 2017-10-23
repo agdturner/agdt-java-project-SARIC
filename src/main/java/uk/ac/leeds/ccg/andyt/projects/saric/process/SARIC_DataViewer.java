@@ -434,7 +434,7 @@ public class SARIC_DataViewer extends AGDT_DisplayShapefile implements Runnable 
         gc = AGDT_Maps.getGridCoverage2D(agr);
 
         Grids_Grid2DSquareCellDoubleFactory gf;
-        gf = se.getGrids_Environment().get_Grid2DSquareCellProcessor().Grid2DSquareCellDoubleFactory;
+        gf = se.getGrids_Environment().getGridProcessor().Grid2DSquareCellDoubleFactory;
         Grids_Grid2DSquareCellDouble g;
         g = (Grids_Grid2DSquareCellDouble) gf.create(f);
 
