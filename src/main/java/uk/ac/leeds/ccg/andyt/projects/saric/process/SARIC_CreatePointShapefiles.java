@@ -191,13 +191,14 @@ public class SARIC_CreatePointShapefiles extends SARIC_Object implements Runnabl
             SARIC_Site site;
             double[] OSGBEastingAndNorthing;
             Vector_Point2D p;
+                    Vector_OSGBtoLatLon OSGBtoLatLon = ve.getOSGBtoLatLon();
             while (ite.hasNext()) {
                 site = ite.next();
                 name = site.getName();
-                OSGBEastingAndNorthing = Vector_OSGBtoLatLon.latlon2osgb(
+                OSGBEastingAndNorthing = OSGBtoLatLon.latlon2osgb(
                         site.getLatitude(), site.getLongitude());
                 p = new Vector_Point2D(ve, OSGBEastingAndNorthing[0], OSGBEastingAndNorthing[1]);
-                c = new Coordinate(p._x.doubleValue(), p._y.doubleValue());
+                c = new Coordinate(p.X.doubleValue(), p.Y.doubleValue());
                 point = gF.createPoint(c);
                 sfb.add(point);
                 sfb.add(name);

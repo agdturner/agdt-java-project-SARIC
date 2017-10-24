@@ -153,15 +153,15 @@ public abstract class SARIC_Catchment extends SARIC_Object {
         BigDecimal cellsize = new BigDecimal("1000");
         Grids_Dimensions dimensions;
         dimensions = new Grids_Dimensions(
-                bounds._xmin,
-                bounds._ymin,
-                bounds._xmax,
-                bounds._ymax,
+                bounds.XMin,
+                bounds.YMin,
+                bounds.XMax,
+                bounds.YMax,
                 cellsize);
         long nrows;
         long ncols;
-        ncols = Generic_BigDecimal.divideNoRounding(bounds._xmax.subtract(bounds._xmin), cellsize).longValueExact();
-        nrows = Generic_BigDecimal.divideNoRounding(bounds._ymax.subtract(bounds._ymin), cellsize).longValueExact();
+        ncols = Generic_BigDecimal.divideNoRounding(bounds.XMax.subtract(bounds.XMin), cellsize).longValueExact();
+        nrows = Generic_BigDecimal.divideNoRounding(bounds.YMax.subtract(bounds.YMin), cellsize).longValueExact();
         //inf = se.getGrids_Environment().get_Grid2DSquareCellProcessor()._Grid2DSquareCellDoubleFactory;
         Grids_Grid2DSquareCellDoubleFactory f;
         f = new Grids_Grid2DSquareCellDoubleFactory(ge, true);
@@ -261,10 +261,10 @@ public abstract class SARIC_Catchment extends SARIC_Object {
         // Buffer
         if (buffer != null) {
             // Add buffer to bounds
-            bounds._xmin = bounds._xmin.subtract(buffer);
-            bounds._xmax = bounds._xmax.add(buffer);
-            bounds._ymin = bounds._ymin.subtract(buffer);
-            bounds._ymax = bounds._ymax.add(buffer);
+            bounds.XMin = bounds.XMin.subtract(buffer);
+            bounds.XMax = bounds.XMax.add(buffer);
+            bounds.YMin = bounds.YMin.subtract(buffer);
+            bounds.YMax = bounds.YMax.add(buffer);
         }
         return bounds;
     }
@@ -285,6 +285,7 @@ public abstract class SARIC_Catchment extends SARIC_Object {
         double noDataValue = resultGrid.getNoDataValue(true);
         double distance;
         double minDistance = Double.MAX_VALUE;
+        Vector_OSGBtoLatLon OSGBtoLatLon = ve.getOSGBtoLatLon();
         Iterator<SARIC_Site> ite;
         SARIC_Site site = null;
         for (long row = 0; row < nrows; row++) {
@@ -297,7 +298,7 @@ public abstract class SARIC_Catchment extends SARIC_Object {
                     minDistance = Double.MAX_VALUE;
                     while (ite.hasNext()) {
                         site = ite.next();
-                        OSGBEastingAndNorthing = Vector_OSGBtoLatLon.latlon2osgb(
+                        OSGBEastingAndNorthing = OSGBtoLatLon.latlon2osgb(
                                 site.getLatitude(), site.getLongitude());
                         double xdiff = (double) (OSGBEastingAndNorthing[0] - x);
                         double ydiff = (double) (OSGBEastingAndNorthing[1] - y);
@@ -347,12 +348,13 @@ public abstract class SARIC_Catchment extends SARIC_Object {
         Iterator<SARIC_Site> ite;
         ite = sites.iterator();
         SARIC_Site site;
+                Vector_OSGBtoLatLon OSGBtoLatLon = ve.getOSGBtoLatLon();
         double[] OSGBEastingAndNorthing;
         Vector_Point2D p;
         while (ite.hasNext()) {
             site = ite.next();
             name = site.getName();
-            OSGBEastingAndNorthing = Vector_OSGBtoLatLon.latlon2osgb(site.getLatitude(), site.getLongitude());
+            OSGBEastingAndNorthing = OSGBtoLatLon.latlon2osgb(site.getLatitude(), site.getLongitude());
             c = new Coordinate(OSGBEastingAndNorthing[0], OSGBEastingAndNorthing[1]);
             point = gf.createPoint(c);
             sfb.add(point);

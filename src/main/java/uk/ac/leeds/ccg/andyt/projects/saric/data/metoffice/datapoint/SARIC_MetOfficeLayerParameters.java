@@ -88,11 +88,11 @@ public class SARIC_MetOfficeLayerParameters extends SARIC_Object {
             tileSize = metOfficeParameters.TwoFiveSix.multiply(cellsize);
             Vector_Point2D p;
             BigDecimal xmin;
-            xmin = metOfficeParameters.bounds._xmin.add(new BigDecimal(col).multiply(tileSize));
+            xmin = metOfficeParameters.bounds.XMin.add(new BigDecimal(col).multiply(tileSize));
             BigDecimal xmax;
             xmax = xmin.add(tileSize);
             BigDecimal ymax;
-            ymax = metOfficeParameters.bounds._ymax.subtract(new BigDecimal(row).multiply(tileSize));
+            ymax = metOfficeParameters.bounds.YMax.subtract(new BigDecimal(row).multiply(tileSize));
             BigDecimal ymin;
             ymin = ymax.subtract(tileSize);
             p = new Vector_Point2D(

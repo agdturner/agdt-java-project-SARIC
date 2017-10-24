@@ -1399,15 +1399,16 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
         HashSet<SARIC_Site> sitesInWissey;
         sitesInWissey = new HashSet<SARIC_Site>();
         HashSet<SARIC_Site> sitesInTeifi;
-        sitesInTeifi = new HashSet<SARIC_Site>();
+        sitesInTeifi = new HashSet<>();
         Iterator<SARIC_Site> ite;
         ite = sites.iterator();
         SARIC_Site site;
         double[] OSGBEastingAndNorthing;
         Vector_Point2D p;
+                Vector_OSGBtoLatLon OSGBtoLatLon = ve.getOSGBtoLatLon();
         while (ite.hasNext()) {
             site = ite.next();
-            OSGBEastingAndNorthing = Vector_OSGBtoLatLon.latlon2osgb(
+            OSGBEastingAndNorthing = OSGBtoLatLon.latlon2osgb(
                     site.getLatitude(), site.getLongitude());
             p = new Vector_Point2D(ve, OSGBEastingAndNorthing[0], OSGBEastingAndNorthing[1]);
             if (wisseyBounds.getIntersects(p)) {
