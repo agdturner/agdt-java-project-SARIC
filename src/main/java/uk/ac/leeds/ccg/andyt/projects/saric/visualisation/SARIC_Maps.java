@@ -18,7 +18,7 @@
  */
 package uk.ac.leeds.ccg.andyt.projects.saric.visualisation;
 
-import uk.ac.leeds.ccg.andyt.agdtgeotools.AGDT_StyleParameters;
+import uk.ac.leeds.ccg.andyt.geotools.Geotools_StyleParameters;
 import java.io.File;
 import java.util.Collection;
 import java.util.Iterator;
@@ -32,8 +32,9 @@ import org.opengis.feature.Feature;
 import org.opengis.feature.Property;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
-import uk.ac.leeds.ccg.andyt.agdtgeotools.AGDT_Maps;
-import uk.ac.leeds.ccg.andyt.agdtgeotools.AGDT_Shapefile;
+import uk.ac.leeds.ccg.andyt.geotools.Geotools_Maps;
+import uk.ac.leeds.ccg.andyt.geotools.Geotools_Shapefile;
+import uk.ac.leeds.ccg.andyt.geotools.core.Geotools_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
 
@@ -41,21 +42,23 @@ import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
  *
  * @author geoagdt
  */
-public class SARIC_Maps extends AGDT_Maps {
+public class SARIC_Maps extends Geotools_Maps {
 
     protected transient SARIC_Environment se;
-    protected transient SARIC_Files sf;
+    protected transient SARIC_Files Files;
+    protected transient Geotools_Environment _Geotools_Environment;
     
     /**
      * For storing level(s) (OA, LSOA, MSOA, PostcodeSector, PostcodeUnit, ...)
      */
-    protected AGDT_StyleParameters styleParameters;
+    protected Geotools_StyleParameters styleParameters;
 
     public boolean doDebug;
 
-    public SARIC_Maps(SARIC_Environment env) {
-        this.se = env;
-        sf = env.getFiles();
+    public SARIC_Maps(SARIC_Environment e) {
+        this.se = e;
+        Files = e.getFiles();
+        _Geotools_Environment = e.getGeotools_Environment();
     }
 
     /*
@@ -68,7 +71,7 @@ public class SARIC_Maps extends AGDT_Maps {
      * @param targetPropertyName
      * @param outputFile
      */
-    public static void selectAndCreateNewShapefile(
+    public void selectAndCreateNewShapefile(
             ShapefileDataStoreFactory sdsf,
             FeatureCollection fc,
             SimpleFeatureType sft,
@@ -120,7 +123,7 @@ public class SARIC_Maps extends AGDT_Maps {
             }
         }
         featureIterator.close();
-        AGDT_Shapefile.transact(outputFile, sft, tsfc, sdsf);
+        Geotools_Shapefile.transact(outputFile, sft, tsfc, sdsf);
     }
 
     public SARIC_Shapefile getTeifiBoundary_SARIC_Shapefile() {
@@ -129,7 +132,7 @@ public class SARIC_Maps extends AGDT_Maps {
         //name = "62001.shp";
         name = "WW_area.shp";
         File dir = new File(
-                sf.getInputDataCatchmentBoundariesDir(),
+                Files.getInputDataCatchmentBoundariesDir(),
                 se.getStrings().getString_Teifi());
         dir = new File(dir, name);
         File f;
@@ -140,11 +143,11 @@ public class SARIC_Maps extends AGDT_Maps {
         return result;
     }
 
-    public AGDT_StyleParameters getStyleParameters() {
+    public Geotools_StyleParameters getStyleParameters() {
         return styleParameters;
     }
 
-    public void setStyleParameters(AGDT_StyleParameters sp) {
+    public void setStyleParameters(Geotools_StyleParameters sp) {
         this.styleParameters = sp;
     }
     

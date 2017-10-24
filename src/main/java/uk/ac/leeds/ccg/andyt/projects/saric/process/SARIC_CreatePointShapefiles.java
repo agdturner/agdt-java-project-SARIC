@@ -21,8 +21,8 @@ import org.geotools.feature.SchemaException;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
-import uk.ac.leeds.ccg.andyt.agdtgeotools.AGDT_Geotools;
-import uk.ac.leeds.ccg.andyt.agdtgeotools.AGDT_Shapefile;
+import uk.ac.leeds.ccg.andyt.geotools.core.Geotools_Environment;
+import uk.ac.leeds.ccg.andyt.geotools.Geotools_Shapefile;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Object;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Strings;
@@ -46,6 +46,7 @@ public class SARIC_CreatePointShapefiles extends SARIC_Object implements Runnabl
     SARIC_Files sf;
     SARIC_Strings ss;
     Vector_Environment ve;
+    Geotools_Environment _Geotools_Environment;
 
     // For processing
     boolean doForecasts;
@@ -62,6 +63,7 @@ public class SARIC_CreatePointShapefiles extends SARIC_Object implements Runnabl
      * are Forecasts.
      * @param doObservations If true then shapefile created for sites where
      * there are Observations.
+     * @param overwrite
      */
     public SARIC_CreatePointShapefiles(
             SARIC_Environment se,
@@ -72,6 +74,7 @@ public class SARIC_CreatePointShapefiles extends SARIC_Object implements Runnabl
         sf = se.getFiles();
         ss = se.getStrings();
         ve = se.getVector_Environment();
+        _Geotools_Environment = se.getGeotools_Environment();
         this.doForecasts = doForecasts;
         this.doObservations = doObservations;
         this.overwrite = overwrite;
@@ -84,6 +87,7 @@ public class SARIC_CreatePointShapefiles extends SARIC_Object implements Runnabl
         p.run();
     }
 
+    @Override
     public void run() {
         SARIC_SiteHandler sh;
         sh = new SARIC_SiteHandler(se);
@@ -125,18 +129,18 @@ public class SARIC_CreatePointShapefiles extends SARIC_Object implements Runnabl
                 sf.getGeneratedDataMetOfficeDataPointDir(),
                 type);
         File outfileAll;
-        outfileAll = AGDT_Geotools.getOutputShapefile(
+        outfileAll = _Geotools_Environment.getOutputShapefile(
                 dir,
                 "Sites");
         if (!outfileAll.exists() || overwrite == true) {
             outfileAll.getParentFile().mkdirs();
             File outfileWissey;
-            outfileWissey = AGDT_Geotools.getOutputShapefile(
+            outfileWissey = _Geotools_Environment.getOutputShapefile(
                     dir,
                     ss.getString_Wissey() + "SitesBuffered");
             outfileWissey.getParentFile().mkdirs();
             File outfileTeifi;
-            outfileTeifi = AGDT_Geotools.getOutputShapefile(
+            outfileTeifi = _Geotools_Environment.getOutputShapefile(
                     dir,
                     ss.getString_Teifi() + "SitesBuffered");
             outfileTeifi.getParentFile().mkdirs();
@@ -217,17 +221,17 @@ public class SARIC_CreatePointShapefiles extends SARIC_Object implements Runnabl
             }
 
             // Write out sites in the Wissey/Teifi
-            AGDT_Shapefile.transact(
+            Geotools_Shapefile.transact(
                     outfileAll,
                     aPointSFT,
                     tsfc,
                     new ShapefileDataStoreFactory());
-            AGDT_Shapefile.transact(
+            Geotools_Shapefile.transact(
                     outfileWissey,
                     aPointSFT,
                     tsfcWissey,
                     new ShapefileDataStoreFactory());
-            AGDT_Shapefile.transact(
+            Geotools_Shapefile.transact(
                     outfileTeifi,
                     aPointSFT,
                     tsfcTeifi,

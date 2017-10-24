@@ -19,7 +19,6 @@
 package uk.ac.leeds.ccg.andyt.projects.saric.data.catchment;
 
 import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.CoordinateSequence;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LinearRing;
@@ -30,7 +29,6 @@ import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.logging.Level;
@@ -39,11 +37,10 @@ import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
-import uk.ac.leeds.ccg.andyt.agdtgeotools.AGDT_Geotools;
-import uk.ac.leeds.ccg.andyt.agdtgeotools.AGDT_Shapefile;
+import uk.ac.leeds.ccg.andyt.geotools.core.Geotools_Environment;
+import uk.ac.leeds.ccg.andyt.geotools.Geotools_Shapefile;
 import uk.ac.leeds.ccg.andyt.generic.math.Generic_BigDecimal;
 import uk.ac.leeds.ccg.andyt.grids.core.Grids_Dimensions;
-import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_AbstractGrid2DSquareCell;
 import uk.ac.leeds.ccg.andyt.grids.core.Grids_Environment;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_Grid2DSquareCellDouble;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.chunk.Grids_Grid2DSquareCellDoubleChunkArrayFactory;
@@ -67,11 +64,12 @@ import uk.ac.leeds.ccg.andyt.vector.projection.Vector_OSGBtoLatLon;
 public abstract class SARIC_Catchment extends SARIC_Object {
 
     // For convenience
-    SARIC_Files sf;
-    Grids_Environment ge;
-    Vector_Environment ve;
+    SARIC_Files Files;
+    Grids_Environment _Grids_Environment;
+    Vector_Environment _Vector_Environment;
+    Geotools_Environment _Geotools_Environment;
 
-    String catchmentName;
+    String CatchmentName;
 
     protected SARIC_Catchment() {
     }
@@ -80,32 +78,33 @@ public abstract class SARIC_Catchment extends SARIC_Object {
             SARIC_Environment se,
             String catchmentName) {
         super(se);
-        sf = se.getFiles();
-        ge = se.getGrids_Environment();
-        ve = se.getVector_Environment();
-        this.catchmentName = catchmentName;
+        Files = se.getFiles();
+        _Grids_Environment = se.getGrids_Environment();
+        _Vector_Environment = se.getVector_Environment();
+        _Geotools_Environment = se.getGeotools_Environment();
+        this.CatchmentName = catchmentName;
     }
 
-    public AGDT_Shapefile getAGDT_Shapefile(String name, File dir) {
-        AGDT_Shapefile result;
-        File f = AGDT_Geotools.getShapefile(dir, name, false);
-        result = new AGDT_Shapefile(f);
+    public Geotools_Shapefile getAGDT_Shapefile(String name, File dir) {
+        Geotools_Shapefile result;
+        File f = _Geotools_Environment.getShapefile(dir, name, false);
+        result = new Geotools_Shapefile(_Geotools_Environment, f);
         return result;
     }
 
-    public AGDT_Shapefile getNRFAAGDT_Shapefile(String name) {
-        AGDT_Shapefile result;
+    public Geotools_Shapefile getNRFAAGDT_Shapefile(String name) {
+        Geotools_Shapefile result;
         result = getAGDT_Shapefile(name);
         return result;
     }
 
-    public abstract AGDT_Shapefile getWaterCompanyAGDT_Shapefile();
+    public abstract Geotools_Shapefile getWaterCompanyAGDT_Shapefile();
 
-    public AGDT_Shapefile getAGDT_Shapefile(String name) {
-        AGDT_Shapefile result;
+    public Geotools_Shapefile getAGDT_Shapefile(String name) {
+        Geotools_Shapefile result;
         File dir = new File(
-                sf.getInputDataCatchmentBoundariesDir(),
-                catchmentName);
+                Files.getInputDataCatchmentBoundariesDir(),
+                CatchmentName);
         result = getAGDT_Shapefile(name, dir);
         return result;
     }
@@ -148,8 +147,8 @@ public abstract class SARIC_Catchment extends SARIC_Object {
         //Grids_Grid2DSquareCellDoubleFactory inf;
         File dir;
         dir = new File(
-                sf.getGeneratedDataCatchmentBoundariesDir(),
-                catchmentName);
+                Files.getGeneratedDataCatchmentBoundariesDir(),
+                CatchmentName);
         BigDecimal cellsize = new BigDecimal("1000");
         Grids_Dimensions dimensions;
         dimensions = new Grids_Dimensions(
@@ -164,14 +163,14 @@ public abstract class SARIC_Catchment extends SARIC_Object {
         nrows = Generic_BigDecimal.divideNoRounding(bounds.YMax.subtract(bounds.YMin), cellsize).longValueExact();
         //inf = se.getGrids_Environment().get_Grid2DSquareCellProcessor()._Grid2DSquareCellDoubleFactory;
         Grids_Grid2DSquareCellDoubleFactory f;
-        f = new Grids_Grid2DSquareCellDoubleFactory(ge, true);
+        f = new Grids_Grid2DSquareCellDoubleFactory(_Grids_Environment, true);
         f.set_NoDataValue(-9999.0d);
         f.setChunkNRows((int) nrows);
         f.setChunkNCols((int) ncols);
         f.setDirectory(dir);
         f.setDimensions(dimensions);
         f.setChunkFactory(new Grids_Grid2DSquareCellDoubleChunkArrayFactory());
-        f.setGridStatistics(new Grids_GridStatistics0(ge));
+        f.setGridStatistics(new Grids_GridStatistics0(_Grids_Environment));
         grid = f.create(dir, nrows, ncols, dimensions, true);
         result[0] = grid;
         result[1] = f;
@@ -285,7 +284,7 @@ public abstract class SARIC_Catchment extends SARIC_Object {
         double noDataValue = resultGrid.getNoDataValue(true);
         double distance;
         double minDistance = Double.MAX_VALUE;
-        Vector_OSGBtoLatLon OSGBtoLatLon = ve.getOSGBtoLatLon();
+        Vector_OSGBtoLatLon OSGBtoLatLon = _Vector_Environment.getOSGBtoLatLon();
         Iterator<SARIC_Site> ite;
         SARIC_Site site = null;
         for (long row = 0; row < nrows; row++) {
@@ -328,7 +327,7 @@ public abstract class SARIC_Catchment extends SARIC_Object {
         ssh = new SARIC_SiteHandler(se);
         sites = ssh.getForecastsSites(time);
         HashSet<SARIC_Site> result;
-        result = new HashSet<SARIC_Site>();
+        result = new HashSet<>();
         // Get Outline
         Geometry geometry2;
         geometry2 = getOutlineGeometry();
@@ -348,7 +347,7 @@ public abstract class SARIC_Catchment extends SARIC_Object {
         Iterator<SARIC_Site> ite;
         ite = sites.iterator();
         SARIC_Site site;
-                Vector_OSGBtoLatLon OSGBtoLatLon = ve.getOSGBtoLatLon();
+                Vector_OSGBtoLatLon OSGBtoLatLon = _Vector_Environment.getOSGBtoLatLon();
         double[] OSGBEastingAndNorthing;
         Vector_Point2D p;
         while (ite.hasNext()) {
@@ -378,7 +377,7 @@ public abstract class SARIC_Catchment extends SARIC_Object {
      */
     public Geometry getOutlineGeometry() {
         Geometry result;
-        AGDT_Shapefile shpf;
+        Geotools_Shapefile shpf;
         shpf = getWaterCompanyAGDT_Shapefile();
         SimpleFeature feature2 = null;
         try {

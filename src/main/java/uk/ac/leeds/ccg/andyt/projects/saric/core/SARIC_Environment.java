@@ -18,6 +18,7 @@
  */
 package uk.ac.leeds.ccg.andyt.projects.saric.core;
 
+import uk.ac.leeds.ccg.andyt.geotools.core.Geotools_Environment;
 import uk.ac.leeds.ccg.andyt.grids.core.Grids_Environment;
 import uk.ac.leeds.ccg.andyt.grids.process.Grids_Processor;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.catchment.SARIC_Teifi;
@@ -33,12 +34,14 @@ import uk.ac.leeds.ccg.andyt.vector.core.Vector_Environment;
  */
 public class SARIC_Environment {
 
-    SARIC_Files sf;
-    SARIC_Strings ss;
-    SARIC_MetOfficeParameters metOfficeParameters;
-    SARIC_Time time;
-    Grids_Environment ge;
-    Vector_Environment ve;
+    SARIC_Files Files;
+    SARIC_Strings Strings;
+    SARIC_MetOfficeParameters MetOfficeParameters;
+    Grids_Environment _Grids_Environment;
+    Vector_Environment _Vector_Environment;
+    Geotools_Environment _Geotools_Environment;
+
+    SARIC_Time Time;
     SARIC_Wissey Wissey;
     SARIC_Teifi Teifi;
 
@@ -46,39 +49,44 @@ public class SARIC_Environment {
     }
 
     public SARIC_Environment(String dataDir) {
-        ss = new SARIC_Strings();
-        sf = new SARIC_Files(ss,dataDir);
-        metOfficeParameters = new SARIC_MetOfficeParameters();
-        ge = new Grids_Environment(sf.getGeneratedDataGridsDir());
-        ve = new Vector_Environment(ge);
+        Strings = new SARIC_Strings();
+        Files = new SARIC_Files(Strings,dataDir);
+        MetOfficeParameters = new SARIC_MetOfficeParameters();
+        _Grids_Environment = new Grids_Environment(Files.getGeneratedDataGridsDir());
+        _Vector_Environment = new Vector_Environment(_Grids_Environment);
+        _Geotools_Environment = new Geotools_Environment();
     }
 
-    public void setTime(SARIC_Time st) {
-        this.time = st;
+    public void setTime(SARIC_Time time) {
+        Time = time;
     }
     
     public SARIC_Files getFiles() {
-        return sf;
+        return Files;
     }
 
     public SARIC_Strings getStrings() {
-        return ss;
+        return Strings;
     }
 
     public SARIC_MetOfficeParameters getMetOfficeParameters() {
-        return metOfficeParameters;
+        return MetOfficeParameters;
     }
 
     public SARIC_Time getTime() {
-        return time;
+        return Time;
     }
 
     public Grids_Environment getGrids_Environment() {
-        return ge;
+        return _Grids_Environment;
     }
 
     public Vector_Environment getVector_Environment() {
-        return ve;
+        return _Vector_Environment;
+    }
+    
+    public Geotools_Environment getGeotools_Environment(){
+        return _Geotools_Environment;
     }
 
     public SARIC_Wissey getWissey() {

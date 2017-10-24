@@ -24,8 +24,8 @@ import org.geotools.styling.SLD;
 import org.geotools.styling.Style;
 import org.geotools.swing.JMapFrame;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import uk.ac.leeds.ccg.andyt.agdtgeotools.AGDT_Geotools;
-import uk.ac.leeds.ccg.andyt.agdtgeotools.AGDT_Shapefile;
+import uk.ac.leeds.ccg.andyt.geotools.core.Geotools_Environment;
+import uk.ac.leeds.ccg.andyt.geotools.Geotools_Shapefile;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Object;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Strings;
@@ -40,6 +40,7 @@ public class SARIC_DisplayShapefile extends SARIC_Object {
     // For convenience
     SARIC_Files sf;
     SARIC_Strings ss;
+    Geotools_Environment _Geotools_Environment;
     
     protected SARIC_DisplayShapefile() {
     }
@@ -48,6 +49,7 @@ public class SARIC_DisplayShapefile extends SARIC_Object {
         super(se);
         sf = se.getFiles();
         ss = se.getStrings();
+        _Geotools_Environment = se.getGeotools_Environment();
     }
     
     public static void main(String[] args) {
@@ -72,7 +74,7 @@ public class SARIC_DisplayShapefile extends SARIC_Object {
         dir = new File(
                 sf.getGeneratedDataMetOfficeDataPointDir(),
                 ss.getString_Observations());
-        f = AGDT_Geotools.getShapefile(dir, name, false);
+        f = _Geotools_Environment.getShapefile(dir, name, false);
         files.add(f);
 
         try {
