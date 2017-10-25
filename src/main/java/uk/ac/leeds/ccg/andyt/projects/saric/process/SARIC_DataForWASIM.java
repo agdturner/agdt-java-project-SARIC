@@ -40,8 +40,8 @@ import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.opengis.feature.Feature;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
-import uk.ac.leeds.ccg.andyt.agdtgeotools.AGDT_Point;
-import uk.ac.leeds.ccg.andyt.agdtgeotools.AGDT_Shapefile;
+import uk.ac.leeds.ccg.andyt.geotools.Geotools_Point;
+import uk.ac.leeds.ccg.andyt.geotools.Geotools_Shapefile;
 import uk.ac.leeds.ccg.andyt.grids.core.Grids_Environment;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_Grid2DSquareCellDouble;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_Grid2DSquareCellDoubleFactory;
@@ -135,7 +135,7 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
         // Teifi
         SARIC_Teifi st;
         st = new SARIC_Teifi(se);
-        AGDT_Shapefile shpf;
+        Geotools_Shapefile shpf;
         shpf = st.getWaterCompanyAGDT_Shapefile();
         SimpleFeature feature2 = null;
         try {

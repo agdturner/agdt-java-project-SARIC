@@ -19,7 +19,7 @@
 package uk.ac.leeds.ccg.andyt.projects.saric.process;
 
 import java.io.File;
-import uk.ac.leeds.ccg.andyt.agdtgeotools.demo.AGDT_ProjectShapefile;
+import uk.ac.leeds.ccg.andyt.geotools.demo.Geotools_ProjectShapefile;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Strings;
 import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
@@ -28,7 +28,7 @@ import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
  *
  * @author geoagdt
  */
-public class SARIC_ProjectShapefiles extends AGDT_ProjectShapefile implements Runnable {
+public class SARIC_ProjectShapefiles extends Geotools_ProjectShapefile implements Runnable {
     
     SARIC_Environment se;
     

@@ -40,12 +40,12 @@ import org.geotools.map.MapViewport;
 import org.geotools.styling.SLD;
 import org.geotools.styling.Style;
 import org.geotools.swing.JMapFrame;
-import uk.ac.leeds.ccg.andyt.agdtgeotools.AGDT_Geotools;
-import uk.ac.leeds.ccg.andyt.agdtgeotools.AGDT_Maps;
-import uk.ac.leeds.ccg.andyt.agdtgeotools.AGDT_Shapefile;
-import uk.ac.leeds.ccg.andyt.agdtgeotools.AGDT_Style;
-import uk.ac.leeds.ccg.andyt.agdtgeotools.AGDT_StyleParameters;
-import uk.ac.leeds.ccg.andyt.agdtgeotools.demo.AGDT_DisplayShapefile;
+import uk.ac.leeds.ccg.andyt.geotools.core.Geotools_Environment;
+import uk.ac.leeds.ccg.andyt.geotools.Geotools_Maps;
+import uk.ac.leeds.ccg.andyt.geotools.Geotools_Shapefile;
+import uk.ac.leeds.ccg.andyt.geotools.Geotools_Style;
+import uk.ac.leeds.ccg.andyt.geotools.Geotools_StyleParameters;
+import uk.ac.leeds.ccg.andyt.geotools.demo.Geotools_DisplayShapefile;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_Grid2DSquareCellDouble;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_Grid2DSquareCellDoubleFactory;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
@@ -58,11 +58,12 @@ import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
  *
  * @author geoagdt
  */
-public class SARIC_DataViewer extends AGDT_DisplayShapefile implements Runnable {
+public class SARIC_DataViewer extends Geotools_DisplayShapefile implements Runnable {
 
     SARIC_Environment se;
     SARIC_Files sf;
     SARIC_Strings ss;
+    Geotools_Environment _Geotools_Environment;
 
     boolean doWissey;
     boolean doTeifi;
@@ -79,6 +80,7 @@ public class SARIC_DataViewer extends AGDT_DisplayShapefile implements Runnable 
         this.doTeifi = doTeifi;
         this.addGBHRUs = addGBHRUs;
         ss = se.getStrings();
+        _Geotools_Environment = se.getGeotools_Environment();
     }
 
     @Override
@@ -96,10 +98,10 @@ public class SARIC_DataViewer extends AGDT_DisplayShapefile implements Runnable 
         re = mc.getMaxBounds();
 
         HashMap<Integer, File> files;
-        files = new HashMap<Integer, File>();
+        files = new HashMap<>();
         String name;
 
-        AGDT_Shapefile as;
+        Geotools_Shapefile as;
         FeatureLayer fl;
 
         if (addGBHRUs) {
@@ -109,7 +111,7 @@ public class SARIC_DataViewer extends AGDT_DisplayShapefile implements Runnable 
                     this.sf.getInputDataCEHDir(),
                     "WGS84");
             name = "ihu_catchments.shp";
-            f = AGDT_Geotools.getShapefile(dir, name, false);
+            f = _Geotools_Environment.getShapefile(dir, name, false);
             files.put(0, f);
         }
 
@@ -179,7 +181,7 @@ public class SARIC_DataViewer extends AGDT_DisplayShapefile implements Runnable 
         try {
             displayShapefiles(files, 800, 600, re);
         } catch (Exception ex) {
-            Logger.getLogger(AGDT_DisplayShapefile.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Geotools_DisplayShapefile.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -420,18 +422,21 @@ public class SARIC_DataViewer extends AGDT_DisplayShapefile implements Runnable 
         File f;
         f = new File(dir, name);
 
-        AGDT_StyleParameters styleParameters;
-        styleParameters = new AGDT_StyleParameters();
+        Geotools_StyleParameters styleParameters;
+        styleParameters = new Geotools_StyleParameters();
         styleParameters.setnClasses(9);
         styleParameters.setPaletteName("Reds");
         styleParameters.setAddWhiteForZero(true);
         styleParameters.setClassificationFunctionName("EqualInterval");
 
+        Geotools_Maps Maps;
+        Maps = _Geotools_Environment.getMaps();
+
         ArcGridReader agr;
-        agr = AGDT_Maps.getArcGridReader(f);
+        agr = Maps.getArcGridReader(f);
 
         GridCoverage2D gc;
-        gc = AGDT_Maps.getGridCoverage2D(agr);
+        gc = Maps.getGridCoverage2D(agr);
 
         Grids_Grid2DSquareCellDoubleFactory gf;
         gf = se.getGrids_Environment().getGridProcessor().Grid2DSquareCellDoubleFactory;
@@ -440,8 +445,11 @@ public class SARIC_DataViewer extends AGDT_DisplayShapefile implements Runnable 
 
         double normalisation = 1.0d;
 
+        Geotools_Style Style;
+        Style = _Geotools_Environment.getStyle();
+                
         Object[] styleAndLegendItems;
-        styleAndLegendItems = AGDT_Style.getStyleAndLegendItems(
+        styleAndLegendItems = Style.getStyleAndLegendItems(
                 normalisation,
                 g,
                 gc,

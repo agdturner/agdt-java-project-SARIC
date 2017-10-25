@@ -32,14 +32,12 @@ import org.geotools.map.FeatureLayer;
 import org.geotools.map.Layer;
 import org.geotools.map.MapContent;
 import org.geotools.map.MapViewport;
-import org.geotools.renderer.style.LineStyle2D;
 import org.geotools.styling.SLD;
 import org.geotools.styling.Style;
 import org.geotools.swing.JMapFrame;
-import org.ojalgo.type.colour.Colour;
-import uk.ac.leeds.ccg.andyt.agdtgeotools.AGDT_Geotools;
-import uk.ac.leeds.ccg.andyt.agdtgeotools.AGDT_Shapefile;
-import uk.ac.leeds.ccg.andyt.agdtgeotools.demo.AGDT_DisplayShapefile;
+import uk.ac.leeds.ccg.andyt.geotools.core.Geotools_Environment;
+import uk.ac.leeds.ccg.andyt.geotools.Geotools_Shapefile;
+import uk.ac.leeds.ccg.andyt.geotools.demo.Geotools_DisplayShapefile;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.catchment.SARIC_Teifi;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.catchment.SARIC_Wissey;
@@ -49,10 +47,11 @@ import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
  *
  * @author geoagdt
  */
-public class SARIC_CatchmentViewer extends AGDT_DisplayShapefile implements Runnable {
+public class SARIC_CatchmentViewer extends Geotools_DisplayShapefile implements Runnable {
 
     SARIC_Environment se;
     SARIC_Files sf;
+    Geotools_Environment _Geotools_Environment;
 
     private SARIC_CatchmentViewer() {
     }
@@ -60,17 +59,18 @@ public class SARIC_CatchmentViewer extends AGDT_DisplayShapefile implements Runn
     public SARIC_CatchmentViewer(SARIC_Environment se) {
         this.se = se;
         this.sf = se.getFiles();
+        _Geotools_Environment = se.getGeotools_Environment();
     }
 
     @Override
     public void run() {
         ArrayList<File> files;
-        files = new ArrayList<File>();
+        files = new ArrayList<>();
         String name;
         File dir;
         File f;
 
-        AGDT_Shapefile as;
+        Geotools_Shapefile as;
         FeatureLayer fl;
 
         MapContent mc;
@@ -84,7 +84,7 @@ public class SARIC_CatchmentViewer extends AGDT_DisplayShapefile implements Runn
                 this.sf.getInputDataCEHDir(),
                 "WGS84");
         name = "ihu_catchments.shp";
-        f = AGDT_Geotools.getShapefile(dir, name, false);
+        f = _Geotools_Environment.getShapefile(dir, name, false);
         files.add(f);
         
         SARIC_Wissey sw;
@@ -121,7 +121,7 @@ public class SARIC_CatchmentViewer extends AGDT_DisplayShapefile implements Runn
         try {
             displayShapefiles(files, 800, 600, re);
         } catch (Exception ex) {
-            Logger.getLogger(AGDT_DisplayShapefile.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Geotools_DisplayShapefile.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 

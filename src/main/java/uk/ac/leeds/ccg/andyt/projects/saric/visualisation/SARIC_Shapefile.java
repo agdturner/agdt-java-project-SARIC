@@ -19,13 +19,13 @@
 package uk.ac.leeds.ccg.andyt.projects.saric.visualisation;
 
 import java.io.File;
-import uk.ac.leeds.ccg.andyt.agdtgeotools.AGDT_Shapefile;
+import uk.ac.leeds.ccg.andyt.geotools.Geotools_Shapefile;
 
 /**
  *
  * @author geoagdt
  */
-public class SARIC_Shapefile extends AGDT_Shapefile {
+public class SARIC_Shapefile extends Geotools_Shapefile {
     
     public SARIC_Shapefile(File f) {
         setFile(f);

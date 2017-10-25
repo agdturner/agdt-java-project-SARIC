@@ -39,7 +39,7 @@ import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
-import uk.ac.leeds.ccg.andyt.agdtgeotools.AGDT_Shapefile;
+import uk.ac.leeds.ccg.andyt.geotools.Geotools_Shapefile;
 import uk.ac.leeds.ccg.andyt.generic.io.Generic_StaticIO;
 import uk.ac.leeds.ccg.andyt.grids.core.Grids_2D_ID_long;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
@@ -72,7 +72,7 @@ public class SARIC_Teifi extends SARIC_Catchment {
      *
      * @return
      */
-    public AGDT_Shapefile getNRFAAGDT_Shapefile() {
+    public Geotools_Shapefile getNRFAAGDT_Shapefile() {
         return getNRFAAGDT_Shapefile("62001.shp");
     }
 
@@ -81,14 +81,14 @@ public class SARIC_Teifi extends SARIC_Catchment {
      *
      * @return
      */
-    public AGDT_Shapefile getWaterCompanyAGDT_Shapefile() {
+    public Geotools_Shapefile getWaterCompanyAGDT_Shapefile() {
         return getAGDT_Shapefile("WW_area.shp");
     }
 
-    public AGDT_Shapefile getOSMAGDT_Shapefile(String name) {
-        AGDT_Shapefile result;
+    public Geotools_Shapefile getOSMAGDT_Shapefile(String name) {
+        Geotools_Shapefile result;
         File dir = new File(
-                sf.getGeneratedDataOSMDir(),
+                Files.getGeneratedDataOSMDir(),
                 "wales-latest-free.shp");
 ////        result = getAGDT_Shapefile(name, dir);
 //
@@ -144,7 +144,7 @@ public class SARIC_Teifi extends SARIC_Catchment {
     public HashSet<SARIC_Site> getForecastsSitesInStudyArea(String time) {
         HashSet<SARIC_Site> result;
         File f;
-        f = sf.getGeneratedDataMetOfficeDataPointForecastsSitesInTeifiFile();
+        f = Files.getGeneratedDataMetOfficeDataPointForecastsSitesInTeifiFile();
         if (f.exists()) {
             result = (HashSet<SARIC_Site>) Generic_StaticIO.readObject(f);
         } else {

@@ -35,9 +35,9 @@ import org.geotools.map.MapViewport;
 import org.geotools.styling.SLD;
 import org.geotools.styling.Style;
 import org.geotools.swing.JMapFrame;
-import uk.ac.leeds.ccg.andyt.agdtgeotools.AGDT_Geotools;
-import uk.ac.leeds.ccg.andyt.agdtgeotools.AGDT_Shapefile;
-import uk.ac.leeds.ccg.andyt.agdtgeotools.demo.AGDT_DisplayShapefile;
+import uk.ac.leeds.ccg.andyt.geotools.core.Geotools_Environment;
+import uk.ac.leeds.ccg.andyt.geotools.Geotools_Shapefile;
+import uk.ac.leeds.ccg.andyt.geotools.demo.Geotools_DisplayShapefile;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Strings;
 import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
@@ -46,15 +46,18 @@ import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
  *
  * @author geoagdt
  */
-public class SARIC_MetOfficeDataPointViewer extends AGDT_DisplayShapefile {
+public class SARIC_MetOfficeDataPointViewer extends Geotools_DisplayShapefile {
 
-    // For convenience
-//    SARIC_Environment se;
-    SARIC_Files sf;
-//    SARIC_Strings ss;
+    SARIC_Environment se;
+    SARIC_Files Files;
+    Geotools_Environment _Geotools_Environment;
     
-    public SARIC_MetOfficeDataPointViewer() {
-        sf = new SARIC_Files("data");   
+    protected SARIC_MetOfficeDataPointViewer(){}
+    
+    public SARIC_MetOfficeDataPointViewer(SARIC_Environment se) {
+        this.se = se;
+        Files = new SARIC_Files("data"); 
+        _Geotools_Environment = se.getGeotools_Environment();
     }
 
     public static void main(String[] args) {
@@ -64,12 +67,12 @@ public class SARIC_MetOfficeDataPointViewer extends AGDT_DisplayShapefile {
     @Override
     public void run() {
         ArrayList<File> files;
-        files = new ArrayList<File>();
+        files = new ArrayList<>();
         String name;
         File dir;
         File f;
 
-        AGDT_Shapefile as;
+        Geotools_Shapefile as;
         FeatureLayer fl;
         
         MapContent mc;
@@ -78,18 +81,18 @@ public class SARIC_MetOfficeDataPointViewer extends AGDT_DisplayShapefile {
         // Wissey
         mc = new MapContent();
         dir = new File(
-                sf.getInputDataCatchmentBoundariesDir(),
+                Files.getInputDataCatchmentBoundariesDir(),
                 "Wissey");
         name = "33006.shp";
-        f = AGDT_Geotools.getShapefile(dir, name, false);
+        f = _Geotools_Environment.getShapefile(dir, name, false);
         files.add(f);
-        AGDT_Shapefile f33006;
-        f33006 = new AGDT_Shapefile(f);
+        Geotools_Shapefile f33006;
+        f33006 = new Geotools_Shapefile(_Geotools_Environment, f);
         mc.addLayer(f33006.getFeatureLayer());
         name = "WISSEY_RBMP2.shp";
-        f = AGDT_Geotools.getShapefile(dir, name, false);
+        f = _Geotools_Environment.getShapefile(dir, name, false);
         files.add(f);
-        as = new AGDT_Shapefile(f);
+        as = new Geotools_Shapefile(_Geotools_Environment, f);
         fl = as.getFeatureLayer();
         mc.addLayer(fl);
         re = mc.getMaxBounds();
@@ -97,30 +100,30 @@ public class SARIC_MetOfficeDataPointViewer extends AGDT_DisplayShapefile {
 
         // Teifi
          dir = new File(
-                sf.getInputDataCatchmentBoundariesDir(),
+                Files.getInputDataCatchmentBoundariesDir(),
                  "Teifi");
         name = "62001.shp";
-        f = AGDT_Geotools.getShapefile(dir, name, false);
+        f = _Geotools_Environment.getShapefile(dir, name, false);
         files.add(f);
         name = "WW_area.shp";
-        f = AGDT_Geotools.getShapefile(dir, name, false);
+        f = _Geotools_Environment.getShapefile(dir, name, false);
         files.add(f);
-        as = new AGDT_Shapefile(f);
+        as = new Geotools_Shapefile(_Geotools_Environment, f);
         fl = as.getFeatureLayer();
         re = fl.getBounds();
         printBounds(re);
         
          dir = new File(
-                sf.getInputDataCEHDir(),
+                Files.getInputDataCEHDir(),
                 "WGS84");
         name = "ihu_catchments.shp";
-        f = AGDT_Geotools.getShapefile(dir, name, false);
+        f = _Geotools_Environment.getShapefile(dir, name, false);
         files.add(f);
 
         try {
             displayShapefiles(files, 800, 600, re);
         } catch (Exception ex) {
-            Logger.getLogger(AGDT_DisplayShapefile.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Geotools_DisplayShapefile.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
