@@ -81,8 +81,8 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
             // Main switches
 //            RunProjectShapefiles = true;
 //            RunCatchmentViewer = true;
-            RunSARIC_MetOfficeScraper = true; 
-//            RunSARIC_ImageProcessor = true;
+//            RunSARIC_MetOfficeScraper = true; 
+            RunSARIC_ImageProcessor = true;
 //            RunSARIC_CreatePointShapefile = true;
 //            RunSARIC_DisplayShapefile = true;
 //            RunSARIC_DataForWASIM = true;
@@ -367,12 +367,12 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
                 // Main Switches
 //                doImageProcessObservations = false;
                 doImageProcessObservations = true;
-//                doImageProcessForecasts = true;
+                doImageProcessForecasts = true;
 //                doImageProcessForecasts = false;
 
                 doWissey = true;
 //                doWissey = false;
-//                doTeifi = true;
+                doTeifi = true;
 //                doTeifi = false;
 
                 if (doImageProcessObservations) {
