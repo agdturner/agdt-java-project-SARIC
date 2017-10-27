@@ -43,8 +43,8 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import uk.ac.leeds.ccg.andyt.geotools.Geotools_Point;
 import uk.ac.leeds.ccg.andyt.geotools.Geotools_Shapefile;
 import uk.ac.leeds.ccg.andyt.grids.core.Grids_Environment;
-import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_Grid2DSquareCellDouble;
-import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_Grid2DSquareCellDoubleFactory;
+import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_GridDouble;
+import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_GridDoubleFactory;
 import uk.ac.leeds.ccg.andyt.grids.core.statistics.Grids_GridStatistics0;
 import uk.ac.leeds.ccg.andyt.grids.process.Grids_Processor;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
@@ -68,7 +68,7 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
     SARIC_Strings ss;
     Grids_Environment ge;
     Grids_Processor gp;
-    Grids_Grid2DSquareCellDoubleFactory gf;
+    Grids_GridDoubleFactory gf;
     Vector_Environment ve;
 
     protected SARIC_DataForWASIM() {
@@ -120,7 +120,7 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
                 + "ForecastRainfallIn96to120Hours");
         // Load all the observations grids
         String area;
-        TreeMap<SARIC_Time, Grids_Grid2DSquareCellDouble> observationsGrids;
+        TreeMap<SARIC_Time, Grids_GridDouble> observationsGrids;
         area = ss.getString_Teifi();
         observationsGrids = getObservationsGrids(area);
 
@@ -155,7 +155,7 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
 //        Vector_Point2D p;
         double Easting;
         double Northing;
-        Grids_Grid2DSquareCellDouble g;
+        Grids_GridDouble g;
         g = observationsGrids.firstEntry().getValue();
         long nrows;
         long ncols;
@@ -170,11 +170,11 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
         SARIC_Time t;
         t = new SARIC_Time(t0);
 
-        Grids_Grid2DSquareCellDouble f1;
-        Grids_Grid2DSquareCellDouble f2;
-        Grids_Grid2DSquareCellDouble f3;
-        Grids_Grid2DSquareCellDouble f4;
-        Grids_Grid2DSquareCellDouble f5;
+        Grids_GridDouble f1;
+        Grids_GridDouble f2;
+        Grids_GridDouble f3;
+        Grids_GridDouble f4;
+        Grids_GridDouble f5;
         f1 = getForecastsGrid(area, t, 1);
         f2 = getForecastsGrid(area, t, 2);
         f3 = getForecastsGrid(area, t, 3);
@@ -303,14 +303,14 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
 
     }
 
-    protected Grids_Grid2DSquareCellDouble getForecastsGrid(
+    protected Grids_GridDouble getForecastsGrid(
             String area,
             SARIC_Time t,
             int offset) {
         SARIC_Time t1;
         t1 = new SARIC_Time(t);
         t1.addDays(offset);
-        Grids_Grid2DSquareCellDouble result;
+        Grids_GridDouble result;
         File dir;
         dir = new File(
                 sf.getOutputDataMetOfficeDataPointDir(),
@@ -348,7 +348,7 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
                         dir2,
                         ss.getString_Precipitation_Rate() + ".asc");
                 if (f.exists()) {
-                    result = (Grids_Grid2DSquareCellDouble) gf.create(f);
+                    result = (Grids_GridDouble) gf.create(f);
                     System.out.println(result);
                     return result;
                 }
@@ -357,9 +357,9 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
         return null;
     }
 
-    protected TreeMap<SARIC_Time, Grids_Grid2DSquareCellDouble> getObservationsGrids(String area) {
-        TreeMap<SARIC_Time, Grids_Grid2DSquareCellDouble> result;
-        result = new TreeMap<SARIC_Time, Grids_Grid2DSquareCellDouble>();
+    protected TreeMap<SARIC_Time, Grids_GridDouble> getObservationsGrids(String area) {
+        TreeMap<SARIC_Time, Grids_GridDouble> result;
+        result = new TreeMap<SARIC_Time, Grids_GridDouble>();
         File dir;
         dir = new File(
                 sf.getOutputDataMetOfficeDataPointDir(),
@@ -385,7 +385,7 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
         File dir2;
         File f;
         SARIC_Time t;
-        Grids_Grid2DSquareCellDouble g;
+        Grids_GridDouble g;
         // Load each grid
         for (int i = 0; i < files.length; i++) {
             System.out.println(files[i]);
@@ -398,7 +398,7 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
                     dir2,
                     ss.getString_RADAR_UK_Composite_Highres() + ".asc");
             if (f.exists()) {
-                g = (Grids_Grid2DSquareCellDouble) gf.create(f);
+                g = (Grids_GridDouble) gf.create(f);
                 System.out.println(g);
                 result.put(t, g);
             }

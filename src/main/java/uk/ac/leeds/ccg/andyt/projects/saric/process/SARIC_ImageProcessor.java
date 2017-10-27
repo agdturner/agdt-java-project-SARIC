@@ -35,11 +35,11 @@ import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import uk.ac.leeds.ccg.andyt.grids.core.Grids_Dimensions;
-import uk.ac.leeds.ccg.andyt.grids.core.grid.chunk.Grids_AbstractGrid2DSquareCellDoubleChunkFactory;
+import uk.ac.leeds.ccg.andyt.grids.core.grid.chunk.Grids_AbstractGridChunkDoubleFactory;
 import uk.ac.leeds.ccg.andyt.grids.core.statistics.Grids_AbstractGridStatistics;
 import uk.ac.leeds.ccg.andyt.grids.core.Grids_Environment;
-import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_Grid2DSquareCellDouble;
-import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_Grid2DSquareCellDoubleFactory;
+import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_GridDouble;
+import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_GridDoubleFactory;
 import uk.ac.leeds.ccg.andyt.grids.exchange.Grids_ESRIAsciiGridExporter;
 import uk.ac.leeds.ccg.andyt.grids.exchange.Grids_ImageExporter;
 import uk.ac.leeds.ccg.andyt.grids.process.Grids_Processor;
@@ -74,7 +74,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
     SARIC_Strings ss;
     Grids_Environment ge;
     Grids_Processor gp;
-    Grids_Grid2DSquareCellDoubleFactory gf;
+    Grids_GridDoubleFactory gf;
     double noDataValue = -9999.0;
     Grids_ESRIAsciiGridExporter ae;
     Grids_ImageExporter ie;
@@ -131,11 +131,11 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
     }
 
     private void init_gf() {
-        gf = new Grids_Grid2DSquareCellDoubleFactory(
+        gf = new Grids_GridDoubleFactory(
                 gp.getDirectory(true),
                 256,
                 256,
-                (Grids_AbstractGrid2DSquareCellDoubleChunkFactory) gp._Grid2DSquareCellDoubleChunkArrayFactory,
+                (Grids_AbstractGridChunkDoubleFactory) gp._Grid2DSquareCellDoubleChunkArrayFactory,
                 ge,
                 true);
         gf.set_NoDataValue(noDataValue);
@@ -212,7 +212,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
             TreeSet<SARIC_Date> dates;
             TreeSet<SARIC_Date> dates2;
             Object[] nearestForecastsSitesGridAndFactory;
-            Grids_Grid2DSquareCellDouble nearestForecastsSitesGrid;
+            Grids_GridDouble nearestForecastsSitesGrid;
             double noDataValue1;
             HashMap<SARIC_Site, HashMap<SARIC_Time, SARIC_SiteForecastRecord>> forecasts;
             long nrows;
@@ -220,12 +220,12 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
             st = new SARIC_Teifi(se);
             sites = st.getForecastsSitesInStudyArea(ss.getString_3hourly());
             nearestForecastsSitesGridAndFactory = st.getNearestForecastsSitesGrid(sites);
-            nearestForecastsSitesGrid = (Grids_Grid2DSquareCellDouble) nearestForecastsSitesGridAndFactory[0];
+            nearestForecastsSitesGrid = (Grids_GridDouble) nearestForecastsSitesGridAndFactory[0];
             noDataValue1 = nearestForecastsSitesGrid.getNoDataValue(true);
             gf.set_NoDataValue(noDataValue1);
             nrows = nearestForecastsSitesGrid.getNRows(true);
             ncols = nearestForecastsSitesGrid.getNCols(true);
-            Grids_Grid2DSquareCellDouble forecastsForTime2;
+            Grids_GridDouble forecastsForTime2;
 
             Iterator<SARIC_Date> ite0;
             ite0 = dates0.iterator();
@@ -271,7 +271,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
 
                         forecasts = new HashMap<>();
 
-                        forecastsForTime2 = (Grids_Grid2DSquareCellDouble) gf.create(nearestForecastsSitesGrid);
+                        forecastsForTime2 = (Grids_GridDouble) gf.create(nearestForecastsSitesGrid);
                         name = time0 + "-00" + "_ForecastFor_" + date1.getYYYYMMDD();
                         outascii = new File(
                                 outdir1,
@@ -570,14 +570,14 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
         double halfcellsize;
         halfcellsize = cellsize.doubleValue() / 2.0d;
 
-        Grids_Grid2DSquareCellDouble g;
+        Grids_GridDouble g;
         File outascii;
         File outpng;
         File outpng2;
         File outpng3;
         File outtxt;
-        Grids_Grid2DSquareCellDouble a1KMGridMaskedToCatchmentGrid;
-        a1KMGridMaskedToCatchmentGrid = (Grids_Grid2DSquareCellDouble) a1KMGridMaskedToCatchment[0];
+        Grids_GridDouble a1KMGridMaskedToCatchmentGrid;
+        a1KMGridMaskedToCatchmentGrid = (Grids_GridDouble) a1KMGridMaskedToCatchment[0];
         SARIC_Date date0;
         SARIC_Date date1;
         SARIC_Date tomorrow;
@@ -589,9 +589,9 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
         String name0;
         String name1;
 
-        TreeMap<SARIC_Date, HashMap<String, Grids_Grid2DSquareCellDouble>> grids0;
+        TreeMap<SARIC_Date, HashMap<String, Grids_GridDouble>> grids0;
         HashMap<SARIC_Date, Integer> counts;
-        HashMap<String, Grids_Grid2DSquareCellDouble> grids1;
+        HashMap<String, Grids_GridDouble> grids1;
 
         Grids_AbstractGridStatistics gs;
         double max;
@@ -680,7 +680,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                                                 g = getGrid(infiles[l], cellsize, tileBounds, layerName, rowColint);
                                                 if (g != null) {
                                                     if (grids1.containsKey(rowCol)) {
-                                                        Grids_Grid2DSquareCellDouble gridToAddTo;
+                                                        Grids_GridDouble gridToAddTo;
                                                         gridToAddTo = grids1.get(rowCol);
                                                         gp.addToGrid(gridToAddTo, g, weight, true);
                                                     } else {
@@ -700,7 +700,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                         }
                     }
 
-                    Grids_Grid2DSquareCellDouble b1KMGrid = null;
+                    Grids_GridDouble b1KMGrid = null;
                     double vb;
                     double v;
 
@@ -712,10 +712,10 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                         name1 = name0 + date1;
 
                         System.out.println("<Duplicate a1KMGrid>");
-                        Grids_Grid2DSquareCellDoubleFactory f;
-                        f = (Grids_Grid2DSquareCellDoubleFactory) a1KMGrid[1];
-                        b1KMGrid = (Grids_Grid2DSquareCellDouble) f.create((Grids_Grid2DSquareCellDouble) a1KMGrid[0]);
-                        //b1KMGrid = (Grids_Grid2DSquareCellDouble) a1KMGrid[0];
+                        Grids_GridDoubleFactory f;
+                        f = (Grids_GridDoubleFactory) a1KMGrid[1];
+                        b1KMGrid = (Grids_GridDouble) f.create((Grids_GridDouble) a1KMGrid[0]);
+                        //b1KMGrid = (Grids_GridDouble) a1KMGrid[0];
                         System.out.println("</Duplicate a1KMGrid>");
 
                         grids1 = grids0.get(date1);
@@ -855,7 +855,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
     //                + "BigDecimal,SARIC_MetOfficeParameters,"
     //                + "SARIC_MetOfficeLayerParameters,"
     //                + "SARIC_MetOfficeCapabilitiesXMLDOMReader,"
-    //                + "Grids_Grid2DSquareCellDouble)";
+    //                + "Grids_GridDouble)";
     //        System.out.println("<" + methodName + ">");
     //        // Initial declarations
     //        String path;
@@ -912,7 +912,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
     //        double y;
     //        double halfcellsize;
     //        halfcellsize = cellsize.doubleValue() / 2.0d;
-    //        Grids_Grid2DSquareCellDouble g;
+    //        Grids_GridDouble g;
     //        File outascii;
     //        File outpng;
     //        File outpng2;
@@ -926,11 +926,11 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
     //         * have the forecasts from that time going forwards and likewise for the
     //         * most recent dates, there may be more forecasts to come...
     //         */
-    //        HashMap<SARIC_Time, Grids_Grid2DSquareCellDouble> output1kmGrids;
-    //        output1kmGrids = new HashMap<SARIC_Time, Grids_Grid2DSquareCellDouble>();
-    //        HashMap<SARIC_Time, HashMap<String, Grids_Grid2DSquareCellDouble>> gridsAll;
-    //        gridsAll = new HashMap<SARIC_Time, HashMap<String, Grids_Grid2DSquareCellDouble>>();
-    //        HashMap<String, Grids_Grid2DSquareCellDouble> grids;
+    //        HashMap<SARIC_Time, Grids_GridDouble> output1kmGrids;
+    //        output1kmGrids = new HashMap<SARIC_Time, Grids_GridDouble>();
+    //        HashMap<SARIC_Time, HashMap<String, Grids_GridDouble>> gridsAll;
+    //        gridsAll = new HashMap<SARIC_Time, HashMap<String, Grids_GridDouble>>();
+    //        HashMap<String, Grids_GridDouble> grids;
     //        HashMap<SARIC_Time, Integer> counts;
     //        counts = new HashMap<SARIC_Time, Integer>();
     //        File outdir2;
@@ -1012,7 +1012,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
     //                        if (gridsAll.containsKey(time4)) {
     //                            grids = gridsAll.get(time4);
     //                        } else {
-    //                            grids = new HashMap<String, Grids_Grid2DSquareCellDouble>();
+    //                            grids = new HashMap<String, Grids_GridDouble>();
     //                            gridsAll.put(time4, grids);
     //                        }
     //                        File indir3;
@@ -1033,7 +1033,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
     //                                g = getGrid(infiles[i], cellsize, tileBounds, layerName, rowColint);
     //                                if (g != null) {
     //                                    if (grids.containsKey(rowCol)) {
-    //                                        Grids_Grid2DSquareCellDouble gridToAddTo;
+    //                                        Grids_GridDouble gridToAddTo;
     //                                        gridToAddTo = grids.get(rowCol);
     //                                        gp.addToGrid(gridToAddTo, g, weight, true);
     //                                    } else {
@@ -1056,13 +1056,13 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
     //            } else {
     //                Iterator<String> gridsIte;
     //                gridsIte = grids.keySet().iterator();
-    //                Grids_Grid2DSquareCellDouble b1KMGrid = null;
+    //                Grids_GridDouble b1KMGrid = null;
     //                if (output1kmGrids.containsKey(time)) {
     //                    b1KMGrid = output1kmGrids.get(time);
     //                } else {
-    //                    Grids_Grid2DSquareCellDoubleFactory f;
-    //                    f = (Grids_Grid2DSquareCellDoubleFactory) a1KMGrid[1];
-    //                    b1KMGrid = (Grids_Grid2DSquareCellDouble) f.create((Grids_Grid2DSquareCellDouble) a1KMGrid[0]);
+    //                    Grids_GridDoubleFactory f;
+    //                    f = (Grids_GridDoubleFactory) a1KMGrid[1];
+    //                    b1KMGrid = (Grids_GridDouble) f.create((Grids_GridDouble) a1KMGrid[0]);
     //                    output1kmGrids.put(time, b1KMGrid);
     //                }
     //                long nrows = b1KMGrid.getNRows(true);
@@ -1190,13 +1190,13 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
         double halfcellsize;
         halfcellsize = cellsize.doubleValue() / 2.0d;
 
-        Grids_Grid2DSquareCellDouble g;
+        Grids_GridDouble g;
         File outascii;
         File outpng;
         File outpng2;
         File outpng3;
-        Grids_Grid2DSquareCellDouble a1KMGridMaskedToCatchmentGrid;
-        a1KMGridMaskedToCatchmentGrid = (Grids_Grid2DSquareCellDouble) a1KMGridMaskedToCatchment[0];
+        Grids_GridDouble a1KMGridMaskedToCatchmentGrid;
+        a1KMGridMaskedToCatchmentGrid = (Grids_GridDouble) a1KMGridMaskedToCatchment[0];
         SARIC_Date date0;
 
         Iterator<SARIC_Date> ite1;
@@ -1223,7 +1223,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                 indir2 = new File(
                         indir1,
                         s);
-                HashMap<String, Grids_Grid2DSquareCellDouble> grids;
+                HashMap<String, Grids_GridDouble> grids;
                 grids = new HashMap<>();
                 outascii = new File(
                         outdir2,
@@ -1256,7 +1256,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                                         g = getGrid(infiles[l], cellsize, tileBounds, layerName, rowColint);
                                         if (g != null) {
                                             if (grids.containsKey(rowCol)) {
-                                                Grids_Grid2DSquareCellDouble gridToAddTo;
+                                                Grids_GridDouble gridToAddTo;
                                                 gridToAddTo = grids.get(rowCol);
                                                 gp.addToGrid(gridToAddTo, g, weight, true);
                                             } else {
@@ -1270,12 +1270,12 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                     }
                     Iterator<String> gridsIte;
                     gridsIte = grids.keySet().iterator();
-                    Grids_Grid2DSquareCellDouble b1KMGrid = null;
+                    Grids_GridDouble b1KMGrid = null;
                     System.out.println("<Duplicate a1KMGrid>");
-                    Grids_Grid2DSquareCellDoubleFactory f;
-                    f = (Grids_Grid2DSquareCellDoubleFactory) a1KMGrid[1];
-                    b1KMGrid = (Grids_Grid2DSquareCellDouble) f.create((Grids_Grid2DSquareCellDouble) a1KMGrid[0]);
-                    //b1KMGrid = (Grids_Grid2DSquareCellDouble) a1KMGrid[0];
+                    Grids_GridDoubleFactory f;
+                    f = (Grids_GridDoubleFactory) a1KMGrid[1];
+                    b1KMGrid = (Grids_GridDouble) f.create((Grids_GridDouble) a1KMGrid[0]);
+                    //b1KMGrid = (Grids_GridDouble) a1KMGrid[0];
                     System.out.println("</Duplicate a1KMGrid>");
                     double vb;
                     double v;
@@ -1373,7 +1373,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
      * second the column of the tile.
      * @return
      */
-    public Grids_Grid2DSquareCellDouble getGrid(
+    public Grids_GridDouble getGrid(
             File in,
             BigDecimal cellsize,
             Vector_Envelope2D tileBounds,
@@ -1381,7 +1381,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
             int[] rowColint) {
         String methodName;
         methodName = "getGrid(File,BigDecimal,Vector_Envelope2D,String,int[])";
-        Grids_Grid2DSquareCellDouble result = null;
+        Grids_GridDouble result = null;
         Boolean HandleOutOfMemoryError = true;
         Image image = null;
         int width;
@@ -1408,7 +1408,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
 //        dimensions[2] = dimensions[4].subtract(cellsize.multiply(new BigDecimal(height))); //YMIN
 //        dimensions[3] = dimensions[1].subtract(cellsize.multiply(new BigDecimal(width)));  //XMAX
 
-            result = (Grids_Grid2DSquareCellDouble) gf.create(height, width, dimensions);
+            result = (Grids_GridDouble) gf.create(height, width, dimensions);
 
             int[] pixels = new int[width * height];
             PixelGrabber pg = new PixelGrabber(image, 0, 0, width, height, pixels, 0, width);
@@ -1522,7 +1522,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
 //                        in5 = new File(
 //                                in5,
 //                                layerName + name3 + time + "_" + lowerResTilerow + "_" + lowerResTilecol + ".png");
-//                        Grids_Grid2DSquareCellDouble lowerResGrid;
+//                        Grids_GridDouble lowerResGrid;
 //                        lowerResGrid = getGrid(in5, scale - 1, layerName, name);
 //                        //C:\Users\geoagdt\src\saric\data\input\MetOffice\DataPoint\inspire\view\wmts\Wissey\RADAR_UK_Composite_Highres\EPSG_27700_3\2017-08-01T00_00_00Z\RADAR_UK_Composite_HighresEPSG_27700_32017-08-01T00_00_00Z_11_7.png
 //                        //C:\Users\geoagdt\src\saric\data\input\MetOffice\DataPoint\inspire\view\wmts\Wissey\RADAR_UK_Composite_Highres\EPSG_27700_3\2017-08-01T00_00_00Z\RADAR_UK_Composite_HighresEPSG_27700_32017-08-01T00_00_00Z_11_7.png

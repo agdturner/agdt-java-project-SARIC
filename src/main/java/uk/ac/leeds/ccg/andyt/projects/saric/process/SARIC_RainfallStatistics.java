@@ -31,10 +31,10 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import uk.ac.leeds.ccg.andyt.generic.io.Generic_StaticIO;
 import uk.ac.leeds.ccg.andyt.grids.core.Grids_Dimensions;
-import uk.ac.leeds.ccg.andyt.grids.core.grid.chunk.Grids_AbstractGrid2DSquareCellDoubleChunkFactory;
+import uk.ac.leeds.ccg.andyt.grids.core.grid.chunk.Grids_AbstractGridChunkDoubleFactory;
 import uk.ac.leeds.ccg.andyt.grids.core.Grids_Environment;
-import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_Grid2DSquareCellDouble;
-import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_Grid2DSquareCellDoubleFactory;
+import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_GridDouble;
+import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_GridDoubleFactory;
 import uk.ac.leeds.ccg.andyt.grids.exchange.Grids_ESRIAsciiGridExporter;
 import uk.ac.leeds.ccg.andyt.grids.exchange.Grids_ImageExporter;
 import uk.ac.leeds.ccg.andyt.grids.process.Grids_Processor;
@@ -67,7 +67,7 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
     SARIC_Strings ss;
     Grids_Environment ge;
     Grids_Processor gp;
-    Grids_Grid2DSquareCellDoubleFactory gf;
+    Grids_GridDoubleFactory gf;
     double noDataValue = -9999.0;
     Grids_ESRIAsciiGridExporter ae;
     Grids_ImageExporter ie;
@@ -109,11 +109,11 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
     }
 
     private void init_gf() {
-        gf = new Grids_Grid2DSquareCellDoubleFactory(
+        gf = new Grids_GridDoubleFactory(
                 gp.getDirectory(true),
                 256,
                 256,
-                (Grids_AbstractGrid2DSquareCellDoubleChunkFactory) gp._Grid2DSquareCellDoubleChunkArrayFactory,
+                (Grids_AbstractGridChunkDoubleFactory) gp._Grid2DSquareCellDoubleChunkArrayFactory,
                 ge,
                 true);
         gf.set_NoDataValue(noDataValue);
@@ -275,10 +275,10 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
         double halfcellsize;
         halfcellsize = cellsize.doubleValue() / 2.0d;
 
-        Grids_Grid2DSquareCellDouble g;
-        TreeMap<SARIC_Time, HashMap<String, Grids_Grid2DSquareCellDouble>> atg;
-        HashMap<String, Grids_Grid2DSquareCellDouble> variances;
-        HashMap<String, Grids_Grid2DSquareCellDouble> tg;
+        Grids_GridDouble g;
+        TreeMap<SARIC_Time, HashMap<String, Grids_GridDouble>> atg;
+        HashMap<String, Grids_GridDouble> variances;
+        HashMap<String, Grids_GridDouble> tg;
         SARIC_Time st;
         double n;
         n = 0;
@@ -287,8 +287,8 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
         File outpng;
         File outpng2;
         File outpng3;
-        Grids_Grid2DSquareCellDouble a1KMGridMaskedToCatchmentGrid;
-        a1KMGridMaskedToCatchmentGrid = (Grids_Grid2DSquareCellDouble) a1KMGridMaskedToCatchment[0];
+        Grids_GridDouble a1KMGridMaskedToCatchmentGrid;
+        a1KMGridMaskedToCatchmentGrid = (Grids_GridDouble) a1KMGridMaskedToCatchment[0];
         SARIC_Date date0;
 
         // Number of times it is raining in each 15 minute observations
@@ -322,7 +322,7 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
                         indir1,
                         s);
 
-                HashMap<String, Grids_Grid2DSquareCellDouble> grids;
+                HashMap<String, Grids_GridDouble> grids;
                 grids = new HashMap<>();
 
                 outascii = new File(
@@ -366,7 +366,7 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
                                         if (g != null) {
                                             tg.put(rowCol, g);
                                             if (grids.containsKey(rowCol)) {
-                                                Grids_Grid2DSquareCellDouble gridToAddTo;
+                                                Grids_GridDouble gridToAddTo;
                                                 gridToAddTo = grids.get(rowCol);
                                                 gp.addToGrid(gridToAddTo, g, weight, true);
                                                 n++;
@@ -385,9 +385,9 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
                     n /= 4;
                     System.out.println("n " + n);
                     // Do Statistics
-                    Grids_Grid2DSquareCellDouble sum;
+                    Grids_GridDouble sum;
                     variances = new HashMap<>();
-                    Grids_Grid2DSquareCellDouble variance = null;
+                    Grids_GridDouble variance = null;
                     Iterator<SARIC_Time> iteT;
                     Iterator<String> iteT2;
                     iteT = atg.keySet().iterator();
@@ -448,12 +448,12 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
 
                     Iterator<String> gridsIte;
                     gridsIte = variances.keySet().iterator();
-                    Grids_Grid2DSquareCellDouble b1KMGrid = null;
+                    Grids_GridDouble b1KMGrid = null;
                     System.out.println("<Duplicate a1KMGrid>");
-                    Grids_Grid2DSquareCellDoubleFactory f;
-                    f = (Grids_Grid2DSquareCellDoubleFactory) a1KMGrid[1];
-                    b1KMGrid = (Grids_Grid2DSquareCellDouble) f.create((Grids_Grid2DSquareCellDouble) a1KMGrid[0]);
-                    //b1KMGrid = (Grids_Grid2DSquareCellDouble) a1KMGrid[0];
+                    Grids_GridDoubleFactory f;
+                    f = (Grids_GridDoubleFactory) a1KMGrid[1];
+                    b1KMGrid = (Grids_GridDouble) f.create((Grids_GridDouble) a1KMGrid[0]);
+                    //b1KMGrid = (Grids_GridDouble) a1KMGrid[0];
                     System.out.println("</Duplicate a1KMGrid>");
                     double vb;
                     double v;
@@ -552,7 +552,7 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
      * second the column of the tile.
      * @return
      */
-    public Grids_Grid2DSquareCellDouble getGrid(
+    public Grids_GridDouble getGrid(
             File in,
             BigDecimal cellsize,
             Vector_Envelope2D tileBounds,
@@ -560,7 +560,7 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
             int[] rowColint) {
         String methodName;
         methodName = "getGrid(File,BigDecimal,Vector_Envelope2D,String,int[])";
-        Grids_Grid2DSquareCellDouble result = null;
+        Grids_GridDouble result = null;
         Boolean HandleOutOfMemoryError = true;
         Image image = null;
         int width;
@@ -587,7 +587,7 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
 //        dimensions[2] = dimensions[4].subtract(cellsize.multiply(new BigDecimal(height))); //YMIN
 //        dimensions[3] = dimensions[1].subtract(cellsize.multiply(new BigDecimal(width)));  //XMAX
 
-            result = (Grids_Grid2DSquareCellDouble) gf.create(
+            result = (Grids_GridDouble) gf.create(
                     Generic_StaticIO.createNewFile(gf.getDirectory(true)),
                     height,
                     width,
@@ -705,7 +705,7 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
 //                        in5 = new File(
 //                                in5,
 //                                layerName + name3 + time + "_" + lowerResTilerow + "_" + lowerResTilecol + ".png");
-//                        Grids_Grid2DSquareCellDouble lowerResGrid;
+//                        Grids_GridDouble lowerResGrid;
 //                        lowerResGrid = getGrid(in5, scale - 1, layerName, name);
 //                        //C:\Users\geoagdt\src\saric\data\input\MetOffice\DataPoint\inspire\view\wmts\Wissey\RADAR_UK_Composite_Highres\EPSG_27700_3\2017-08-01T00_00_00Z\RADAR_UK_Composite_HighresEPSG_27700_32017-08-01T00_00_00Z_11_7.png
 //                        //C:\Users\geoagdt\src\saric\data\input\MetOffice\DataPoint\inspire\view\wmts\Wissey\RADAR_UK_Composite_Highres\EPSG_27700_3\2017-08-01T00_00_00Z\RADAR_UK_Composite_HighresEPSG_27700_32017-08-01T00_00_00Z_11_7.png

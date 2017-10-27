@@ -31,9 +31,9 @@ import java.util.logging.Logger;
 import uk.ac.leeds.ccg.andyt.generic.io.Generic_StaticIO;
 import uk.ac.leeds.ccg.andyt.grids.core.Grids_Dimensions;
 import uk.ac.leeds.ccg.andyt.grids.core.Grids_Environment;
-import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_Grid2DSquareCellDouble;
-import uk.ac.leeds.ccg.andyt.grids.core.grid.chunk.Grids_Grid2DSquareCellDoubleChunkArrayFactory;
-import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_Grid2DSquareCellDoubleFactory;
+import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_GridDouble;
+import uk.ac.leeds.ccg.andyt.grids.core.grid.chunk.Grids_GridChunkDoubleArrayFactory;
+import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_GridDoubleFactory;
 import uk.ac.leeds.ccg.andyt.grids.core.statistics.Grids_GridStatistics1;
 import uk.ac.leeds.ccg.andyt.grids.exchange.Grids_ImageExporter;
 import uk.ac.leeds.ccg.andyt.grids.process.Grids_Processor;
@@ -57,7 +57,7 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
     SARIC_Strings ss;
     Grids_Environment ge;
     Grids_Processor gp;
-    Grids_Grid2DSquareCellDoubleFactory gf;
+    Grids_GridDoubleFactory gf;
 
     boolean doWissey;
     boolean doTeifi;
@@ -145,27 +145,27 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
         System.out.println("Time " + st.getYYYYMMDDHHMM());
         FileInputStream fis;
         DataInputStream dis;
-        Grids_Grid2DSquareCellDouble g;
-        Grids_Grid2DSquareCellDouble ag = null;
+        Grids_GridDouble g;
+        Grids_GridDouble ag = null;
 
         // Teifi
         SARIC_Teifi teifi;
         Object[] tg;
-        Grids_Grid2DSquareCellDouble tg0;
-        Grids_Grid2DSquareCellDouble tg1;
-        Grids_Grid2DSquareCellDouble tg2;
-        Grids_Grid2DSquareCellDoubleFactory tgf;
+        Grids_GridDouble tg0;
+        Grids_GridDouble tg1;
+        Grids_GridDouble tg2;
+        Grids_GridDoubleFactory tgf;
         teifi = new SARIC_Teifi(se);
         tg = teifi.get1KMGridMaskedToCatchment();
-        tg0 = (Grids_Grid2DSquareCellDouble) tg[0];
-        tgf = (Grids_Grid2DSquareCellDoubleFactory) tg[1];
+        tg0 = (Grids_GridDouble) tg[0];
+        tgf = (Grids_GridDoubleFactory) tg[1];
         File dirt1;
         File dirt2;
         dirt1 = new File(
                 tgf.getDirectory(true),
                 "TG1");
         tgf.setDirectory(dirt1);
-        tg1 = (Grids_Grid2DSquareCellDouble) tgf.create(dirt1, tg0, 0, 0, tg0.getNRows(true) - 1, tg0.getNCols(true) - 1);
+        tg1 = (Grids_GridDouble) tgf.create(dirt1, tg0, 0, 0, tg0.getNRows(true) - 1, tg0.getNCols(true) - 1);
         dirt2 = new File(
                 tgf.getDirectory(true),
                 "TG2");
@@ -174,21 +174,21 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
         // Wissey
         SARIC_Wissey wissey;
         Object[] wg;
-        Grids_Grid2DSquareCellDouble wg0;
-        Grids_Grid2DSquareCellDouble wg1;
-        Grids_Grid2DSquareCellDouble wg2;
-        Grids_Grid2DSquareCellDoubleFactory wgf;
+        Grids_GridDouble wg0;
+        Grids_GridDouble wg1;
+        Grids_GridDouble wg2;
+        Grids_GridDoubleFactory wgf;
         wissey = new SARIC_Wissey(se);
         wg = wissey.get1KMGridMaskedToCatchment();
-        wg0 = (Grids_Grid2DSquareCellDouble) wg[0];
-        wgf = (Grids_Grid2DSquareCellDoubleFactory) wg[1];
+        wg0 = (Grids_GridDouble) wg[0];
+        wgf = (Grids_GridDoubleFactory) wg[1];
         File dirw1;
         File dirw2;
         dirw1 = new File(
                 wgf.getDirectory(true),
                 "WG1");
         wgf.setDirectory(dirw1);
-        wg1 = (Grids_Grid2DSquareCellDouble) wgf.create(dirw1, wg0, 0, 0, wg0.getNRows(true) - 1, wg0.getNCols(true) - 1);
+        wg1 = (Grids_GridDouble) wgf.create(dirw1, wg0, 0, 0, wg0.getNRows(true) - 1, wg0.getNCols(true) - 1);
         dirw2 = new File(
                 wgf.getDirectory(true),
                 "WG2");
@@ -202,8 +202,8 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
         range = 100;
 
         for (int i = 0; i < numberOf5MinutePeriodsIn24Hours; i++) {
-            tg2 = (Grids_Grid2DSquareCellDouble) tgf.create(dirt2, tg0, 0, 0, tg0.getNRows(true) - 1, tg0.getNCols(true) - 1);
-            wg2 = (Grids_Grid2DSquareCellDouble) wgf.create(dirw2, wg0, 0, 0, wg0.getNRows(true) - 1, wg0.getNCols(true) - 1);
+            tg2 = (Grids_GridDouble) tgf.create(dirt2, tg0, 0, 0, tg0.getNRows(true) - 1, tg0.getNCols(true) - 1);
+            wg2 = (Grids_GridDouble) wgf.create(dirw2, wg0, 0, 0, wg0.getNRows(true) - 1, wg0.getNCols(true) - 1);
             f = new File(
                     inputDir,
                     "metoffice-c-band-rain-radar_uk_" + st.getYYYYMMDDHHMM() + "_1km-composite.dat");
@@ -253,9 +253,9 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
                     gf.setChunkNCols(345);
                     gf.setChunkNRows(435);
                     gf.setGridStatistics(new Grids_GridStatistics1(ge));
-                    gf.setChunkFactory(new Grids_Grid2DSquareCellDoubleChunkArrayFactory());
+                    gf.setChunkFactory(new Grids_GridChunkDoubleArrayFactory());
                     gp.Grid2DSquareCellDoubleFactory = gf;
-                    g = (Grids_Grid2DSquareCellDouble) gf.create(generatedDir2, snh.nrows, snh.ncols, dimensions, true);
+                    g = (Grids_GridDouble) gf.create(generatedDir2, snh.nrows, snh.ncols, dimensions, true);
                     try {
                         for (long row = 0; row < snh.nrows; row++) {
                             for (long col = 0; col < snh.ncols; col++) {
@@ -346,9 +346,9 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
             String area,
             String name,
             //SARIC_Time st,
-            Grids_Grid2DSquareCellDoubleFactory gf,
-            Grids_Grid2DSquareCellDouble g,
-            Grids_Grid2DSquareCellDouble mask,
+            Grids_GridDoubleFactory gf,
+            Grids_GridDouble g,
+            Grids_GridDouble mask,
             Grids_ImageExporter ie,
             TreeMap<Double, Color> cm) {
         File outputDir1;

@@ -46,8 +46,8 @@ import uk.ac.leeds.ccg.andyt.geotools.Geotools_Shapefile;
 import uk.ac.leeds.ccg.andyt.geotools.Geotools_Style;
 import uk.ac.leeds.ccg.andyt.geotools.Geotools_StyleParameters;
 import uk.ac.leeds.ccg.andyt.geotools.demo.Geotools_DisplayShapefile;
-import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_Grid2DSquareCellDouble;
-import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_Grid2DSquareCellDoubleFactory;
+import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_GridDouble;
+import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_GridDoubleFactory;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Strings;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.catchment.SARIC_Teifi;
@@ -438,10 +438,10 @@ public class SARIC_DataViewer extends Geotools_DisplayShapefile implements Runna
         GridCoverage2D gc;
         gc = Maps.getGridCoverage2D(agr);
 
-        Grids_Grid2DSquareCellDoubleFactory gf;
+        Grids_GridDoubleFactory gf;
         gf = se.getGrids_Environment().getGridProcessor().Grid2DSquareCellDoubleFactory;
-        Grids_Grid2DSquareCellDouble g;
-        g = (Grids_Grid2DSquareCellDouble) gf.create(f);
+        Grids_GridDouble g;
+        g = (Grids_GridDouble) gf.create(f);
 
         double normalisation = 1.0d;
 

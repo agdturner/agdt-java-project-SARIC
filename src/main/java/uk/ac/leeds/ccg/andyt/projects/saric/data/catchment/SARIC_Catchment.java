@@ -42,9 +42,9 @@ import uk.ac.leeds.ccg.andyt.geotools.Geotools_Shapefile;
 import uk.ac.leeds.ccg.andyt.generic.math.Generic_BigDecimal;
 import uk.ac.leeds.ccg.andyt.grids.core.Grids_Dimensions;
 import uk.ac.leeds.ccg.andyt.grids.core.Grids_Environment;
-import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_Grid2DSquareCellDouble;
-import uk.ac.leeds.ccg.andyt.grids.core.grid.chunk.Grids_Grid2DSquareCellDoubleChunkArrayFactory;
-import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_Grid2DSquareCellDoubleFactory;
+import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_GridDouble;
+import uk.ac.leeds.ccg.andyt.grids.core.grid.chunk.Grids_GridChunkDoubleArrayFactory;
+import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_GridDoubleFactory;
 import uk.ac.leeds.ccg.andyt.grids.core.statistics.Grids_GridStatistics0;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Object;
@@ -141,7 +141,7 @@ public abstract class SARIC_Catchment extends SARIC_Object {
     public Object[] get1KMGrid() {
         Object[] result;
         result = new Object[2];
-        Grids_Grid2DSquareCellDouble grid;
+        Grids_GridDouble grid;
         Vector_Envelope2D bounds;
         bounds = get1KMGridBounds();
         //Grids_Grid2DSquareCellDoubleFactory inf;
@@ -162,14 +162,14 @@ public abstract class SARIC_Catchment extends SARIC_Object {
         ncols = Generic_BigDecimal.divideNoRounding(bounds.XMax.subtract(bounds.XMin), cellsize).longValueExact();
         nrows = Generic_BigDecimal.divideNoRounding(bounds.YMax.subtract(bounds.YMin), cellsize).longValueExact();
         //inf = se.getGrids_Environment().get_Grid2DSquareCellProcessor()._Grid2DSquareCellDoubleFactory;
-        Grids_Grid2DSquareCellDoubleFactory f;
-        f = new Grids_Grid2DSquareCellDoubleFactory(_Grids_Environment, true);
+        Grids_GridDoubleFactory f;
+        f = new Grids_GridDoubleFactory(_Grids_Environment, true);
         f.set_NoDataValue(-9999.0d);
         f.setChunkNRows((int) nrows);
         f.setChunkNCols((int) ncols);
         f.setDirectory(dir);
         f.setDimensions(dimensions);
-        f.setChunkFactory(new Grids_Grid2DSquareCellDoubleChunkArrayFactory());
+        f.setChunkFactory(new Grids_GridChunkDoubleArrayFactory());
         f.setGridStatistics(new Grids_GridStatistics0(_Grids_Environment));
         grid = f.create(dir, nrows, ncols, dimensions, true);
         result[0] = grid;
@@ -185,8 +185,8 @@ public abstract class SARIC_Catchment extends SARIC_Object {
     public Object[] get1KMGridMaskedToCatchment() {
         Object[] result;
         result = get1KMGrid();
-        Grids_Grid2DSquareCellDouble resultGrid;
-        resultGrid = (Grids_Grid2DSquareCellDouble) result[0];
+        Grids_GridDouble resultGrid;
+        resultGrid = (Grids_GridDouble) result[0];
         // Get Outline
         Geometry geometry2;
         geometry2 = getOutlineGeometry();
@@ -271,8 +271,8 @@ public abstract class SARIC_Catchment extends SARIC_Object {
     public Object[] getNearestForecastsSitesGrid(HashSet<SARIC_Site> sites) {
         Object[] result;
         result = get1KMGridMaskedToCatchment();
-        Grids_Grid2DSquareCellDouble resultGrid;
-        resultGrid = (Grids_Grid2DSquareCellDouble) result[0];
+        Grids_GridDouble resultGrid;
+        resultGrid = (Grids_GridDouble) result[0];
         long nrows;
         long ncols;
         nrows = resultGrid.getNRows(true);
