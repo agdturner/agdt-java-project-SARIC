@@ -428,8 +428,8 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
 //                            for (int i = 0; i < NChunkRows; i++) {
 //                                for (int j = 0; j < NChunkCols; j++) {
 //                                    chunkID = new Grids_2D_ID_int(i, j);
-//                                    gChunk = g.getGrid2DSquareCellDoubleChunk(chunkID, true);
-//                                    sChunk = sum.getGrid2DSquareCellDoubleChunk(chunkID, true);
+//                                    gChunk = g.getGridChunk(chunkID, true);
+//                                    sChunk = sum.getGridChunk(chunkID, true);
 //                                    chunkNrows = g.getChunkNRows(chunkID, true);
 //                                    chunkNcols = g.getChunkNCols(chunkID, true);
 //                                    for (int k = 0; k < chunkNrows; k++) {
