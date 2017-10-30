@@ -18,9 +18,9 @@
  */
 package uk.ac.leeds.ccg.andyt.projects.saric.core;
 
+import uk.ac.leeds.ccg.andyt.generic.core.Generic_Environment;
 import uk.ac.leeds.ccg.andyt.geotools.core.Geotools_Environment;
 import uk.ac.leeds.ccg.andyt.grids.core.Grids_Environment;
-import uk.ac.leeds.ccg.andyt.grids.process.Grids_Processor;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.catchment.SARIC_Teifi;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.catchment.SARIC_Wissey;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.SARIC_MetOfficeParameters;
@@ -32,10 +32,8 @@ import uk.ac.leeds.ccg.andyt.vector.core.Vector_Environment;
  *
  * @author geoagdt
  */
-public class SARIC_Environment {
+public class SARIC_Environment extends Generic_Environment {
 
-    SARIC_Files Files;
-    SARIC_Strings Strings;
     SARIC_MetOfficeParameters MetOfficeParameters;
     Grids_Environment _Grids_Environment;
     Vector_Environment _Vector_Environment;
@@ -50,24 +48,27 @@ public class SARIC_Environment {
 
     public SARIC_Environment(String dataDir) {
         Strings = new SARIC_Strings();
-        Files = new SARIC_Files(Strings,dataDir);
+        Files = new SARIC_Files(getStrings(),dataDir);
         MetOfficeParameters = new SARIC_MetOfficeParameters();
-        _Grids_Environment = new Grids_Environment(Files.getGeneratedDataGridsDir());
+        _Grids_Environment = new Grids_Environment(getFiles().getGeneratedDataGridsDir());
         _Vector_Environment = new Vector_Environment(_Grids_Environment);
         _Geotools_Environment = new Geotools_Environment();
     }
 
+    @Override
+    public final SARIC_Files getFiles(){
+        return (SARIC_Files) Files;
+    }
+    
+    @Override
+    public final SARIC_Strings getStrings(){
+        return (SARIC_Strings) Strings;
+    }
+    
     public void setTime(SARIC_Time time) {
         Time = time;
     }
     
-    public SARIC_Files getFiles() {
-        return Files;
-    }
-
-    public SARIC_Strings getStrings() {
-        return Strings;
-    }
 
     public SARIC_MetOfficeParameters getMetOfficeParameters() {
         return MetOfficeParameters;

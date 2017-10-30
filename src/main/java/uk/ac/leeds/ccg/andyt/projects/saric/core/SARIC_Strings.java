@@ -18,11 +18,13 @@
  */
 package uk.ac.leeds.ccg.andyt.projects.saric.core;
 
+import uk.ac.leeds.ccg.andyt.generic.core.Generic_Strings;
+
 /**
  *
  * @author geoagdt
  */
-public class SARIC_Strings {
+public class SARIC_Strings extends Generic_Strings {
 
     // Empty String
     public final String emptyString = "";
@@ -62,17 +64,15 @@ public class SARIC_Strings {
     String string_DataPoint;
     String string_datatype;
     String string_Forecasts;
-    String string_Generated;
     String string_Grids;
+    String string_GridDoubleFactory;
     String string_hourly;
-    String string_input;
     String string_inspire;
     String string_key;
     String string_layer;
     String string_MetOffice;
     String string_Nimrod;
     String string_OSM;
-    String string_output;
     String string_Observations;
     String string_Precipitation_Rate;
     String string_png;
@@ -167,13 +167,6 @@ public class SARIC_Strings {
         return string_Forecasts;
     }
 
-    public String getString_Generated() {
-        if (string_Generated == null) {
-            string_Generated = "Generated";
-        }
-        return string_Generated;
-    }
-
     public String getString_Grids() {
         if (string_Grids == null) {
             string_Grids = "Grids";
@@ -181,18 +174,18 @@ public class SARIC_Strings {
         return string_Grids;
     }
 
+    public String getString_GridDoubleFactory() {
+        if (string_GridDoubleFactory == null) {
+            string_GridDoubleFactory = "GridDoubleFactory";
+        }
+        return string_GridDoubleFactory;
+    }
+            
     public String getString_hourly() {
         if (string_hourly == null) {
             string_hourly = "hourly";
         }
         return string_hourly;
-    }
-
-    public String getString_input() {
-        if (string_input == null) {
-            string_input = "input";
-        }
-        return string_input;
     }
 
     public String getString_inspire() {
@@ -243,13 +236,6 @@ public class SARIC_Strings {
             string_Observations = "Observations";
         }
         return string_Observations;
-    }
-
-    public String getString_output() {
-        if (string_output == null) {
-            string_output = "output";
-        }
-        return string_output;
     }
 
     public String getString_png() {

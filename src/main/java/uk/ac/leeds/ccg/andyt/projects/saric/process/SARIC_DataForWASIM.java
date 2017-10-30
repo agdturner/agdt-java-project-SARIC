@@ -79,7 +79,7 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
         sf = se.getFiles();
         ss = se.getStrings();
         ge = se.getGrids_Environment();
-        gp = ge.getGridProcessor();
+        gp = ge.getProcessor();
         gf = gp.Grid2DSquareCellDoubleFactory;
         gf.setChunkNCols(62);
         gf.setChunkNRows(40);

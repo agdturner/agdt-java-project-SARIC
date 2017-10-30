@@ -163,7 +163,10 @@ public abstract class SARIC_Catchment extends SARIC_Object {
         nrows = Generic_BigDecimal.divideNoRounding(bounds.YMax.subtract(bounds.YMin), cellsize).longValueExact();
         //inf = se.getGrids_Environment().get_Grid2DSquareCellProcessor()._Grid2DSquareCellDoubleFactory;
         Grids_GridDoubleFactory f;
-        f = new Grids_GridDoubleFactory(_Grids_Environment, true);
+        f = new Grids_GridDoubleFactory(
+                Files.getGeneratedDataGridsDir(),
+                _Grids_Environment,
+                true);
         f.set_NoDataValue(-9999.0d);
         f.setChunkNRows((int) nrows);
         f.setChunkNCols((int) ncols);

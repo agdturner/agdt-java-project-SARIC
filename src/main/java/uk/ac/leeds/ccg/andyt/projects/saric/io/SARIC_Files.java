@@ -19,19 +19,15 @@
 package uk.ac.leeds.ccg.andyt.projects.saric.io;
 
 import java.io.File;
+import uk.ac.leeds.ccg.andyt.generic.io.Generic_Files;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Strings;
 
 /**
  *
  * @author geoagdt
  */
-public class SARIC_Files {
+public class SARIC_Files extends Generic_Files {
 
-    // For convenience
-    SARIC_Strings ss;
-
-    protected File DataDir;
-    protected File InputDataDir;
     protected File InputDataCatchmentBoundariesDir;
     protected File InputDataCEHDir;
     protected File InputDataMetOfficeDir;
@@ -44,9 +40,9 @@ public class SARIC_Files {
     protected File InputDataMetOfficeDataPointAPIKeyFile;
     protected File InputDataMetOfficeNimrodDir;
     protected File InputDataOSMDir;
-    protected File GeneratedDataDir;
     protected File GeneratedDataCatchmentDir;
     protected File GeneratedDataGridsDir;
+    protected File GeneratedDataGridsGridDoubleFactoryDir;
     protected File GeneratedDataMetOfficeDir;
     protected File GeneratedDataMetOfficeDataPointDir;
     protected File GeneratedDataMetOfficeDataPointForecastsDir;
@@ -56,7 +52,6 @@ public class SARIC_Files {
     protected File GeneratedDataMetOfficeDataPointObservationsDir;
     protected File GeneratedDataMetOfficeNimrodDir;
     protected File GeneratedDataOSMDir;
-    protected File OutputDataDir;
     protected File OutputDataMetOfficeDir;
     protected File OutputDataMetOfficeDataPointDir;
     protected File OutputDataMetOfficeNimrodDir;
@@ -65,55 +60,24 @@ public class SARIC_Files {
     }
 
     public SARIC_Files(String dataDirName) {
-        this.ss = new SARIC_Strings();
+        Strings = new SARIC_Strings();
         setDataDirectory(dataDirName);
     }
 
-    public SARIC_Files(SARIC_Strings ss, String dataDirName) {
-        this.ss = ss;
+    public SARIC_Files(SARIC_Strings strings, String dataDirName) {
+        Strings = strings;
         setDataDirectory(dataDirName);
     }
 
-    /**
-     * Initialises a data directory with a name given by name.
-     *
-     * @param name
-     */
-    public final void setDataDirectory(String name) {
-//        String userDir;
-//        userDir = System.getProperty("user.dir");
-//        DataDirectory = new File(
-//                userDir,
-//                name);
-        DataDir = new File(name);
-        if (!DataDir.exists()) {
-            boolean successfulCreation;
-            successfulCreation = DataDir.mkdirs();
-            if (!successfulCreation) {
-                throw new Error("The data directory was not created in "
-                        + this.getClass().getName() + ".setDataDirectory(String)");
-            }
-        }
+    public SARIC_Strings getStrings(){
+        return (SARIC_Strings) Strings;
     }
-
-    public File getDataDir() {
-        return DataDir;
-    }
-
-    public File getOutputDataDir() {
-        if (OutputDataDir == null) {
-            OutputDataDir = new File(
-                    getDataDir(),
-                    ss.getString_output());
-        }
-        return OutputDataDir;
-    }
-
+    
     public File getOutputDataMetOfficeDir() {
         if (OutputDataMetOfficeDir == null) {
             OutputDataMetOfficeDir = new File(
                     getOutputDataDir(),
-                    ss.getString_MetOffice());
+                    getStrings().getString_MetOffice());
         }
         return OutputDataMetOfficeDir;
     }
@@ -122,7 +86,7 @@ public class SARIC_Files {
         if (OutputDataMetOfficeDataPointDir == null) {
             OutputDataMetOfficeDataPointDir = new File(
                     getOutputDataMetOfficeDir(),
-                    ss.getString_DataPoint());
+                    getStrings().getString_DataPoint());
         }
         return OutputDataMetOfficeDataPointDir;
     }
@@ -131,25 +95,16 @@ public class SARIC_Files {
         if (OutputDataMetOfficeNimrodDir == null) {
             OutputDataMetOfficeNimrodDir = new File(
                     getOutputDataMetOfficeDir(),
-                    ss.getString_Nimrod());
+                    getStrings().getString_Nimrod());
         }
         return OutputDataMetOfficeNimrodDir;
-    }
-
-    public File getGeneratedDataDir() {
-        if (GeneratedDataDir == null) {
-            GeneratedDataDir = new File(
-                    getDataDir(),
-                    ss.getString_Generated());
-        }
-        return GeneratedDataDir;
     }
 
     public File getGeneratedDataCatchmentBoundariesDir() {
         if (GeneratedDataCatchmentDir == null) {
             GeneratedDataCatchmentDir = new File(
                     getGeneratedDataDir(),
-                    ss.getString_Catchment());
+                    getStrings().getString_Catchment());
         }
         return GeneratedDataCatchmentDir;
     }
@@ -158,16 +113,25 @@ public class SARIC_Files {
         if (GeneratedDataGridsDir == null) {
             GeneratedDataGridsDir = new File(
                     getGeneratedDataDir(),
-                    ss.getString_Grids());
+                    getStrings().getString_Grids());
         }
         return GeneratedDataGridsDir;
     }
 
+    public File getGeneratedDataGridsGridDoubleFactoryDir() {
+        if (GeneratedDataGridsGridDoubleFactoryDir == null) {
+            GeneratedDataGridsGridDoubleFactoryDir = new File(
+                    getGeneratedDataGridsDir(),
+                    getStrings().getString_GridDoubleFactory());
+        }
+        return GeneratedDataGridsGridDoubleFactoryDir;
+    }
+    
     public File getGeneratedDataMetOfficeDir() {
         if (GeneratedDataMetOfficeDir == null) {
             GeneratedDataMetOfficeDir = new File(
                     getGeneratedDataDir(),
-                    ss.getString_MetOffice());
+                    getStrings().getString_MetOffice());
         }
         return GeneratedDataMetOfficeDir;
     }
@@ -176,7 +140,7 @@ public class SARIC_Files {
         if (GeneratedDataMetOfficeNimrodDir == null) {
             GeneratedDataMetOfficeNimrodDir = new File(
                     getGeneratedDataMetOfficeDir(),
-                    ss.getString_Nimrod());
+                    getStrings().getString_Nimrod());
         }
         return GeneratedDataMetOfficeNimrodDir;
     }
@@ -185,7 +149,7 @@ public class SARIC_Files {
         if (GeneratedDataMetOfficeDataPointDir == null) {
             GeneratedDataMetOfficeDataPointDir = new File(
                     getGeneratedDataMetOfficeDir(),
-                    ss.getString_DataPoint());
+                    getStrings().getString_DataPoint());
         }
         return GeneratedDataMetOfficeDataPointDir;
     }
@@ -194,7 +158,7 @@ public class SARIC_Files {
         if (GeneratedDataMetOfficeDataPointForecastsDir == null) {
             GeneratedDataMetOfficeDataPointForecastsDir = new File(
                     getGeneratedDataMetOfficeDataPointDir(),
-                    ss.getString_Forecasts());
+                    getStrings().getString_Forecasts());
         }
         return GeneratedDataMetOfficeDataPointForecastsDir;
     }
@@ -203,7 +167,7 @@ public class SARIC_Files {
         if (GeneratedDataMetOfficeDataPointForecastsSitesDir == null) {
             GeneratedDataMetOfficeDataPointForecastsSitesDir = new File(
                     getGeneratedDataMetOfficeDataPointForecastsDir(),
-                    ss.getString_Sites());
+                    getStrings().getString_Sites());
         }
         return GeneratedDataMetOfficeDataPointForecastsSitesDir;
     }
@@ -212,7 +176,7 @@ public class SARIC_Files {
         if (GeneratedDataMetOfficeDataPointForecastsSitesInTeifiFile == null) {
             GeneratedDataMetOfficeDataPointForecastsSitesInTeifiFile = new File(
                     getGeneratedDataMetOfficeDataPointForecastsSitesDir(),
-                    ss.getString_Teifi() + ".dat");
+                    getStrings().getString_Teifi() + ".dat");
         }
         return GeneratedDataMetOfficeDataPointForecastsSitesInTeifiFile;
     }
@@ -221,7 +185,7 @@ public class SARIC_Files {
         if (GeneratedDataMetOfficeDataPointForecastsSitesInWisseyFile == null) {
             GeneratedDataMetOfficeDataPointForecastsSitesInWisseyFile = new File(
                     getGeneratedDataMetOfficeDataPointForecastsSitesDir(),
-                    ss.getString_Wissey() + ".dat");
+                    getStrings().getString_Wissey() + ".dat");
         }
         return GeneratedDataMetOfficeDataPointForecastsSitesInWisseyFile;
     }
@@ -230,7 +194,7 @@ public class SARIC_Files {
         if (GeneratedDataMetOfficeDataPointForecastsDir == null) {
             GeneratedDataMetOfficeDataPointForecastsDir = new File(
                     getGeneratedDataMetOfficeDataPointDir(),
-                    ss.getString_Observations());
+                    getStrings().getString_Observations());
         }
         return GeneratedDataMetOfficeDataPointForecastsDir;
     }
@@ -239,7 +203,7 @@ public class SARIC_Files {
         if (GeneratedDataOSMDir == null) {
             GeneratedDataOSMDir = new File(
                     getGeneratedDataDir(),
-                    ss.getString_OSM());
+                    getStrings().getString_OSM());
         }
         return GeneratedDataOSMDir;
     }
@@ -248,7 +212,7 @@ public class SARIC_Files {
         if (InputDataDir == null) {
             InputDataDir = new File(
                     getDataDir(),
-                    ss.getString_input());
+                    getStrings().getString_input());
         }
         return InputDataDir;
     }
@@ -266,7 +230,7 @@ public class SARIC_Files {
         if (InputDataMetOfficeDataPointConfigDir == null) {
             InputDataMetOfficeDataPointConfigDir = new File(
                     getInputDataMetOfficeDataPointDir(),
-                    ss.getString_config());
+                    getStrings().getString_config());
         }
         return InputDataMetOfficeDataPointConfigDir;
     }
@@ -275,7 +239,7 @@ public class SARIC_Files {
         if (InputDataMetOfficeDir == null) {
             InputDataMetOfficeDir = new File(
                     getInputDataDir(),
-                    ss.getString_MetOffice());
+                    getStrings().getString_MetOffice());
         }
         return InputDataMetOfficeDir;
     }
@@ -284,7 +248,7 @@ public class SARIC_Files {
         if (InputDataOSMDir == null) {
             InputDataOSMDir = new File(
                     getInputDataDir(),
-                    ss.getString_OSM());
+                    getStrings().getString_OSM());
         }
         return InputDataOSMDir;
     }
@@ -293,7 +257,7 @@ public class SARIC_Files {
         if (InputDataMetOfficeDataPointDir == null) {
             InputDataMetOfficeDataPointDir = new File(
                     getInputDataMetOfficeDir(),
-                    ss.getString_DataPoint());
+                    getStrings().getString_DataPoint());
         }
         return InputDataMetOfficeDataPointDir;
     }
@@ -302,7 +266,7 @@ public class SARIC_Files {
         if (InputDataMetOfficeDataPointInspireDir == null) {
             InputDataMetOfficeDataPointInspireDir = new File(
                     getInputDataMetOfficeDataPointDir(),
-                    ss.getString_inspire());
+                    getStrings().getString_inspire());
         }
         return InputDataMetOfficeDataPointInspireDir;
     }
@@ -311,7 +275,7 @@ public class SARIC_Files {
         if (InputDataMetOfficeDataPointInspireViewDir == null) {
             InputDataMetOfficeDataPointInspireViewDir = new File(
                     getInputDataMetOfficeDataPointInspireDir(),
-                    ss.getString_view());
+                    getStrings().getString_view());
         }
         return InputDataMetOfficeDataPointInspireViewDir;
     }
@@ -320,7 +284,7 @@ public class SARIC_Files {
         if (InputDataMetOfficeDataPointInspireViewWmtsDir == null) {
             InputDataMetOfficeDataPointInspireViewWmtsDir = new File(
                     getInputDataMetOfficeDataPointInspireViewDir(),
-                    ss.getString_wmts());
+                    getStrings().getString_wmts());
         }
         return InputDataMetOfficeDataPointInspireViewWmtsDir;
     }
@@ -329,7 +293,7 @@ public class SARIC_Files {
         if (InputDataMetOfficeDataPointInspireViewWmtsCapabilitiesFile == null) {
             InputDataMetOfficeDataPointInspireViewWmtsCapabilitiesFile = new File(
                     getInputDataMetOfficeDataPointInspireViewWmtsDir(),
-                    ss.getString_capabilities() + "." + ss.getString_xml());
+                    getStrings().getString_capabilities() + "." + getStrings().getString_xml());
         }
         return InputDataMetOfficeDataPointInspireViewWmtsCapabilitiesFile;
     }
@@ -338,7 +302,7 @@ public class SARIC_Files {
         if (InputDataMetOfficeNimrodDir == null) {
             InputDataMetOfficeNimrodDir = new File(
                     getInputDataMetOfficeDir(),
-                    ss.getString_Nimrod());
+                    getStrings().getString_Nimrod());
         }
         return InputDataMetOfficeNimrodDir;
     }
@@ -347,7 +311,7 @@ public class SARIC_Files {
         if (InputDataCEHDir == null) {
             InputDataCEHDir = new File(
                     getInputDataDir(),
-                    ss.getString_CEH());
+                    getStrings().getString_CEH());
         }
         return InputDataCEHDir;
     }
@@ -356,7 +320,7 @@ public class SARIC_Files {
         if (InputDataCatchmentBoundariesDir == null) {
             InputDataCatchmentBoundariesDir = new File(
                     getInputDataDir(),
-                    ss.getString_CatchmentBoundaries());
+                    getStrings().getString_CatchmentBoundaries());
         }
         return InputDataCatchmentBoundariesDir;
     }
@@ -368,9 +332,11 @@ public class SARIC_Files {
      * @return
      */
     public String getValDataTypePath(String dataType, String obs_or_fcs) {
-        return ss.getString_val() + ss.symbol_backslash
-                + obs_or_fcs + ss.symbol_backslash
-                + ss.getString_all() + ss.symbol_backslash
-                + dataType + ss.symbol_backslash;
+        SARIC_Strings strings;
+        strings = getStrings();
+        return strings.getString_val() + strings.symbol_backslash
+                + obs_or_fcs + strings.symbol_backslash
+                + strings.getString_all() + strings.symbol_backslash
+                + dataType + strings.symbol_backslash;
     }
 }

@@ -35,7 +35,7 @@ import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_GridDouble;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.chunk.Grids_GridChunkDoubleArrayFactory;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_GridDoubleFactory;
 import uk.ac.leeds.ccg.andyt.grids.core.statistics.Grids_GridStatistics1;
-import uk.ac.leeds.ccg.andyt.grids.exchange.Grids_ImageExporter;
+import uk.ac.leeds.ccg.andyt.grids.io.Grids_ImageExporter;
 import uk.ac.leeds.ccg.andyt.grids.process.Grids_Processor;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Object;
@@ -73,7 +73,7 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
         sf = se.getFiles();
         ss = se.getStrings();
         ge = se.getGrids_Environment();
-        gp = ge.getGridProcessor();
+        gp = ge.getProcessor();
         gf = gp.Grid2DSquareCellDoubleFactory;
         this.doWissey = doWissey;
         this.doTeifi = doTeifi;
