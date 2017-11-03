@@ -138,7 +138,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                 (Grids_AbstractGridChunkDoubleFactory) gp._Grid2DSquareCellDoubleChunkArrayFactory,
                 ge,
                 true);
-        gf.set_NoDataValue(noDataValue);
+        gf.setNoDataValue(noDataValue);
         gp.Grid2DSquareCellDoubleFactory = gf;
     }
 
@@ -222,7 +222,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
             nearestForecastsSitesGridAndFactory = st.getNearestForecastsSitesGrid(sites);
             nearestForecastsSitesGrid = (Grids_GridDouble) nearestForecastsSitesGridAndFactory[0];
             noDataValue1 = nearestForecastsSitesGrid.getNoDataValue(true);
-            gf.set_NoDataValue(noDataValue1);
+            gf.setNoDataValue(noDataValue1);
             nrows = nearestForecastsSitesGrid.getNRows(true);
             ncols = nearestForecastsSitesGrid.getNCols(true);
             Grids_GridDouble forecastsForTime2;

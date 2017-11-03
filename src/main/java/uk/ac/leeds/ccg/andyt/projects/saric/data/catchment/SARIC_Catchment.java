@@ -167,7 +167,7 @@ public abstract class SARIC_Catchment extends SARIC_Object {
                 Files.getGeneratedDataGridsDir(),
                 _Grids_Environment,
                 true);
-        f.set_NoDataValue(-9999.0d);
+        f.setNoDataValue(-9999.0d);
         f.setChunkNRows((int) nrows);
         f.setChunkNCols((int) ncols);
         f.setDirectory(dir);

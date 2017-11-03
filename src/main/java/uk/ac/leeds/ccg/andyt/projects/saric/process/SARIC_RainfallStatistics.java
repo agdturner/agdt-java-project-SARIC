@@ -116,7 +116,7 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
                 (Grids_AbstractGridChunkDoubleFactory) gp._Grid2DSquareCellDoubleChunkArrayFactory,
                 ge,
                 true);
-        gf.set_NoDataValue(noDataValue);
+        gf.setNoDataValue(noDataValue);
         gp.Grid2DSquareCellDoubleFactory = gf;
     }
 

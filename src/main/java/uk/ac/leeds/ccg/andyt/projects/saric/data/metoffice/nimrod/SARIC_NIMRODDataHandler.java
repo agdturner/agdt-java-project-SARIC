@@ -248,7 +248,7 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
                             new BigDecimal(snh.EastingOrLongitudeOfTopRightCornerOfTheImage),
                             new BigDecimal(snh.NorthingOrLatitudeOfTopRightCornerOfTheImage),
                             new BigDecimal(snh.IntervalBetweenRows));
-                    gf.set_NoDataValue(-1d);
+                    gf.setNoDataValue(-1d);
                     gf.setDimensions(dimensions);
                     gf.setChunkNCols(345);
                     gf.setChunkNRows(435);
@@ -357,7 +357,7 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
                 area);
         outputDir1.mkdirs();
         File outfile;
-        gp.Grid2DSquareCellDoubleFactory.set_NoDataValue(gf.get_NoDataValue());
+        gp.Grid2DSquareCellDoubleFactory.setNoDataValue(gf.getNoDataValue());
         gp.mask(g, mask, true);
 //        outfile = new File(
 //                outputDir1,
