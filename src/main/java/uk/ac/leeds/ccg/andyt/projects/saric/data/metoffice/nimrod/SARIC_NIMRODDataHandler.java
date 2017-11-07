@@ -34,7 +34,7 @@ import uk.ac.leeds.ccg.andyt.grids.core.Grids_Environment;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_GridDouble;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.chunk.Grids_GridChunkDoubleArrayFactory;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_GridDoubleFactory;
-import uk.ac.leeds.ccg.andyt.grids.core.grid.statistics.Grids_GridStatisticsNotUpdatedAsDataChanged;
+import uk.ac.leeds.ccg.andyt.grids.core.grid.statistics.Grids_GridDoubleStatisticsNotUpdated;
 import uk.ac.leeds.ccg.andyt.grids.io.Grids_ImageExporter;
 import uk.ac.leeds.ccg.andyt.grids.process.Grids_Processor;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
@@ -264,7 +264,6 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
                     gf.setDimensions(dimensions);
                     gf.setChunkNCols(345);
                     gf.setChunkNRows(435);
-                    gf.setGridStatistics(new Grids_GridStatisticsNotUpdatedAsDataChanged(ge));
                     gf.setDefaultChunkFactory(new Grids_GridChunkDoubleArrayFactory());
                     gp.GridDoubleFactory = gf;
                     g = (Grids_GridDouble) gf.create(generatedDir2, snh.nrows, snh.ncols, dimensions, true);

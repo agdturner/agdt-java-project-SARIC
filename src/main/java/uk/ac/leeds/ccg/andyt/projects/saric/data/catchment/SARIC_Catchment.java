@@ -45,7 +45,7 @@ import uk.ac.leeds.ccg.andyt.grids.core.Grids_Environment;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_GridDouble;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.chunk.Grids_GridChunkDoubleArrayFactory;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_GridDoubleFactory;
-import uk.ac.leeds.ccg.andyt.grids.core.grid.statistics.Grids_GridStatistics;
+import uk.ac.leeds.ccg.andyt.grids.core.grid.statistics.Grids_GridDoubleStatistics;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Object;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.site.SARIC_Site;
@@ -170,7 +170,7 @@ public abstract class SARIC_Catchment extends SARIC_Object {
                 (int) nrows,
                 (int) ncols,
                 dimensions,
-                new Grids_GridStatistics(_Grids_Environment),
+                new Grids_GridDoubleStatistics(_Grids_Environment),
                 new Grids_GridChunkDoubleArrayFactory());
         grid = f.create(dir, nrows, ncols, dimensions, _Grids_Environment.HandleOutOfMemoryError);
         result[0] = grid;
