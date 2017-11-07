@@ -36,10 +36,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import uk.ac.leeds.ccg.andyt.grids.core.Grids_Dimensions;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.chunk.Grids_AbstractGridChunkDoubleFactory;
-import uk.ac.leeds.ccg.andyt.grids.core.statistics.Grids_AbstractGridStatistics;
+import uk.ac.leeds.ccg.andyt.grids.core.grid.statistics.Grids_AbstractGridNumberStatistics;
 import uk.ac.leeds.ccg.andyt.grids.core.Grids_Environment;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_GridDouble;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_GridDoubleFactory;
+import uk.ac.leeds.ccg.andyt.grids.core.grid.statistics.Grids_GridStatistics;
 import uk.ac.leeds.ccg.andyt.grids.io.Grids_ESRIAsciiGridExporter;
 import uk.ac.leeds.ccg.andyt.grids.io.Grids_ImageExporter;
 import uk.ac.leeds.ccg.andyt.grids.process.Grids_Processor;
@@ -132,14 +133,15 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
 
     private void init_gf() {
         gf = new Grids_GridDoubleFactory(
-                gp.getDirectory(true),
-                256,
-                256,
-                (Grids_AbstractGridChunkDoubleFactory) gp._Grid2DSquareCellDoubleChunkArrayFactory,
                 ge,
-                true);
-        gf.setNoDataValue(noDataValue);
-        gp.Grid2DSquareCellDoubleFactory = gf;
+                gp.getDirectory(true),
+                noDataValue,
+                256,
+                256,
+                new Grids_Dimensions(256, 256),
+                new Grids_GridStatistics(ge),
+                (Grids_AbstractGridChunkDoubleFactory) gp.GridChunkDoubleFactory);
+        gp.GridDoubleFactory = gf;
     }
 
     @Override
@@ -593,7 +595,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
         HashMap<SARIC_Date, Integer> counts;
         HashMap<String, Grids_GridDouble> grids1;
 
-        Grids_AbstractGridStatistics gs;
+        Grids_AbstractGridNumberStatistics gs;
         double max;
         double min;
         double scaleFactor;
@@ -751,9 +753,9 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                              * The scaleFactor is the number of grids divided by
                              * the number of hours in the day
                              */
-                            gs = g.getGridStatistics(true);
-                            max = gs.getMaxDouble(true, true);
-                            min = gs.getMinDouble(true, true);
+                            gs = g.getStatistics(true);
+                            max = gs.getMax(true, true).doubleValue();
+                            min = gs.getMin(true, true).doubleValue();
                             System.out.println("max " + max);
                             System.out.println("min " + min);
 
@@ -781,9 +783,9 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                                     outdir2,
                                     s + "_ForecastFor_" + date1.getYYYYMMDD() + ".asc");
                         }
-                        gs = b1KMGrid.getGridStatistics(true);
-                        max = gs.getMaxDouble(true, true);
-                        min = gs.getMinDouble(true, true);
+                        gs = b1KMGrid.getStatistics(true);
+                        max = gs.getMax(true, true).doubleValue();
+                        min = gs.getMin(true, true).doubleValue();
                         System.out.println("max " + max);
                         System.out.println("min " + min);
                         scaleFactor = 24.0d / (double) counts.get(date1);
@@ -1082,8 +1084,8 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
     //                    }
     //                }
     //                g = output1kmGrids.get(time);
-    //                Grids_AbstractGridStatistics gs;
-    //                gs = g.getGridStatistics(true);
+    //                Grids_AbstractGridNumberStatistics gs;
+    //                gs = g.getStatistics(true);
     //                double max = gs.getMaxDouble(true);
     //                double min = gs.getMinDouble(true);
     //                /**
@@ -1569,7 +1571,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
 //                            }
 //                        }
 //                        System.out.println(result.toString(0, true));
-//                        System.out.println("Max " + result.getGridStatistics(true).getMaxDouble(true));
+//                        System.out.println("Max " + result.getStatistics(true).getMaxDouble(true));
 //                        return result;
 //                    } else {
 ////                        System.out.println(

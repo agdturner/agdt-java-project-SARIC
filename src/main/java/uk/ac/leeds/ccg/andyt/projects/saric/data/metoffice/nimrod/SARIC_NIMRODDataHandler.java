@@ -34,7 +34,7 @@ import uk.ac.leeds.ccg.andyt.grids.core.Grids_Environment;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_GridDouble;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.chunk.Grids_GridChunkDoubleArrayFactory;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_GridDoubleFactory;
-import uk.ac.leeds.ccg.andyt.grids.core.statistics.Grids_GridStatistics1;
+import uk.ac.leeds.ccg.andyt.grids.core.grid.statistics.Grids_GridStatisticsNotUpdatedAsDataChanged;
 import uk.ac.leeds.ccg.andyt.grids.io.Grids_ImageExporter;
 import uk.ac.leeds.ccg.andyt.grids.process.Grids_Processor;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
@@ -74,7 +74,7 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
         ss = se.getStrings();
         ge = se.getGrids_Environment();
         gp = ge.getProcessor();
-        gf = gp.Grid2DSquareCellDoubleFactory;
+        gf = gp.GridDoubleFactory;
         this.doWissey = doWissey;
         this.doTeifi = doTeifi;
     }
@@ -162,12 +162,15 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
         File dirt1;
         File dirt2;
         dirt1 = new File(
-                tgf.getDirectory(true),
+                tgf.getDirectory(),
                 "TG1");
         tgf.setDirectory(dirt1);
-        tg1 = (Grids_GridDouble) tgf.create(dirt1, tg0, 0, 0, tg0.getNRows(true) - 1, tg0.getNCols(true) - 1);
+        tg1 = (Grids_GridDouble) tgf.create(
+                dirt1, tg0, 0, 0, 
+                tg0.getNRows(true) - 1, tg0.getNCols(true) - 1,
+                ge.HandleOutOfMemoryError);
         dirt2 = new File(
-                tgf.getDirectory(true),
+                tgf.getDirectory(),
                 "TG2");
         tgf.setDirectory(dirt2);
 
@@ -185,12 +188,15 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
         File dirw1;
         File dirw2;
         dirw1 = new File(
-                wgf.getDirectory(true),
+                wgf.getDirectory(),
                 "WG1");
         wgf.setDirectory(dirw1);
-        wg1 = (Grids_GridDouble) wgf.create(dirw1, wg0, 0, 0, wg0.getNRows(true) - 1, wg0.getNCols(true) - 1);
+        wg1 = (Grids_GridDouble) wgf.create(
+                dirw1, wg0, 0, 0, 
+                wg0.getNRows(true) - 1, wg0.getNCols(true) - 1,
+                ge.HandleOutOfMemoryError);
         dirw2 = new File(
-                wgf.getDirectory(true),
+                wgf.getDirectory(),
                 "WG2");
         wgf.setDirectory(dirw2);
         // Set archive parameters
@@ -202,8 +208,14 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
         range = 100;
 
         for (int i = 0; i < numberOf5MinutePeriodsIn24Hours; i++) {
-            tg2 = (Grids_GridDouble) tgf.create(dirt2, tg0, 0, 0, tg0.getNRows(true) - 1, tg0.getNCols(true) - 1);
-            wg2 = (Grids_GridDouble) wgf.create(dirw2, wg0, 0, 0, wg0.getNRows(true) - 1, wg0.getNCols(true) - 1);
+            tg2 = (Grids_GridDouble) tgf.create(
+                    dirt2, tg0, 0, 0,
+                    tg0.getNRows(true) - 1, tg0.getNCols(true) - 1,
+                    ge.HandleOutOfMemoryError);
+            wg2 = (Grids_GridDouble) wgf.create(
+                    dirw2, wg0, 0, 0,
+                    wg0.getNRows(true) - 1, wg0.getNCols(true) - 1,
+                    ge.HandleOutOfMemoryError);
             f = new File(
                     inputDir,
                     "metoffice-c-band-rain-radar_uk_" + st.getYYYYMMDDHHMM() + "_1km-composite.dat");
@@ -214,7 +226,7 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
 //                        try {
 //                            Generic_StaticIO.initialiseArchive(generatedDir1, range, maxID);
 //                        } catch (IOException ex) {
-//                            Logger.getLogger(SARIC_NIMRODDataHandler.class.getName()).log(Level.SEVERE, null, ex);
+//                            Logger.getLogger(SARIC_NIMRODDataHandler.class.getName()).Log(Level.SEVERE, null, ex);
 //                        }
 //                        generatedDir2 = Generic_StaticIO.getObjectDirectory(
 //                                generatedDir1,
@@ -252,9 +264,9 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
                     gf.setDimensions(dimensions);
                     gf.setChunkNCols(345);
                     gf.setChunkNRows(435);
-                    gf.setGridStatistics(new Grids_GridStatistics1(ge));
-                    gf.setChunkFactory(new Grids_GridChunkDoubleArrayFactory());
-                    gp.Grid2DSquareCellDoubleFactory = gf;
+                    gf.setGridStatistics(new Grids_GridStatisticsNotUpdatedAsDataChanged(ge));
+                    gf.setDefaultChunkFactory(new Grids_GridChunkDoubleArrayFactory());
+                    gp.GridDoubleFactory = gf;
                     g = (Grids_GridDouble) gf.create(generatedDir2, snh.nrows, snh.ncols, dimensions, true);
                     try {
                         for (long row = 0; row < snh.nrows; row++) {
@@ -264,7 +276,6 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
                             //System.out.println("done row " + row);
                         }
                         System.out.println(g.toString(true));
-                        System.out.println(g.toString(0, true));
                         fis.close();
                         dis.close();
                     } catch (IOException ex) {
@@ -357,7 +368,7 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
                 area);
         outputDir1.mkdirs();
         File outfile;
-        gp.Grid2DSquareCellDoubleFactory.setNoDataValue(gf.getNoDataValue());
+        gp.GridDoubleFactory.setNoDataValue(gf.getNoDataValue());
         gp.mask(g, mask, true);
 //        outfile = new File(
 //                outputDir1,

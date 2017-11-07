@@ -35,6 +35,7 @@ import uk.ac.leeds.ccg.andyt.grids.core.grid.chunk.Grids_AbstractGridChunkDouble
 import uk.ac.leeds.ccg.andyt.grids.core.Grids_Environment;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_GridDouble;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_GridDoubleFactory;
+import uk.ac.leeds.ccg.andyt.grids.core.grid.statistics.Grids_GridStatistics;
 import uk.ac.leeds.ccg.andyt.grids.io.Grids_ESRIAsciiGridExporter;
 import uk.ac.leeds.ccg.andyt.grids.io.Grids_ImageExporter;
 import uk.ac.leeds.ccg.andyt.grids.process.Grids_Processor;
@@ -110,14 +111,16 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
 
     private void init_gf() {
         gf = new Grids_GridDoubleFactory(
-                gp.getDirectory(true),
-                256,
-                256,
-                (Grids_AbstractGridChunkDoubleFactory) gp._Grid2DSquareCellDoubleChunkArrayFactory,
                 ge,
-                true);
+                gp.getDirectory(true),
+                noDataValue,
+                256,
+                256,
+                new Grids_Dimensions(256, 256),
+                new Grids_GridStatistics(ge),
+                gp.GridChunkDoubleArrayFactory);
         gf.setNoDataValue(noDataValue);
-        gp.Grid2DSquareCellDoubleFactory = gf;
+        gp.GridDoubleFactory = gf;
     }
 
     @Override
@@ -404,7 +407,7 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
                                 variance = variances.get(rowCol);
                             } else {
                                 variance = gf.create(
-                                        Generic_StaticIO.createNewFile(gf.getDirectory(true)),
+                                        Generic_StaticIO.createNewFile(gf.getDirectory()),
                                         NRows, NCols, sum.getDimensions(true), true);
                                 variances.put(rowCol, variance);
                             }
@@ -588,10 +591,11 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
 //        dimensions[3] = dimensions[1].subtract(cellsize.multiply(new BigDecimal(width)));  //XMAX
 
             result = (Grids_GridDouble) gf.create(
-                    Generic_StaticIO.createNewFile(gf.getDirectory(true)),
+                    Generic_StaticIO.createNewFile(gf.getDirectory()),
                     height,
                     width,
-                    dimensions);
+                    dimensions,
+                    ge.HandleOutOfMemoryError);
 
             int[] pixels = new int[width * height];
             PixelGrabber pg = new PixelGrabber(image, 0, 0, width, height, pixels, 0, width);
@@ -752,7 +756,7 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
 //                            }
 //                        }
 //                        System.out.println(result.toString(0, true));
-//                        System.out.println("Max " + result.getGridStatistics(true).getMaxDouble(true));
+//                        System.out.println("Max " + result.getStatistics(true).getMaxDouble(true));
 //                        return result;
 //                    } else {
 ////                        System.out.println(

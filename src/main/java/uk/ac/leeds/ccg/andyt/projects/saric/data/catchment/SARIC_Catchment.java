@@ -45,7 +45,7 @@ import uk.ac.leeds.ccg.andyt.grids.core.Grids_Environment;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_GridDouble;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.chunk.Grids_GridChunkDoubleArrayFactory;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_GridDoubleFactory;
-import uk.ac.leeds.ccg.andyt.grids.core.statistics.Grids_GridStatistics0;
+import uk.ac.leeds.ccg.andyt.grids.core.grid.statistics.Grids_GridStatistics;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Object;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.site.SARIC_Site;
@@ -164,17 +164,15 @@ public abstract class SARIC_Catchment extends SARIC_Object {
         //inf = se.getGrids_Environment().get_Grid2DSquareCellProcessor()._Grid2DSquareCellDoubleFactory;
         Grids_GridDoubleFactory f;
         f = new Grids_GridDoubleFactory(
-                Files.getGeneratedDataGridsDir(),
                 _Grids_Environment,
-                true);
-        f.setNoDataValue(-9999.0d);
-        f.setChunkNRows((int) nrows);
-        f.setChunkNCols((int) ncols);
-        f.setDirectory(dir);
-        f.setDimensions(dimensions);
-        f.setChunkFactory(new Grids_GridChunkDoubleArrayFactory());
-        f.setGridStatistics(new Grids_GridStatistics0(_Grids_Environment));
-        grid = f.create(dir, nrows, ncols, dimensions, true);
+                Files.getGeneratedDataGridsDir(),
+                -9999.0d,
+                (int) nrows,
+                (int) ncols,
+                dimensions,
+                new Grids_GridStatistics(_Grids_Environment),
+                new Grids_GridChunkDoubleArrayFactory());
+        grid = f.create(dir, nrows, ncols, dimensions, _Grids_Environment.HandleOutOfMemoryError);
         result[0] = grid;
         result[1] = f;
         return result;
@@ -286,10 +284,10 @@ public abstract class SARIC_Catchment extends SARIC_Object {
         double[] OSGBEastingAndNorthing;
         double noDataValue = resultGrid.getNoDataValue(true);
         double distance;
-        double minDistance = Double.MAX_VALUE;
+        double minDistance;
         Vector_OSGBtoLatLon OSGBtoLatLon = _Vector_Environment.getOSGBtoLatLon();
         Iterator<SARIC_Site> ite;
-        SARIC_Site site = null;
+        SARIC_Site site;
         for (long row = 0; row < nrows; row++) {
             y = resultGrid.getCellYDouble(row, true);
             for (long col = 0; col < ncols; col++) {

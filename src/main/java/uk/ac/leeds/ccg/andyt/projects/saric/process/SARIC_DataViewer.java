@@ -439,7 +439,7 @@ public class SARIC_DataViewer extends Geotools_DisplayShapefile implements Runna
         gc = Maps.getGridCoverage2D(agr);
 
         Grids_GridDoubleFactory gf;
-        gf = se.getGrids_Environment().getProcessor().Grid2DSquareCellDoubleFactory;
+        gf = se.getGrids_Environment().getProcessor().GridDoubleFactory;
         Grids_GridDouble g;
         g = (Grids_GridDouble) gf.create(f);
 
