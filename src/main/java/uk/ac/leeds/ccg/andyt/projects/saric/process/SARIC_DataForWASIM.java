@@ -26,26 +26,22 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.geotools.data.DataUtilities;
-import org.geotools.data.collection.TreeSetFeatureCollection;
 import org.geotools.feature.SchemaException;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.geometry.jts.JTSFactoryFinder;
-import org.opengis.feature.Feature;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
-import uk.ac.leeds.ccg.andyt.geotools.Geotools_Point;
 import uk.ac.leeds.ccg.andyt.geotools.Geotools_Shapefile;
 import uk.ac.leeds.ccg.andyt.grids.core.Grids_Environment;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_GridDouble;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_GridDoubleFactory;
-import uk.ac.leeds.ccg.andyt.grids.core.grid.statistics.Grids_GridStatistics;
+import uk.ac.leeds.ccg.andyt.grids.core.grid.statistics.Grids_GridDoubleStatisticsNotUpdated;
 import uk.ac.leeds.ccg.andyt.grids.process.Grids_Processor;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Object;
@@ -55,7 +51,6 @@ import uk.ac.leeds.ccg.andyt.projects.saric.data.wasim.SARIC_WASIMRecord;
 import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
 import uk.ac.leeds.ccg.andyt.projects.saric.util.SARIC_Time;
 import uk.ac.leeds.ccg.andyt.vector.core.Vector_Environment;
-import uk.ac.leeds.ccg.andyt.vector.geometry.Vector_Point2D;
 
 /**
  *
@@ -83,12 +78,11 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
         gf = gp.GridDoubleFactory;
         gf.setChunkNCols(62);
         gf.setChunkNRows(40);
-        Grids_GridStatistics gs;
-        gs = new Grids_GridStatistics(ge);
-        gf.setGridStatistics(gs);
+        gf.Statistics = new Grids_GridDoubleStatisticsNotUpdated(ge);
         ve = se.getVector_Environment();
     }
 
+    @Override
     public void run() {
 
         // Initialise the printwrite for the output
@@ -127,8 +121,8 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
         // GeoTools
         SimpleFeatureType sft;
         sft = getPointSimpleFeatureType(defaultSRID);
-        GeometryFactory gf;
-        gf = JTSFactoryFinder.getGeometryFactory();
+        GeometryFactory geometryFactory;
+        geometryFactory = JTSFactoryFinder.getGeometryFactory();
         SimpleFeatureBuilder sfb;
         Point point;
 
@@ -200,7 +194,7 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
                 Northing = g.getCellYDouble(row, true);
 
                 sfb = new SimpleFeatureBuilder(sft);
-                point = gf.createPoint(new Coordinate(Easting, Northing));
+                point = geometryFactory.createPoint(new Coordinate(Easting, Northing));
                 sfb.add(point);
                 sfb.add("" + ID);
                 SimpleFeature feature;
@@ -359,7 +353,7 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
 
     protected TreeMap<SARIC_Time, Grids_GridDouble> getObservationsGrids(String area) {
         TreeMap<SARIC_Time, Grids_GridDouble> result;
-        result = new TreeMap<SARIC_Time, Grids_GridDouble>();
+        result = new TreeMap<>();
         File dir;
         dir = new File(
                 sf.getOutputDataMetOfficeDataPointDir(),
@@ -437,7 +431,7 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
 
     public static HashMap<String, SimpleFeatureType> getPointSimpleFeatureTypes() {
         if (pointSimpleFeatureTypes == null) {
-            pointSimpleFeatureTypes = new HashMap<String, SimpleFeatureType>();
+            pointSimpleFeatureTypes = new HashMap<>();
             //pointSimpleFeatureTypes = initPointSimpleFeatureTypes();
         }
         return pointSimpleFeatureTypes;

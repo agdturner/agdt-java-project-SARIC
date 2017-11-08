@@ -31,11 +31,10 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import uk.ac.leeds.ccg.andyt.generic.io.Generic_StaticIO;
 import uk.ac.leeds.ccg.andyt.grids.core.Grids_Dimensions;
-import uk.ac.leeds.ccg.andyt.grids.core.grid.chunk.Grids_AbstractGridChunkDoubleFactory;
 import uk.ac.leeds.ccg.andyt.grids.core.Grids_Environment;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_GridDouble;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_GridDoubleFactory;
-import uk.ac.leeds.ccg.andyt.grids.core.grid.statistics.Grids_GridStatistics;
+import uk.ac.leeds.ccg.andyt.grids.core.grid.statistics.Grids_GridDoubleStatisticsNotUpdated;
 import uk.ac.leeds.ccg.andyt.grids.io.Grids_ESRIAsciiGridExporter;
 import uk.ac.leeds.ccg.andyt.grids.io.Grids_ImageExporter;
 import uk.ac.leeds.ccg.andyt.grids.process.Grids_Processor;
@@ -71,7 +70,7 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
     Grids_GridDoubleFactory gf;
     double noDataValue = -9999.0;
     Grids_ESRIAsciiGridExporter ae;
-    Grids_ImageExporter ie;
+    Grids_ImageExporter ImageExporter;
     File dirIn;
     File dirOut;
     boolean doWissey;
@@ -104,7 +103,7 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
         ss = se.getStrings();
         ge = se.getGrids_Environment();
         ae = new Grids_ESRIAsciiGridExporter(ge);
-        ie = new Grids_ImageExporter(ge);
+        ImageExporter = new Grids_ImageExporter(ge);
         gp = ge.getProcessor();
         init_gf();
     }
@@ -117,7 +116,7 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
                 256,
                 256,
                 new Grids_Dimensions(256, 256),
-                new Grids_GridStatistics(ge),
+                new Grids_GridDoubleStatisticsNotUpdated(ge),
                 gp.GridChunkDoubleArrayFactory);
         gf.setNoDataValue(noDataValue);
         gp.GridDoubleFactory = gf;
@@ -502,8 +501,8 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
                                 outdir2,
                                 layerName + "_" + rowColint[0] + "_" + rowColint[1] + "VarianceColor.png");
                         ae.toAsciiFile(g, outascii, HandleOutOfMemoryError);
-                        ie.toGreyScaleImage(g, gp, outpng, "png", HandleOutOfMemoryError);
-                        ie.toColourImage(0, colorMap, noDataValueColor, g, outpng2, "png", HandleOutOfMemoryError);
+                        ImageExporter.toGreyScaleImage(g, gp, outpng, "png", HandleOutOfMemoryError);
+                        ImageExporter.toColourImage(0, colorMap, noDataValueColor, g, outpng2, "png", HandleOutOfMemoryError);
                     }
                     // Output result grid
                     outascii = new File(
@@ -519,9 +518,9 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
                             outdir2,
                             s + layerName + "VarianceColor8.png");
                     ae.toAsciiFile(b1KMGrid, outascii, HandleOutOfMemoryError);
-                    ie.toGreyScaleImage(b1KMGrid, gp, outpng, "png", HandleOutOfMemoryError);
-                    ie.toColourImage(0, colorMap, noDataValueColor, b1KMGrid, outpng2, "png", HandleOutOfMemoryError);
-                    ie.toColourImage(8, colorMap, noDataValueColor, b1KMGrid, outpng3, "png", HandleOutOfMemoryError);
+                    ImageExporter.toGreyScaleImage(b1KMGrid, gp, outpng, "png", HandleOutOfMemoryError);
+                    ImageExporter.toColourImage(0, colorMap, noDataValueColor, b1KMGrid, outpng2, "png", HandleOutOfMemoryError);
+                    ImageExporter.toColourImage(8, colorMap, noDataValueColor, b1KMGrid, outpng3, "png", HandleOutOfMemoryError);
                     init_gf();
                 }
             }
@@ -602,7 +601,7 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
             try {
                 pg.grabPixels();
             } catch (InterruptedException ie) {
-                ie.printStackTrace();
+                ie.printStackTrace(System.err);
             }
             long row = height - 1;
             long col = 0;

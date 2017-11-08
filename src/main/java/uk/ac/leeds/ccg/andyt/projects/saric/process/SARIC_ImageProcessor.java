@@ -40,7 +40,7 @@ import uk.ac.leeds.ccg.andyt.grids.core.grid.statistics.Grids_AbstractGridNumber
 import uk.ac.leeds.ccg.andyt.grids.core.Grids_Environment;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_GridDouble;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_GridDoubleFactory;
-import uk.ac.leeds.ccg.andyt.grids.core.grid.statistics.Grids_GridStatistics;
+import uk.ac.leeds.ccg.andyt.grids.core.grid.statistics.Grids_GridDoubleStatisticsNotUpdated;
 import uk.ac.leeds.ccg.andyt.grids.io.Grids_ESRIAsciiGridExporter;
 import uk.ac.leeds.ccg.andyt.grids.io.Grids_ImageExporter;
 import uk.ac.leeds.ccg.andyt.grids.process.Grids_Processor;
@@ -71,12 +71,12 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
     /**
      * For convenience
      */
-    SARIC_Files sf;
-    SARIC_Strings ss;
+    SARIC_Files Files;
+    SARIC_Strings Strings;
     Grids_Environment ge;
     Grids_Processor gp;
     Grids_GridDoubleFactory gf;
-    double noDataValue = -9999.0;
+    double NoDataValue = -9999.0;
     Grids_ESRIAsciiGridExporter ae;
     Grids_ImageExporter ie;
     File dirIn;
@@ -122,8 +122,8 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
         this.doWissey = doWissey;
         this.doTeifi = doTeifi;
         this.overwrite = overwrite;
-        sf = se.getFiles();
-        ss = se.getStrings();
+        Files = se.getFiles();
+        Strings = se.getStrings();
         ge = se.getGrids_Environment();
         ae = new Grids_ESRIAsciiGridExporter(ge);
         ie = new Grids_ImageExporter(ge);
@@ -135,11 +135,11 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
         gf = new Grids_GridDoubleFactory(
                 ge,
                 gp.getDirectory(true),
-                noDataValue,
+                NoDataValue,
                 256,
                 256,
                 new Grids_Dimensions(256, 256),
-                new Grids_GridStatistics(ge),
+                new Grids_GridDoubleStatisticsNotUpdated(ge),
                 (Grids_AbstractGridChunkDoubleFactory) gp.GridChunkDoubleFactory);
         gp.GridDoubleFactory = gf;
     }
@@ -173,15 +173,15 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
             HashSet<SARIC_Site> sites;
             SARIC_Teifi st;
             // Initialisation part 1
-            dataType = ss.getString_xml();
-            path = sf.getValDataTypePath(dataType, ss.getString_wxfcs());
+            dataType = Strings.getString_xml();
+            path = Files.getValDataTypePath(dataType, Strings.getString_wxfcs());
             indir0 = new File(
-                    sf.getInputDataMetOfficeDataPointDir(),
+                    Files.getInputDataMetOfficeDataPointDir(),
                     path);
             System.out.println(indir0);
             indir0 = new File(
                     indir0,
-                    ss.getString_site() + "0");
+                    Strings.getString_site() + "0");
             /**
              * There is no need to run for daily, it is just for the same time
              * as the 3hourly, but gives lower temporal resolution and we want
@@ -189,9 +189,9 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
              */
             indir0 = new File(
                     indir0,
-                    ss.getString_3hourly());
+                    Strings.getString_3hourly());
             outdir0 = new File(
-                    sf.getOutputDataMetOfficeDataPointDir(),
+                    Files.getOutputDataMetOfficeDataPointDir(),
                     path);
 
             String[] list;
@@ -220,7 +220,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
             long nrows;
             long ncols;
             st = new SARIC_Teifi(se);
-            sites = st.getForecastsSitesInStudyArea(ss.getString_3hourly());
+            sites = st.getForecastsSitesInStudyArea(Strings.getString_3hourly());
             nearestForecastsSitesGridAndFactory = st.getNearestForecastsSitesGrid(sites);
             nearestForecastsSitesGrid = (Grids_GridDouble) nearestForecastsSitesGridAndFactory[0];
             noDataValue1 = nearestForecastsSitesGrid.getNoDataValue(true);
@@ -315,7 +315,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                                         indir2,
                                         dirname);
                                 String filename;
-                                filename = siteID + ss.getString_3hourly() + ss.symbol_dot + dataType;
+                                filename = siteID + Strings.getString_3hourly() + Strings.symbol_dot + dataType;
                                 File f;
                                 f = new File(
                                         indir2,
@@ -395,7 +395,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
             int ncols;
             Vector_Envelope2D bounds;
             // Initial assignment
-            inspireWMTSCapabilities = sf.getInputDataMetOfficeDataPointInspireViewWmtsCapabilitiesFile();
+            inspireWMTSCapabilities = Files.getInputDataMetOfficeDataPointInspireViewWmtsCapabilitiesFile();
             p = new SARIC_MetOfficeParameters();
             r = new SARIC_MetOfficeCapabilitiesXMLDOMReader(se, inspireWMTSCapabilities);
             tileMatrixSet = "EPSG:27700"; // British National Grid
@@ -439,18 +439,18 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                     System.out.println(bounds.toString());
                     p.setBounds(bounds);
                     if (doWissey) {
-                        area = ss.getString_Wissey();
+                        area = Strings.getString_Wissey();
                         processForecasts(colorMap, noDataValueColor, area, scale, layerName, cellsize, p, lp, r, sw1KMGrid, sw1KMGridMaskedToCatchment);
                     }
                     if (doTeifi) {
-                        area = ss.getString_Teifi();
+                        area = Strings.getString_Teifi();
                         processForecasts(colorMap, noDataValueColor, area, scale, layerName, cellsize, p, lp, r, st1KMGrid, st1KMGridMaskedToCatchment);
                     }
                 }
             }
             // Observations
             if (doObservationsTileFromWMTSService) {
-                layerName = ss.getString_RADAR_UK_Composite_Highres();
+                layerName = Strings.getString_RADAR_UK_Composite_Highres();
                 for (int scale = 4; scale < 5; scale++) {
                     tileMatrix = tileMatrixSet + ":" + scale;
                     metOfficeLayerParameters = p.getMetOfficeLayerParameters();
@@ -466,12 +466,12 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                     //System.out.println(bounds.toString());
                     p.setBounds(bounds);
                     if (doWissey) {
-                        area = ss.getString_Wissey();
+                        area = Strings.getString_Wissey();
                         processObservations(
                                 colorMap, noDataValueColor, area, scale, layerName, cellsize, p, lp, r, sw1KMGrid, sw1KMGridMaskedToCatchment);
                     }
                     if (doTeifi) {
-                        area = ss.getString_Teifi();
+                        area = Strings.getString_Teifi();
                         processObservations(
                                 colorMap, noDataValueColor, area, scale, layerName, cellsize, p, lp, r, st1KMGrid, st1KMGridMaskedToCatchment);
                     }
@@ -534,10 +534,10 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
         path = "inspire/view/wmts0/" + area + "/" + layerName + "/EPSG_27700_";
         System.out.println("scale " + scale);
         indir0 = new File(
-                sf.getInputDataMetOfficeDataPointDir(),
+                Files.getInputDataMetOfficeDataPointDir(),
                 path + scale);
         outdir0 = new File(
-                sf.getOutputDataMetOfficeDataPointDir(),
+                Files.getOutputDataMetOfficeDataPointDir(),
                 path + scale);
         ymDates = new TreeMap<>();
         indirs0 = indir0.listFiles();
@@ -735,11 +735,11 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                                 y = b1KMGrid.getCellYDouble(row, true) + halfcellsize; // adding half a cellsize is in an attempt to prevent striping where images join.
                                 for (long col = 0; col < ncols; col++) {
                                     vb = a1KMGridMaskedToCatchmentGrid.getCell(row, col, true);
-                                    if (vb != noDataValue) {
+                                    if (vb != NoDataValue) {
                                         //x = b1KMGrid.getCellXDouble(col, true);
                                         x = b1KMGrid.getCellXDouble(col, true) + halfcellsize; // adding half a cellsize is in an attempt to prevent striping where images join.
                                         v = g.getCell(x, y, true);
-                                        if (v != noDataValue) {
+                                        if (v != NoDataValue) {
                                             //System.out.println("Value at (x, y) (" + x + ", " + y + ")= " + v);
                                             //b1KMGrid.setCell(row, col, v, true);
                                             b1KMGrid.addToCell(row, col, v, true);
@@ -872,7 +872,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
     //        System.out.println("Area " + area);
     //        path = "inspire/view/wmts0/" + area + "/" + layerName + "/EPSG_27700_";
     //        indir = new File(
-    //                sf.getInputDataMetOfficeDataPointDir(),
+    //                Files.getInputDataMetOfficeDataPointDir(),
     //                path + scale);
     //        indirs = indir.listFiles();
     //        /**
@@ -893,7 +893,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
     //            orderedForecastdirs.put(time, indirs[j]);
     //        }
     //        outdir = new File(
-    //                sf.getOutputDataMetOfficeDataPointDir(),
+    //                Files.getOutputDataMetOfficeDataPointDir(),
     //                path + scale);
     //        // Further declarations
     //        Vector_Envelope2D tileBounds;
@@ -1154,10 +1154,10 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
         path = "inspire/view/wmts0/" + area + "/" + layerName + "/EPSG_27700_";
         System.out.println("scale " + scale);
         indir0 = new File(
-                sf.getInputDataMetOfficeDataPointDir(),
+                Files.getInputDataMetOfficeDataPointDir(),
                 path + scale);
         outdir0 = new File(
-                sf.getOutputDataMetOfficeDataPointDir(),
+                Files.getOutputDataMetOfficeDataPointDir(),
                 path + scale);
         ymDates = new TreeMap<>();
         indirs0 = indir0.listFiles();
@@ -1297,11 +1297,11 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                             y = b1KMGrid.getCellYDouble(row, true) + halfcellsize; // adding half a cellsize is in an attempt to prevent striping where images join.
                             for (long col = 0; col < ncols; col++) {
                                 vb = a1KMGridMaskedToCatchmentGrid.getCell(row, col, true);
-                                if (vb != noDataValue) {
+                                if (vb != NoDataValue) {
                                     //x = b1KMGrid.getCellXDouble(col, true);
                                     x = b1KMGrid.getCellXDouble(col, true) + halfcellsize; // adding half a cellsize is in an attempt to prevent striping where images join.
                                     v = g.getCell(x, y, true);
-                                    if (v != noDataValue) {
+                                    if (v != NoDataValue) {
                                         //System.out.println("Value at (x, y) (" + x + ", " + y + ")= " + v);
                                         //b1KMGrid.setCell(row, col, v, true);
                                         b1KMGrid.addToCell(row, col, v, true);
