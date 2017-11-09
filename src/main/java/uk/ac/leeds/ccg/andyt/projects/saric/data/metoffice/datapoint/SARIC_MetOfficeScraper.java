@@ -43,7 +43,6 @@ import uk.ac.leeds.ccg.andyt.projects.saric.data.catchment.SARIC_Wissey;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.site.SARIC_Site;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.site.SARIC_SiteHandler;
 import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
-import uk.ac.leeds.ccg.andyt.projects.saric.util.SARIC_Date;
 import uk.ac.leeds.ccg.andyt.projects.saric.util.SARIC_Time;
 import uk.ac.leeds.ccg.andyt.vector.core.Vector_Environment;
 import uk.ac.leeds.ccg.andyt.vector.geometry.Vector_Envelope2D;
@@ -486,6 +485,8 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
         path = sf.getValDataTypePath(dataType, ss.getString_wxfcs())
                 + ss.getString_site() + ss.symbol_backslash
                 + res + ss.symbol_backslash
+                + currentTime.substring(0, 7) + ss.symbol_backslash
+                + currentTime.substring(0, 10) + ss.symbol_backslash
                 + currentTime + ss.symbol_backslash
                 + siteID;
         result = getXML(siteID + res, -1, timeRange);
@@ -898,7 +899,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
                                 + "&TILEMATRIX=" + tileMatrix
                                 + "&TILEROW=" + tileRow
                                 + "&TILECOL=" + tileCol
-                                + "&TIME=" + time
+                                + "&TIME=" + time + "Z"
                                 + "&STYLE=Bitmap%201km%20Blue-Pale%20blue%20gradient%200.01%20to%2032mm%2Fhr" // The + character has been URL encoded to %2B and the / character to %2F
                                 + "&key=" + API_KEY;
                         //http://datapoint.metoffice.gov.uk/public/data/inspire/view/wmts?REQUEST=gettile&LAYER=Precipitation_Rate&FORMAT=image/png&TILEMATRIXSET=EPSG:4258&TILEMATRIX=EPSG:4258:0&TILEROW=0&TILECOL=0

@@ -23,41 +23,36 @@ import java.util.Calendar;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 
 public class SARIC_Time extends SARIC_Date
-        implements Serializable, Comparable {
+        implements Serializable {
 
-    private int HOUR_OF_DAY;
-    private int MINUTE;
-    private int SECOND;
+    private int Hour;
+    private int Minute;
+    private int Second;
 
-    protected SARIC_Time() {
-        super();
-    }
-
-    public SARIC_Time(SARIC_Environment se) {
+    public SARIC_Time(
+            SARIC_Environment se) {
         super(se);
+        norm();
     }
 
     public SARIC_Time(SARIC_Time t) {
         this(t.se,
-                t.calendar.get(Calendar.YEAR),
-                t.calendar.get(Calendar.MONTH),
-                t.calendar.get(Calendar.DAY_OF_MONTH),
-                t.calendar.get(Calendar.HOUR_OF_DAY),
-                t.calendar.get(Calendar.MINUTE),
-                t.calendar.get(Calendar.SECOND));
+                t.Year,
+                t.Month,
+                t.DayOfMonth,
+                t.Hour,
+                t.Minute,
+                t.Second);
     }
 
     public SARIC_Time(SARIC_Date d) {
         this(d.se,
-                d.calendar.get(Calendar.YEAR),
-                d.calendar.get(Calendar.MONTH),
-                d.calendar.get(Calendar.DAY_OF_MONTH),
+                d.Year,
+                d.Month,
+                d.DayOfMonth,
                 0,
                 0,
                 0);
-//                d.calendar.get(Calendar.HOUR_OF_DAY),
-//                d.calendar.get(Calendar.MINUTE),
-//                d.calendar.get(Calendar.SECOND));
     }
 
     public SARIC_Time(
@@ -65,18 +60,20 @@ public class SARIC_Time extends SARIC_Date
             int year,
             int month,
             int dayOfMonth,
-            int hourOfDay,
-            int minuteOfHour,
-            int secondOfMinute) {
-        this(se);
-        calendar.set(
-                year,
-                month,
-                dayOfMonth,
-                hourOfDay,
-                minuteOfHour,
-                secondOfMinute);
-        normalise();
+            int hour,
+            int minute,
+            int second) {
+        super(se, year, month, dayOfMonth);
+        Hour = hour;
+        Minute = minute;
+        Second = second;
+        init();
+    }
+
+    private void init() {
+        _Calendar.set(Calendar.HOUR_OF_DAY, Hour);
+        _Calendar.set(Calendar.MINUTE, Minute);
+        _Calendar.set(Calendar.SECOND, Second);
     }
 
     /**
@@ -87,11 +84,11 @@ public class SARIC_Time extends SARIC_Date
      */
     public SARIC_Time(
             SARIC_Environment se,
-            String s){
-        this(se, s, se.getStrings().symbol_minus, se.getStrings().string_T, 
+            String s) {
+        this(se, s, se.getStrings().symbol_minus, se.getStrings().string_T,
                 se.getStrings().symbol_colon);
     }
-    
+
     /**
      * Expects s to be of the form "YYYY-MM-DD" or "YYYY-MM-DDTHH:MM:SSZ"
      *
@@ -107,84 +104,72 @@ public class SARIC_Time extends SARIC_Date
             String dateDelimeter,
             String timedateSeparator,
             String timeDelimeter) {
-        super(se);
+        super(se, s);
         String[] splitT;
         splitT = s.split(timedateSeparator);
         //super(split[0]);
         String[] split;
-        split = splitT[0].split(dateDelimeter);
-        YEAR = new Integer(split[0]);
-        String s_0;
-        s_0 = ss.symbol_0;
+        String s_0 = Strings.symbol_0;
         String s2;
-        s2 = split[1];
-        if (s2.startsWith(s_0)) {
-            s2 = s2.substring(1);
-        }
-        MONTH = new Integer(s2);
-        s2 = split[2];
-        if (s2.startsWith(s_0)) {
-            s2 = s2.substring(1);
-        }
-        DAY_OF_MONTH = new Integer(s2);
-        HOUR_OF_DAY = 0;
-        MINUTE = 0;
-        SECOND = 0;
         if (splitT.length == 2) {
             split = splitT[1].split(timeDelimeter);
             s2 = split[0];
             if (s2.startsWith(s_0)) {
                 s2 = s2.substring(1);
             }
-            HOUR_OF_DAY = new Integer(s2);
+            Hour = new Integer(s2);
             s2 = split[1];
             if (s2.startsWith(s_0)) {
                 s2 = s2.substring(1);
             }
-            MINUTE = new Integer(s2);
+            Minute = new Integer(s2);
+            s2 = split[2];
+            s2 = s2.substring(0, s2.length() - 1);
+            if (s2.startsWith(s_0)) {
+                s2 = s2.substring(1);
+            }
+            if (s2.length() > 0) {
+                Second = new Integer(s2);
+            } else {
+                Second = 0;
+            }
+        } else {
+            Hour = 0;
+            Minute = 0;
         }
-        calendar.set(
-                YEAR,
-                MONTH,
-                DAY_OF_MONTH,
-                HOUR_OF_DAY,
-                MINUTE,
-                SECOND);
+        init();
     }
 
     public void setHourOfDay(int hour) {
-        HOUR_OF_DAY = hour;
-        calendar.set(Calendar.HOUR_OF_DAY, hour);
+        Hour = hour;
+        _Calendar.set(Calendar.HOUR_OF_DAY, hour);
     }
 
     public void setMinuteOfHour(int minute) {
-        MINUTE = minute;
-        calendar.set(Calendar.MINUTE, minute);
+        Minute = minute;
+        _Calendar.set(Calendar.MINUTE, minute);
     }
 
-//    public void setSecondOfMinute(int second) {
-//        calendar.set(Calendar.SECOND, second);
-//    }
-//    public void setMillisecond(int millisecond) {
-//        calendar.set(Calendar.MILLISECOND, millisecond);
-//    }
     public void addMinutes(int minutes) {
-        calendar.add(Calendar.MINUTE, minutes);
+        _Calendar.add(Calendar.MINUTE, minutes);
         normalise();
     }
 
     public void addHours(int hours) {
-        calendar.add(Calendar.HOUR_OF_DAY, hours);
+        _Calendar.add(Calendar.HOUR_OF_DAY, hours);
         normalise();
     }
 
-    private void normalise() {
-        YEAR = calendar.get(Calendar.YEAR);
-        MONTH = calendar.get(Calendar.MONTH);
-        DAY_OF_MONTH = calendar.get(Calendar.DAY_OF_MONTH);
-        HOUR_OF_DAY = calendar.get(Calendar.HOUR_OF_DAY);
-        MINUTE = calendar.get(Calendar.MINUTE);
-        SECOND = calendar.get(Calendar.SECOND);
+    @Override
+    protected void normalise() {
+        super.normalise();
+        norm();
+    }
+
+    private void norm() {
+        Hour = _Calendar.get(Calendar.HOUR_OF_DAY);
+        Minute = _Calendar.get(Calendar.MINUTE);
+        Second = _Calendar.get(Calendar.SECOND);
     }
 
     public SARIC_Date getDate() {
@@ -199,10 +184,10 @@ public class SARIC_Time extends SARIC_Date
      */
     public String toFormattedString0() {
         return getYYYYMMDDHHMMSS(
-                ss.symbol_minus,
-                ss.string_T,
-                ss.symbol_colon,
-                ss.string_Z);
+                Strings.symbol_minus,
+                Strings.string_T,
+                Strings.symbol_colon,
+                Strings.string_Z);
     }
 
     /**
@@ -211,18 +196,18 @@ public class SARIC_Time extends SARIC_Date
      */
     public String toFormattedString1() {
         return getYYYYMMDDHHMMSS(
-                ss.symbol_minus,
-                ss.string_T,
-                ss.symbol_underscore,
-                ss.string_Z);
+                Strings.symbol_minus,
+                Strings.string_T,
+                Strings.symbol_underscore,
+                Strings.string_Z);
     }
 
     public String toFormattedString2() {
         return getYYYYMMDDHHMMSS(
-                ss.emptyString,
-                ss.emptyString,
-                ss.emptyString,
-                ss.emptyString);
+                Strings.emptyString,
+                Strings.emptyString,
+                Strings.emptyString,
+                Strings.emptyString);
     }
 
     public String getYYYYMMDDHHMM() {
@@ -233,44 +218,50 @@ public class SARIC_Time extends SARIC_Date
 
     public String getHH() {
         String result = "";
-        if (HOUR_OF_DAY < 10) {
-            result += ss.symbol_0;
+        if (Hour < 10) {
+            result += Strings.symbol_0;
         }
-        result += Integer.toString(HOUR_OF_DAY);
+        result += Integer.toString(Hour);
         return result;
     }
 
     /**
-     * So as not to confuse with SARIC_YearMonth.getMM() this is called 
+     * So as not to confuse with SARIC_YearMonth.getMM() this is called
      * getMins() instead of getMM();
+     *
      * @return
      */
     public String getMins() {
         String result = "";
-        if (MINUTE < 10) {
-            result += ss.symbol_0;
+        if (Minute < 10) {
+            result += Strings.symbol_0;
         }
-        result += Integer.toString(MINUTE);
+        result += Integer.toString(Minute);
         return result;
     }
 
     public String getSS() {
         String result = "";
-        if (SECOND < 10) {
-            result += ss.symbol_0;
+        if (Second < 10) {
+            result += Strings.symbol_0;
         }
-        result += Integer.toString(SECOND);
+        result += Integer.toString(Second);
         return result;
     }
 
+    @Override
+    public String toString() {
+        return getYYYYMMDDHHMMSS();
+    }
+    
     public String getYYYYMMDDHHMMSS() {
         String result;
         result = super.toString();
-        result += ss.string_T;
+        result += Strings.string_T;
         result += getHH();
-        result += ss.symbol_colon;
+        result += Strings.symbol_colon;
         result += getMins();
-        result += ss.symbol_colon;
+        result += Strings.symbol_colon;
         result += getSS();
         return result;
     }
@@ -301,14 +292,14 @@ public class SARIC_Time extends SARIC_Date
             SARIC_Time t;
             t = (SARIC_Time) o;
             if (hashCode() == t.hashCode()) {
-                if (calendar.get(Calendar.DAY_OF_MONTH) == t.calendar.get(Calendar.DAY_OF_MONTH)) {
-                    if (calendar.get(Calendar.HOUR_OF_DAY) == t.calendar.get(Calendar.HOUR_OF_DAY)) {
-                        if (calendar.get(Calendar.MONTH) == t.calendar.get(Calendar.MONTH)) {
-                            if (calendar.get(Calendar.MINUTE) == t.calendar.get(Calendar.MINUTE)) {
-                                if (calendar.get(Calendar.YEAR) == t.calendar.get(Calendar.YEAR)) {
-                                    if (calendar.get(Calendar.SECOND) == t.calendar.get(Calendar.SECOND)) {
-                                        return true;
-                                    }
+                if (_Calendar.get(Calendar.DAY_OF_MONTH) == t._Calendar.get(Calendar.DAY_OF_MONTH)) {
+                    if (_Calendar.get(Calendar.HOUR_OF_DAY) == t._Calendar.get(Calendar.HOUR_OF_DAY)) {
+                        if (_Calendar.get(Calendar.MONTH) == t._Calendar.get(Calendar.MONTH)) {
+                            if (_Calendar.get(Calendar.MINUTE) == t._Calendar.get(Calendar.MINUTE)) {
+                                if (_Calendar.get(Calendar.YEAR) == t._Calendar.get(Calendar.YEAR)) {
+                                    //if (_Calendar.get(Calendar.SECOND) == t._Calendar.get(Calendar.SECOND)) {
+                                    return true;
+                                    //}
                                 }
                             }
                         }
@@ -322,79 +313,54 @@ public class SARIC_Time extends SARIC_Date
     @Override
     public int hashCode() {
         int hash = 3;
-        hash = 29 * hash + this.YEAR;
-        hash = 29 * hash + this.MONTH;
-        hash = 29 * hash + this.DAY_OF_MONTH;
-        hash = 29 * hash + this.HOUR_OF_DAY;
-        hash = 29 * hash + this.MINUTE;
-        hash = 29 * hash + this.SECOND;
+        hash = 29 * hash + this.Year;
+        hash = 29 * hash + this.Month;
+        hash = 29 * hash + this.DayOfMonth;
+        hash = 29 * hash + this.Hour;
+        hash = 29 * hash + this.Minute;
+        hash = 29 * hash + this.Second;
         return hash;
     }
 
 //    @Override
 //    public int hashCode() {
 //        int hash = 3;
-//        hash = 89 * hash + (this.calendar != null ? this.calendar.hashCode() : 0);
+//        hash = 89 * hash + (this._Calendar != null ? this._Calendar.hashCode() : 0);
 //        return hash;
 //    }
-    public int compareTo(Object o) {
-        if (o == null) {
-            return 1;
-        }
-        if (o instanceof SARIC_Time) {
-            SARIC_Time t;
-            t = (SARIC_Time) o;
-            if (calendar.get(Calendar.YEAR) > t.calendar.get(Calendar.YEAR)) {
+    @Override
+    public int compareTo(SARIC_YearMonth t) {
+        int superCompareTo = super.compareTo(t);
+        if (superCompareTo == 0) {
+            SARIC_Time d = (SARIC_Time) t;
+            if (Hour > d.Hour) {
                 return 1;
             } else {
-                if (calendar.get(Calendar.YEAR) < t.calendar.get(Calendar.YEAR)) {
+                if (Hour < d.Hour) {
                     return -1;
                 } else {
-                    if (calendar.get(Calendar.MONTH) > t.calendar.get(Calendar.MONTH)) {
+                    if (Minute > d.Minute) {
                         return 1;
                     } else {
-                        if (calendar.get(Calendar.MONTH) < t.calendar.get(Calendar.MONTH)) {
+                        if (Minute < d.Minute) {
                             return -1;
                         } else {
-                            if (calendar.get(Calendar.DAY_OF_MONTH) > t.calendar.get(Calendar.DAY_OF_MONTH)) {
-                                return 1;
-                            } else {
-                                if (calendar.get(Calendar.DAY_OF_MONTH) < t.calendar.get(Calendar.DAY_OF_MONTH)) {
-                                    return -1;
-                                } else {
-                                    if (calendar.get(Calendar.HOUR_OF_DAY) > t.calendar.get(Calendar.HOUR_OF_DAY)) {
-                                        return 1;
-                                    } else {
-                                        if (calendar.get(Calendar.HOUR_OF_DAY) < t.calendar.get(Calendar.HOUR_OF_DAY)) {
-                                            return -1;
-                                        } else {
-                                            if (calendar.get(Calendar.MINUTE) > t.calendar.get(Calendar.MINUTE)) {
-                                                return 1;
-                                            } else {
-                                                if (calendar.get(Calendar.MINUTE) < t.calendar.get(Calendar.MINUTE)) {
-                                                    return -1;
-                                                } else {
-                                                    if (calendar.get(Calendar.SECOND) > t.calendar.get(Calendar.SECOND)) {
-                                                        return 1;
-                                                    } else {
-                                                        if (calendar.get(Calendar.SECOND) < t.calendar.get(Calendar.SECOND)) {
-                                                            return -1;
-                                                        } else {
-                                                            return 0;
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
+//                            if (Second > d.Second) {
+//                                return 1;
+//                            } else {
+//                                if (Second < d.Second) {
+//                                    return -1;
+//                                } else {
+//                                    return 0;
+//                                }
+//                            }
+                            return 0;
                         }
                     }
                 }
             }
         } else {
-            return 1;
+            return superCompareTo;
         }
     }
 }

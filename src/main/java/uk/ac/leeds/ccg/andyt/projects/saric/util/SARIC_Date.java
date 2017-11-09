@@ -26,24 +26,24 @@ import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
  *
  * @author geoagdt
  */
-public class SARIC_Date extends SARIC_YearMonth implements Serializable, Comparable {
+public class SARIC_Date
+        extends SARIC_YearMonth
+        implements Serializable {
 
-    protected int DAY_OF_MONTH;
+    protected int DayOfMonth;
 
-    protected SARIC_Date(){
-        super();
+    public SARIC_Date(
+            SARIC_Environment se){
+        super(se);
+        norm();
     }
     
-    public SARIC_Date(SARIC_Environment se) {
-        super(se);
-    }
-
     public SARIC_Date(
             SARIC_Date d) {
         this(d.se,
-                d.calendar.get(Calendar.YEAR),
-                d.calendar.get(Calendar.MONTH),
-                d.calendar.get(Calendar.DAY_OF_MONTH));
+                d.Year,
+                d.Month,
+                d.DayOfMonth);
     }
 
     public SARIC_Date(
@@ -51,12 +51,13 @@ public class SARIC_Date extends SARIC_YearMonth implements Serializable, Compara
             int year,
             int month,
             int dayOfMonth) {
-        this(se);
-        calendar.set(
-                year,
-                month,
-                dayOfMonth);
-        normalise();
+        super(se, year, month);
+        DayOfMonth = dayOfMonth;
+        init();
+    }
+
+    private void init() {
+        _Calendar.set(Calendar.DAY_OF_MONTH, DayOfMonth);
     }
 
     /**
@@ -68,36 +69,32 @@ public class SARIC_Date extends SARIC_YearMonth implements Serializable, Compara
     public SARIC_Date(
             SARIC_Environment se,
             String s) {
-        this(se);
+        super(se, s);
         String[] split;
         split = s.split("-");
-        YEAR = new Integer(split[0]);
         String s2;
-        s2 = split[1];
-        if (s2.startsWith("0")) {
-            s2 = s2.substring(1);
-        }
-        MONTH = new Integer(s2);
         s2 = split[2];
+        s2 = s2.substring(0, 2);
         if (s2.startsWith("0")) {
             s2 = s2.substring(1);
         }
-        DAY_OF_MONTH = new Integer(s2);
-        calendar.set(
-                YEAR,
-                MONTH,
-                DAY_OF_MONTH);
+        DayOfMonth = new Integer(s2);
+        init();
     }
 
     public void addDays(int days) {
-        calendar.add(Calendar.DAY_OF_YEAR, days);
+        _Calendar.add(Calendar.DAY_OF_YEAR, days);
         normalise();
     }
 
-    private void normalise() {
-        YEAR = calendar.get(Calendar.YEAR);
-        MONTH = calendar.get(Calendar.MONTH);
-        DAY_OF_MONTH = calendar.get(Calendar.DAY_OF_MONTH);
+    @Override
+    protected void normalise() {
+        super.normalise();
+        norm();
+    }
+    
+    private void norm() {
+        DayOfMonth = _Calendar.get(Calendar.DAY_OF_MONTH);
     }
 
     /**
@@ -107,9 +104,9 @@ public class SARIC_Date extends SARIC_YearMonth implements Serializable, Compara
      * @return
      */
     public boolean isSameDay(SARIC_Date t) {
-        if (this.DAY_OF_MONTH == t.DAY_OF_MONTH) {
-            if (this.MONTH == t.MONTH) {
-                if (this.YEAR == t.YEAR) {
+        if (this.DayOfMonth == t.DayOfMonth) {
+            if (this.Month == t.Month) {
+                if (this.Year == t.Year) {
                     return true;
                 }
             }
@@ -117,13 +114,18 @@ public class SARIC_Date extends SARIC_YearMonth implements Serializable, Compara
         return false;
     }
 
-    public String getDD(){
+    public String getDD() {
         String result = "";
-        if (DAY_OF_MONTH < 10) {
-            result += ss.symbol_0;
+        if (DayOfMonth < 10) {
+            result += Strings.symbol_0;
         }
-        result += Integer.toString(DAY_OF_MONTH);
+        result += Integer.toString(DayOfMonth);
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return getYYYYMMDD();
     }
     
     /**
@@ -134,8 +136,8 @@ public class SARIC_Date extends SARIC_YearMonth implements Serializable, Compara
     }
 
     /**
-     * @param dateComponentDelimitter String used to separateComponents of
-     * the date.
+     * @param dateComponentDelimitter String used to separateComponents of the
+     * date.
      * @return A String representation of this in the format YYYY-MM-DD where
      * the - is replaced by dateComponentDelimitter.
      */
@@ -146,19 +148,19 @@ public class SARIC_Date extends SARIC_YearMonth implements Serializable, Compara
         result += getDD();
         return result;
     }
-    
+
     @Override
     public boolean equals(Object o) {
-        if (o instanceof SARIC_Time) {
+        if (o instanceof SARIC_Date) {
             if (this == o) {
                 return true;
             }
             SARIC_Date d;
             d = (SARIC_Date) o;
             if (hashCode() == d.hashCode()) {
-                if (calendar.get(Calendar.DAY_OF_MONTH) == d.calendar.get(Calendar.DAY_OF_MONTH)) {
-                    if (calendar.get(Calendar.MONTH) == d.calendar.get(Calendar.MONTH)) {
-                        if (calendar.get(Calendar.YEAR) == d.calendar.get(Calendar.YEAR)) {
+                if (DayOfMonth == d.DayOfMonth) {
+                    if (Month == d.Month) {
+                        if (Year == d.Year) {
                             return true;
                         }
                     }
@@ -171,47 +173,28 @@ public class SARIC_Date extends SARIC_YearMonth implements Serializable, Compara
     @Override
     public int hashCode() {
         int hash = 5;
-        hash = 53 * hash + this.YEAR;
-        hash = 53 * hash + this.MONTH;
-        hash = 53 * hash + this.DAY_OF_MONTH;
+        hash = 53 * hash + this.Year;
+        hash = 53 * hash + this.Month;
+        hash = 53 * hash + this.DayOfMonth;
         return hash;
     }
 
     @Override
-    public int compareTo(Object o) {
-        if (o == null) {
-            return 1;
-        }
-        if (o instanceof SARIC_Date) {
-            SARIC_Date d;
-            d = (SARIC_Date) o;
-            if (calendar.get(Calendar.YEAR) > d.calendar.get(Calendar.YEAR)) {
+    public int compareTo(SARIC_YearMonth t) {
+        SARIC_Date d = (SARIC_Date) t;
+        int superCompareTo = super.compareTo(t);
+        if (superCompareTo == 0) {
+            if (DayOfMonth > d.DayOfMonth) {
                 return 1;
             } else {
-                if (calendar.get(Calendar.YEAR) < d.calendar.get(Calendar.YEAR)) {
+                if (DayOfMonth < d.DayOfMonth) {
                     return -1;
                 } else {
-                    if (calendar.get(Calendar.MONTH) > d.calendar.get(Calendar.MONTH)) {
-                        return 1;
-                    } else {
-                        if (calendar.get(Calendar.MONTH) < d.calendar.get(Calendar.MONTH)) {
-                            return -1;
-                        } else {
-                            if (calendar.get(Calendar.DAY_OF_MONTH) > d.calendar.get(Calendar.DAY_OF_MONTH)) {
-                                return 1;
-                            } else {
-                                if (calendar.get(Calendar.DAY_OF_MONTH) < d.calendar.get(Calendar.DAY_OF_MONTH)) {
-                                    return -1;
-                                } else {
-                                    return 0;
-                                }
-                            }
-                        }
-                    }
+                    return 0;
                 }
             }
         } else {
-            return 1;
+            return superCompareTo;
         }
     }
 }

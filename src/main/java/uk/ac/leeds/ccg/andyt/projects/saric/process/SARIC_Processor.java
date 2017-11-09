@@ -81,8 +81,8 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
             // Main switches
 //            RunProjectShapefiles = true;
 //            RunCatchmentViewer = true;
-//            RunSARIC_MetOfficeScraper = true; 
-            RunSARIC_ImageProcessor = true;
+            RunSARIC_MetOfficeScraper = true; 
+//            RunSARIC_ImageProcessor = true;
 //            RunSARIC_CreatePointShapefile = true;
 //            RunSARIC_DisplayShapefile = true;
 //            RunSARIC_DataForWASIM = true;
@@ -408,8 +408,8 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
                     doNonTiledObs = false;
 //                    doNonTiledFcs = false;
                     doNonTiledFcs = true;
-                    doTileFromWMTSService = false;
-//                    doTileFromWMTSService = true;
+                    //doTileFromWMTSService = false;
+                    doTileFromWMTSService = true;
                     doObservationsTileFromWMTSService = false;
                     doForecastsTileFromWMTSService = true;
 //                    doForecastsTileFromWMTSService = false;
@@ -435,20 +435,9 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
                 }
 
             }
-        } catch (Exception e) {
+        } catch (Exception | Error e) {
             System.err.println(e.getLocalizedMessage());
             e.printStackTrace(System.err);
-//            StackTraceElement[] stes = e.getStackTrace();
-//            for (StackTraceElement ste : stes) {
-//                System.err.println(ste.toString());
-//            }
-        } catch (Error e) {
-            System.err.println(e.getLocalizedMessage());
-            e.printStackTrace(System.err);
-//            StackTraceElement[] stes = e.getStackTrace();
-//            for (StackTraceElement ste : stes) {
-//                System.err.println(ste.toString());
-//            }
         }
 
         if (RunSARIC_CreatePointShapefile) {

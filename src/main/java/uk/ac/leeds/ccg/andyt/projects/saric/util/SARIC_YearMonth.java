@@ -28,31 +28,28 @@ import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Strings;
  *
  * @author geoagdt
  */
-public class SARIC_YearMonth extends SARIC_Object implements Serializable, Comparable {
+public class SARIC_YearMonth
+        extends SARIC_Object
+        implements Serializable, Comparable<SARIC_YearMonth> {
 
     // For convenience
-    protected transient SARIC_Strings ss;
-    
-    protected final Calendar calendar;
-    protected int YEAR;
-    protected int MONTH;
+    protected transient SARIC_Strings Strings;
 
-    protected SARIC_YearMonth() {
-        calendar = Calendar.getInstance();
+    protected Calendar _Calendar;
+    protected int Year;
+    protected int Month;
+
+    public SARIC_YearMonth(
+            SARIC_Environment se){
+        Strings = se.getStrings();
+        _Calendar = Calendar.getInstance();
+        norm();
     }
     
-    public SARIC_YearMonth(SARIC_Environment se) {
-        super(se);
-        ss = se.getStrings();
-        calendar = Calendar.getInstance();
-    }
-
     public SARIC_YearMonth(
             SARIC_Environment se,
             SARIC_YearMonth t) {
-        this(se,
-                t.calendar.get(Calendar.YEAR),
-                t.calendar.get(Calendar.MONTH));
+        this(se, t.Year, t.Month);
     }
 
     public SARIC_YearMonth(
@@ -60,15 +57,17 @@ public class SARIC_YearMonth extends SARIC_Object implements Serializable, Compa
             int year,
             int month) {
         this(se);
-        calendar.set(
-                Calendar.YEAR,
-                year);
-        calendar.set(
-                Calendar.MONTH,
-                month);
-        normalise();
+        Year = year;
+        Month = month;
+        init();
     }
 
+    private void init() {
+        _Calendar.set(Calendar.YEAR, Year);
+        _Calendar.set(Calendar.MONTH, Month);
+        norm();
+    }
+    
     /**
      * Expects s to be of the form "YYYY-MM"
      *
@@ -81,43 +80,33 @@ public class SARIC_YearMonth extends SARIC_Object implements Serializable, Compa
         this(se);
         String[] split;
         split = s.split("-");
-        YEAR = new Integer(split[0]);
+        Year = new Integer(split[0]);
         String s2;
         s2 = split[1];
         if (s2.startsWith("0")) {
             s2 = s2.substring(1);
         }
-        MONTH = new Integer(s2);
-        calendar.set(
-                Calendar.YEAR,
-                YEAR);
-        calendar.set(
-                Calendar.MONTH,
-                MONTH);
+        Month = new Integer(s2);
+        init();
     }
 
     public void setYear(int year) {
-        YEAR = year;
-        calendar.set(Calendar.YEAR, year);
+        Year = year;
+        _Calendar.set(Calendar.YEAR, year);
     }
 
     public void setMonth(int month) {
-        MONTH = month;
-        calendar.set(Calendar.MONTH, month);
+        Month = month;
+        _Calendar.set(Calendar.MONTH, month);
     }
 
-    public int getDayOfMonth() {
-        return calendar.get(Calendar.DAY_OF_MONTH);
+    protected void normalise() {
+        norm();
     }
-
-    public void addDays(int days) {
-        calendar.add(Calendar.DAY_OF_YEAR, days);
-        normalise();
-    }
-
-    private void normalise() {
-        YEAR = calendar.get(Calendar.YEAR);
-        MONTH = calendar.get(Calendar.MONTH);
+    
+    private void norm() {
+        Year = _Calendar.get(Calendar.YEAR);
+        Month = _Calendar.get(Calendar.MONTH);
     }
 
     /**
@@ -127,41 +116,43 @@ public class SARIC_YearMonth extends SARIC_Object implements Serializable, Compa
      * @return
      */
     public boolean isSameDay(SARIC_YearMonth t) {
-            if (this.MONTH == t.MONTH) {
-                if (this.YEAR == t.YEAR) {
-                    return true;
-                }
+        if (this.Month == t.Month) {
+            if (this.Year == t.Year) {
+                return true;
             }
+        }
         return false;
     }
 
     /**
      * Assume the year has 4 digits.
-     * @return 
+     *
+     * @return
      */
     public String getYYYY() {
-        return Integer.toString(YEAR);
+        return Integer.toString(Year);
     }
 
     /**
-     * The month always has 2 characters.
-     * 01 is January
-     * 02 is February
-     * ...
-     * 12 is December
-     * @return 
+     * The month always has 2 characters. 01 is January 02 is February ... 12 is
+     * December
+     *
+     * @return
      */
     public String getMM() {
         String result = "";
-        if (MONTH < 10) {
-            result = ss.symbol_0;
+        if (Month < 10) {
+            result = Strings.symbol_0;
         }
-        result += Integer.toString(MONTH);
+        result += Integer.toString(Month);
         return result;
     }
-    
-    public String toString(){return "";}
-    
+
+    @Override
+    public String toString() {
+        return getYYYYMM();
+    }
+
     /**
      *
      * @return String representing year and month in YYYY-MM format
@@ -177,21 +168,21 @@ public class SARIC_YearMonth extends SARIC_Object implements Serializable, Compa
         result += getMM();
         return result;
     }
-    
+
     @Override
     public boolean equals(Object o) {
-        if (o instanceof SARIC_Time) {
+        if (o instanceof SARIC_YearMonth) {
             if (this == o) {
                 return true;
             }
             SARIC_YearMonth d;
             d = (SARIC_YearMonth) o;
             if (hashCode() == d.hashCode()) {
-                    if (calendar.get(Calendar.MONTH) == d.calendar.get(Calendar.MONTH)) {
-                        if (calendar.get(Calendar.YEAR) == d.calendar.get(Calendar.YEAR)) {
-                            return true;
-                        }
+                if (Month == d.Month) {
+                    if (Year == d.Year) {
+                        return true;
                     }
+                }
             }
         }
         return false;
@@ -200,38 +191,29 @@ public class SARIC_YearMonth extends SARIC_Object implements Serializable, Compa
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 73 * hash + this.YEAR;
-        hash = 73 * hash + this.MONTH;
+        hash = 73 * hash + Year;
+        hash = 73 * hash + Month;
         return hash;
     }
 
     @Override
-    public int compareTo(Object o) {
-        if (o == null) {
+    public int compareTo(SARIC_YearMonth t) {
+        if (Year > t.Year) {
             return 1;
-        }
-        if (o instanceof SARIC_YearMonth) {
-            SARIC_YearMonth d;
-            d = (SARIC_YearMonth) o;
-            if (calendar.get(Calendar.YEAR) > d.calendar.get(Calendar.YEAR)) {
-                return 1;
+        } else {
+            if (Year < t.Year) {
+                return -1;
             } else {
-                if (calendar.get(Calendar.YEAR) < d.calendar.get(Calendar.YEAR)) {
-                    return -1;
+                if (Month > t.Month) {
+                    return 1;
                 } else {
-                    if (calendar.get(Calendar.MONTH) > d.calendar.get(Calendar.MONTH)) {
-                        return 1;
+                    if (Month < t.Month) {
+                        return -1;
                     } else {
-                        if (calendar.get(Calendar.MONTH) < d.calendar.get(Calendar.MONTH)) {
-                            return -1;
-                        } else {
-                            return 0;
-                        }
+                        return 0;
                     }
                 }
             }
-        } else {
-            return 1;
         }
     }
 }
