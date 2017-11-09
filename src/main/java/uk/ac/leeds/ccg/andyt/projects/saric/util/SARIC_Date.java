@@ -84,13 +84,14 @@ public class SARIC_Date
 
     public void addDays(int days) {
         _Calendar.add(Calendar.DAY_OF_YEAR, days);
+        _Calendar.
         normalise();
     }
 
     @Override
     protected void normalise() {
-        super.normalise();
         norm();
+        super.normalise();
     }
     
     private void norm() {
@@ -103,7 +104,7 @@ public class SARIC_Date
      * @param t
      * @return
      */
-    public boolean isSameDay(SARIC_Date t) {
+    public final boolean isSameDay(SARIC_Date t) {
         if (this.DayOfMonth == t.DayOfMonth) {
             if (this.Month == t.Month) {
                 if (this.Year == t.Year) {

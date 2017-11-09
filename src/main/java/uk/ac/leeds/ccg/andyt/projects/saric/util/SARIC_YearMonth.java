@@ -19,7 +19,11 @@
 package uk.ac.leeds.ccg.andyt.projects.saric.util;
 
 import java.io.Serializable;
-import java.util.Calendar;
+import java.time.Month;
+import java.time.YearMonth;
+import java.util.Objects;
+//import java.time.LocalDateTime;
+//import java.util.Calendar;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Object;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Strings;
@@ -35,39 +39,34 @@ public class SARIC_YearMonth
     // For convenience
     protected transient SARIC_Strings Strings;
 
-    protected Calendar _Calendar;
-    protected int Year;
-    protected int Month;
+    protected YearMonth YM;
+//    //protected Calendar _Calendar;
+//    protected LocalDate LD;
+//    protected LocalDateTime LDT;
+//    protected int Year;
+//    protected int Month;
 
     public SARIC_YearMonth(
             SARIC_Environment se){
+        super(se);
         Strings = se.getStrings();
-        _Calendar = Calendar.getInstance();
-        norm();
+        YM = YearMonth.now();
     }
     
     public SARIC_YearMonth(
             SARIC_Environment se,
             SARIC_YearMonth t) {
-        this(se, t.Year, t.Month);
+        this(se, t.YM);
     }
 
     public SARIC_YearMonth(
             SARIC_Environment se,
-            int year,
-            int month) {
-        this(se);
-        Year = year;
-        Month = month;
-        init();
+            YearMonth yM) {
+        super(se);
+        Strings = se.getStrings();
+        YM = yM;
     }
 
-    private void init() {
-        _Calendar.set(Calendar.YEAR, Year);
-        _Calendar.set(Calendar.MONTH, Month);
-        norm();
-    }
-    
     /**
      * Expects s to be of the form "YYYY-MM"
      *
@@ -77,36 +76,18 @@ public class SARIC_YearMonth
     public SARIC_YearMonth(
             SARIC_Environment se,
             String s) {
-        this(se);
+        super(se);
+        Strings = se.getStrings();
         String[] split;
         split = s.split("-");
-        Year = new Integer(split[0]);
+        int year = new Integer(split[0]);
         String s2;
         s2 = split[1];
         if (s2.startsWith("0")) {
             s2 = s2.substring(1);
         }
-        Month = new Integer(s2);
-        init();
-    }
-
-    public void setYear(int year) {
-        Year = year;
-        _Calendar.set(Calendar.YEAR, year);
-    }
-
-    public void setMonth(int month) {
-        Month = month;
-        _Calendar.set(Calendar.MONTH, month);
-    }
-
-    protected void normalise() {
-        norm();
-    }
-    
-    private void norm() {
-        Year = _Calendar.get(Calendar.YEAR);
-        Month = _Calendar.get(Calendar.MONTH);
+        int month = new Integer(s2) - 1;
+        YM = YearMonth.of(year, month);
     }
 
     /**
@@ -116,8 +97,8 @@ public class SARIC_YearMonth
      * @return
      */
     public boolean isSameDay(SARIC_YearMonth t) {
-        if (this.Month == t.Month) {
-            if (this.Year == t.Year) {
+        if (YM.getMonthValue() == t.YM.getMonthValue()) {
+            if (YM.getYear() == t.YM.getYear()) {
                 return true;
             }
         }
@@ -130,7 +111,7 @@ public class SARIC_YearMonth
      * @return
      */
     public String getYYYY() {
-        return Integer.toString(Year);
+        return Integer.toString(YM.getYear());
     }
 
     /**
@@ -141,16 +122,17 @@ public class SARIC_YearMonth
      */
     public String getMM() {
         String result = "";
-        if (Month < 10) {
+        int month = YM.getMonthValue();
+        if (month < 10) {
             result = Strings.symbol_0;
         }
-        result += Integer.toString(Month);
+        result += Integer.toString(month);
         return result;
     }
 
     @Override
     public String toString() {
-        return getYYYYMM();
+        return YM.toString();
     }
 
     /**
@@ -158,7 +140,7 @@ public class SARIC_YearMonth
      * @return String representing year and month in YYYY-MM format
      */
     public String getYYYYMM() {
-        return getYYYYMM("-");
+        return YM.toString();
     }
 
     public String getYYYYMM(String delimeter) {
@@ -177,13 +159,7 @@ public class SARIC_YearMonth
             }
             SARIC_YearMonth d;
             d = (SARIC_YearMonth) o;
-            if (hashCode() == d.hashCode()) {
-                if (Month == d.Month) {
-                    if (Year == d.Year) {
-                        return true;
-                    }
-                }
-            }
+            return YM.equals(d.YM);
         }
         return false;
     }
@@ -191,23 +167,26 @@ public class SARIC_YearMonth
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 73 * hash + Year;
-        hash = 73 * hash + Month;
+        hash = 79 * hash + Objects.hashCode(YM);
         return hash;
     }
 
     @Override
     public int compareTo(SARIC_YearMonth t) {
-        if (Year > t.Year) {
+        int Year = YM.getYear();
+        int tYear = t.YM.getYear();
+        if (Year > tYear) {
             return 1;
         } else {
-            if (Year < t.Year) {
+            if (Year < tYear) {
                 return -1;
             } else {
-                if (Month > t.Month) {
+                int Month = YM.getMonthValue();
+                int tMonth = t.YM.getMonthValue();
+                if (Month > tMonth) {
                     return 1;
                 } else {
-                    if (Month < t.Month) {
+                    if (Month < tMonth) {
                         return -1;
                     } else {
                         return 0;

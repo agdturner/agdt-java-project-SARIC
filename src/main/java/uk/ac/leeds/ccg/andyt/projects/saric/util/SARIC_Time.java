@@ -162,8 +162,8 @@ public class SARIC_Time extends SARIC_Date
 
     @Override
     protected void normalise() {
-        super.normalise();
         norm();
+        super.normalise();
     }
 
     private void norm() {
