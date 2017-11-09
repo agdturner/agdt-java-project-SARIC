@@ -112,13 +112,14 @@ public class SARIC_DateTest {
     @Test
     public void testIsSameDay() {
         System.out.println("isSameDay");
-        SARIC_Date t = null;
-        SARIC_Date instance = new SARIC_Date();
-        boolean expResult = false;
-        boolean result = instance.isSameDay(t);
+        SARIC_Date t;
+        SARIC_Date instance;
+        boolean expResult = true;
+        boolean result;
+        t = new SARIC_Date(se, 2017, 11, 9);
+        instance = new SARIC_Date(se, 2017, 11, 9);
+        result = instance.isSameDay(t);
         assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
 
     /**
@@ -127,12 +128,14 @@ public class SARIC_DateTest {
     @Test
     public void testGetDD() {
         System.out.println("getDD");
-        SARIC_Date instance = new SARIC_Date();
-        String expResult = "";
-        String result = instance.getDD();
+        SARIC_Date t;
+        String expResult;
+        String result;
+        // Test1
+        t = new SARIC_Date(se, 2017, 1, 9);
+        result = t.getDD(); 
+        expResult = "09";
         assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
 
     /**
@@ -141,12 +144,10 @@ public class SARIC_DateTest {
     @Test
     public void testGetYYYYMMDD_0args() {
         System.out.println("getYYYYMMDD");
-        SARIC_Date instance = new SARIC_Date();
-        String expResult = "";
+        SARIC_Date instance = new SARIC_Date(se, 2017, 1, 9);
+        String expResult = "2017-01-09";
         String result = instance.getYYYYMMDD();
         assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
 
     /**
@@ -155,13 +156,11 @@ public class SARIC_DateTest {
     @Test
     public void testGetYYYYMMDD_String() {
         System.out.println("getYYYYMMDD");
-        String dateComponentDelimitter = "";
-        SARIC_Date instance = new SARIC_Date();
-        String expResult = "";
+        String dateComponentDelimitter = "_";
+        SARIC_Date instance = new SARIC_Date(se, 2017, 1, 9);
+        String expResult = "2017_01_09";
         String result = instance.getYYYYMMDD(dateComponentDelimitter);
         assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
     
 }
