@@ -96,8 +96,7 @@ public class SARIC_MetOfficeSiteXMLSAXHandler extends DefaultHandler {
             t1 = new SARIC_Time(se, time.substring(0, time.length() - 1));
             SARIC_Time t00;
             t00 = new SARIC_Time(t0);
-            t00.setHourOfDay(0);
-            t00.setMinuteOfHour(0);
+            t00.setTime(0, 0, 0);
             daysToAdd = 0;
             while (t00.compareTo(t1) != 0) {
                 t00.addDays(1);

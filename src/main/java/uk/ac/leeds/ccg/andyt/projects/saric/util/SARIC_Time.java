@@ -19,63 +19,49 @@
 package uk.ac.leeds.ccg.andyt.projects.saric.util;
 
 import java.io.Serializable;
-import java.util.Calendar;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.Objects;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 
 public class SARIC_Time extends SARIC_Date
         implements Serializable {
 
-    private int Hour;
-    private int Minute;
-    private int Second;
+    LocalDateTime LDT;
 
     public SARIC_Time(
             SARIC_Environment se) {
         super(se);
-        norm();
     }
 
     public SARIC_Time(SARIC_Time t) {
-        this(t.se,
-                t.Year,
-                t.Month,
-                t.DayOfMonth,
-                t.Hour,
-                t.Minute,
-                t.Second);
+        this(t.se, t.LDT);
     }
 
     public SARIC_Time(SARIC_Date d) {
-        this(d.se,
-                d.Year,
-                d.Month,
-                d.DayOfMonth,
-                0,
-                0,
-                0);
+        this(d.se, LocalDateTime.from(d.LD));
+    }
+
+    public SARIC_Time(
+            SARIC_Environment se,
+            LocalDateTime lDT) {
+        super(se, LocalDate.from(lDT));
+        LDT = lDT;
     }
 
     public SARIC_Time(
             SARIC_Environment se,
             int year,
             int month,
-            int dayOfMonth,
+            int day,
             int hour,
             int minute,
             int second) {
-        super(se, year, month, dayOfMonth);
-        Hour = hour;
-        Minute = minute;
-        Second = second;
-        init();
+        super(se, LocalDate.of(year, month, day));
+        LDT = LocalDateTime.of(LD, LocalTime.of(hour, minute, second));
     }
-
-    private void init() {
-        _Calendar.set(Calendar.HOUR_OF_DAY, Hour);
-        _Calendar.set(Calendar.MINUTE, Minute);
-        _Calendar.set(Calendar.SECOND, Second);
-    }
-
+    
     /**
      * Expects s to be of the form "YYYY-MM-DD" or "YYYY-MM-DDTHH:MM:SSZ"
      *
@@ -111,67 +97,50 @@ public class SARIC_Time extends SARIC_Date
         String[] split;
         String s_0 = Strings.symbol_0;
         String s2;
+        int hour;
+        int minute;
+        int second;
         if (splitT.length == 2) {
             split = splitT[1].split(timeDelimeter);
             s2 = split[0];
             if (s2.startsWith(s_0)) {
                 s2 = s2.substring(1);
             }
-            Hour = new Integer(s2);
+            hour = new Integer(s2);
             s2 = split[1];
             if (s2.startsWith(s_0)) {
                 s2 = s2.substring(1);
             }
-            Minute = new Integer(s2);
+            minute = new Integer(s2);
             s2 = split[2];
             s2 = s2.substring(0, s2.length() - 1);
             if (s2.startsWith(s_0)) {
                 s2 = s2.substring(1);
             }
+            second = 0;
             if (s2.length() > 0) {
-                Second = new Integer(s2);
-            } else {
-                Second = 0;
+                second = new Integer(s2);
             }
         } else {
-            Hour = 0;
-            Minute = 0;
+            hour = 0;
+            minute = 0;
+            second = 0;
         }
-        init();
-    }
-
-    public void setHourOfDay(int hour) {
-        Hour = hour;
-        _Calendar.set(Calendar.HOUR_OF_DAY, hour);
-    }
-
-    public void setMinuteOfHour(int minute) {
-        Minute = minute;
-        _Calendar.set(Calendar.MINUTE, minute);
+        LDT = LocalDateTime.of(LD, LocalTime.of(hour, minute, second));
     }
 
     public void addMinutes(int minutes) {
-        _Calendar.add(Calendar.MINUTE, minutes);
-        normalise();
+        LDT.plusMinutes(minutes);
     }
 
     public void addHours(int hours) {
-        _Calendar.add(Calendar.HOUR_OF_DAY, hours);
-        normalise();
+        LDT.plusHours(hours);
     }
 
-    @Override
-    protected void normalise() {
-        norm();
-        super.normalise();
+    public void setTime(int hour, int minute, int second) {
+        LDT.adjustInto(LocalDateTime.of(LD, LocalTime.of(hour, minute, second)));
     }
-
-    private void norm() {
-        Hour = _Calendar.get(Calendar.HOUR_OF_DAY);
-        Minute = _Calendar.get(Calendar.MINUTE);
-        Second = _Calendar.get(Calendar.SECOND);
-    }
-
+    
     public SARIC_Date getDate() {
         SARIC_Date result;
         result = new SARIC_Date(this);
@@ -218,10 +187,11 @@ public class SARIC_Time extends SARIC_Date
 
     public String getHH() {
         String result = "";
-        if (Hour < 10) {
+        int hour = LDT.getHour();
+        if (hour < 10) {
             result += Strings.symbol_0;
         }
-        result += Integer.toString(Hour);
+        result += Integer.toString(hour);
         return result;
     }
 
@@ -233,19 +203,21 @@ public class SARIC_Time extends SARIC_Date
      */
     public String getMins() {
         String result = "";
-        if (Minute < 10) {
+        int minute = LDT.getMinute();
+        if (minute < 10) {
             result += Strings.symbol_0;
         }
-        result += Integer.toString(Minute);
+        result += Integer.toString(minute);
         return result;
     }
 
     public String getSS() {
         String result = "";
-        if (Second < 10) {
+        int second = LDT.getSecond();
+        if (second < 10) {
             result += Strings.symbol_0;
         }
-        result += Integer.toString(Second);
+        result += Integer.toString(second);
         return result;
     }
 
@@ -253,7 +225,7 @@ public class SARIC_Time extends SARIC_Date
     public String toString() {
         return getYYYYMMDDHHMMSS();
     }
-    
+
     public String getYYYYMMDDHHMMSS() {
         String result;
         result = super.toString();
@@ -292,19 +264,7 @@ public class SARIC_Time extends SARIC_Date
             SARIC_Time t;
             t = (SARIC_Time) o;
             if (hashCode() == t.hashCode()) {
-                if (_Calendar.get(Calendar.DAY_OF_MONTH) == t._Calendar.get(Calendar.DAY_OF_MONTH)) {
-                    if (_Calendar.get(Calendar.HOUR_OF_DAY) == t._Calendar.get(Calendar.HOUR_OF_DAY)) {
-                        if (_Calendar.get(Calendar.MONTH) == t._Calendar.get(Calendar.MONTH)) {
-                            if (_Calendar.get(Calendar.MINUTE) == t._Calendar.get(Calendar.MINUTE)) {
-                                if (_Calendar.get(Calendar.YEAR) == t._Calendar.get(Calendar.YEAR)) {
-                                    //if (_Calendar.get(Calendar.SECOND) == t._Calendar.get(Calendar.SECOND)) {
-                                    return true;
-                                    //}
-                                }
-                            }
-                        }
-                    }
-                }
+                return LDT.equals(t.LDT);
             }
         }
         return false;
@@ -313,54 +273,21 @@ public class SARIC_Time extends SARIC_Date
     @Override
     public int hashCode() {
         int hash = 3;
-        hash = 29 * hash + this.Year;
-        hash = 29 * hash + this.Month;
-        hash = 29 * hash + this.DayOfMonth;
-        hash = 29 * hash + this.Hour;
-        hash = 29 * hash + this.Minute;
-        hash = 29 * hash + this.Second;
+        hash = 89 * hash + Objects.hashCode(LDT);
         return hash;
     }
 
-//    @Override
-//    public int hashCode() {
-//        int hash = 3;
-//        hash = 89 * hash + (this._Calendar != null ? this._Calendar.hashCode() : 0);
-//        return hash;
-//    }
     @Override
     public int compareTo(SARIC_YearMonth t) {
-        int superCompareTo = super.compareTo(t);
-        if (superCompareTo == 0) {
-            SARIC_Time d = (SARIC_Time) t;
-            if (Hour > d.Hour) {
-                return 1;
-            } else {
-                if (Hour < d.Hour) {
-                    return -1;
-                } else {
-                    if (Minute > d.Minute) {
-                        return 1;
-                    } else {
-                        if (Minute < d.Minute) {
-                            return -1;
-                        } else {
-//                            if (Second > d.Second) {
-//                                return 1;
-//                            } else {
-//                                if (Second < d.Second) {
-//                                    return -1;
-//                                } else {
-//                                    return 0;
-//                                }
-//                            }
-                            return 0;
-                        }
-                    }
-                }
-            }
+        SARIC_Time d = (SARIC_Time) t;
+        if (LDT.isAfter(d.LDT)) {
+            return 1;
         } else {
-            return superCompareTo;
+            if (LDT.isBefore(d.LDT)) {
+                return -1;
+            } else {
+                return 0;
+            }
         }
     }
 }

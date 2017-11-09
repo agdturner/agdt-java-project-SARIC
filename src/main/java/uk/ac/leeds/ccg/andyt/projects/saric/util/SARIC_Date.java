@@ -19,7 +19,10 @@
 package uk.ac.leeds.ccg.andyt.projects.saric.util;
 
 import java.io.Serializable;
-import java.util.Calendar;
+import java.time.LocalDate;
+import java.time.Month;
+import java.time.YearMonth;
+import java.util.Objects;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 
 /**
@@ -30,34 +33,32 @@ public class SARIC_Date
         extends SARIC_YearMonth
         implements Serializable {
 
-    protected int DayOfMonth;
+    protected LocalDate LD;
 
     public SARIC_Date(
-            SARIC_Environment se){
+            SARIC_Environment se) {
         super(se);
-        norm();
     }
-    
+
     public SARIC_Date(
             SARIC_Date d) {
-        this(d.se,
-                d.Year,
-                d.Month,
-                d.DayOfMonth);
+        this(d.se, d.LD);
+    }
+
+    public SARIC_Date(
+            SARIC_Environment se,
+            LocalDate lD) {
+        super(se, YearMonth.from(lD));
+        LD = lD;
     }
 
     public SARIC_Date(
             SARIC_Environment se,
             int year,
             int month,
-            int dayOfMonth) {
-        super(se, year, month);
-        DayOfMonth = dayOfMonth;
-        init();
-    }
-
-    private void init() {
-        _Calendar.set(Calendar.DAY_OF_MONTH, DayOfMonth);
+            int day) {
+        super(se, YearMonth.of(year, month));
+        LD = LocalDate.of(year, month, day);
     }
 
     /**
@@ -78,24 +79,11 @@ public class SARIC_Date
         if (s2.startsWith("0")) {
             s2 = s2.substring(1);
         }
-        DayOfMonth = new Integer(s2);
-        init();
+        LD = LocalDate.of(YM.getYear(), YM.getMonth(), new Integer(s2));
     }
 
     public void addDays(int days) {
-        _Calendar.add(Calendar.DAY_OF_YEAR, days);
-        _Calendar.
-        normalise();
-    }
-
-    @Override
-    protected void normalise() {
-        norm();
-        super.normalise();
-    }
-    
-    private void norm() {
-        DayOfMonth = _Calendar.get(Calendar.DAY_OF_MONTH);
+        LD.plusDays(days);
     }
 
     /**
@@ -105,22 +93,16 @@ public class SARIC_Date
      * @return
      */
     public final boolean isSameDay(SARIC_Date t) {
-        if (this.DayOfMonth == t.DayOfMonth) {
-            if (this.Month == t.Month) {
-                if (this.Year == t.Year) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        return LD.isEqual(t.LD);
     }
 
     public String getDD() {
         String result = "";
-        if (DayOfMonth < 10) {
+        int dayOfMonth = LD.getDayOfMonth();
+        if (dayOfMonth < 10) {
             result += Strings.symbol_0;
         }
-        result += Integer.toString(DayOfMonth);
+        result += Integer.toString(dayOfMonth);
         return result;
     }
 
@@ -128,7 +110,7 @@ public class SARIC_Date
     public String toString() {
         return getYYYYMMDD();
     }
-    
+
     /**
      * @return A String representation of this in the format YYYY-MM-DD.
      */
@@ -159,13 +141,7 @@ public class SARIC_Date
             SARIC_Date d;
             d = (SARIC_Date) o;
             if (hashCode() == d.hashCode()) {
-                if (DayOfMonth == d.DayOfMonth) {
-                    if (Month == d.Month) {
-                        if (Year == d.Year) {
-                            return true;
-                        }
-                    }
-                }
+                return this.isSameDay(d);
             }
         }
         return false;
@@ -173,29 +149,22 @@ public class SARIC_Date
 
     @Override
     public int hashCode() {
-        int hash = 5;
-        hash = 53 * hash + this.Year;
-        hash = 53 * hash + this.Month;
-        hash = 53 * hash + this.DayOfMonth;
+        int hash = 3;
+        hash = 97 * hash + Objects.hashCode(LD);
         return hash;
     }
 
     @Override
     public int compareTo(SARIC_YearMonth t) {
         SARIC_Date d = (SARIC_Date) t;
-        int superCompareTo = super.compareTo(t);
-        if (superCompareTo == 0) {
-            if (DayOfMonth > d.DayOfMonth) {
-                return 1;
-            } else {
-                if (DayOfMonth < d.DayOfMonth) {
-                    return -1;
-                } else {
-                    return 0;
-                }
-            }
+        if (LD.isAfter(d.LD)) {
+            return 1;
         } else {
-            return superCompareTo;
+            if (LD.isBefore(d.LD)) {
+                return -1;
+            } else {
+                return 0;
+            }
         }
     }
 }
