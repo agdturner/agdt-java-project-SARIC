@@ -21,6 +21,8 @@ package uk.ac.leeds.ccg.andyt.projects.saric.io;
 import java.io.File;
 import uk.ac.leeds.ccg.andyt.generic.io.Generic_Files;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Strings;
+import uk.ac.leeds.ccg.andyt.projects.saric.util.SARIC_Date;
+import uk.ac.leeds.ccg.andyt.projects.saric.util.SARIC_Time;
 
 /**
  *
@@ -69,10 +71,26 @@ public class SARIC_Files extends Generic_Files {
         setDataDirectory(dataDirName);
     }
 
-    public SARIC_Strings getStrings(){
+    public SARIC_Strings getStrings() {
         return (SARIC_Strings) Strings;
     }
-    
+
+    /**
+     * @param dir
+     * @param t
+     * @return a directory which is a subsubdirectory of dir. The first
+     * subdirectory is the YYYY-MM. The second is YYYY-MM-DD. If the directory
+     * does not exist it is created.
+     */
+    public File getNestedTimeDirectory(File dir, SARIC_Date t) {
+        File result = new File(dir, t.getYYYYMM());
+        result = new File(result, t.getYYYYMMDD());
+        if (!result.exists()) {
+            result.mkdirs();
+        }
+        return result;
+    }
+
     public File getOutputDataMetOfficeDir() {
         if (OutputDataMetOfficeDir == null) {
             OutputDataMetOfficeDir = new File(
@@ -108,7 +126,7 @@ public class SARIC_Files extends Generic_Files {
         }
         return GeneratedDataCatchmentDir;
     }
-    
+
     public File getGeneratedDataGridsDir() {
         if (GeneratedDataGridsDir == null) {
             GeneratedDataGridsDir = new File(
@@ -126,7 +144,7 @@ public class SARIC_Files extends Generic_Files {
         }
         return GeneratedDataGridsGridDoubleFactoryDir;
     }
-    
+
     public File getGeneratedDataMetOfficeDir() {
         if (GeneratedDataMetOfficeDir == null) {
             GeneratedDataMetOfficeDir = new File(

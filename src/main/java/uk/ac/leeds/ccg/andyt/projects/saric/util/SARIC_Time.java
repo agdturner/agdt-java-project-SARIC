@@ -28,7 +28,7 @@ import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 public class SARIC_Time extends SARIC_Date
         implements Serializable {
 
-    LocalDateTime LDT;
+    public LocalDateTime LDT;
 
     public SARIC_Time(
             SARIC_Environment se) {
@@ -40,14 +40,18 @@ public class SARIC_Time extends SARIC_Date
     }
 
     public SARIC_Time(SARIC_Date d) {
-        this(d.se, LocalDateTime.from(d.LD));
+        this(d.se, LocalDateTime.of(d.LD, LocalTime.of(0, 0)));
+    }
+
+    public SARIC_Time(SARIC_Date d, LocalTime t) {
+        this(d.se, LocalDateTime.of(d.LD, t));
     }
 
     public SARIC_Time(
             SARIC_Environment se,
-            LocalDateTime lDT) {
-        super(se, LocalDate.from(lDT));
-        LDT = lDT;
+            LocalDateTime dt) {
+        super(se, LocalDate.from(dt));
+        LDT = dt;
     }
 
     public SARIC_Time(
@@ -130,11 +134,11 @@ public class SARIC_Time extends SARIC_Date
     }
 
     public void addMinutes(int minutes) {
-        LDT.plusMinutes(minutes);
+        LDT = LDT.plusMinutes(minutes);
     }
 
     public void addHours(int hours) {
-        LDT.plusHours(hours);
+        LDT = LDT.plusHours(hours);
     }
 
     public void setTime(int hour, int minute, int second) {

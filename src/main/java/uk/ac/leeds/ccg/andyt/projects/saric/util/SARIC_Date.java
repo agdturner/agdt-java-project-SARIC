@@ -33,7 +33,7 @@ public class SARIC_Date
         extends SARIC_YearMonth
         implements Serializable {
 
-    protected LocalDate LD;
+    public  LocalDate LD;
 
     public SARIC_Date(
             SARIC_Environment se) {
@@ -47,9 +47,9 @@ public class SARIC_Date
 
     public SARIC_Date(
             SARIC_Environment se,
-            LocalDate lD) {
-        super(se, YearMonth.from(lD));
-        LD = lD;
+            LocalDate d) {
+        super(se, YearMonth.from(d));
+        LD = d;
     }
 
     public SARIC_Date(
@@ -83,7 +83,7 @@ public class SARIC_Date
     }
 
     public void addDays(int days) {
-        LD.plusDays(days);
+        LD = LD.plusDays(days);
     }
 
     /**
@@ -96,6 +96,7 @@ public class SARIC_Date
         return LD.isEqual(t.LD);
     }
 
+    
     public String getDD() {
         String result = "";
         int dayOfMonth = LD.getDayOfMonth();

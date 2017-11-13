@@ -38,12 +38,7 @@ public class SARIC_YearMonth
     // For convenience
     protected transient SARIC_Strings Strings;
 
-    protected YearMonth YM;
-//    //protected Calendar _Calendar;
-//    protected LocalDate LD;
-//    protected LocalDateTime LDT;
-//    protected int Year;
-//    protected int Month;
+    public  YearMonth YM;
 
     public SARIC_YearMonth(
             SARIC_Environment se){
@@ -85,7 +80,7 @@ public class SARIC_YearMonth
         if (s2.startsWith("0")) {
             s2 = s2.substring(1);
         }
-        int month = new Integer(s2) - 1;
+        int month = new Integer(s2);
         YM = YearMonth.of(year, month);
     }
 

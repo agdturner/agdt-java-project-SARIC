@@ -51,17 +51,14 @@ public class SARIC_MetOfficeSiteXMLSAXHandler extends DefaultHandler {
         this.f = f;
         sf = se.getFiles();
         parser = new SAXParser();
-        forecasts = new HashMap<SARIC_Time, SARIC_SiteForecastRecord>();
+        forecasts = new HashMap<>();
     }
 
     public HashMap<SARIC_Time, SARIC_SiteForecastRecord> parse() {
         parser.setContentHandler(this);
         try {
             parser.parse(f.toString());
-        } catch (SAXException ex) {
-            Logger.getLogger(SARIC_MetOfficeSiteXMLSAXHandler.class.getName()).log(Level.SEVERE, null, ex);
-            ex.printStackTrace(System.err);
-        } catch (IOException ex) {
+        } catch (SAXException | IOException ex) {
             Logger.getLogger(SARIC_MetOfficeSiteXMLSAXHandler.class.getName()).log(Level.SEVERE, null, ex);
             ex.printStackTrace(System.err);
         }
@@ -86,7 +83,7 @@ public class SARIC_MetOfficeSiteXMLSAXHandler extends DefaultHandler {
         if (rawName.equalsIgnoreCase("DV")) {
             String time;
             time = attributes.getValue("dataDate");
-            t0 = new SARIC_Time(se, time.replaceAll(":", "_"));
+            t0 = new SARIC_Time(se, time);
             //t0 = new SARIC_Time(se, time);
         }
         if (rawName.equalsIgnoreCase("Period")) {
