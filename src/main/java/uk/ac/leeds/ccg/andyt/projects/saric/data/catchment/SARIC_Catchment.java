@@ -46,6 +46,7 @@ import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_GridDouble;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.chunk.Grids_GridChunkDoubleArrayFactory;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_GridDoubleFactory;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.statistics.Grids_GridDoubleStatistics;
+import uk.ac.leeds.ccg.andyt.grids.process.Grids_Processor;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Object;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.site.SARIC_Site;
@@ -162,16 +163,19 @@ public abstract class SARIC_Catchment extends SARIC_Object {
         ncols = Generic_BigDecimal.divideNoRounding(bounds.XMax.subtract(bounds.XMin), cellsize).longValueExact();
         nrows = Generic_BigDecimal.divideNoRounding(bounds.YMax.subtract(bounds.YMin), cellsize).longValueExact();
         //inf = se.getGrids_Environment().get_Grid2DSquareCellProcessor()._Grid2DSquareCellDoubleFactory;
+        Grids_Processor gp;
+        gp = _Grids_Environment.getProcessor();
         Grids_GridDoubleFactory f;
         f = new Grids_GridDoubleFactory(
                 _Grids_Environment,
                 Files.getGeneratedDataGridsDir(),
+                gp.GridChunkDoubleFactory,
+                gp.DefaultGridChunkDoubleFactory,
                 -9999.0d,
                 (int) nrows,
                 (int) ncols,
                 dimensions,
-                new Grids_GridDoubleStatistics(_Grids_Environment),
-                new Grids_GridChunkDoubleArrayFactory());
+                new Grids_GridDoubleStatistics(_Grids_Environment));
         grid = f.create(dir, nrows, ncols, dimensions, _Grids_Environment.HandleOutOfMemoryError);
         result[0] = grid;
         result[1] = f;

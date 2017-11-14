@@ -112,12 +112,13 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
         gf = new Grids_GridDoubleFactory(
                 ge,
                 gp.getDirectory(true),
+                gp.GridChunkDoubleFactory,
+                gp.DefaultGridChunkDoubleFactory,
                 noDataValue,
                 256,
                 256,
                 new Grids_Dimensions(256, 256),
-                new Grids_GridDoubleStatisticsNotUpdated(ge),
-                gp.GridChunkDoubleArrayFactory);
+                new Grids_GridDoubleStatisticsNotUpdated(ge));
         gf.setNoDataValue(noDataValue);
         gp.GridDoubleFactory = gf;
     }

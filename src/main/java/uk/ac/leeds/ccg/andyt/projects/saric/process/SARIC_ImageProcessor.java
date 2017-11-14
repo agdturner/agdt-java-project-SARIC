@@ -135,12 +135,13 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
         gf = new Grids_GridDoubleFactory(
                 ge,
                 gp.getDirectory(true),
+                gp.GridChunkDoubleFactory,
+                gp.DefaultGridChunkDoubleFactory,
                 NoDataValue,
                 256,
                 256,
                 new Grids_Dimensions(256, 256),
-                new Grids_GridDoubleStatisticsNotUpdated(ge),
-                (Grids_AbstractGridChunkDoubleFactory) gp.GridChunkDoubleFactory);
+                new Grids_GridDoubleStatisticsNotUpdated(ge));
         gp.GridDoubleFactory = gf;
     }
 
