@@ -195,11 +195,12 @@ public abstract class SARIC_Catchment extends SARIC_Object {
         // Get Outline
         Geometry geometry2;
         geometry2 = getOutlineGeometry();
+        GeometryFactory gf;
+        gf = JTSFactoryFinder.getGeometryFactory();
+  //      Polygon p = new Polygon(geometry2, null, gf);
         // Set up for intersection
         SimpleFeatureType sft;
         sft = SARIC_DataForWASIM.getPointSimpleFeatureType(SARIC_DataForWASIM.defaultSRID);
-        GeometryFactory gf;
-        gf = JTSFactoryFinder.getGeometryFactory();
         SimpleFeatureBuilder sfb;
         sfb = new SimpleFeatureBuilder(sft);
         Coordinate c;
@@ -247,8 +248,10 @@ public abstract class SARIC_Catchment extends SARIC_Object {
 //                feature = sfb.buildFeature(null);
 //                geometry = (Geometry) feature.getDefaultGeometry();
 //                intersection = geometry.intersection(geometry2);
-                intersection = poly.intersection(geometry2);
-                if (intersection.isEmpty()) {
+
+//                intersection = poly.intersection(geometry2);
+//                if (intersection.isEmpty()) {
+                if (!lr.crosses(geometry2)) {
                     //System.out.println("Point " + point + " does not intersect.");
                     //System.out.println("Poly " + poly + " does not intersect.");
                 } else {
@@ -297,7 +300,7 @@ public abstract class SARIC_Catchment extends SARIC_Object {
             for (long col = 0; col < ncols; col++) {
                 x = resultGrid.getCellXDouble(col, true);
                 v = resultGrid.getCell(row, col, true);
-                if (v != noDataValue) {
+                //if (v != noDataValue) {
                     ite = sites.iterator();
                     minDistance = Double.MAX_VALUE;
                     while (ite.hasNext()) {
@@ -313,7 +316,7 @@ public abstract class SARIC_Catchment extends SARIC_Object {
                         }
                     }
                     //System.out.println("minDistance from x " + x + ", y " + y + " = " + minDistance + " siteID " + site.getId());
-                }
+                //}
             }
         }
         return result;

@@ -130,7 +130,7 @@ public class SARIC_Time extends SARIC_Date
             minute = 0;
             second = 0;
         }
-        LDT = LocalDateTime.of(LD, LocalTime.of(hour, minute, second));
+        setTime(hour, minute, second);
     }
 
     public void addMinutes(int minutes) {
@@ -140,9 +140,15 @@ public class SARIC_Time extends SARIC_Date
     public void addHours(int hours) {
         LDT = LDT.plusHours(hours);
     }
+    
+    @Override
+    public void addDays(int days) {
+        super.addDays(days);
+        LDT = LDT.plusDays(days);
+    }
 
-    public void setTime(int hour, int minute, int second) {
-        LDT.adjustInto(LocalDateTime.of(LD, LocalTime.of(hour, minute, second)));
+    public final void setTime(int hour, int minute, int second) {
+        LDT = LocalDateTime.of(LD, LocalTime.of(hour, minute, second));
     }
     
     public SARIC_Date getDate() {
@@ -259,6 +265,17 @@ public class SARIC_Time extends SARIC_Date
         return result;
     }
 
+    /**
+     * Returns true iff t is the same day as this.
+     *
+     * @param t
+     * @return
+     */
+    @Override
+    public boolean isSameDay(SARIC_Date t) {
+        return LDT.toLocalDate().isEqual(t.LD);
+    }
+    
     @Override
     public boolean equals(Object o) {
         if (o instanceof SARIC_Time) {

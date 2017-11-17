@@ -217,7 +217,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
             st = new SARIC_Teifi(se);
             sites = st.getForecastsSitesInStudyArea(Strings.getString_3hourly());
             nearestForecastsSitesGridAndFactory = st.getNearestForecastsSitesGrid(sites);
-            nearestForecastsSitesGrid = (Grids_GridDouble) nearestForecastsSitesGridAndFactory[0];
+           nearestForecastsSitesGrid = (Grids_GridDouble) nearestForecastsSitesGridAndFactory[0];
             noDataValue1 = nearestForecastsSitesGrid.getNoDataValue(true);
             gf.setNoDataValue(noDataValue1);
             nrows = nearestForecastsSitesGrid.getNRows(true);
@@ -244,9 +244,10 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                     System.out.println("outdir1 " + outdir1);
 
                     // Initialisation part 2
-                    // Process the next 3 days from time too.
+                    // Process the next n days from time too.
+                    int n = 6;
                     dates = new TreeSet<>();
-                    for (int i = 0; i < 6; i++) {
+                    for (int i = 0; i < n; i++) {
                         date1 = new SARIC_Date(date);
                         date1.addDays(i);
                         dates.add(date1);
@@ -354,11 +355,11 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                                     for (long row = 0; row < nrows; row++) {
                                         for (long col = 0; col < ncols; col++) {
                                             v = nearestForecastsSitesGrid.getCell(row, col, true);
-                                            if (v != noDataValue) {
+                                            //if (v != noDataValue) {
                                                 if (v == siteID) {
                                                     forecastsForTime2.setCell(row, col, normalisedEstimate, true);
                                                 }
-                                            }
+                                            //}
                                         }
                                     }
                                 }

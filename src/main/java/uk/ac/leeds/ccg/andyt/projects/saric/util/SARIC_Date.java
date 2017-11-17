@@ -92,7 +92,7 @@ public class SARIC_Date
      * @param t
      * @return
      */
-    public final boolean isSameDay(SARIC_Date t) {
+    public boolean isSameDay(SARIC_Date t) {
         return LD.isEqual(t.LD);
     }
 
