@@ -87,7 +87,7 @@ public class SARIC_DateTest {
         instance.addDays(days);
         dayOfMonth = 10;
         t = new SARIC_Date(se,year, month, dayOfMonth);
-        expResult = false;
+        expResult = true;
         result = instance.equals(t);
         assertEquals(expResult, result);
         // Test 2
