@@ -2,11 +2,6 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <!--
-    <groupId>org.geotools</groupId>
-    <artifactId>mavenproject1</artifactId>
-    <version>1.0-SNAPSHOT</version>
-    -->
     <groupId>uk.ac.leeds.ccg.andyt</groupId>
     <artifactId>SARIC</artifactId>
     <version>0.1.0-SNAPSHOT</version>
@@ -17,11 +12,19 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <!--
         <jts.version>1.12</jts.version>
+        <!--
+        <jts.version>1.13</jts.version>
+        -->
+        <geotools.version>18.0</geotools.version>
+        <!--
+        <geotools.version>17.3</geotools.version>
+        <geotools.version>13.6</geotools.version>
+        <geotools.version>13.3</geotools.version>
         <geotools.version>13.2</geotools.version>
         <geotools.version>13-SNAPSHOT</geotools.version>
         <geotools.version>14-SNAPSHOT</geotools.version>
+        <geotools.version>12.5</geotools.version>
         <geotools.version>12</geotools.version>
         <geotools.version>12-RC1</geotools.version>
         <geotools.version>12-SNAPSHOT</geotools.version>
@@ -36,6 +39,8 @@
         <grids.version>1.0-SNAPSHOT</grids.version>
         <vector.version>1.0-SNAPSHOT</vector.version>
         <agdtweb.version>0.1.0-SNAPSHOT</agdtweb.version>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
 
     <dependencies>
@@ -249,7 +254,6 @@
         -->
         
 
-        <!--
         <dependency>
             <groupId>com.vividsolutions</groupId>
             <artifactId>jts</artifactId>
@@ -295,7 +299,6 @@
             <artifactId>gt-imageio-ext-gdal</artifactId>
             <version>${geotools.version}</version>
         </dependency>
-        -->
         <!--
         <dependency>
             <groupId>org.geotools</groupId>
@@ -354,6 +357,7 @@
     </dependencies>
     
     <repositories>
+        
         <repository>
             <id>generic</id>
             <name>GitHub agdturner generic Repository</name>
@@ -401,7 +405,6 @@
             <layout>default</layout>
         </repository>
         -->
-        <!--
         <repository>
             <id>maven2-repository.dev.java.net</id>
             <name>Java.net repository</name>
@@ -412,9 +415,7 @@
             <name>Open Source Geospatial Foundation Repository</name>
             <url>http://download.osgeo.org/webdav/geotools/</url>
         </repository>
-        -->
         <!--Add the snapshot repository here-->
-        <!--
         <repository> 
             <snapshots>
                 <enabled>true</enabled>
@@ -423,8 +424,6 @@
             <name>OpenGeo Maven Repository</name>
             <url>http://repo.opengeo.org</url>
         </repository>
-        -->
-        <!--
         <repository>
             <snapshots>
                 <enabled>true</enabled>
@@ -433,7 +432,6 @@
             <name>Boundless Maven Repository</name>
             <url>http://repo.boundlessgeo.com/main</url>
         </repository>
-        -->
     </repositories>
     
 </project>
