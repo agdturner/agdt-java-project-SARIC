@@ -22,6 +22,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LinearRing;
+import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.geom.PrecisionModel;
@@ -195,6 +196,8 @@ public abstract class SARIC_Catchment extends SARIC_Object {
         // Get Outline
         Geometry geometry2;
         geometry2 = getOutlineGeometry();
+        MultiPolygon p = (MultiPolygon) geometry2;
+        System.out.println(p.toString());
         GeometryFactory gf;
         gf = JTSFactoryFinder.getGeometryFactory();
   //      Polygon p = new Polygon(geometry2, null, gf);
@@ -224,6 +227,11 @@ public abstract class SARIC_Catchment extends SARIC_Object {
         cellsize = resultGrid.getCellsizeDouble(true);
         double halfCellsize;
         halfCellsize = cellsize / 2.0d;
+        
+        halfCellsize = 10 * cellsize;
+        //halfCellsize = 5 * cellsize;
+        //halfCellsize = 2 * cellsize;
+        
         double x;
         double y;
         for (long row = 0; row < nrows; row++) {
@@ -231,6 +239,7 @@ public abstract class SARIC_Catchment extends SARIC_Object {
             for (long col = 0; col < ncols; col++) {
                 x = resultGrid.getCellXDouble(col, true);
                 c = new Coordinate(x, y);
+                System.out.println("x, y = " + x + ", " + y);
                 cs[0] = new Coordinate(x - halfCellsize, y - halfCellsize);
                 cs[1] = new Coordinate(x - halfCellsize, y + halfCellsize);
                 cs[2] = new Coordinate(x + halfCellsize, y + halfCellsize);
@@ -249,9 +258,12 @@ public abstract class SARIC_Catchment extends SARIC_Object {
 //                geometry = (Geometry) feature.getDefaultGeometry();
 //                intersection = geometry.intersection(geometry2);
 
+//                intersection = poly.intersection(p);
+                intersection = p.intersection(poly);
+                if (intersection.isEmpty()) {
 //                intersection = poly.intersection(geometry2);
 //                if (intersection.isEmpty()) {
-                if (!lr.crosses(geometry2)) {
+                //if (!lr.crosses(geometry2)) {
                     //System.out.println("Point " + point + " does not intersect.");
                     //System.out.println("Poly " + poly + " does not intersect.");
                 } else {

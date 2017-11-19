@@ -148,6 +148,7 @@ public class SARIC_Teifi extends SARIC_Catchment {
         if (f.exists()) {
             result = (HashSet<SARIC_Site>) Generic_StaticIO.readObject(f);
         } else {
+            f.getParentFile().mkdirs();
             result = super.getForecastsSitesInStudyArea(time);
             Generic_StaticIO.writeObject(result, f);
         }
