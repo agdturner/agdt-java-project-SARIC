@@ -35,7 +35,6 @@ import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import uk.ac.leeds.ccg.andyt.grids.core.Grids_Dimensions;
-import uk.ac.leeds.ccg.andyt.grids.core.grid.chunk.Grids_AbstractGridChunkDoubleFactory;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.statistics.Grids_AbstractGridNumberStatistics;
 import uk.ac.leeds.ccg.andyt.grids.core.Grids_Environment;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_GridDouble;
@@ -155,225 +154,39 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
         colorMap = sc.getColorMap();
         Color noDataValueColor;
         noDataValueColor = Color.BLACK;
+        HashSet<SARIC_Site> sites;
 
         if (doNonTiledFcs) {
             //C:\Users\geoagdt\src\projects\saric\data\input\MetOffice\DataPoint\val\wxfcs\all\xml\site\3hourly\2017-09-04-11
             // Declaration part 1
-            String dataType;
-            String path;
-            File indir0;
-            File indir1;
-            File indir2;
-            File indir3;
-            File outdir0;
-            File outdir1;
-            File outdir2;
-            File outdir3;
-
-            String name;
-            HashSet<SARIC_Site> sites;
-            SARIC_Teifi st;
-            // Initialisation part 1
-            dataType = Strings.getString_xml();
-            path = Files.getValDataTypePath(dataType, Strings.getString_wxfcs());
-            indir0 = new File(
-                    Files.getInputDataMetOfficeDataPointDir(),
-                    path);
-            System.out.println(indir0);
-            indir0 = new File(
-                    indir0,
-                    Strings.getString_site() + "0");
-            /**
-             * There is no need to run for daily, it is just for the same time
-             * as the 3hourly, but gives lower temporal resolution and we want
-             * high temporal resolution.
-             */
-            indir0 = new File(
-                    indir0,
-                    Strings.getString_3hourly());
-            outdir0 = new File(
-                    Files.getOutputDataMetOfficeDataPointDir(),
-                    path);
-            outdir0 = new File(outdir0, Strings.getString_Teifi());
-
-            SARIC_Date date0;
-            SARIC_Date date;
-// Declaration part 2
-            SARIC_Date date1;
-            SARIC_Date date2;
             /**
              * dates is for storing a set of dates that will be processed. This
              * is initialised in a manual way currently below, but it could also
              * be initialised by looking at what data are stored in a directory.
              */
-            TreeSet<SARIC_Date> dates;
-            TreeSet<SARIC_Date> dates2;
             Object[] nearestForecastsSitesGridAndFactory;
-            Grids_GridDouble nearestForecastsSitesGrid;
-            double noDataValue1;
-            HashMap<SARIC_Site, HashMap<SARIC_Time, SARIC_SiteForecastRecord>> forecasts;
-            long nrows;
-            long ncols;
-            st = new SARIC_Teifi(se);
-            sites = st.getForecastsSitesInStudyArea(Strings.getString_3hourly());
-            nearestForecastsSitesGridAndFactory = st.getNearestForecastsSitesGrid(sites);
-           nearestForecastsSitesGrid = (Grids_GridDouble) nearestForecastsSitesGridAndFactory[0];
-            noDataValue1 = nearestForecastsSitesGrid.getNoDataValue(true);
-            gf.setNoDataValue(noDataValue1);
-            nrows = nearestForecastsSitesGrid.getNRows(true);
-            ncols = nearestForecastsSitesGrid.getNCols(true);
-            Grids_GridDouble forecastsForTime2;
-
-            File[] indirs;
-            indirs = indir0.listFiles();
-            File[] dirs3;
-            
-            for (File dirs2 : indirs) {
-                dirs3 = dirs2.listFiles();
-                for (File dir3 : dirs3) {
-                    date = new SARIC_Date(se, dir3.getName());
-                    indir1 = Files.getNestedTimeDirectory(indir0, date);
-                    outdir1 = Files.getNestedTimeDirectory(outdir0, date);
-                    outdir1 = new File(
-                            outdir1,
-                            date + "-00"); // We could iterate through all of these.
-                    indir1 = new File(
-                            indir1,
-                            date + "-00");
-                    outdir1.mkdirs();
-                    System.out.println("outdir1 " + outdir1);
-
-                    // Initialisation part 2
-                    // Process the next n days from time too.
-                    int n = 6;
-                    dates = new TreeSet<>();
-                    for (int i = 0; i < n; i++) {
-                        date1 = new SARIC_Date(date);
-                        date1.addDays(i);
-                        dates.add(date1);
-                    }
-
-                    Iterator<SARIC_Date> iterat;
-                    iterat = dates.iterator();
-                    while (iterat.hasNext()) {
-                        date1 = iterat.next();
-                        File outascii;
-                        File outpng;
-                        File outpng2;
-                        File outpng3;
-
-                        if (indir1.exists()) {
-
-                            forecasts = new HashMap<>();
-
-                            forecastsForTime2 = (Grids_GridDouble) gf.create(nearestForecastsSitesGrid);
-                            name = date + "-00" + "_ForecastFor_" + date1.getYYYYMMDD();
-                            outascii = new File(
-                                    outdir1,
-                                    name + ".asc");
-                            outpng = new File(
-                                    outdir1,
-                                    name + ".png");
-                            outpng2 = new File(
-                                    outdir1,
-                                    name + "Color.png");
-                            outpng3 = new File(
-                                    outdir1,
-                                    name + "Color8.png");
-                            if (outpng3.exists()) {
-                                System.out.println("Output " + outpng + " already exists!!!");
-                            } else {
-                                if (!outdir1.exists()) {
-                                    outdir1.mkdirs();
-                                }
-                                double estimate;
-                                double noDataValue = forecastsForTime2.getNoDataValue(true);
-                                double v;
-
-                                Iterator<SARIC_Site> ite;
-                                ite = sites.iterator();
-                                SARIC_Site site;
-                                int siteID;
-                                while (ite.hasNext()) {
-                                    site = ite.next();
-                                    siteID = site.getId();
-                                    indir2 = new File(
-                                            indir1,
-                                            "" + siteID);
-                                    //System.out.println("dir2 " + dir2);
-                                    String dirname;
-                                    dirname = indir2.list()[0];
-                                    //System.out.println("dirname " + dirname);
-                                    indir2 = new File(
-                                            indir2,
-                                            dirname);
-                                    String filename;
-                                    filename = siteID + Strings.getString_3hourly() + Strings.symbol_dot + dataType;
-                                    File f;
-                                    f = new File(
-                                            indir2,
-                                            filename);
-                                    SARIC_MetOfficeSiteXMLSAXHandler h;
-                                    h = new SARIC_MetOfficeSiteXMLSAXHandler(se, f);
-                                    HashMap<SARIC_Time, SARIC_SiteForecastRecord> forecastsForTime;
-                                    forecastsForTime = h.parse();
-                                    forecasts.put(site, forecastsForTime);
-                                    //System.out.println("SARIC_MetOfficeSiteXMLSAXHandler " + h);
-
-                                    // Get estimate of total rainfall.
-                                    estimate = 0.0d;
-                                    Iterator<SARIC_Time> ite2;
-                                    double numberOfEstimates;
-                                    numberOfEstimates = 0;
-                                    SARIC_Time t;
-                                    ite2 = forecastsForTime.keySet().iterator();
-                                    double normalisedEstimate;
-                                    while (ite2.hasNext()) {
-                                        t = ite2.next();
-                                        if (t.isSameDay(date1)) {
-                                            estimate += getEstimate(forecastsForTime.get(t));
-                                            numberOfEstimates++;
-//                                                System.out.println("estimate " + estimate);
-//                                                System.out.println("numberOfEstimates " + numberOfEstimates);
-//                                                normalisedEstimate = (estimate / numberOfEstimates) * 24;
-//                                                System.out.println("normalisedEstimate " + normalisedEstimate);
-                                        }
-                                    }
-                                    /**
-                                     * normalisedEstimate gives an estimate of
-                                     * the total amount of rainfall in a day.
-                                     * This averages all the intensities and
-                                     * then multiplies by 24 as there are 24
-                                     * hours in the day.
-                                     */
-                                    if (numberOfEstimates > 0.0d) {
-                                        normalisedEstimate = (estimate / numberOfEstimates) * 24;
-                                    } else {
-                                        normalisedEstimate = 0.0d;
-                                    }
-                                    System.out.println("noDataValue " + noDataValue);
-                                    for (long row = 0; row < nrows; row++) {
-                                        for (long col = 0; col < ncols; col++) {
-                                            v = nearestForecastsSitesGrid.getCell(row, col, true);
-                                            //if (v != noDataValue) {
-                                                if (v == siteID) {
-                                                    forecastsForTime2.setCell(row, col, normalisedEstimate, true);
-                                                }
-                                            //}
-                                        }
-                                    }
-                                }
-                                ae.toAsciiFile(forecastsForTime2, outascii, true);
-                                ie.toGreyScaleImage(forecastsForTime2, gp, outpng, "png", true);
-                                ie.toColourImage(0, colorMap, Color.BLACK, forecastsForTime2, outpng2, "png", true);
-                                ie.toColourImage(8, colorMap, Color.BLACK, forecastsForTime2, outpng3, "png", true);
-                            }
-                        }
-                    }
-                }
+            String areaName;
+            if (doTeifi) {
+                areaName = Strings.getString_Teifi();
+                SARIC_Teifi st;
+                st = new SARIC_Teifi(se);
+                sites = st.getForecastsSitesInStudyArea(Strings.getString_3hourly());
+                nearestForecastsSitesGridAndFactory = st.getNearestForecastsSitesGrid(sites);
+                nonTiledForecastsForArea(areaName, sites,
+                        nearestForecastsSitesGridAndFactory,
+                        colorMap, noDataValueColor);
+            }
+            if (doWissey) {
+                areaName = Strings.getString_Wissey();
+                SARIC_Wissey sw;
+                sw = new SARIC_Wissey(se);
+                sites = sw.getForecastsSitesInStudyArea(Strings.getString_3hourly());
+                nearestForecastsSitesGridAndFactory = sw.getNearestForecastsSitesGrid(sites);
+                nonTiledForecastsForArea(areaName, sites,
+                        nearestForecastsSitesGridAndFactory,
+                        colorMap, noDataValueColor);
             }
         }
-
         if (doTileFromWMTSService) {
             // Initial declaration
             File inspireWMTSCapabilities;
@@ -395,20 +208,20 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
             tileMatrixSet = "EPSG:27700"; // British National Grid
 
             // Initialisation for Wissey
-            SARIC_Wissey sw = null;
             Object[] sw1KMGrid = null;
             Object[] sw1KMGridMaskedToCatchment = null;
             if (doWissey) {
+                SARIC_Wissey sw;
                 sw = se.getWissey();
                 sw1KMGrid = sw.get1KMGrid();
                 sw1KMGridMaskedToCatchment = sw.get1KMGridMaskedToCatchment();
             }
 
             // Initialisation for Wissey
-            SARIC_Teifi st = null;
             Object[] st1KMGrid = null;
             Object[] st1KMGridMaskedToCatchment = null;
             if (doTeifi) {
+                SARIC_Teifi st;
                 st = se.getTeifi();
                 st1KMGrid = st.get1KMGrid();
                 st1KMGridMaskedToCatchment = st.get1KMGridMaskedToCatchment();
@@ -434,11 +247,15 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                     p.setBounds(bounds);
                     if (doWissey) {
                         area = Strings.getString_Wissey();
-                        processForecasts(colorMap, noDataValueColor, area, scale, layerName, cellsize, p, lp, r, sw1KMGrid, sw1KMGridMaskedToCatchment);
+                        processForecasts(colorMap, noDataValueColor, area,
+                                scale, layerName, cellsize, p, lp, r, sw1KMGrid,
+                                sw1KMGridMaskedToCatchment);
                     }
                     if (doTeifi) {
                         area = Strings.getString_Teifi();
-                        processForecasts(colorMap, noDataValueColor, area, scale, layerName, cellsize, p, lp, r, st1KMGrid, st1KMGridMaskedToCatchment);
+                        processForecasts(colorMap, noDataValueColor, area,
+                                scale, layerName, cellsize, p, lp, r, st1KMGrid,
+                                st1KMGridMaskedToCatchment);
                     }
                 }
             }
@@ -462,12 +279,223 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                     if (doWissey) {
                         area = Strings.getString_Wissey();
                         processObservations(
-                                colorMap, noDataValueColor, area, scale, layerName, cellsize, p, lp, r, sw1KMGrid, sw1KMGridMaskedToCatchment);
+                                colorMap, noDataValueColor, area, scale,
+                                layerName, cellsize, p, lp, r, sw1KMGrid,
+                                sw1KMGridMaskedToCatchment);
                     }
                     if (doTeifi) {
                         area = Strings.getString_Teifi();
                         processObservations(
-                                colorMap, noDataValueColor, area, scale, layerName, cellsize, p, lp, r, st1KMGrid, st1KMGridMaskedToCatchment);
+                                colorMap, noDataValueColor, area, scale,
+                                layerName, cellsize, p, lp, r, st1KMGrid,
+                                st1KMGridMaskedToCatchment);
+                    }
+                }
+            }
+        }
+    }
+
+    private void nonTiledForecastsForArea(
+            String areaName,
+            HashSet<SARIC_Site> sites,
+            Object[] nearestForecastsSitesGridAndFactory,
+            TreeMap<Double, Color> colorMap,
+            Color noDataValueColor) {
+        String dataType;
+        String path;
+        File indir0;
+        File indir1;
+        File indir2;
+        File indir3;
+        File outdir0;
+        File outdir1;
+        File outdir2;
+        File outdir3;
+        String name;
+        // Initialisation part 1
+        dataType = Strings.getString_xml();
+        path = Files.getValDataTypePath(dataType, Strings.getString_wxfcs());
+        indir0 = new File(
+                Files.getInputDataMetOfficeDataPointDir(),
+                path);
+        System.out.println(indir0);
+        indir0 = new File(
+                indir0,
+                Strings.getString_site() + "0");
+        /**
+         * There is no need to run for daily, it is just for the same time as
+         * the 3hourly, but gives lower temporal resolution and we want high
+         * temporal resolution.
+         */
+        indir0 = new File(
+                indir0,
+                Strings.getString_3hourly());
+        outdir0 = new File(
+                Files.getOutputDataMetOfficeDataPointDir(),
+                path);
+        outdir0 = new File(outdir0, areaName);
+
+        SARIC_Date date0;
+        SARIC_Date date;
+        // Declaration part 2
+        SARIC_Date date1;
+        SARIC_Date date2;
+        TreeSet<SARIC_Date> dates;
+        TreeSet<SARIC_Date> dates2;
+        Grids_GridDouble nearestForecastsSitesGrid;
+        double noDataValue1;
+        HashMap<SARIC_Site, HashMap<SARIC_Time, SARIC_SiteForecastRecord>> forecasts;
+        long nrows;
+        long ncols;
+        nearestForecastsSitesGrid = (Grids_GridDouble) nearestForecastsSitesGridAndFactory[0];
+        noDataValue1 = nearestForecastsSitesGrid.getNoDataValue(true);
+        gf.setNoDataValue(noDataValue1);
+        nrows = nearestForecastsSitesGrid.getNRows(true);
+        ncols = nearestForecastsSitesGrid.getNCols(true);
+        Grids_GridDouble forecastsForTime2;
+        File[] indirs;
+        indirs = indir0.listFiles();
+        File[] dirs3;
+        for (File dirs2 : indirs) {
+            dirs3 = dirs2.listFiles();
+            for (File dir3 : dirs3) {
+                date = new SARIC_Date(se, dir3.getName());
+                indir1 = Files.getNestedTimeDirectory(indir0, date);
+                outdir1 = Files.getNestedTimeDirectory(outdir0, date);
+                outdir1 = new File(
+                        outdir1,
+                        date + "-00"); // We could iterate through all of these.
+                indir1 = new File(
+                        indir1,
+                        date + "-00");
+                outdir1.mkdirs();
+                System.out.println("outdir1 " + outdir1);
+
+                // Initialisation part 2
+                // Process the next n days from time too.
+                int n = 6;
+                dates = new TreeSet<>();
+                for (int i = 0; i < n; i++) {
+                    date1 = new SARIC_Date(date);
+                    date1.addDays(i);
+                    dates.add(date1);
+                }
+
+                Iterator<SARIC_Date> iterat;
+                iterat = dates.iterator();
+                while (iterat.hasNext()) {
+                    date1 = iterat.next();
+                    File outascii;
+                    File outpng;
+                    File outpng2;
+                    File outpng3;
+
+                    if (indir1.exists()) {
+
+                        forecasts = new HashMap<>();
+
+                        forecastsForTime2 = (Grids_GridDouble) gf.create(nearestForecastsSitesGrid);
+                        name = date + "-00" + "_ForecastFor_" + date1.getYYYYMMDD();
+                        outascii = new File(
+                                outdir1,
+                                name + ".asc");
+                        outpng = new File(
+                                outdir1,
+                                name + ".png");
+                        outpng2 = new File(
+                                outdir1,
+                                name + "Color.png");
+                        outpng3 = new File(
+                                outdir1,
+                                name + "Color8.png");
+                        if (outpng3.exists()) {
+                            System.out.println("Output " + outpng + " already exists!!!");
+                        } else {
+                            if (!outdir1.exists()) {
+                                outdir1.mkdirs();
+                            }
+                            double estimate;
+                            double noDataValue = forecastsForTime2.getNoDataValue(true);
+                            double v;
+
+                            Iterator<SARIC_Site> ite;
+                            ite = sites.iterator();
+                            SARIC_Site site;
+                            int siteID;
+                            while (ite.hasNext()) {
+                                site = ite.next();
+                                siteID = site.getId();
+                                indir2 = new File(
+                                        indir1,
+                                        "" + siteID);
+                                //System.out.println("dir2 " + dir2);
+                                String dirname;
+                                dirname = indir2.list()[0];
+                                //System.out.println("dirname " + dirname);
+                                indir2 = new File(
+                                        indir2,
+                                        dirname);
+                                String filename;
+                                filename = siteID + Strings.getString_3hourly() + Strings.symbol_dot + dataType;
+                                File f;
+                                f = new File(
+                                        indir2,
+                                        filename);
+                                SARIC_MetOfficeSiteXMLSAXHandler h;
+                                h = new SARIC_MetOfficeSiteXMLSAXHandler(se, f);
+                                HashMap<SARIC_Time, SARIC_SiteForecastRecord> forecastsForTime;
+                                forecastsForTime = h.parse();
+                                forecasts.put(site, forecastsForTime);
+                                //System.out.println("SARIC_MetOfficeSiteXMLSAXHandler " + h);
+
+                                // Get estimate of total rainfall.
+                                estimate = 0.0d;
+                                Iterator<SARIC_Time> ite2;
+                                double numberOfEstimates;
+                                numberOfEstimates = 0;
+                                SARIC_Time t;
+                                ite2 = forecastsForTime.keySet().iterator();
+                                double normalisedEstimate;
+                                while (ite2.hasNext()) {
+                                    t = ite2.next();
+                                    if (t.isSameDay(date1)) {
+                                        estimate += getEstimate(forecastsForTime.get(t));
+                                        numberOfEstimates++;
+//                                                System.out.println("estimate " + estimate);
+//                                                System.out.println("numberOfEstimates " + numberOfEstimates);
+//                                                normalisedEstimate = (estimate / numberOfEstimates) * 24;
+//                                                System.out.println("normalisedEstimate " + normalisedEstimate);
+                                    }
+                                }
+                                /**
+                                 * normalisedEstimate gives an estimate of the
+                                 * total amount of rainfall in a day. This
+                                 * averages all the intensities and then
+                                 * multiplies by 24 as there are 24 hours in the
+                                 * day.
+                                 */
+                                if (numberOfEstimates > 0.0d) {
+                                    normalisedEstimate = (estimate / numberOfEstimates) * 24;
+                                } else {
+                                    normalisedEstimate = 0.0d;
+                                }
+                                System.out.println("noDataValue " + noDataValue);
+                                for (long row = 0; row < nrows; row++) {
+                                    for (long col = 0; col < ncols; col++) {
+                                        v = nearestForecastsSitesGrid.getCell(row, col, true);
+                                        //if (v != noDataValue) {
+                                        if (v == siteID) {
+                                            forecastsForTime2.setCell(row, col, normalisedEstimate, true);
+                                        }
+                                        //}
+                                    }
+                                }
+                            }
+                            ae.toAsciiFile(forecastsForTime2, outascii, true);
+                            ie.toGreyScaleImage(forecastsForTime2, gp, outpng, "png", true);
+                            ie.toColourImage(0, colorMap, Color.BLACK, forecastsForTime2, outpng2, "png", true);
+                            ie.toColourImage(8, colorMap, Color.BLACK, forecastsForTime2, outpng3, "png", true);
+                        }
                     }
                 }
             }
@@ -476,6 +504,8 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
 
     /**
      *
+     * @param colorMap
+     * @param noDataValueColor
      * @param area
      * @param scale
      * @param layerName
@@ -484,6 +514,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
      * @param lp
      * @param r
      * @param a1KMGrid
+     * @param a1KMGridMaskedToCatchment
      */
     public void processForecasts(
             TreeMap<Double, Color> colorMap,
@@ -696,7 +727,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                         }
                     }
 
-                    Grids_GridDouble b1KMGrid = null;
+                    Grids_GridDouble b1KMGrid;
                     double vb;
                     double v;
 
@@ -772,10 +803,9 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                                 ie.toGreyScaleImage(g, gp, outpng, "png", HandleOutOfMemoryError);
                                 ie.toColourImage(0, colorMap, noDataValueColor, g, outpng2, "png", HandleOutOfMemoryError);
                             }
-
-                            outascii = new File(
-                                    outdir2,
-                                    s + "_ForecastFor_" + date1.getYYYYMMDD() + ".asc");
+//                            outascii = new File(
+//                                    outdir2,
+//                                    s + "_ForecastFor_" + date1.getYYYYMMDD() + ".asc");
                         }
                         gs = b1KMGrid.getStatistics(true);
                         max = gs.getMax(true, true).doubleValue();
@@ -1266,7 +1296,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                     }
                     Iterator<String> gridsIte;
                     gridsIte = grids.keySet().iterator();
-                    Grids_GridDouble b1KMGrid = null;
+                    Grids_GridDouble b1KMGrid;
                     System.out.println("<Duplicate a1KMGrid>");
                     Grids_GridDoubleFactory f;
                     f = (Grids_GridDoubleFactory) a1KMGrid[1];
@@ -1410,8 +1440,8 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
             PixelGrabber pg = new PixelGrabber(image, 0, 0, width, height, pixels, 0, width);
             try {
                 pg.grabPixels();
-            } catch (InterruptedException ie) {
-                ie.printStackTrace();
+            } catch (InterruptedException ex) {
+                ex.printStackTrace(System.err);
             }
             long row = height - 1;
             long col = 0;
