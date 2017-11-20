@@ -250,7 +250,7 @@ public abstract class SARIC_Catchment extends SARIC_Object {
                 LinearRing lr;
                 lr = new LinearRing(coords, gf);
                 poly = new Polygon(lr, null, gf);
-//                point = gf.createPoint(c);
+                point = gf.createPoint(c);
 //                sfb.add(point);
 //                name = "" + x + "_" + y;
 //                sfb.add(name);
@@ -259,7 +259,10 @@ public abstract class SARIC_Catchment extends SARIC_Object {
 //                intersection = geometry.intersection(geometry2);
 
 //                intersection = poly.intersection(p);
-                intersection = p.intersection(poly);
+//                intersection = p.intersection(poly);
+                intersection = point.intersection(p);
+//                intersection = p.intersection(point);
+                
                 if (intersection.isEmpty()) {
 //                intersection = poly.intersection(geometry2);
 //                if (intersection.isEmpty()) {
