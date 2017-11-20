@@ -256,8 +256,8 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
                     Grids_Dimensions dimensions;
                     dimensions = new Grids_Dimensions(
                             new BigDecimal(snh.EastingOrLongitudeOfBottomLeftCornerOfTheImage),
-                            new BigDecimal(snh.NorthingOrLatitudeOfBottomLeftCornerOfTheImage),
                             new BigDecimal(snh.EastingOrLongitudeOfTopRightCornerOfTheImage),
+                            new BigDecimal(snh.NorthingOrLatitudeOfBottomLeftCornerOfTheImage),
                             new BigDecimal(snh.NorthingOrLatitudeOfTopRightCornerOfTheImage),
                             new BigDecimal(snh.IntervalBetweenRows));
                     gf.setNoDataValue(-1d);

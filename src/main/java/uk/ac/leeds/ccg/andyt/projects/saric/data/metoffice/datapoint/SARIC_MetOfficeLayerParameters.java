@@ -19,7 +19,6 @@
 package uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.HashMap;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Object;
@@ -72,7 +71,7 @@ public class SARIC_MetOfficeLayerParameters extends SARIC_Object {
 
     public HashMap<Integer,Vector_Envelope2D> getTileBounds() {
         if (tileBounds == null) {
-            tileBounds = new HashMap<Integer, Vector_Envelope2D>();
+            tileBounds = new HashMap<>();
         }
         return tileBounds;
     }

@@ -115,8 +115,8 @@ public abstract class SARIC_Catchment extends SARIC_Object {
 
     public Vector_Envelope2D getBounds(
             BigDecimal xmin,
-            BigDecimal ymin,
             BigDecimal xmax,
+            BigDecimal ymin,
             BigDecimal ymax) {
         Vector_Envelope2D result;
         Vector_Point2D aPoint;
@@ -155,8 +155,8 @@ public abstract class SARIC_Catchment extends SARIC_Object {
         Grids_Dimensions dimensions;
         dimensions = new Grids_Dimensions(
                 bounds.XMin,
-                bounds.YMin,
                 bounds.XMax,
+                bounds.YMin,
                 bounds.YMax,
                 cellsize);
         long nrows;
@@ -172,13 +172,14 @@ public abstract class SARIC_Catchment extends SARIC_Object {
                 Files.getGeneratedDataGridsDir(),
                 gp.GridChunkDoubleFactory,
                 gp.DefaultGridChunkDoubleFactory,
-                -9999.0d,
+                -Double.MAX_VALUE, //-9999.0d,
                 (int) nrows,
                 (int) ncols,
                 dimensions,
                 new Grids_GridDoubleStatistics(_Grids_Environment));
         grid = f.create(dir, nrows, ncols, dimensions, _Grids_Environment.HandleOutOfMemoryError);
         result[0] = grid;
+//        System.out.println("grid " + grid);
         result[1] = f;
         return result;
     }
@@ -227,11 +228,6 @@ public abstract class SARIC_Catchment extends SARIC_Object {
         cellsize = resultGrid.getCellsizeDouble(true);
         double halfCellsize;
         halfCellsize = cellsize / 2.0d;
-        
-        halfCellsize = 10 * cellsize;
-        //halfCellsize = 5 * cellsize;
-        //halfCellsize = 2 * cellsize;
-        
         double x;
         double y;
         for (long row = 0; row < nrows; row++) {
@@ -239,7 +235,8 @@ public abstract class SARIC_Catchment extends SARIC_Object {
             for (long col = 0; col < ncols; col++) {
                 x = resultGrid.getCellXDouble(col, true);
                 c = new Coordinate(x, y);
-                System.out.println("x, y = " + x + ", " + y);
+                //System.out.println("x, y = " + x + ", " + y);
+                //System.out.println("row, col = " + row + ", " + col);
                 cs[0] = new Coordinate(x - halfCellsize, y - halfCellsize);
                 cs[1] = new Coordinate(x - halfCellsize, y + halfCellsize);
                 cs[2] = new Coordinate(x + halfCellsize, y + halfCellsize);
@@ -250,19 +247,17 @@ public abstract class SARIC_Catchment extends SARIC_Object {
                 LinearRing lr;
                 lr = new LinearRing(coords, gf);
                 poly = new Polygon(lr, null, gf);
-                point = gf.createPoint(c);
+                //point = gf.createPoint(c);
 //                sfb.add(point);
 //                name = "" + x + "_" + y;
 //                sfb.add(name);
 //                feature = sfb.buildFeature(null);
 //                geometry = (Geometry) feature.getDefaultGeometry();
 //                intersection = geometry.intersection(geometry2);
-
-//                intersection = poly.intersection(p);
+                intersection = poly.intersection(p);
 //                intersection = p.intersection(poly);
-                intersection = point.intersection(p);
+//                intersection = point.intersection(p);
 //                intersection = p.intersection(point);
-                
                 if (intersection.isEmpty()) {
 //                intersection = poly.intersection(geometry2);
 //                if (intersection.isEmpty()) {
@@ -270,6 +265,9 @@ public abstract class SARIC_Catchment extends SARIC_Object {
                     //System.out.println("Point " + point + " does not intersect.");
                     //System.out.println("Poly " + poly + " does not intersect.");
                 } else {
+                    //System.out.println("Intersection");
+                    //System.out.println("row, col " + row + ", " + col);
+                    //System.out.println("x, y " + x + ", " + y);
                     resultGrid.setCell(row, col, 0.0d, true);
                 }
             }
@@ -315,7 +313,7 @@ public abstract class SARIC_Catchment extends SARIC_Object {
             for (long col = 0; col < ncols; col++) {
                 x = resultGrid.getCellXDouble(col, true);
                 v = resultGrid.getCell(row, col, true);
-                //if (v != noDataValue) {
+                if (v != noDataValue) {
                     ite = sites.iterator();
                     minDistance = Double.MAX_VALUE;
                     while (ite.hasNext()) {
@@ -331,7 +329,7 @@ public abstract class SARIC_Catchment extends SARIC_Object {
                         }
                     }
                     //System.out.println("minDistance from x " + x + ", y " + y + " = " + minDistance + " siteID " + site.getId());
-                //}
+                }
             }
         }
         return result;

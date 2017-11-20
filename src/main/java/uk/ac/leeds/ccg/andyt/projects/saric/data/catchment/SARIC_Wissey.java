@@ -76,11 +76,12 @@ public class SARIC_Wissey extends SARIC_Catchment {
      *
      * @return
      */
+    @Override
     public Vector_Envelope2D getBounds() {
         return getBounds(
                 new BigDecimal("562996.9681000011"),
-                new BigDecimal("288600.00000000186"),
                 new BigDecimal("599975.0000299839"),
+                new BigDecimal("288600.00000000186"),
                 new BigDecimal("313620.0"));
     }
     
@@ -90,11 +91,12 @@ public class SARIC_Wissey extends SARIC_Catchment {
      * 
      * @return
      */
+    @Override
     public Vector_Envelope2D get1KMGridBounds() {
         return getBounds(
                 new BigDecimal("562000"),
-                new BigDecimal("288000"),
                 new BigDecimal("600000"),
+                new BigDecimal("288000"),
                 new BigDecimal("314000"));
     }
 }

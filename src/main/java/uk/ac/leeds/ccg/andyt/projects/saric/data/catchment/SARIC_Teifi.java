@@ -161,11 +161,12 @@ public class SARIC_Teifi extends SARIC_Catchment {
      *
      * @return
      */
+    @Override
     public Vector_Envelope2D getBounds() {
         return getBounds(
                 new BigDecimal("218749.5025726173"),
-                new BigDecimal("231291.52626209427"),
                 new BigDecimal("279871.8842591159"),
+                new BigDecimal("231291.52626209427"),
                 new BigDecimal("270891.8510279902"));
     }
 
@@ -174,11 +175,12 @@ public class SARIC_Teifi extends SARIC_Catchment {
      *
      * @return
      */
+    @Override
     public Vector_Envelope2D get1KMGridBounds() {
         return getBounds(
                 new BigDecimal("218000"),
-                new BigDecimal("231000"),
                 new BigDecimal("280000"),
+                new BigDecimal("231000"),
                 new BigDecimal("271000"));
     }
 }

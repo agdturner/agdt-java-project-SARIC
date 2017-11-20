@@ -820,7 +820,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
      * @param tileMatrixSet
      * @param p
      * @param r
-     * @param AreaBoundingBox The bounding box of the area for which tiles are
+     * @param areaBoundingBox The bounding box of the area for which tiles are
      * requested.
      * @param areaName
      * @param overwrite If overwrite is true then an attempt is made to get new
@@ -832,10 +832,10 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
             String tileMatrixSet,
             SARIC_MetOfficeParameters p,
             SARIC_MetOfficeCapabilitiesXMLDOMReader r,
-            Vector_Envelope2D AreaBoundingBox,
+            Vector_Envelope2D areaBoundingBox,
             String areaName,
             boolean overwrite) {
-        System.out.println("AreaBoundingBox " + AreaBoundingBox);
+        System.out.println("AreaBoundingBox " + areaBoundingBox);
         TreeSet<SARIC_Time> times;
         times = r.getTimesInspireWMTS(layerName);
         p.setTimes(times);
@@ -884,7 +884,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
                     //System.out.println("col " + col);
                     tileBounds = lp.getTileBounds(row, col);
                     boolean intersects;
-                    intersects = tileBounds.getIntersects(AreaBoundingBox);
+                    intersects = tileBounds.getIntersects(areaBoundingBox);
                     if (intersects) {
                         System.out.println("Intersection in row " + row + ", col " + col);
                         System.out.println(tileBounds.toString());
@@ -935,7 +935,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
      * @param tileMatrixSet
      * @param p
      * @param r
-     * @param AreaBoundingBox The bounding box of the area for which tiles are
+     * @param areaBoundingBox The bounding box of the area for which tiles are
      * requested.
      * @param areaName
      * @param overwrite If overwrite is true then an attempt is made to get new
@@ -947,10 +947,10 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
             String tileMatrixSet,
             SARIC_MetOfficeParameters p,
             SARIC_MetOfficeCapabilitiesXMLDOMReader r,
-            Vector_Envelope2D AreaBoundingBox,
+            Vector_Envelope2D areaBoundingBox,
             String areaName,
             boolean overwrite) {
-        System.out.println("AreaBoundingBox " + AreaBoundingBox);
+        System.out.println("AreaBoundingBox " + areaBoundingBox);
         TreeSet<SARIC_Time> times;
         times = r.getTimesInspireWMTS(layerName);
         p.setTimes(times);
@@ -999,7 +999,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
                         //System.out.println("col " + col);
                         tileBounds = lp.getTileBounds(row, col);
                         boolean intersects;
-                        intersects = tileBounds.getIntersects(AreaBoundingBox);
+                        intersects = tileBounds.getIntersects(areaBoundingBox);
                         if (intersects) {
                             System.out.println("Intersection in row " + row + ", col " + col);
                             System.out.println(tileBounds.toString());

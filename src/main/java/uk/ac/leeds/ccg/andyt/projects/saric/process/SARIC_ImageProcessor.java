@@ -1395,8 +1395,8 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
             Grids_Dimensions dimensions;
             dimensions = new Grids_Dimensions(
                     tileBounds.XMin,
-                    tileBounds.YMin,
                     tileBounds.XMax,
+                    tileBounds.YMin,
                     tileBounds.YMax,
                     cellsize);
 //        dimensions[1] = tileBounds.XMin.subtract(cellsize.multiply(new BigDecimal(rowColint[1]).multiply(new BigDecimal(height)))); //XMIN
