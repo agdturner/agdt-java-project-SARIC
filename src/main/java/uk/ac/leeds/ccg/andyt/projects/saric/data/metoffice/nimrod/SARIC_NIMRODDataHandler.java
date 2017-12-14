@@ -165,10 +165,9 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
                 tgf.getDirectory(),
                 "TG1");
         tgf.setDirectory(dirt1);
-        tg1 = (Grids_GridDouble) tgf.create(
-                dirt1, tg0, 0, 0, 
+        tg1 = (Grids_GridDouble) tgf.create(dirt1, tg0, 0, 0, 
                 tg0.getNRows(true) - 1, tg0.getNCols(true) - 1,
-                ge.HandleOutOfMemoryError);
+                ge.HOOME);
         dirt2 = new File(
                 tgf.getDirectory(),
                 "TG2");
@@ -191,10 +190,9 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
                 wgf.getDirectory(),
                 "WG1");
         wgf.setDirectory(dirw1);
-        wg1 = (Grids_GridDouble) wgf.create(
-                dirw1, wg0, 0, 0, 
+        wg1 = (Grids_GridDouble) wgf.create(dirw1, wg0, 0, 0, 
                 wg0.getNRows(true) - 1, wg0.getNCols(true) - 1,
-                ge.HandleOutOfMemoryError);
+                ge.HOOME);
         dirw2 = new File(
                 wgf.getDirectory(),
                 "WG2");
@@ -208,14 +206,12 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
         range = 100;
 
         for (int i = 0; i < numberOf5MinutePeriodsIn24Hours; i++) {
-            tg2 = (Grids_GridDouble) tgf.create(
-                    dirt2, tg0, 0, 0,
+            tg2 = (Grids_GridDouble) tgf.create(dirt2, tg0, 0, 0,
                     tg0.getNRows(true) - 1, tg0.getNCols(true) - 1,
-                    ge.HandleOutOfMemoryError);
-            wg2 = (Grids_GridDouble) wgf.create(
-                    dirw2, wg0, 0, 0,
+                    ge.HOOME);
+            wg2 = (Grids_GridDouble) wgf.create(dirw2, wg0, 0, 0,
                     wg0.getNRows(true) - 1, wg0.getNCols(true) - 1,
-                    ge.HandleOutOfMemoryError);
+                    ge.HOOME);
             f = new File(
                     inputDir,
                     "metoffice-c-band-rain-radar_uk_" + st.getYYYYMMDDHHMM() + "_1km-composite.dat");

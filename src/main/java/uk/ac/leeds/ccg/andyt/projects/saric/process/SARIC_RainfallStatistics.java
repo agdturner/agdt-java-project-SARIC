@@ -590,12 +590,11 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
 //        dimensions[2] = dimensions[4].subtract(cellsize.multiply(new BigDecimal(height))); //YMIN
 //        dimensions[3] = dimensions[1].subtract(cellsize.multiply(new BigDecimal(width)));  //XMAX
 
-            result = (Grids_GridDouble) gf.create(
-                    Generic_StaticIO.createNewFile(gf.getDirectory()),
+            result = (Grids_GridDouble) gf.create(Generic_StaticIO.createNewFile(gf.getDirectory()),
                     height,
                     width,
                     dimensions,
-                    ge.HandleOutOfMemoryError);
+                    ge.HOOME);
 
             int[] pixels = new int[width * height];
             PixelGrabber pg = new PixelGrabber(image, 0, 0, width, height, pixels, 0, width);
@@ -646,13 +645,13 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
 //                        // There is no lower resolution image.
 //                        System.out.println(
 //                                "Warning: missing data in " + in + "!!!!!");
-//                        gp.addToGrid(result, 0.0d, HandleOutOfMemoryError);
+//                        gp.addToGrid(result, 0.0d, HOOME);
 //                        return result;
 //                    } else {
 ////                        System.out.println(
 ////                                "Warning: missing data in " + in + " in "
 ////                                + "row " + row + ", col " + col + "!!!!!");
-//                        result.setCell(row, col, 0.0d, HandleOutOfMemoryError);
+//                        result.setCell(row, col, 0.0d, HOOME);
 //                    }
 //                } else {
 //                    if (row == height - 1 && col == 0) {
@@ -721,26 +720,26 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
 //                                        value = lowerResGrid.getCell(
 //                                                row2 / 2,
 //                                                col2 / 2,
-//                                                HandleOutOfMemoryError);
+//                                                HOOME);
 //                                        break;
 //                                    case 1:
 //                                        value = lowerResGrid.getCell(
 //                                                (row2 / 2) + 128,
 //                                                col2 / 2,
-//                                                HandleOutOfMemoryError);
+//                                                HOOME);
 //                                        break;
 //                                    case 2:
 //                                        value = lowerResGrid.getCell(
 //                                                row2 / 2,
 //                                                (col2 / 2) + 128,
-//                                                HandleOutOfMemoryError);
+//                                                HOOME);
 //                                        break;
 //                                    default:
 //                                        // type == 3
 //                                        value = lowerResGrid.getCell(
 //                                                (row2 / 2) + 128,
 //                                                (col2 / 2) + 128,
-//                                                HandleOutOfMemoryError);
+//                                                HOOME);
 //                                        break;
 //                                }
 //
@@ -752,7 +751,7 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
 //                                        row2,
 //                                        col2,
 //                                        value,
-//                                        HandleOutOfMemoryError);
+//                                        HOOME);
 //                            }
 //                        }
 //                        System.out.println(result.toString(0, true));
@@ -763,7 +762,7 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
 ////                                "Warning: missing data in " + in + " in "
 ////                                + "row " + row + ", col " + col + ". "
 ////                                + "Getting lower resolution image.");
-//                        result.setCell(row, col, 0.0d, HandleOutOfMemoryError);
+//                        result.setCell(row, col, 0.0d, HOOME);
 //                    }
 //                }
                 } else {
@@ -773,7 +772,7 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
             }
 
             // Describe result
-            //System.out.println(result.toString(0, HandleOutOfMemoryError));
+            //System.out.println(result.toString(0, HOOME));
         } catch (NullPointerException e) {
             System.out.println("File " + in.toString() + " exists in "
                     + this.getClass().getName() + "." + methodName

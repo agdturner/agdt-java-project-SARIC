@@ -365,13 +365,12 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
             if (RunSARIC_ImageProcessor) {
 
                 // Main Switches
-                doImageProcessObservations = false;
 //                doImageProcessObservations = true;
+//                doImageProcessObservations = false;
                 doImageProcessForecasts = true;
 //                doImageProcessForecasts = false;
-
-                doWissey = true;
-//                doWissey = false;
+//                doWissey = true;
+                doWissey = false;
                 doTeifi = true;
 //                doTeifi = false;
 
@@ -405,13 +404,12 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
 
                 if (doImageProcessForecasts) {
                     // Switches
-                    doNonTiledObs = false;
-//                    doNonTiledFcs = false;
-                    doNonTiledFcs = true;
+                    doNonTiledFcs = false;
+//                    doNonTiledFcs = true;
                     //doTileFromWMTSService = false;
-//                    doTileFromWMTSService = true;
-//                    doObservationsTileFromWMTSService = false;
-//                    doForecastsTileFromWMTSService = true;
+                    doTileFromWMTSService = true;
+                    doObservationsTileFromWMTSService = false;
+                    doForecastsTileFromWMTSService = true;
 //                    doForecastsTileFromWMTSService = false;
                     overwrite = false;
                     File dirIn;

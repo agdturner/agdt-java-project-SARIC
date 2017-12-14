@@ -75,7 +75,6 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
     Grids_Environment ge;
     Grids_Processor gp;
     Grids_GridDoubleFactory gf;
-    double NoDataValue = -9999.0;
     Grids_ESRIAsciiGridExporter ae;
     Grids_ImageExporter ie;
     File dirIn;
@@ -136,7 +135,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                 gp.getDirectory(true),
                 gp.GridChunkDoubleFactory,
                 gp.DefaultGridChunkDoubleFactory,
-                NoDataValue,
+                -Double.MAX_VALUE,
                 256,
                 256,
                 new Grids_Dimensions(256, 256),
@@ -217,7 +216,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                 sw1KMGridMaskedToCatchment = sw.get1KMGridMaskedToCatchment();
             }
 
-            // Initialisation for Wissey
+            // Initialisation for Teifi
             Object[] st1KMGrid = null;
             Object[] st1KMGridMaskedToCatchment = null;
             if (doTeifi) {
@@ -582,7 +581,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
         Vector_Envelope2D tileBounds;
         Boolean HandleOutOfMemoryError = true;
         double weight;
-        weight = 1d;
+        weight = 3d; // These are 3 hourly forecasts.
         String outDirName;
         String outDirNameCheck;
         String indirname;
@@ -592,10 +591,10 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
         String rowCol;
 //        int row;
 //        int col;
-        double x;
-        double y;
-        double halfcellsize;
-        halfcellsize = cellsize.doubleValue() / 2.0d;
+        BigDecimal x;
+        BigDecimal y;
+        BigDecimal halfcellsize;
+        halfcellsize = cellsize.divide(BigDecimal.valueOf(2L));
 
         Grids_GridDouble g;
         File outascii;
@@ -617,7 +616,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
         String name1;
 
         TreeMap<SARIC_Date, HashMap<String, Grids_GridDouble>> grids0;
-        HashMap<SARIC_Date, Integer> counts;
+        HashMap<SARIC_Date, Double> counts;
         HashMap<String, Grids_GridDouble> grids1;
 
         Grids_AbstractGridNumberStatistics gs;
@@ -670,6 +669,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                 } else {
                     outdir2.mkdirs();
                     indirs0 = indir2.listFiles();
+                    // Aggregate forecasts for each tile.
                     if (indirs0 != null) {
                         for (int j = 0; j < indirs0.length; j++) {
                             if (!indirs0[j].isDirectory()) {
@@ -677,7 +677,10 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                                         + "Input directory given by " + indirs0[j] + " is not a directory.");
                             } else {
                                 indirname2 = indirs0[j].getName();
-                                time0 = new SARIC_Time(se, indirname2);
+                                time0 = new SARIC_Time(se, indirname2,
+                                        se.getStrings().symbol_minus,
+                                        se.getStrings().string_T,
+                                        se.getStrings().symbol_underscore);
                                 for (int k = 0; k <= 36; k += 3) {
                                     time1 = new SARIC_Time(time0);
                                     time1.addHours(k);
@@ -715,9 +718,9 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                                                     }
                                                 }
                                                 if (counts.containsKey(date1)) {
-                                                    counts.put(date1, counts.get(date1) + 1);
+                                                    counts.put(date1, counts.get(date1) + 1/(double)infiles.length);
                                                 } else {
-                                                    counts.put(date1, 1);
+                                                    counts.put(date1, 1/(double)infiles.length);
                                                 }
                                             }
                                         }
@@ -727,7 +730,9 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                         }
                     }
 
-                    Grids_GridDouble b1KMGrid;
+                    Grids_GridDouble b1KMGridMaskedToCatchment;
+                    Grids_GridDouble b1KMGridMaskedToCatchmentN;
+                    Grids_GridDouble b1KMGridMaskedToCatchmentD;
                     double vb;
                     double v;
 
@@ -738,12 +743,21 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                         date1 = ite.next();
                         name1 = name0 + date1;
 
-                        System.out.println("<Duplicate a1KMGrid>");
+                        System.out.println("<Duplicate a1KMGrid and a1KMGridMaskedToCatchment>");
                         Grids_GridDoubleFactory f;
                         f = (Grids_GridDoubleFactory) a1KMGrid[1];
-                        b1KMGrid = (Grids_GridDouble) f.create((Grids_GridDouble) a1KMGrid[0]);
-                        //b1KMGrid = (Grids_GridDouble) a1KMGrid[0];
-                        System.out.println("</Duplicate a1KMGrid>");
+                        long nrows1km = ((Grids_GridDouble) a1KMGridMaskedToCatchment[0]).getNRows(true);
+                        long ncols1km = ((Grids_GridDouble) a1KMGridMaskedToCatchment[0]).getNCols(true);
+                                
+                        b1KMGridMaskedToCatchment = (Grids_GridDouble) f.create((Grids_GridDouble) a1KMGridMaskedToCatchment[0], 0L, 0L, nrows1km - 1, ncols1km - 1);
+                        b1KMGridMaskedToCatchmentN = (Grids_GridDouble) f.create((Grids_GridDouble) a1KMGridMaskedToCatchment[0], 0L, 0L, nrows1km - 1, ncols1km - 1);
+                        b1KMGridMaskedToCatchmentD = (Grids_GridDouble) f.create((Grids_GridDouble) a1KMGridMaskedToCatchment[0], 0L, 0L, nrows1km - 1, ncols1km - 1);
+                        //System.out.println("b1KMGrid " + b1KMGrid);
+                        //b1KMGridMaskedToCatchment = (Grids_GridDouble) a1KMGridMaskedToCatchment[0];
+                        //b1KMGridMaskedToCatchmentD = (Grids_GridDouble) a1KMGridMaskedToCatchment[0];
+                        //System.out.println("b1KMGridMaskedToCatchment " + b1KMGridMaskedToCatchment);
+                        double noDataValue = b1KMGridMaskedToCatchment.getNoDataValue(true);
+                        System.out.println("</Duplicate a1KMGrid and a1KMGridMaskedToCatchment>");
 
                         grids1 = grids0.get(date1);
                         ite2 = grids1.keySet().iterator();
@@ -751,29 +765,47 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                             rowCol = ite2.next();
                             int[] rowColint;
                             rowColint = getRowCol(rowCol);
+                            //System.out.println("rowColint[0] (row) " + rowColint[0]);
+                            //System.out.println("rowColint[1] (col) " + rowColint[1]);
                             g = grids1.get(rowCol);
+                            //System.out.println("g " + g);
                             // Iterate over grid and get values
-                            long nrows = b1KMGrid.getNRows(true);
-                            long ncols = b1KMGrid.getNCols(true);
+                            long nrows = g.getNRows(true);
+                            long ncols = g.getNCols(true);
+                            long bRow;
+                            long bCol;
                             for (long row = 0; row < nrows; row++) {
-                                //y = b1KMGrid.getCellYDouble(row, true);
-                                y = b1KMGrid.getCellYDouble(row, true) + halfcellsize; // adding half a cellsize is in an attempt to prevent striping where images join.
+                                //y = g.getCellYBigDecimal(row, true).add(halfcellsize); // adding half a cellsize is in an attempt to prevent striping where images join.
+                                y = g.getCellYBigDecimal(row);
+                                //System.out.println("y " + y);
+                                bRow = b1KMGridMaskedToCatchment.getRow(y);
+                                //System.out.println("bRow " + bRow);
                                 for (long col = 0; col < ncols; col++) {
-                                    vb = a1KMGridMaskedToCatchmentGrid.getCell(row, col, true);
-                                    if (vb != NoDataValue) {
-                                        //x = b1KMGrid.getCellXDouble(col, true);
-                                        x = b1KMGrid.getCellXDouble(col, true) + halfcellsize; // adding half a cellsize is in an attempt to prevent striping where images join.
-                                        v = g.getCell(x, y, true);
-                                        if (v != NoDataValue) {
-                                            //System.out.println("Value at (x, y) (" + x + ", " + y + ")= " + v);
-                                            //b1KMGrid.setCell(row, col, v, true);
-                                            b1KMGrid.addToCell(row, col, v, true);
+                                    //x = g.getCellXBigDecimal(col, true).add(halfcellsize); // adding half a cellsize is in an attempt to prevent striping where images join.
+                                    x = g.getCellXBigDecimal(col);
+                                    //System.out.println("x " + x);
+                                    bCol = b1KMGridMaskedToCatchment.getCol(x);
+                                    //System.out.println("bCol " + bCol);
+                                    if (b1KMGridMaskedToCatchment.isInGrid(bRow, bCol)) {
+                                    vb = b1KMGridMaskedToCatchment.getCell(bRow, bCol);
+                                    if (vb != noDataValue) {
+                                        v = g.getCell(row, col);
+                                        //System.out.println("Row, Col " + bRow + ", " + bCol);
+                                        if (v != noDataValue) {
+                                            b1KMGridMaskedToCatchmentN.addToCell(bRow, bCol, v);
+                                            b1KMGridMaskedToCatchmentD.addToCell(bRow, bCol, 1.0d);
                                         }
                                     } else {
                                         //System.out.println("Out of study area.");
+                                        //b1KMGrid.setCell(row, col, noDataValue, true);
+                                    }
                                     }
                                 }
                             }
+                            b1KMGridMaskedToCatchment = gp.divide(
+                                    b1KMGridMaskedToCatchmentN,
+                                    b1KMGridMaskedToCatchmentD, false);
+                                    
                             /**
                              * The scaleFactor is the number of grids divided by
                              * the number of hours in the day
@@ -806,14 +838,17 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
 //                            outascii = new File(
 //                                    outdir2,
 //                                    s + "_ForecastFor_" + date1.getYYYYMMDD() + ".asc");
+
                         }
-                        gs = b1KMGrid.getStatistics(true);
+                        gs = b1KMGridMaskedToCatchment.getStatistics(true);
                         max = gs.getMax(true, true).doubleValue();
                         min = gs.getMin(true, true).doubleValue();
                         System.out.println("max " + max);
                         System.out.println("min " + min);
                         scaleFactor = 24.0d / (double) counts.get(date1);
-                        g = gp.rescale(b1KMGrid, null, min * scaleFactor, max * scaleFactor, true);
+
+                        g = gp.rescale(b1KMGridMaskedToCatchment, null, min * scaleFactor, max * scaleFactor, true);
+                        //g = b1KMGrid;
 
                         // Output as tiles
                         outascii = new File(
@@ -1302,6 +1337,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                     f = (Grids_GridDoubleFactory) a1KMGrid[1];
                     b1KMGrid = (Grids_GridDouble) f.create((Grids_GridDouble) a1KMGrid[0]);
                     //b1KMGrid = (Grids_GridDouble) a1KMGrid[0];
+                    double noDataValue = b1KMGrid.getNoDataValue(true);
                     System.out.println("</Duplicate a1KMGrid>");
                     double vb;
                     double v;
@@ -1321,11 +1357,11 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                             y = b1KMGrid.getCellYDouble(row, true) + halfcellsize; // adding half a cellsize is in an attempt to prevent striping where images join.
                             for (long col = 0; col < ncols; col++) {
                                 vb = a1KMGridMaskedToCatchmentGrid.getCell(row, col, true);
-                                if (vb != NoDataValue) {
+                                if (vb != noDataValue) {
                                     //x = b1KMGrid.getCellXDouble(col, true);
                                     x = b1KMGrid.getCellXDouble(col, true) + halfcellsize; // adding half a cellsize is in an attempt to prevent striping where images join.
                                     v = g.getCell(x, y, true);
-                                    if (v != NoDataValue) {
+                                    if (v != noDataValue) {
                                         //System.out.println("Value at (x, y) (" + x + ", " + y + ")= " + v);
                                         //b1KMGrid.setCell(row, col, v, true);
                                         b1KMGrid.addToCell(row, col, v, true);

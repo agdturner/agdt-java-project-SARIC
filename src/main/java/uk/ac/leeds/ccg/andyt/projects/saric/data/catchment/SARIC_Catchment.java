@@ -177,7 +177,7 @@ public abstract class SARIC_Catchment extends SARIC_Object {
                 (int) ncols,
                 dimensions,
                 new Grids_GridDoubleStatistics(_Grids_Environment));
-        grid = f.create(dir, nrows, ncols, dimensions, _Grids_Environment.HandleOutOfMemoryError);
+        grid = f.create(dir, nrows, ncols, dimensions, _Grids_Environment.HOOME);
         result[0] = grid;
 //        System.out.println("grid " + grid);
         result[1] = f;
@@ -197,8 +197,8 @@ public abstract class SARIC_Catchment extends SARIC_Object {
         // Get Outline
         Geometry geometry2;
         geometry2 = getOutlineGeometry();
-        MultiPolygon p = (MultiPolygon) geometry2;
-        System.out.println(p.toString());
+        //MultiPolygon p = (MultiPolygon) geometry2;
+        //System.out.println(p.toString());
         GeometryFactory gf;
         gf = JTSFactoryFinder.getGeometryFactory();
   //      Polygon p = new Polygon(geometry2, null, gf);
@@ -254,7 +254,8 @@ public abstract class SARIC_Catchment extends SARIC_Object {
 //                feature = sfb.buildFeature(null);
 //                geometry = (Geometry) feature.getDefaultGeometry();
 //                intersection = geometry.intersection(geometry2);
-                intersection = poly.intersection(p);
+//                intersection = poly.intersection(p);
+                intersection = poly.intersection(geometry2);
 //                intersection = p.intersection(poly);
 //                intersection = point.intersection(p);
 //                intersection = p.intersection(point);
@@ -272,6 +273,7 @@ public abstract class SARIC_Catchment extends SARIC_Object {
                 }
             }
         }
+        System.out.println("Catchment mask " +  resultGrid);
         return result;
     }
 
