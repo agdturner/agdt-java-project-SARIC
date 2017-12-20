@@ -46,7 +46,7 @@ import uk.ac.leeds.ccg.andyt.grids.core.Grids_Environment;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_GridDouble;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.chunk.Grids_GridChunkDoubleArrayFactory;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_GridDoubleFactory;
-import uk.ac.leeds.ccg.andyt.grids.core.grid.statistics.Grids_GridDoubleStatistics;
+import uk.ac.leeds.ccg.andyt.grids.core.grid.stats.Grids_GridDoubleStats;
 import uk.ac.leeds.ccg.andyt.grids.process.Grids_Processor;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Object;
@@ -176,7 +176,7 @@ public abstract class SARIC_Catchment extends SARIC_Object {
                 (int) nrows,
                 (int) ncols,
                 dimensions,
-                new Grids_GridDoubleStatistics(_Grids_Environment));
+                new Grids_GridDoubleStats(_Grids_Environment));
         grid = f.create(dir, nrows, ncols, dimensions, _Grids_Environment.HOOME);
         result[0] = grid;
 //        System.out.println("grid " + grid);

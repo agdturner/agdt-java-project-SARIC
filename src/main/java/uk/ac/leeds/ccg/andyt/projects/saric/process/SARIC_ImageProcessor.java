@@ -35,11 +35,11 @@ import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import uk.ac.leeds.ccg.andyt.grids.core.Grids_Dimensions;
-import uk.ac.leeds.ccg.andyt.grids.core.grid.statistics.Grids_AbstractGridNumberStatistics;
+import uk.ac.leeds.ccg.andyt.grids.core.grid.stats.Grids_AbstractGridNumberStats;
 import uk.ac.leeds.ccg.andyt.grids.core.Grids_Environment;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_GridDouble;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_GridDoubleFactory;
-import uk.ac.leeds.ccg.andyt.grids.core.grid.statistics.Grids_GridDoubleStatisticsNotUpdated;
+import uk.ac.leeds.ccg.andyt.grids.core.grid.stats.Grids_GridDoubleStatsNotUpdated;
 import uk.ac.leeds.ccg.andyt.grids.io.Grids_ESRIAsciiGridExporter;
 import uk.ac.leeds.ccg.andyt.grids.io.Grids_ImageExporter;
 import uk.ac.leeds.ccg.andyt.grids.process.Grids_Processor;
@@ -139,7 +139,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                 256,
                 256,
                 new Grids_Dimensions(256, 256),
-                new Grids_GridDoubleStatisticsNotUpdated(ge));
+                new Grids_GridDoubleStatsNotUpdated(ge));
         gp.GridDoubleFactory = gf;
     }
 
@@ -619,7 +619,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
         HashMap<SARIC_Date, Double> counts;
         HashMap<String, Grids_GridDouble> grids1;
 
-        Grids_AbstractGridNumberStatistics gs;
+        Grids_AbstractGridNumberStats gs;
         double max;
         double min;
         double scaleFactor;
@@ -1143,8 +1143,8 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
     //                    }
     //                }
     //                g = output1kmGrids.get(time);
-    //                Grids_AbstractGridNumberStatistics gs;
-    //                gs = g.getStatistics(true);
+    //                Grids_AbstractGridNumberStats gs;
+    //                gs = g.getStats(true);
     //                double max = gs.getMaxDouble(true);
     //                double min = gs.getMinDouble(true);
     //                /**
@@ -1631,7 +1631,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
 //                            }
 //                        }
 //                        System.out.println(result.toString(0, true));
-//                        System.out.println("Max " + result.getStatistics(true).getMaxDouble(true));
+//                        System.out.println("Max " + result.getStats(true).getMaxDouble(true));
 //                        return result;
 //                    } else {
 ////                        System.out.println(

@@ -34,7 +34,7 @@ import uk.ac.leeds.ccg.andyt.grids.core.Grids_Dimensions;
 import uk.ac.leeds.ccg.andyt.grids.core.Grids_Environment;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_GridDouble;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_GridDoubleFactory;
-import uk.ac.leeds.ccg.andyt.grids.core.grid.statistics.Grids_GridDoubleStatisticsNotUpdated;
+import uk.ac.leeds.ccg.andyt.grids.core.grid.stats.Grids_GridDoubleStatsNotUpdated;
 import uk.ac.leeds.ccg.andyt.grids.io.Grids_ESRIAsciiGridExporter;
 import uk.ac.leeds.ccg.andyt.grids.io.Grids_ImageExporter;
 import uk.ac.leeds.ccg.andyt.grids.process.Grids_Processor;
@@ -118,7 +118,7 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
                 256,
                 256,
                 new Grids_Dimensions(256, 256),
-                new Grids_GridDoubleStatisticsNotUpdated(ge));
+                new Grids_GridDoubleStatsNotUpdated(ge));
         gf.setNoDataValue(noDataValue);
         gp.GridDoubleFactory = gf;
     }
@@ -755,7 +755,7 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
 //                            }
 //                        }
 //                        System.out.println(result.toString(0, true));
-//                        System.out.println("Max " + result.getStatistics(true).getMaxDouble(true));
+//                        System.out.println("Max " + result.getStats(true).getMaxDouble(true));
 //                        return result;
 //                    } else {
 ////                        System.out.println(
