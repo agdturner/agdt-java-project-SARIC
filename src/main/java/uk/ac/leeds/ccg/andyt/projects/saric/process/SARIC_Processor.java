@@ -369,7 +369,7 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
 //                doImageProcessObservations = false;
                 doImageProcessForecasts = true;
 //                doImageProcessForecasts = false;
-//                doWissey = true;
+                doWissey = true;
                 doWissey = false;
                 doTeifi = true;
 //                doTeifi = false;

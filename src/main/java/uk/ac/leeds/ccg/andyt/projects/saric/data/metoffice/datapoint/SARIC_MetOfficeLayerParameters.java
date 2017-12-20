@@ -36,10 +36,10 @@ public class SARIC_MetOfficeLayerParameters extends SARIC_Object {
     BigDecimal cellsize;
     HashMap<Integer, Vector_Envelope2D> tileBounds;
     SARIC_MetOfficeParameters metOfficeParameters;
-    
+
     private SARIC_MetOfficeLayerParameters() {
     }
-    
+
     public SARIC_MetOfficeLayerParameters(
             SARIC_Environment se,
             BigDecimal cellsize,
@@ -48,7 +48,7 @@ public class SARIC_MetOfficeLayerParameters extends SARIC_Object {
         this.cellsize = cellsize;
         this.metOfficeParameters = metOfficeParameters;
     }
-    
+
     public int getNrows() {
         return nrows;
     }
@@ -69,7 +69,7 @@ public class SARIC_MetOfficeLayerParameters extends SARIC_Object {
         return cellsize;
     }
 
-    public HashMap<Integer,Vector_Envelope2D> getTileBounds() {
+    public HashMap<Integer, Vector_Envelope2D> getTileBounds() {
         if (tileBounds == null) {
             tileBounds = new HashMap<>();
         }
@@ -87,23 +87,19 @@ public class SARIC_MetOfficeLayerParameters extends SARIC_Object {
             tileSize = metOfficeParameters.TwoFiveSix.multiply(cellsize);
             Vector_Point2D p;
             BigDecimal xmin;
-            xmin = metOfficeParameters.bounds.XMin.add(new BigDecimal(col).multiply(tileSize));
+            xmin = metOfficeParameters.bounds.XMin.add(
+                    new BigDecimal(col).multiply(tileSize));
             BigDecimal xmax;
             xmax = xmin.add(tileSize);
             BigDecimal ymax;
-            ymax = metOfficeParameters.bounds.YMax.subtract(new BigDecimal(row).multiply(tileSize));
+            ymax = metOfficeParameters.bounds.YMax.subtract(
+                    new BigDecimal(row).multiply(tileSize));
             BigDecimal ymin;
             ymin = ymax.subtract(tileSize);
-            p = new Vector_Point2D(
-                    se.getVector_Environment(),
-                    xmin,
-                    ymin);
+            p = new Vector_Point2D(se.getVector_Environment(), xmin, ymin);
             result = p.getEnvelope2D();
-            p = new Vector_Point2D(
-                    se.getVector_Environment(),
-                    xmax,
-                    ymax);
-            result = result.envelope(p.getEnvelope2D());            
+            p = new Vector_Point2D(se.getVector_Environment(), xmax, ymax);
+            result = result.envelope(p.getEnvelope2D());
         }
         return result;
     }

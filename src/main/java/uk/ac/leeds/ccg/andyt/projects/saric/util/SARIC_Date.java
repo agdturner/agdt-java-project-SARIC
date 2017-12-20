@@ -46,6 +46,11 @@ public class SARIC_Date
     }
 
     public SARIC_Date(
+            SARIC_Time t) {
+        this(t.se, t.LDT.toLocalDate());
+    }
+    
+    public SARIC_Date(
             SARIC_Environment se,
             LocalDate d) {
         super(se, YearMonth.from(d));
@@ -95,7 +100,6 @@ public class SARIC_Date
     public boolean isSameDay(SARIC_Date t) {
         return LD.isEqual(t.LD);
     }
-
     
     public String getDD() {
         String result = "";

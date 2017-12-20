@@ -238,6 +238,8 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                     cellsize = r.getCellsize(tileMatrix);
                     if (lp == null) {
                         lp = new SARIC_MetOfficeLayerParameters(se, cellsize, p);
+                        lp.setNrows(256);
+                        lp.setNcols(256);
                     }
                     nrows = r.getNrows(tileMatrix);
                     ncols = r.getNcols(tileMatrix);
@@ -557,12 +559,8 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
         System.out.println("Area " + area);
         path = "inspire/view/wmts0/" + area + "/" + layerName + "/EPSG_27700_";
         System.out.println("scale " + scale);
-        indir0 = new File(
-                Files.getInputDataMetOfficeDataPointDir(),
-                path + scale);
-        outdir0 = new File(
-                Files.getOutputDataMetOfficeDataPointDir(),
-                path + scale);
+        indir0 = new File(Files.getInputDataMetOfficeDataPointDir(), path + scale);
+        outdir0 = new File(Files.getOutputDataMetOfficeDataPointDir(), path + scale);
         ymDates = new TreeMap<>();
         indirs0 = indir0.listFiles();
         for (int i = 0; i < indirs0.length; i++) {
@@ -579,7 +577,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
         }
 
         Vector_Envelope2D tileBounds;
-        Boolean HandleOutOfMemoryError = true;
+        boolean hoome = true;
         double weight;
         weight = 3d; // These are 3 hourly forecasts.
         String outDirName;
@@ -596,7 +594,6 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
         BigDecimal halfcellsize;
         halfcellsize = cellsize.divide(BigDecimal.valueOf(2L));
 
-        Grids_GridDouble g;
         File outascii;
         File outpng;
         File outpng2;
@@ -616,8 +613,9 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
         String name1;
 
         TreeMap<SARIC_Date, HashMap<String, Grids_GridDouble>> grids0;
-        HashMap<SARIC_Date, Double> counts;
+        HashMap<SARIC_Date, HashMap<String, Double>> counts0;
         HashMap<String, Grids_GridDouble> grids1;
+        HashMap<String, Double> counts1;
 
         Grids_AbstractGridNumberStatistics gs;
         double max;
@@ -632,12 +630,8 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
             s = ym.getYYYYMM();
             dates = ymDates.get(ym);
             System.out.println(s);
-            outdir1 = new File(
-                    outdir0,
-                    s);
-            indir1 = new File(
-                    indir0,
-                    s);
+            outdir1 = new File(outdir0, s);
+            indir1 = new File(indir0, s);
             ite1 = dates.iterator();
             while (ite1.hasNext()) {
                 date0 = ite1.next();
@@ -649,21 +643,16 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                  * tomorrow and the day after.
                  */
                 grids0 = new TreeMap<>();
-                counts = new HashMap<>();
+                counts0 = new HashMap<>();
                 tomorrow = new SARIC_Date(date0);
                 tomorrow.addDays(1);
                 dayAfterTomorrow = new SARIC_Date(tomorrow);
                 dayAfterTomorrow.addDays(1);
-                outdir2 = new File(
-                        outdir1,
-                        s);
-                indir2 = new File(
-                        indir1,
-                        s);
+                outdir2 = new File(outdir1, s);
+                indir2 = new File(indir1, s);
                 name0 = s + "_ForecastFor_";
-                outascii = new File(
-                        outdir2,
-                        name0 + date0.getYYYYMMDD() + ".asc");
+                outascii = new File(outdir2, name0 + date0.getYYYYMMDD() + ".asc");
+                int[] rowColint;
                 if (!overwrite && outascii.exists()) {
                     System.out.println("Not computing for " + date0.getYYYYMMDD() + " output already exists. To recompute delete or rename output.");
                 } else {
@@ -684,17 +673,17 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                                 for (int k = 0; k <= 36; k += 3) {
                                     time1 = new SARIC_Time(time0);
                                     time1.addHours(k);
-                                    indir3 = new File(
-                                            indirs0[j],
-                                            "" + k);
+                                    indir3 = new File(indirs0[j], "" + k);
                                     date1 = time1.getDate();
                                     System.out.println(date1);
-
                                     if (grids0.containsKey(date1)) {
                                         grids1 = grids0.get(date1);
+                                        counts1 = counts0.get(date1);
                                     } else {
                                         grids1 = new HashMap<>();
                                         grids0.put(date1, grids1);
+                                        counts1 = new HashMap<>();
+                                        counts0.put(date1, counts1);
                                     }
                                     if (indir3.exists()) {
                                         infiles = indir3.listFiles();
@@ -702,25 +691,24 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                                             int DEBUG = 1;
                                         } else {
                                             for (int l = 0; l < infiles.length; l++) {
+                                                System.out.println("Infile " + infiles[l]);
                                                 rowCol = infiles[l].getName().split(indirname2)[1];
-                                                int[] rowColint;
+                                                System.out.println(rowCol);
                                                 rowColint = getRowCol(rowCol);
                                                 tileBounds = lp.getTileBounds(rowColint[0], rowColint[1]);
-                                                System.out.println("Infile " + infiles[l]);
-                                                g = getGrid(infiles[l], cellsize, tileBounds, layerName, rowColint);
-                                                if (g != null) {
-                                                    if (grids1.containsKey(rowCol)) {
-                                                        Grids_GridDouble gridToAddTo;
-                                                        gridToAddTo = grids1.get(rowCol);
-                                                        gp.addToGrid(gridToAddTo, g, weight, true);
-                                                    } else {
-                                                        grids1.put(rowCol, g);
-                                                    }
-                                                }
-                                                if (counts.containsKey(date1)) {
-                                                    counts.put(date1, counts.get(date1) + 1/(double)infiles.length);
+                                                Grids_GridDouble g;
+                                                Grids_GridDouble g2;
+                                                g2 = getGrid(infiles[l], cellsize, tileBounds, layerName, rowColint);
+                                                if (grids1.containsKey(rowCol)) {
+                                                    g = grids1.get(rowCol);
+                                                    gp.addToGrid(g, g2, 1.0d, true);
+                                                    grids1.put(rowCol, g); // Is this really necessary?
+                                                    double d = counts1.get(rowCol);
+                                                    d += 1.0d;
+                                                    counts1.put(rowCol, d);
                                                 } else {
-                                                    counts.put(date1, 1/(double)infiles.length);
+                                                    grids1.put(rowCol, g2);
+                                                    counts1.put(rowCol, 1.0d);
                                                 }
                                             }
                                         }
@@ -729,151 +717,141 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                             }
                         }
                     }
-
-                    Grids_GridDouble b1KMGridMaskedToCatchment;
-                    Grids_GridDouble b1KMGridMaskedToCatchmentN;
-                    Grids_GridDouble b1KMGridMaskedToCatchmentD;
-                    double vb;
-                    double v;
-
+                    // Push out aggregated results for each tile
                     Iterator<String> ite2;
                     Iterator<SARIC_Date> ite;
                     ite = grids0.keySet().iterator();
                     while (ite.hasNext()) {
                         date1 = ite.next();
                         name1 = name0 + date1;
-
-                        System.out.println("<Duplicate a1KMGrid and a1KMGridMaskedToCatchment>");
+                        grids1 = grids0.get(date1);
+                        counts1 = counts0.get(date1);
+                        ite2 = grids1.keySet().iterator();
+                        while (ite2.hasNext()) {
+                            rowCol = ite2.next();
+                            System.out.println(rowCol);
+                            rowColint = getRowCol(rowCol);
+                            Grids_GridDouble g;
+                            Grids_GridDouble g2;
+                            g = grids1.get(rowCol);
+                            double d = counts1.get(rowCol);
+                            /**
+                             * The scaleFactor normalises the precipitation
+                             * intensity.
+                             */
+                            gs = g.getStats(true);
+                            max = gs.getMax(true, true).doubleValue();
+                            min = gs.getMin(true, true).doubleValue();
+                            System.out.println("max " + max);
+                            System.out.println("min " + min);
+                            scaleFactor = 24.0d / d;
+                            System.out.println("scaleFactor " + scaleFactor);
+                            g2 = gp.rescale(g, null, min * scaleFactor, max * scaleFactor, true);
+                            // Output as tiles
+                            outascii = new File(outdir2,
+                                    name1 + "_" + rowColint[0] + "_" + rowColint[1] + ".asc");
+                            outpng = new File(outdir2,
+                                    name1 + "_" + rowColint[0] + "_" + rowColint[1] + ".png");
+                            outpng2 = new File(outdir2,
+                                    name1 + "_" + rowColint[0] + "_" + rowColint[1] + "Color.png");
+                            ae.toAsciiFile(g2, outascii, hoome);
+                            ie.toGreyScaleImage(g2, gp, outpng, "png", hoome);
+                            ie.toColourImage(0, colorMap, noDataValueColor, g2, outpng2, "png", hoome);
+                        }
+                    }
+                    // Aggregate into catchment grid
+                    long nrows1km = a1KMGridMaskedToCatchmentGrid.getNRows();
+                    long ncols1km = a1KMGridMaskedToCatchmentGrid.getNCols();
+                    Grids_GridDouble b1KMGridMaskedToCatchment;
+                    Grids_GridDouble b1KMGridMaskedToCatchmentN;
+                    Grids_GridDouble b1KMGridMaskedToCatchmentD;
+                    double vb;
+                    double v;
+                    ite = grids0.keySet().iterator();
+                    while (ite.hasNext()) {
+                        date1 = ite.next();
+                        name1 = name0 + date1;
+                        System.out.println("<Duplicate 1KMGridMaskedToCatchment>");
                         Grids_GridDoubleFactory f;
                         f = (Grids_GridDoubleFactory) a1KMGrid[1];
-                        long nrows1km = ((Grids_GridDouble) a1KMGridMaskedToCatchment[0]).getNRows(true);
-                        long ncols1km = ((Grids_GridDouble) a1KMGridMaskedToCatchment[0]).getNCols(true);
-                                
-                        b1KMGridMaskedToCatchment = (Grids_GridDouble) f.create((Grids_GridDouble) a1KMGridMaskedToCatchment[0], 0L, 0L, nrows1km - 1, ncols1km - 1);
-                        b1KMGridMaskedToCatchmentN = (Grids_GridDouble) f.create((Grids_GridDouble) a1KMGridMaskedToCatchment[0], 0L, 0L, nrows1km - 1, ncols1km - 1);
-                        b1KMGridMaskedToCatchmentD = (Grids_GridDouble) f.create((Grids_GridDouble) a1KMGridMaskedToCatchment[0], 0L, 0L, nrows1km - 1, ncols1km - 1);
-                        //System.out.println("b1KMGrid " + b1KMGrid);
-                        //b1KMGridMaskedToCatchment = (Grids_GridDouble) a1KMGridMaskedToCatchment[0];
-                        //b1KMGridMaskedToCatchmentD = (Grids_GridDouble) a1KMGridMaskedToCatchment[0];
-                        //System.out.println("b1KMGridMaskedToCatchment " + b1KMGridMaskedToCatchment);
-                        double noDataValue = b1KMGridMaskedToCatchment.getNoDataValue(true);
-                        System.out.println("</Duplicate a1KMGrid and a1KMGridMaskedToCatchment>");
-
+                        b1KMGridMaskedToCatchment = (Grids_GridDouble) f.create(
+                                a1KMGridMaskedToCatchmentGrid,
+                                0L, 0L, nrows1km - 1, ncols1km - 1);
+                        b1KMGridMaskedToCatchmentN = (Grids_GridDouble) f.create(
+                                a1KMGridMaskedToCatchmentGrid,
+                                0L, 0L, nrows1km - 1, ncols1km - 1);
+                        b1KMGridMaskedToCatchmentD = (Grids_GridDouble) f.create(
+                                a1KMGridMaskedToCatchmentGrid,
+                                0L, 0L, nrows1km - 1, ncols1km - 1);
+                        double noDataValue = b1KMGridMaskedToCatchment.getNoDataValue();
+                        System.out.println("</Duplicate 1KMGridMaskedToCatchment>");
                         grids1 = grids0.get(date1);
                         ite2 = grids1.keySet().iterator();
                         while (ite2.hasNext()) {
                             rowCol = ite2.next();
-                            int[] rowColint;
-                            rowColint = getRowCol(rowCol);
                             //System.out.println("rowColint[0] (row) " + rowColint[0]);
                             //System.out.println("rowColint[1] (col) " + rowColint[1]);
+                            Grids_GridDouble g;
                             g = grids1.get(rowCol);
                             //System.out.println("g " + g);
                             // Iterate over grid and get values
-                            long nrows = g.getNRows(true);
-                            long ncols = g.getNCols(true);
+                            long nrows = g.getNRows();
+                            long ncols = g.getNCols();
                             long bRow;
                             long bCol;
                             for (long row = 0; row < nrows; row++) {
-                                //y = g.getCellYBigDecimal(row, true).add(halfcellsize); // adding half a cellsize is in an attempt to prevent striping where images join.
                                 y = g.getCellYBigDecimal(row);
                                 //System.out.println("y " + y);
                                 bRow = b1KMGridMaskedToCatchment.getRow(y);
                                 //System.out.println("bRow " + bRow);
                                 for (long col = 0; col < ncols; col++) {
-                                    //x = g.getCellXBigDecimal(col, true).add(halfcellsize); // adding half a cellsize is in an attempt to prevent striping where images join.
                                     x = g.getCellXBigDecimal(col);
                                     //System.out.println("x " + x);
                                     bCol = b1KMGridMaskedToCatchment.getCol(x);
                                     //System.out.println("bCol " + bCol);
                                     if (b1KMGridMaskedToCatchment.isInGrid(bRow, bCol)) {
-                                    vb = b1KMGridMaskedToCatchment.getCell(bRow, bCol);
-                                    if (vb != noDataValue) {
-                                        v = g.getCell(row, col);
-                                        //System.out.println("Row, Col " + bRow + ", " + bCol);
-                                        if (v != noDataValue) {
-                                            b1KMGridMaskedToCatchmentN.addToCell(bRow, bCol, v);
-                                            b1KMGridMaskedToCatchmentD.addToCell(bRow, bCol, 1.0d);
+                                        vb = b1KMGridMaskedToCatchment.getCell(bRow, bCol);
+                                        if (vb != noDataValue) {
+                                            v = g.getCell(row, col);
+                                            //System.out.println("Row, Col " + bRow + ", " + bCol);
+                                            if (v != noDataValue) {
+                                                b1KMGridMaskedToCatchmentN.addToCell(bRow, bCol, v);
+                                                b1KMGridMaskedToCatchmentD.addToCell(bRow, bCol, 1.0d);
+                                            }
+                                        } else {
+                                            //System.out.println("Out of study area.");
+                                            //b1KMGrid.setCell(row, col, noDataValue, true);
                                         }
-                                    } else {
-                                        //System.out.println("Out of study area.");
-                                        //b1KMGrid.setCell(row, col, noDataValue, true);
-                                    }
                                     }
                                 }
                             }
-                            b1KMGridMaskedToCatchment = gp.divide(
-                                    b1KMGridMaskedToCatchmentN,
-                                    b1KMGridMaskedToCatchmentD, false);
-                                    
-                            /**
-                             * The scaleFactor is the number of grids divided by
-                             * the number of hours in the day
-                             */
-                            gs = g.getStatistics(true);
-                            max = gs.getMax(true, true).doubleValue();
-                            min = gs.getMin(true, true).doubleValue();
-                            System.out.println("max " + max);
-                            System.out.println("min " + min);
-
-                            if (counts.get(date1) == null) {
-                                System.out.println("counts.get(time) == null");
-                            } else {
-                                scaleFactor = 24.0d / (double) counts.get(date1);
-                                g = gp.rescale(g, null, min * scaleFactor, max * scaleFactor, true);
-                                // Output as tiles
-                                outascii = new File(
-                                        outdir2,
-                                        name1 + "_" + rowColint[0] + "_" + rowColint[1] + ".asc");
-                                outpng = new File(
-                                        outdir2,
-                                        name1 + "_" + rowColint[0] + "_" + rowColint[1] + ".png");
-                                outpng2 = new File(
-                                        outdir2,
-                                        name1 + "_" + rowColint[0] + "_" + rowColint[1] + "Color.png");
-                                ae.toAsciiFile(g, outascii, HandleOutOfMemoryError);
-                                ie.toGreyScaleImage(g, gp, outpng, "png", HandleOutOfMemoryError);
-                                ie.toColourImage(0, colorMap, noDataValueColor, g, outpng2, "png", HandleOutOfMemoryError);
-                            }
-//                            outascii = new File(
-//                                    outdir2,
-//                                    s + "_ForecastFor_" + date1.getYYYYMMDD() + ".asc");
-
                         }
-                        gs = b1KMGridMaskedToCatchment.getStatistics(true);
-                        max = gs.getMax(true, true).doubleValue();
-                        min = gs.getMin(true, true).doubleValue();
-                        System.out.println("max " + max);
-                        System.out.println("min " + min);
-                        scaleFactor = 24.0d / (double) counts.get(date1);
-
-                        g = gp.rescale(b1KMGridMaskedToCatchment, null, min * scaleFactor, max * scaleFactor, true);
-                        //g = b1KMGrid;
-
+                        b1KMGridMaskedToCatchment = gp.divide(
+                                b1KMGridMaskedToCatchmentN,
+                                b1KMGridMaskedToCatchmentD, false);
+                        Grids_GridDouble g;
+                        g = b1KMGridMaskedToCatchment;
+//                        gs = b1KMGridMaskedToCatchment.getStats(true);
+//                        max = gs.getMax(true, true).doubleValue();
+//                        min = gs.getMin(true, true).doubleValue();
+//                        System.out.println("max " + max);
+//                        System.out.println("min " + min);
+//                        scaleFactor = 24.0d / (double) counts.get(date1);
+//                        g = gp.rescale(b1KMGridMaskedToCatchment, null, min * scaleFactor, max * scaleFactor, true);
                         // Output as tiles
-                        outascii = new File(
-                                outdir2,
-                                name1 + ".asc");
-                        outpng = new File(
-                                outdir2,
-                                name1 + ".png");
-                        outpng2 = new File(
-                                outdir2,
-                                name1 + "Color.png");
-                        outpng3 = new File(
-                                outdir2,
-                                name1 + "Color8.png");
-                        outtxt = new File(
-                                outdir2,
-                                name1 + "Counts.txt");
-                        ae.toAsciiFile(g, outascii, HandleOutOfMemoryError);
-                        ie.toGreyScaleImage(g, gp, outpng, "png", HandleOutOfMemoryError);
-                        ie.toColourImage(0, colorMap, noDataValueColor, g, outpng2, "png", HandleOutOfMemoryError);
-                        ie.toColourImage(8, colorMap, noDataValueColor, g, outpng3, "png", HandleOutOfMemoryError);
+                        outascii = new File(outdir2, name1 + ".asc");
+                        outpng = new File(outdir2, name1 + ".png");
+                        outpng2 = new File(outdir2, name1 + "Color.png");
+                        outpng3 = new File(outdir2, name1 + "Color8.png");
+                        outtxt = new File(outdir2, name1 + "Counts.txt");
+                        ae.toAsciiFile(g, outascii, hoome);
+                        ie.toGreyScaleImage(g, gp, outpng, "png", hoome);
+                        ie.toColourImage(0, colorMap, noDataValueColor, g, outpng2, "png", hoome);
+                        ie.toColourImage(8, colorMap, noDataValueColor, g, outpng3, "png", hoome);
                         try {
                             PrintWriter pw;
                             pw = new PrintWriter(outtxt);
-                            pw.println("" + counts.get(date1));
+                            //pw.println("" + counts.get(date1));
                             pw.close();
                         } catch (FileNotFoundException ex) {
                             Logger.getLogger(SARIC_ImageProcessor.class.getName()).log(Level.SEVERE, null, ex);
@@ -1144,7 +1122,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
     //                }
     //                g = output1kmGrids.get(time);
     //                Grids_AbstractGridNumberStatistics gs;
-    //                gs = g.getStatistics(true);
+    //                gs = g.getStats(true);
     //                double max = gs.getMaxDouble(true);
     //                double min = gs.getMinDouble(true);
     //                /**
@@ -1234,7 +1212,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
         }
 
         Vector_Envelope2D tileBounds;
-        Boolean HandleOutOfMemoryError = true;
+        boolean hoome = true;
         double weight;
         weight = 0.25d; // This is because observations are in mm per hour and we are dealing with 15 minute periods.
         String outDirName;
@@ -1314,7 +1292,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                                         rowColint = getRowCol(rowCol);
                                         tileBounds = lp.getTileBounds(rowColint[0], rowColint[1]);
                                         System.out.println("Infile " + infiles[l]);
-                                        g = getGrid(infiles[l], cellsize, tileBounds, layerName, rowColint);
+                                        g = getGrid(infiles[l], cellsize, tileBounds, layerName, rowColint, hoome);
                                         if (g != null) {
                                             if (grids.containsKey(rowCol)) {
                                                 Grids_GridDouble gridToAddTo;
@@ -1381,9 +1359,9 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                         outpng2 = new File(
                                 outdir2,
                                 layerName + "_" + rowColint[0] + "_" + rowColint[1] + "Color.png");
-                        ae.toAsciiFile(g, outascii, HandleOutOfMemoryError);
-                        ie.toGreyScaleImage(g, gp, outpng, "png", HandleOutOfMemoryError);
-                        ie.toColourImage(0, colorMap, noDataValueColor, g, outpng2, "png", HandleOutOfMemoryError);
+                        ae.toAsciiFile(g, outascii, hoome);
+                        ie.toGreyScaleImage(g, gp, outpng, "png", hoome);
+                        ie.toColourImage(0, colorMap, noDataValueColor, g, outpng2, "png", hoome);
                     }
                     // Output result grid
                     outascii = new File(
@@ -1398,10 +1376,10 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                     outpng3 = new File(
                             outdir2,
                             s + layerName + "Color8.png");
-                    ae.toAsciiFile(b1KMGrid, outascii, HandleOutOfMemoryError);
-                    ie.toGreyScaleImage(b1KMGrid, gp, outpng, "png", HandleOutOfMemoryError);
-                    ie.toColourImage(0, colorMap, noDataValueColor, b1KMGrid, outpng2, "png", HandleOutOfMemoryError);
-                    ie.toColourImage(8, colorMap, noDataValueColor, b1KMGrid, outpng3, "png", HandleOutOfMemoryError);
+                    ae.toAsciiFile(b1KMGrid, outascii, hoome);
+                    ie.toGreyScaleImage(b1KMGrid, gp, outpng, "png", hoome);
+                    ie.toColourImage(0, colorMap, noDataValueColor, b1KMGrid, outpng2, "png", hoome);
+                    ie.toColourImage(8, colorMap, noDataValueColor, b1KMGrid, outpng3, "png", hoome);
                     init_gf();
                 }
             }
@@ -1433,6 +1411,36 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
      * @param layerName
      * @param rowColint This has length 2 the first element is the row and the
      * second the column of the tile.
+     * @param hoome
+     * @return
+     */
+    public Grids_GridDouble getGrid(
+            File in,
+            BigDecimal cellsize,
+            Vector_Envelope2D tileBounds,
+            String layerName,
+            int[] rowColint,
+            boolean hoome) {
+        try {
+            return getGrid(in, cellsize, tileBounds, layerName, rowColint);
+        } catch (OutOfMemoryError e) {
+            if (hoome) {
+                ge.swapChunks(hoome);
+                return getGrid(in, cellsize, tileBounds, layerName, rowColint);
+            } else {
+                throw e;
+            }
+        }
+    }
+
+    /**
+     *
+     * @param in
+     * @param cellsize
+     * @param tileBounds
+     * @param layerName
+     * @param rowColint This has length 2 the first element is the row and the
+     * second the column of the tile.
      * @return
      */
     public Grids_GridDouble getGrid(
@@ -1444,7 +1452,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
         String methodName;
         methodName = "getGrid(File,BigDecimal,Vector_Envelope2D,String,int[])";
         Grids_GridDouble result = null;
-        Boolean HandleOutOfMemoryError = true;
+        //boolean hoome = true;
         Image image = null;
         int width;
         int height;
@@ -1457,23 +1465,13 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
             // Grab the pixels.
             width = image.getWidth(null);
             height = image.getHeight(null);
-
             Grids_Dimensions dimensions;
-            dimensions = new Grids_Dimensions(
-                    tileBounds.XMin,
-                    tileBounds.XMax,
-                    tileBounds.YMin,
-                    tileBounds.YMax,
-                    cellsize);
-//        dimensions[1] = tileBounds.XMin.subtract(cellsize.multiply(new BigDecimal(rowColint[1]).multiply(new BigDecimal(height)))); //XMIN
-//        dimensions[4] = tileBounds.YMax.subtract(cellsize.multiply(new BigDecimal(rowColint[0]).multiply(new BigDecimal(width)))); //YMAX
-//        dimensions[2] = dimensions[4].subtract(cellsize.multiply(new BigDecimal(height))); //YMIN
-//        dimensions[3] = dimensions[1].subtract(cellsize.multiply(new BigDecimal(width)));  //XMAX
-
+            dimensions = new Grids_Dimensions(tileBounds.XMin, tileBounds.XMax,
+                    tileBounds.YMin, tileBounds.YMax, cellsize);
             result = (Grids_GridDouble) gf.create(height, width, dimensions);
-
             int[] pixels = new int[width * height];
-            PixelGrabber pg = new PixelGrabber(image, 0, 0, width, height, pixels, 0, width);
+            PixelGrabber pg;
+            pg = new PixelGrabber(image, 0, 0, width, height, pixels, 0, width);
             try {
                 pg.grabPixels();
             } catch (InterruptedException ex) {
@@ -1499,23 +1497,23 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
 //      Pale Blue: #E5FEFE: 32+: 48
                 Color pixel = new Color(pixels[i]);
                 if (pixel.equals(Blue)) {
-                    result.setCell(row, col, 0.25d, HandleOutOfMemoryError);
+                    result.setCell(row, col, 0.25d);
                 } else if (pixel.equals(LightBlue)) {
-                    result.setCell(row, col, 0.75d, HandleOutOfMemoryError);
+                    result.setCell(row, col, 0.75d);
                 } else if (pixel.equals(MuddyGreen)) {
-                    result.setCell(row, col, 1.5d, HandleOutOfMemoryError);
+                    result.setCell(row, col, 1.5d);
                 } else if (pixel.equals(Yellow)) {
-                    result.setCell(row, col, 3d, HandleOutOfMemoryError);
+                    result.setCell(row, col, 3d);
                 } else if (pixel.equals(Orange)) {
-                    result.setCell(row, col, 6d, HandleOutOfMemoryError);
+                    result.setCell(row, col, 6d);
                 } else if (pixel.equals(Red)) {
-                    result.setCell(row, col, 12d, HandleOutOfMemoryError);
+                    result.setCell(row, col, 12d);
                 } else if (pixel.equals(Pink)) {
-                    result.setCell(row, col, 24d, HandleOutOfMemoryError);
+                    result.setCell(row, col, 24d);
                 } else if (pixel.equals(PaleBlue)) {
-                    result.setCell(row, col, 48d, HandleOutOfMemoryError);
+                    result.setCell(row, col, 48d);
                 } else if (pixel.equals(Color.BLACK)) {
-                    result.setCell(row, col, 0.0d, HandleOutOfMemoryError);
+                    result.setCell(row, col, 0.0d);
 //                if (scale == 0) {
 //                    if (row == height - 1 && col == 0) {
 //                        // There is no lower resolution image.
@@ -1631,7 +1629,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
 //                            }
 //                        }
 //                        System.out.println(result.toString(0, true));
-//                        System.out.println("Max " + result.getStatistics(true).getMaxDouble(true));
+//                        System.out.println("Max " + result.getStats(true).getMaxDouble(true));
 //                        return result;
 //                    } else {
 ////                        System.out.println(
@@ -1642,7 +1640,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
 //                    }
 //                }
                 } else {
-                    result.setCell(row, col, 0.0d, HandleOutOfMemoryError);
+                    result.setCell(row, col, 0.0d);
                 }
                 col++;
             }

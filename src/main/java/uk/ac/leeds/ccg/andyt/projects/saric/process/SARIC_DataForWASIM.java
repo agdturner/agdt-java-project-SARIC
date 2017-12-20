@@ -319,7 +319,7 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
                 "EPSG_27700_4");
         if (offset < 2) {
             File f = new File(
-                    sf.getNestedTimeDirectory(dir, d1),
+                    sf.getNestedTimeDirectory(dir, d),
                     d.getYYYYMMDD() + "_ForecastFor_" + d1.getYYYYMMDD() + ".asc");
             System.out.println(f);
             if (f.exists()) {

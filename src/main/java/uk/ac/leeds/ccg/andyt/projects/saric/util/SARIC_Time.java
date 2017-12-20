@@ -135,10 +135,12 @@ public class SARIC_Time extends SARIC_Date
 
     public void addMinutes(int minutes) {
         LDT = LDT.plusMinutes(minutes);
+        LD = LDT.toLocalDate();
     }
 
     public void addHours(int hours) {
         LDT = LDT.plusHours(hours);
+        LD = LDT.toLocalDate();
     }
     
     @Override
@@ -195,6 +197,17 @@ public class SARIC_Time extends SARIC_Date
         return result;
     }
 
+    @Override
+    public String getDD() {
+        String result = "";
+        int dayOfMonth = LDT.getDayOfMonth();
+        if (dayOfMonth < 10) {
+            result += Strings.symbol_0;
+        }
+        result += Integer.toString(dayOfMonth);
+        return result;
+    }
+    
     public String getHH() {
         String result = "";
         int hour = LDT.getHour();
