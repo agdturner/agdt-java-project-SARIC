@@ -41,7 +41,7 @@ import uk.ac.leeds.ccg.andyt.geotools.Geotools_Shapefile;
 import uk.ac.leeds.ccg.andyt.grids.core.Grids_Environment;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_GridDouble;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_GridDoubleFactory;
-import uk.ac.leeds.ccg.andyt.grids.core.grid.statistics.Grids_GridDoubleStatisticsNotUpdated;
+import uk.ac.leeds.ccg.andyt.grids.core.grid.stats.Grids_GridDoubleStatsNotUpdated;
 import uk.ac.leeds.ccg.andyt.grids.process.Grids_Processor;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Object;
@@ -79,7 +79,7 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
         gf = gp.GridDoubleFactory;
         gf.setChunkNCols(62);
         gf.setChunkNRows(40);
-        gf.Statistics = new Grids_GridDoubleStatisticsNotUpdated(ge);
+        gf.Stats = new Grids_GridDoubleStatsNotUpdated(ge);
         ve = se.getVector_Environment();
     }
 
