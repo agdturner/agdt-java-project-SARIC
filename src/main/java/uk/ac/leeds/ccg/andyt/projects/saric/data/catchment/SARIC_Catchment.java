@@ -220,20 +220,20 @@ public abstract class SARIC_Catchment extends SARIC_Object {
         String name;
         long nrows;
         long ncols;
-        nrows = resultGrid.getNRows(true);
-        ncols = resultGrid.getNCols(true);
+        nrows = resultGrid.getNRows();
+        ncols = resultGrid.getNCols();
         //double noDataValue = result.getNoDataValue(true);
         //double value;
         double cellsize;
-        cellsize = resultGrid.getCellsizeDouble(true);
+        cellsize = resultGrid.getCellsizeDouble();
         double halfCellsize;
         halfCellsize = cellsize / 2.0d;
         double x;
         double y;
         for (long row = 0; row < nrows; row++) {
-            y = resultGrid.getCellYDouble(row, true);
+            y = resultGrid.getCellYDouble(row);
             for (long col = 0; col < ncols; col++) {
-                x = resultGrid.getCellXDouble(col, true);
+                x = resultGrid.getCellXDouble(col);
                 c = new Coordinate(x, y);
                 //System.out.println("x, y = " + x + ", " + y);
                 //System.out.println("row, col = " + row + ", " + col);
@@ -269,7 +269,7 @@ public abstract class SARIC_Catchment extends SARIC_Object {
                     //System.out.println("Intersection");
                     //System.out.println("row, col " + row + ", " + col);
                     //System.out.println("x, y " + x + ", " + y);
-                    resultGrid.setCell(row, col, 0.0d, true);
+                    resultGrid.setCell(row, col, 0.0d);
                 }
             }
         }
@@ -298,23 +298,23 @@ public abstract class SARIC_Catchment extends SARIC_Object {
         resultGrid = (Grids_GridDouble) result[0];
         long nrows;
         long ncols;
-        nrows = resultGrid.getNRows(true);
-        ncols = resultGrid.getNCols(true);
+        nrows = resultGrid.getNRows();
+        ncols = resultGrid.getNCols();
         double x;
         double y;
         double v;
         double[] OSGBEastingAndNorthing;
-        double noDataValue = resultGrid.getNoDataValue(true);
+        double noDataValue = resultGrid.getNoDataValue();
         double distance;
         double minDistance;
         Vector_OSGBtoLatLon OSGBtoLatLon = _Vector_Environment.getOSGBtoLatLon();
         Iterator<SARIC_Site> ite;
         SARIC_Site site;
         for (long row = 0; row < nrows; row++) {
-            y = resultGrid.getCellYDouble(row, true);
+            y = resultGrid.getCellYDouble(row);
             for (long col = 0; col < ncols; col++) {
-                x = resultGrid.getCellXDouble(col, true);
-                v = resultGrid.getCell(row, col, true);
+                x = resultGrid.getCellXDouble(col);
+                v = resultGrid.getCell(row, col);
                 if (v != noDataValue) {
                     ite = sites.iterator();
                     minDistance = Double.MAX_VALUE;
@@ -327,7 +327,7 @@ public abstract class SARIC_Catchment extends SARIC_Object {
                         distance = Math.sqrt((xdiff * xdiff) + (ydiff * ydiff));
                         if (distance < minDistance) {
                             minDistance = distance;
-                            resultGrid.setCell(row, col, site.getId(), true);
+                            resultGrid.setCell(row, col, site.getId());
                         }
                     }
                     //System.out.println("minDistance from x " + x + ", y " + y + " = " + minDistance + " siteID " + site.getId());

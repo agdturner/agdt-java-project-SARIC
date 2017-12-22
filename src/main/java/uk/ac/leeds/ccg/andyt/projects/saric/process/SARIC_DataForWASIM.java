@@ -147,8 +147,8 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
         g = observationsGrids.firstEntry().getValue();
         long nrows;
         long ncols;
-        nrows = g.getNRows(true);
-        ncols = g.getNCols(true);
+        nrows = g.getNRows();
+        ncols = g.getNCols();
         int numberOfDaysSinceLastRainfallEventGT2mm;
         double accumulation;
         long ID;
@@ -177,15 +177,15 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
 
         // Assuming all grids have the same noDataValue.
         double noDataValue;
-        noDataValue = g.getNoDataValue(true);
+        noDataValue = g.getNoDataValue();
 
         Iterator<SARIC_Time> ite;
         for (long row = 0; row < nrows; row++) {
             for (long col = 0; col < ncols; col++) {
 
                 // Mask
-                Easting = g.getCellXDouble(col, true);
-                Northing = g.getCellYDouble(row, true);
+                Easting = g.getCellXDouble(col);
+                Northing = g.getCellYDouble(row);
 
                 sfb = new SimpleFeatureBuilder(sft);
                 point = geometryFactory.createPoint(new Coordinate(Easting, Northing));
@@ -226,7 +226,7 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
                     while (!found || i < daysOfAccumulation) {
                         System.out.println(t);
                         i++;
-                        v = g.getCell(row, col, true);
+                        v = g.getCell(row, col);
                         if (v != noDataValue) {
                             accumulation += v;
                             if (!found) {
@@ -250,23 +250,23 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
                     System.out.println("numberOfDaysSinceLastRainfallEventGT2mm " + numberOfDaysSinceLastRainfallEventGT2mm);
                     System.out.println("total accumulation over the last " + daysOfAccumulation + " days " + accumulation);
 
-                    forecastRainfallInTheNext24Hours = f1.getCell(row, col, true);
+                    forecastRainfallInTheNext24Hours = f1.getCell(row, col);
                     if (forecastRainfallInTheNext24Hours == noDataValue) {
                         forecastRainfallInTheNext24Hours = 0.0d;
                     }
-                    forecastRainfallIn24to48Hours = f2.getCell(row, col, true);
+                    forecastRainfallIn24to48Hours = f2.getCell(row, col);
                     if (forecastRainfallIn24to48Hours == noDataValue) {
                         forecastRainfallIn24to48Hours = 0.0d;
                     }
-                    forecastRainfallIn48to72Hours = f3.getCell(row, col, true);
+                    forecastRainfallIn48to72Hours = f3.getCell(row, col);
                     if (forecastRainfallIn48to72Hours == noDataValue) {
                         forecastRainfallIn48to72Hours = 0.0d;
                     }
-                    forecastRainfallIn72to96HoursHours = f4.getCell(row, col, true);
+                    forecastRainfallIn72to96HoursHours = f4.getCell(row, col);
                     if (forecastRainfallIn72to96HoursHours == noDataValue) {
                         forecastRainfallIn72to96HoursHours = 0.0d;
                     }
-                    forecastRainfallIn96to120Hours = f5.getCell(row, col, true);
+                    forecastRainfallIn96to120Hours = f5.getCell(row, col);
                     if (forecastRainfallIn96to120Hours == noDataValue) {
                         forecastRainfallIn96to120Hours = 0.0d;
                     }

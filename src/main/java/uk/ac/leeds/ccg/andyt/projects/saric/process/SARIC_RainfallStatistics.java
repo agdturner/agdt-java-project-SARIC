@@ -111,7 +111,7 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
     private void init_gf() {
         gf = new Grids_GridDoubleFactory(
                 ge,
-                gp.getDirectory(true),
+                gp.getDirectory(),
                 gp.GridChunkDoubleFactory,
                 gp.DefaultGridChunkDoubleFactory,
                 noDataValue,
@@ -371,7 +371,7 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
                                             if (grids.containsKey(rowCol)) {
                                                 Grids_GridDouble gridToAddTo;
                                                 gridToAddTo = grids.get(rowCol);
-                                                gp.addToGrid(gridToAddTo, g, weight, true);
+                                                gp.addToGrid(gridToAddTo, g, weight);
                                                 n++;
                                             } else {
                                                 grids.put(rowCol, g);
@@ -401,24 +401,24 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
                         while (iteT2.hasNext()) {
                             rowCol = iteT2.next();
                             sum = grids.get(rowCol);
-                            NRows = sum.getNRows(true);
-                            NCols = sum.getNCols(true);
+                            NRows = sum.getNRows();
+                            NCols = sum.getNCols();
                             if (variances.containsKey(rowCol)) {
                                 variance = variances.get(rowCol);
                             } else {
                                 variance = gf.create(
                                         Generic_StaticIO.createNewFile(gf.getDirectory()),
-                                        NRows, NCols, sum.getDimensions(true), true);
+                                        NRows, NCols, sum.getDimensions(), true);
                                 variances.put(rowCol, variance);
                             }
                             g = tg.get(rowCol);
                             for (long row = 0; row < NRows; row++) {
                                 for (long col = 0; col < NCols; col++) {
                                     double v;
-                                    v = g.getCell(row, col, true);
+                                    v = g.getCell(row, col);
                                     double m;
-                                    m = sum.getCell(row, col, true);
-                                    variance.addToCell(row, col, (v - m) * (v - m), true);
+                                    m = sum.getCell(row, col);
+                                    variance.addToCell(row, col, (v - m) * (v - m));
                                 }
                             }
 //                            int NChunkRows = g.getNChunkRows(true);
@@ -470,25 +470,25 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
 //                // If bounds intersect add
 //                if (p.getBounds().getIntersects(tileBounds)) {
                         // Iterate over grid and get values
-                        long nrows = b1KMGrid.getNRows(true);
-                        long ncols = b1KMGrid.getNCols(true);
+                        long nrows = b1KMGrid.getNRows();
+                        long ncols = b1KMGrid.getNCols();
                         for (long row = 0; row < nrows; row++) {
                             //y = b1KMGrid.getCellYDouble(row, true);
-                            y = b1KMGrid.getCellYDouble(row, true) + halfcellsize; // adding half a cellsize is in an attempt to prevent striping where images join.
+                            y = b1KMGrid.getCellYDouble(row) + halfcellsize; // adding half a cellsize is in an attempt to prevent striping where images join.
                             for (long col = 0; col < ncols; col++) {
-                                vb = a1KMGridMaskedToCatchmentGrid.getCell(row, col, true);
-                                x = b1KMGrid.getCellXDouble(col, true) + halfcellsize; // adding half a cellsize is in an attempt to prevent striping where images join.
-                                v = g.getCell(x, y, true);
+                                vb = a1KMGridMaskedToCatchmentGrid.getCell(row, col);
+                                x = b1KMGrid.getCellXDouble(col) + halfcellsize; // adding half a cellsize is in an attempt to prevent striping where images join.
+                                v = g.getCell(x, y);
                                 var = (Math.sqrt(v) / (double) (n - 1));
                                 if (vb != noDataValue) {
                                     //x = b1KMGrid.getCellXDouble(col, true);
                                     if (v != noDataValue) {
                                         //System.out.println("Value at (x, y) (" + x + ", " + y + ")= " + v);
                                         //b1KMGrid.setCell(row, col, v, true);
-                                        b1KMGrid.addToCell(row, col, var, true);
+                                        b1KMGrid.addToCell(row, col, var);
                                     }
                                 }
-                                g.setCell(x, y, var, true);
+                                g.setCell(x, y, var);
                             }
                         }
                         // Output as tiles
@@ -501,9 +501,9 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
                         outpng2 = new File(
                                 outdir2,
                                 layerName + "_" + rowColint[0] + "_" + rowColint[1] + "VarianceColor.png");
-                        ae.toAsciiFile(g, outascii, HandleOutOfMemoryError);
-                        ImageExporter.toGreyScaleImage(g, gp, outpng, "png", HandleOutOfMemoryError);
-                        ImageExporter.toColourImage(0, colorMap, noDataValueColor, g, outpng2, "png", HandleOutOfMemoryError);
+                        ae.toAsciiFile(g, outascii);
+                        ImageExporter.toGreyScaleImage(g, gp, outpng, "png");
+                        ImageExporter.toColourImage(0, colorMap, noDataValueColor, g, outpng2, "png");
                     }
                     // Output result grid
                     outascii = new File(
@@ -518,10 +518,10 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
                     outpng3 = new File(
                             outdir2,
                             s + layerName + "VarianceColor8.png");
-                    ae.toAsciiFile(b1KMGrid, outascii, HandleOutOfMemoryError);
-                    ImageExporter.toGreyScaleImage(b1KMGrid, gp, outpng, "png", HandleOutOfMemoryError);
-                    ImageExporter.toColourImage(0, colorMap, noDataValueColor, b1KMGrid, outpng2, "png", HandleOutOfMemoryError);
-                    ImageExporter.toColourImage(8, colorMap, noDataValueColor, b1KMGrid, outpng3, "png", HandleOutOfMemoryError);
+                    ae.toAsciiFile(b1KMGrid, outascii);
+                    ImageExporter.toGreyScaleImage(b1KMGrid, gp, outpng, "png");
+                    ImageExporter.toColourImage(0, colorMap, noDataValueColor, b1KMGrid, outpng2, "png");
+                    ImageExporter.toColourImage(8, colorMap, noDataValueColor, b1KMGrid, outpng3, "png");
                     init_gf();
                 }
             }
@@ -623,23 +623,23 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
 //      Pale Blue: #E5FEFE: 32+: 48
                 Color pixel = new Color(pixels[i]);
                 if (pixel.equals(Blue)) {
-                    result.setCell(row, col, 0.25d, HandleOutOfMemoryError);
+                    result.setCell(row, col, 0.25d);
                 } else if (pixel.equals(LightBlue)) {
-                    result.setCell(row, col, 0.75d, HandleOutOfMemoryError);
+                    result.setCell(row, col, 0.75d);
                 } else if (pixel.equals(MuddyGreen)) {
-                    result.setCell(row, col, 1.5d, HandleOutOfMemoryError);
+                    result.setCell(row, col, 1.5d);
                 } else if (pixel.equals(Yellow)) {
-                    result.setCell(row, col, 3d, HandleOutOfMemoryError);
+                    result.setCell(row, col, 3d);
                 } else if (pixel.equals(Orange)) {
-                    result.setCell(row, col, 6d, HandleOutOfMemoryError);
+                    result.setCell(row, col, 6d);
                 } else if (pixel.equals(Red)) {
-                    result.setCell(row, col, 12d, HandleOutOfMemoryError);
+                    result.setCell(row, col, 12d);
                 } else if (pixel.equals(Pink)) {
-                    result.setCell(row, col, 24d, HandleOutOfMemoryError);
+                    result.setCell(row, col, 24d);
                 } else if (pixel.equals(PaleBlue)) {
-                    result.setCell(row, col, 48d, HandleOutOfMemoryError);
+                    result.setCell(row, col, 48d);
                 } else if (pixel.equals(Color.BLACK)) {
-                    result.setCell(row, col, 0.0d, HandleOutOfMemoryError);
+                    result.setCell(row, col, 0.0d);
 //                if (scale == 0) {
 //                    if (row == height - 1 && col == 0) {
 //                        // There is no lower resolution image.
@@ -766,7 +766,7 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
 //                    }
 //                }
                 } else {
-                    result.setCell(row, col, 0.0d, HandleOutOfMemoryError);
+                    result.setCell(row, col, 0.0d);
                 }
                 col++;
             }

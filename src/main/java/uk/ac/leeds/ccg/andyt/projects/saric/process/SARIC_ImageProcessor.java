@@ -132,7 +132,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
     private void init_gf() {
         gf = new Grids_GridDoubleFactory(
                 ge,
-                gp.getDirectory(true),
+                gp.getDirectory(),
                 gp.GridChunkDoubleFactory,
                 gp.DefaultGridChunkDoubleFactory,
                 -Double.MAX_VALUE,
@@ -349,10 +349,10 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
         long nrows;
         long ncols;
         nearestForecastsSitesGrid = (Grids_GridDouble) nearestForecastsSitesGridAndFactory[0];
-        noDataValue1 = nearestForecastsSitesGrid.getNoDataValue(true);
+        noDataValue1 = nearestForecastsSitesGrid.getNoDataValue();
         gf.setNoDataValue(noDataValue1);
-        nrows = nearestForecastsSitesGrid.getNRows(true);
-        ncols = nearestForecastsSitesGrid.getNCols(true);
+        nrows = nearestForecastsSitesGrid.getNRows();
+        ncols = nearestForecastsSitesGrid.getNCols();
         Grids_GridDouble forecastsForTime2;
         File[] indirs;
         indirs = indir0.listFiles();
@@ -416,7 +416,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                                 outdir1.mkdirs();
                             }
                             double estimate;
-                            double noDataValue = forecastsForTime2.getNoDataValue(true);
+                            double noDataValue = forecastsForTime2.getNoDataValue();
                             double v;
 
                             Iterator<SARIC_Site> ite;
@@ -483,19 +483,19 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                                 System.out.println("noDataValue " + noDataValue);
                                 for (long row = 0; row < nrows; row++) {
                                     for (long col = 0; col < ncols; col++) {
-                                        v = nearestForecastsSitesGrid.getCell(row, col, true);
+                                        v = nearestForecastsSitesGrid.getCell(row, col);
                                         //if (v != noDataValue) {
                                         if (v == siteID) {
-                                            forecastsForTime2.setCell(row, col, normalisedEstimate, true);
+                                            forecastsForTime2.setCell(row, col, normalisedEstimate);
                                         }
                                         //}
                                     }
                                 }
                             }
-                            ae.toAsciiFile(forecastsForTime2, outascii, true);
-                            ie.toGreyScaleImage(forecastsForTime2, gp, outpng, "png", true);
-                            ie.toColourImage(0, colorMap, Color.BLACK, forecastsForTime2, outpng2, "png", true);
-                            ie.toColourImage(8, colorMap, Color.BLACK, forecastsForTime2, outpng3, "png", true);
+                            ae.toAsciiFile(forecastsForTime2, outascii);
+                            ie.toGreyScaleImage(forecastsForTime2, gp, outpng, "png");
+                            ie.toColourImage(0, colorMap, Color.BLACK, forecastsForTime2, outpng2, "png");
+                            ie.toColourImage(8, colorMap, Color.BLACK, forecastsForTime2, outpng3, "png");
                         }
                     }
                 }
@@ -701,7 +701,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                                                 g2 = getGrid(infiles[l], cellsize, tileBounds, layerName, rowColint);
                                                 if (grids1.containsKey(rowCol)) {
                                                     g = grids1.get(rowCol);
-                                                    gp.addToGrid(g, g2, 1.0d, true);
+                                                    gp.addToGrid(g, g2, 1.0d);
                                                     grids1.put(rowCol, g); // Is this really necessary?
                                                     double d = counts1.get(rowCol);
                                                     d += 1.0d;
@@ -740,13 +740,13 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                              * intensity.
                              */
                             gs = g.getStats(true);
-                            max = gs.getMax(true, true).doubleValue();
-                            min = gs.getMin(true, true).doubleValue();
+                            max = gs.getMax(true).doubleValue();
+                            min = gs.getMin(true).doubleValue();
                             System.out.println("max " + max);
                             System.out.println("min " + min);
                             scaleFactor = 24.0d / d;
                             System.out.println("scaleFactor " + scaleFactor);
-                            g2 = gp.rescale(g, null, min * scaleFactor, max * scaleFactor, true);
+                            g2 = gp.rescale(g, null, min * scaleFactor, max * scaleFactor);
                             // Output as tiles
                             outascii = new File(outdir2,
                                     name1 + "_" + rowColint[0] + "_" + rowColint[1] + ".asc");
@@ -754,9 +754,9 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                                     name1 + "_" + rowColint[0] + "_" + rowColint[1] + ".png");
                             outpng2 = new File(outdir2,
                                     name1 + "_" + rowColint[0] + "_" + rowColint[1] + "Color.png");
-                            ae.toAsciiFile(g2, outascii, hoome);
-                            ie.toGreyScaleImage(g2, gp, outpng, "png", hoome);
-                            ie.toColourImage(0, colorMap, noDataValueColor, g2, outpng2, "png", hoome);
+                            ae.toAsciiFile(g2, outascii);
+                            ie.toGreyScaleImage(g2, gp, outpng, "png");
+                            ie.toColourImage(0, colorMap, noDataValueColor, g2, outpng2, "png");
                         }
                     }
                     // Aggregate into catchment grid
@@ -828,7 +828,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                         }
                         b1KMGridMaskedToCatchment = gp.divide(
                                 b1KMGridMaskedToCatchmentN,
-                                b1KMGridMaskedToCatchmentD, false);
+                                b1KMGridMaskedToCatchmentD);
                         Grids_GridDouble g;
                         g = b1KMGridMaskedToCatchment;
 //                        gs = b1KMGridMaskedToCatchment.getStats(true);
@@ -844,10 +844,10 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                         outpng2 = new File(outdir2, name1 + "Color.png");
                         outpng3 = new File(outdir2, name1 + "Color8.png");
                         outtxt = new File(outdir2, name1 + "Counts.txt");
-                        ae.toAsciiFile(g, outascii, hoome);
-                        ie.toGreyScaleImage(g, gp, outpng, "png", hoome);
-                        ie.toColourImage(0, colorMap, noDataValueColor, g, outpng2, "png", hoome);
-                        ie.toColourImage(8, colorMap, noDataValueColor, g, outpng3, "png", hoome);
+                        ae.toAsciiFile(g, outascii);
+                        ie.toGreyScaleImage(g, gp, outpng, "png");
+                        ie.toColourImage(0, colorMap, noDataValueColor, g, outpng2, "png");
+                        ie.toColourImage(8, colorMap, noDataValueColor, g, outpng3, "png");
                         try {
                             PrintWriter pw;
                             pw = new PrintWriter(outtxt);
@@ -1297,7 +1297,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                                             if (grids.containsKey(rowCol)) {
                                                 Grids_GridDouble gridToAddTo;
                                                 gridToAddTo = grids.get(rowCol);
-                                                gp.addToGrid(gridToAddTo, g, weight, true);
+                                                gp.addToGrid(gridToAddTo, g, weight);
                                             } else {
                                                 grids.put(rowCol, g);
                                             }
@@ -1315,7 +1315,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                     f = (Grids_GridDoubleFactory) a1KMGrid[1];
                     b1KMGrid = (Grids_GridDouble) f.create((Grids_GridDouble) a1KMGrid[0]);
                     //b1KMGrid = (Grids_GridDouble) a1KMGrid[0];
-                    double noDataValue = b1KMGrid.getNoDataValue(true);
+                    double noDataValue = b1KMGrid.getNoDataValue();
                     System.out.println("</Duplicate a1KMGrid>");
                     double vb;
                     double v;
@@ -1328,21 +1328,21 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
 //                // If bounds intersect add
 //                if (p.getBounds().getIntersects(tileBounds)) {
                         // Iterate over grid and get values
-                        long nrows = b1KMGrid.getNRows(true);
-                        long ncols = b1KMGrid.getNCols(true);
+                        long nrows = b1KMGrid.getNRows();
+                        long ncols = b1KMGrid.getNCols();
                         for (long row = 0; row < nrows; row++) {
                             //y = b1KMGrid.getCellYDouble(row, true);
-                            y = b1KMGrid.getCellYDouble(row, true) + halfcellsize; // adding half a cellsize is in an attempt to prevent striping where images join.
+                            y = b1KMGrid.getCellYDouble(row) + halfcellsize; // adding half a cellsize is in an attempt to prevent striping where images join.
                             for (long col = 0; col < ncols; col++) {
-                                vb = a1KMGridMaskedToCatchmentGrid.getCell(row, col, true);
+                                vb = a1KMGridMaskedToCatchmentGrid.getCell(row, col);
                                 if (vb != noDataValue) {
                                     //x = b1KMGrid.getCellXDouble(col, true);
-                                    x = b1KMGrid.getCellXDouble(col, true) + halfcellsize; // adding half a cellsize is in an attempt to prevent striping where images join.
-                                    v = g.getCell(x, y, true);
+                                    x = b1KMGrid.getCellXDouble(col) + halfcellsize; // adding half a cellsize is in an attempt to prevent striping where images join.
+                                    v = g.getCell(x, y);
                                     if (v != noDataValue) {
                                         //System.out.println("Value at (x, y) (" + x + ", " + y + ")= " + v);
                                         //b1KMGrid.setCell(row, col, v, true);
-                                        b1KMGrid.addToCell(row, col, v, true);
+                                        b1KMGrid.addToCell(row, col, v);
                                     }
                                 } else {
                                     //System.out.println("Out of study area.");
@@ -1359,9 +1359,9 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                         outpng2 = new File(
                                 outdir2,
                                 layerName + "_" + rowColint[0] + "_" + rowColint[1] + "Color.png");
-                        ae.toAsciiFile(g, outascii, hoome);
-                        ie.toGreyScaleImage(g, gp, outpng, "png", hoome);
-                        ie.toColourImage(0, colorMap, noDataValueColor, g, outpng2, "png", hoome);
+                        ae.toAsciiFile(g, outascii);
+                        ie.toGreyScaleImage(g, gp, outpng, "png");
+                        ie.toColourImage(0, colorMap, noDataValueColor, g, outpng2, "png");
                     }
                     // Output result grid
                     outascii = new File(
@@ -1376,10 +1376,10 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                     outpng3 = new File(
                             outdir2,
                             s + layerName + "Color8.png");
-                    ae.toAsciiFile(b1KMGrid, outascii, hoome);
-                    ie.toGreyScaleImage(b1KMGrid, gp, outpng, "png", hoome);
-                    ie.toColourImage(0, colorMap, noDataValueColor, b1KMGrid, outpng2, "png", hoome);
-                    ie.toColourImage(8, colorMap, noDataValueColor, b1KMGrid, outpng3, "png", hoome);
+                    ae.toAsciiFile(b1KMGrid, outascii);
+                    ie.toGreyScaleImage(b1KMGrid, gp, outpng, "png");
+                    ie.toColourImage(0, colorMap, noDataValueColor, b1KMGrid, outpng2, "png");
+                    ie.toColourImage(8, colorMap, noDataValueColor, b1KMGrid, outpng3, "png");
                     init_gf();
                 }
             }

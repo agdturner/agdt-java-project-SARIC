@@ -166,7 +166,7 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
                 "TG1");
         tgf.setDirectory(dirt1);
         tg1 = (Grids_GridDouble) tgf.create(dirt1, tg0, 0, 0, 
-                tg0.getNRows(true) - 1, tg0.getNCols(true) - 1,
+                tg0.getNRows() - 1, tg0.getNCols() - 1,
                 ge.HOOME);
         dirt2 = new File(
                 tgf.getDirectory(),
@@ -191,7 +191,7 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
                 "WG1");
         wgf.setDirectory(dirw1);
         wg1 = (Grids_GridDouble) wgf.create(dirw1, wg0, 0, 0, 
-                wg0.getNRows(true) - 1, wg0.getNCols(true) - 1,
+                wg0.getNRows() - 1, wg0.getNCols() - 1,
                 ge.HOOME);
         dirw2 = new File(
                 wgf.getDirectory(),
@@ -207,10 +207,10 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
 
         for (int i = 0; i < numberOf5MinutePeriodsIn24Hours; i++) {
             tg2 = (Grids_GridDouble) tgf.create(dirt2, tg0, 0, 0,
-                    tg0.getNRows(true) - 1, tg0.getNCols(true) - 1,
+                    tg0.getNRows() - 1, tg0.getNCols() - 1,
                     ge.HOOME);
             wg2 = (Grids_GridDouble) wgf.create(dirw2, wg0, 0, 0,
-                    wg0.getNRows(true) - 1, wg0.getNCols(true) - 1,
+                    wg0.getNRows() - 1, wg0.getNCols() - 1,
                     ge.HOOME);
             f = new File(
                     inputDir,
@@ -266,11 +266,11 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
                     try {
                         for (long row = 0; row < snh.nrows; row++) {
                             for (long col = 0; col < snh.ncols; col++) {
-                                g.setCell(row, col, dis.readShort(), true);
+                                g.setCell(row, col, dis.readShort());
                             }
                             //System.out.println("done row " + row);
                         }
-                        System.out.println(g.toString(true));
+                        System.out.println(g.toString());
                         fis.close();
                         dis.close();
                     } catch (IOException ex) {
@@ -282,8 +282,8 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
                      */
                     name = st.getYYYYMMDDHHMM();
                     if (doTeifi) {
-                        gp.addToGrid(tg1, g, true);
-                        gp.addToGrid(tg2, g, true);
+                        gp.addToGrid(tg1, g, 1.0d);
+                        gp.addToGrid(tg2, g, 1.0d);
                         outputImages(
                                 outputDir1,
                                 ss.getString_Teifi(),
@@ -295,8 +295,8 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
                                 cm);
                     }
                     if (doWissey) {
-                        gp.addToGrid(wg1, g, true);
-                        gp.addToGrid(wg2, g, true);
+                        gp.addToGrid(wg1, g, 1.0d);
+                        gp.addToGrid(wg2, g, 1.0d);
                         outputImages(
                                 outputDir1,
                                 ss.getString_Wissey(),
@@ -364,7 +364,7 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
         outputDir1.mkdirs();
         File outfile;
         gp.GridDoubleFactory.setNoDataValue(gf.getNoDataValue());
-        gp.mask(g, mask, true);
+        gp.mask(g, mask);
 //        outfile = new File(
 //                outputDir1,
 //                area + st.getYYYYMMDDHHMM() + ".png");
@@ -372,6 +372,6 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
         outfile = new File(
                 outputDir1,
                 area + "Colour" + name + ".png");
-        ie.toColourImage(0, cm, Color.BLACK, g, outfile, "PNG", true);
+        ie.toColourImage(0, cm, Color.BLACK, g, outfile, "PNG");
     }
 }
