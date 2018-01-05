@@ -408,7 +408,7 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
                             } else {
                                 variance = gf.create(
                                         Generic_StaticIO.createNewFile(gf.getDirectory()),
-                                        NRows, NCols, sum.getDimensions(), true);
+                                        NRows, NCols, sum.getDimensions());
                                 variances.put(rowCol, variance);
                             }
                             g = tg.get(rowCol);
@@ -431,8 +431,8 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
 //                            for (int i = 0; i < NChunkRows; i++) {
 //                                for (int j = 0; j < NChunkCols; j++) {
 //                                    chunkID = new Grids_2D_ID_int(i, j);
-//                                    gChunk = g.getGridChunk(chunkID, true);
-//                                    sChunk = sum.getGridChunk(chunkID, true);
+//                                    gChunk = g.getChunk(chunkID, true);
+//                                    sChunk = sum.getChunk(chunkID, true);
 //                                    chunkNrows = g.getChunkNRows(chunkID, true);
 //                                    chunkNcols = g.getChunkNCols(chunkID, true);
 //                                    for (int k = 0; k < chunkNrows; k++) {
@@ -591,11 +591,7 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
 //        dimensions[3] = dimensions[1].subtract(cellsize.multiply(new BigDecimal(width)));  //XMAX
 
             result = (Grids_GridDouble) gf.create(Generic_StaticIO.createNewFile(gf.getDirectory()),
-                    height,
-                    width,
-                    dimensions,
-                    ge.HOOME);
-
+                    height,                    width,                    dimensions);
             int[] pixels = new int[width * height];
             PixelGrabber pg = new PixelGrabber(image, 0, 0, width, height, pixels, 0, width);
             try {

@@ -166,8 +166,7 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
                 "TG1");
         tgf.setDirectory(dirt1);
         tg1 = (Grids_GridDouble) tgf.create(dirt1, tg0, 0, 0, 
-                tg0.getNRows() - 1, tg0.getNCols() - 1,
-                ge.HOOME);
+                tg0.getNRows() - 1, tg0.getNCols() - 1);
         dirt2 = new File(
                 tgf.getDirectory(),
                 "TG2");
@@ -191,8 +190,7 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
                 "WG1");
         wgf.setDirectory(dirw1);
         wg1 = (Grids_GridDouble) wgf.create(dirw1, wg0, 0, 0, 
-                wg0.getNRows() - 1, wg0.getNCols() - 1,
-                ge.HOOME);
+                wg0.getNRows() - 1, wg0.getNCols() - 1);
         dirw2 = new File(
                 wgf.getDirectory(),
                 "WG2");
@@ -207,11 +205,9 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
 
         for (int i = 0; i < numberOf5MinutePeriodsIn24Hours; i++) {
             tg2 = (Grids_GridDouble) tgf.create(dirt2, tg0, 0, 0,
-                    tg0.getNRows() - 1, tg0.getNCols() - 1,
-                    ge.HOOME);
+                    tg0.getNRows() - 1, tg0.getNCols() - 1);
             wg2 = (Grids_GridDouble) wgf.create(dirw2, wg0, 0, 0,
-                    wg0.getNRows() - 1, wg0.getNCols() - 1,
-                    ge.HOOME);
+                    wg0.getNRows() - 1, wg0.getNCols() - 1);
             f = new File(
                     inputDir,
                     "metoffice-c-band-rain-radar_uk_" + st.getYYYYMMDDHHMM() + "_1km-composite.dat");
@@ -262,7 +258,7 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
                     gf.setChunkNRows(435);
                     gf.setDefaultChunkFactory(new Grids_GridChunkDoubleArrayFactory());
                     gp.GridDoubleFactory = gf;
-                    g = (Grids_GridDouble) gf.create(generatedDir2, snh.nrows, snh.ncols, dimensions, true);
+                    g = (Grids_GridDouble) gf.create(generatedDir2, snh.nrows, snh.ncols, dimensions);
                     try {
                         for (long row = 0; row < snh.nrows; row++) {
                             for (long col = 0; col < snh.ncols; col++) {

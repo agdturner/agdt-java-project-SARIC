@@ -177,7 +177,7 @@ public abstract class SARIC_Catchment extends SARIC_Object {
                 (int) ncols,
                 dimensions,
                 new Grids_GridDoubleStats(_Grids_Environment));
-        grid = f.create(dir, nrows, ncols, dimensions, _Grids_Environment.HOOME);
+        grid = f.create(dir, nrows, ncols, dimensions);
         result[0] = grid;
 //        System.out.println("grid " + grid);
         result[1] = f;
