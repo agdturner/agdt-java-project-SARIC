@@ -577,7 +577,6 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
         }
 
         Vector_Envelope2D tileBounds;
-        boolean hoome = true;
         double weight;
         weight = 3d; // These are 3 hourly forecasts.
         String outDirName;
@@ -754,9 +753,14 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                                     name1 + "_" + rowColint[0] + "_" + rowColint[1] + ".png");
                             outpng2 = new File(outdir2,
                                     name1 + "_" + rowColint[0] + "_" + rowColint[1] + "Color.png");
-                            ae.toAsciiFile(g2, outascii);
-                            ie.toGreyScaleImage(g2, gp, outpng, "png");
+                            /**
+                             * TODO: For some weird reason if the colour image 
+                             * is generated after the Grey scale one then the 
+                             * files get confused!
+                             */ 
                             ie.toColourImage(0, colorMap, noDataValueColor, g2, outpng2, "png");
+                            ie.toGreyScaleImage(g2, gp, outpng, "png");
+                            ae.toAsciiFile(g2, outascii);
                         }
                     }
                     // Aggregate into catchment grid
