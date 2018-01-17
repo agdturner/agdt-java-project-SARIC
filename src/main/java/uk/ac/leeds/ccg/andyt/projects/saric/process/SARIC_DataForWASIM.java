@@ -42,6 +42,7 @@ import uk.ac.leeds.ccg.andyt.grids.core.Grids_Environment;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_GridDouble;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_GridDoubleFactory;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.stats.Grids_GridDoubleStatsNotUpdated;
+import uk.ac.leeds.ccg.andyt.grids.io.Grids_Files;
 import uk.ac.leeds.ccg.andyt.grids.process.Grids_Processor;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Object;
@@ -290,73 +291,52 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
         }
     }
 
-    protected Grids_GridDouble getForecastsGrid(
-            String area,
-            SARIC_Date d,
+    protected Grids_GridDouble getForecastsGrid(String area, SARIC_Date d,
             int offset) {
+        Grids_Files gridf;
+        gridf = ge.getFiles();
         SARIC_Date d1;
         d1 = new SARIC_Time(d);
         d1.addDays(offset);
         Grids_GridDouble result;
         File dir;
-        dir = new File(
-                sf.getOutputDataMetOfficeDataPointDir(),
+        dir = new File(sf.getOutputDataMetOfficeDataPointDir(),
                 ss.getString_inspire());
-        dir = new File(
-                dir,
-                ss.getString_view());
-        dir = new File(
-                dir,
-                ss.getString_wmts() + "0");
-        dir = new File(
-                dir,
-                area);
-        dir = new File(
-                dir,
-                ss.getString_Precipitation_Rate());
-        dir = new File(
-                dir,
-                "EPSG_27700_4");
+        dir = new File(dir, ss.getString_view());
+        dir = new File(dir, ss.getString_wmts() + "0");
+        dir = new File(dir, area);
+        dir = new File(dir, ss.getString_Precipitation_Rate());
+        dir = new File(dir, "EPSG_27700_4");
         if (offset < 2) {
-            File f = new File(
-                    sf.getNestedTimeDirectory(dir, d),
+            File f = new File(sf.getNestedTimeDirectory(dir, d),
                     d.getYYYYMMDD() + "_ForecastFor_" + d1.getYYYYMMDD() + ".asc");
             System.out.println(f);
             if (f.exists()) {
-                result = (Grids_GridDouble) gf.create(f);
+                File gdir;
+                gdir = gridf.createNewFile(gridf.getGeneratedGridDoubleDir());
+                result = (Grids_GridDouble) gf.create(gdir, f);
                 System.out.println(result);
                 return result;
             }
         } else {
-            
 
         }
         return null;
     }
 
     protected TreeMap<SARIC_Time, Grids_GridDouble> getObservationsGrids(String area) {
-
+        Grids_Files gridf;
+        gridf = ge.getFiles();
         TreeMap<SARIC_Time, Grids_GridDouble> result;
         result = new TreeMap<>();
         File dir;
-        dir = new File(
-                sf.getOutputDataMetOfficeDataPointDir(),
+        dir = new File(sf.getOutputDataMetOfficeDataPointDir(),
                 ss.getString_inspire());
-        dir = new File(
-                dir,
-                ss.getString_view());
-        dir = new File(
-                dir,
-                ss.getString_wmts() + "0");
-        dir = new File(
-                dir,
-                area);
-        dir = new File(
-                dir,
-                ss.getString_RADAR_UK_Composite_Highres());
-        dir = new File(
-                dir,
-                "EPSG_27700_4");
+        dir = new File(dir, ss.getString_view());
+        dir = new File(dir, ss.getString_wmts() + "0");
+        dir = new File(dir, area);
+        dir = new File(dir, ss.getString_RADAR_UK_Composite_Highres());
+        dir = new File(dir, "EPSG_27700_4");
         System.out.println(dir);
         File[] dirs;
         dirs = dir.listFiles();
@@ -373,11 +353,12 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
                 t = new SARIC_Time(se, date);
                 System.out.println(t);
                 dir3 = new File(dir2, date);
-                f = new File(
-                        dir3,
+                f = new File(dir3,
                         date + ss.getString_RADAR_UK_Composite_Highres() + ".asc");
                 if (f.exists()) {
-                    g = (Grids_GridDouble) gf.create(f);
+                    File gdir;
+                    gdir = gridf.createNewFile(gridf.getGeneratedGridDoubleDir());
+                    g = (Grids_GridDouble) gf.create(gdir, f);
                     System.out.println(g);
                     result.put(t, g);
                 }
@@ -386,9 +367,7 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
         return result;
     }
 
-    private static SimpleFeatureType initSimpleFeatureType(
-            String type,
-            String srid) {
+    private static SimpleFeatureType initSimpleFeatureType(String type, String srid) {
         SimpleFeatureType result = null;
         try {
             result = DataUtilities.createType(

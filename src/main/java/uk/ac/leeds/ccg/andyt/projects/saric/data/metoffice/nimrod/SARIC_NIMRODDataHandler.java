@@ -35,6 +35,7 @@ import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_GridDouble;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.chunk.Grids_GridChunkDoubleArrayFactory;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_GridDoubleFactory;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.stats.Grids_GridDoubleStatsNotUpdated;
+import uk.ac.leeds.ccg.andyt.grids.io.Grids_Files;
 import uk.ac.leeds.ccg.andyt.grids.io.Grids_ImageExporter;
 import uk.ac.leeds.ccg.andyt.grids.process.Grids_Processor;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
@@ -88,6 +89,9 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
         cm = sc.getColorMap();
         Grids_ImageExporter ie;
         ie = new Grids_ImageExporter(ge);
+
+        Grids_Files gridf;
+        gridf = ge.getFiles();
         File outfile;
 
         String path0;
@@ -161,16 +165,10 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
         tgf = (Grids_GridDoubleFactory) tg[1];
         File dirt1;
         File dirt2;
-        dirt1 = new File(
-                tgf.getDirectory(),
-                "TG1");
-        tgf.setDirectory(dirt1);
-        tg1 = (Grids_GridDouble) tgf.create(dirt1, tg0, 0, 0, 
+        dirt1 = new File(gridf.getGeneratedGridDoubleDir(), "TG1");
+        tg1 = (Grids_GridDouble) tgf.create(dirt1, tg0, 0, 0,
                 tg0.getNRows() - 1, tg0.getNCols() - 1);
-        dirt2 = new File(
-                tgf.getDirectory(),
-                "TG2");
-        tgf.setDirectory(dirt2);
+        dirt2 = new File(gridf.getGeneratedGridDoubleDir(), "TG2");
 
         // Wissey
         SARIC_Wissey wissey;
@@ -185,16 +183,10 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
         wgf = (Grids_GridDoubleFactory) wg[1];
         File dirw1;
         File dirw2;
-        dirw1 = new File(
-                wgf.getDirectory(),
-                "WG1");
-        wgf.setDirectory(dirw1);
-        wg1 = (Grids_GridDouble) wgf.create(dirw1, wg0, 0, 0, 
+        dirw1 = new File(gridf.getGeneratedGridDoubleDir(), "WG1");
+        wg1 = (Grids_GridDouble) wgf.create(dirw1, wg0, 0, 0,
                 wg0.getNRows() - 1, wg0.getNCols() - 1);
-        dirw2 = new File(
-                wgf.getDirectory(),
-                "WG2");
-        wgf.setDirectory(dirw2);
+        dirw2 = new File(gridf.getGeneratedGridDoubleDir(), "WG2");
         // Set archive parameters
         long GridID;
         //long maxID;
@@ -208,8 +200,7 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
                     tg0.getNRows() - 1, tg0.getNCols() - 1);
             wg2 = (Grids_GridDouble) wgf.create(dirw2, wg0, 0, 0,
                     wg0.getNRows() - 1, wg0.getNCols() - 1);
-            f = new File(
-                    inputDir,
+            f = new File(inputDir,
                     "metoffice-c-band-rain-radar_uk_" + st.getYYYYMMDDHHMM() + "_1km-composite.dat");
             if (f.exists()) {
                 try {
@@ -227,16 +218,13 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
 //                                range);
                         Generic_StaticIO.initialiseArchive(generatedDir1, range);
                         generatedDir2 = Generic_StaticIO.getObjectDirectory(
-                                generatedDir1,
-                                GridID,
-                                GridID,
-                                range);
+                                generatedDir1, GridID, GridID, range);
                     } else {
                         GridID++;
-                        generatedDir2 = Generic_StaticIO.addToArchive(generatedDir1, range, GridID);
+                        generatedDir2 = Generic_StaticIO.addToArchive(
+                                generatedDir1, range, GridID);
                     }
                     generatedDir2.mkdirs();
-                    gf.setDirectory(generatedDir2);
 //                    gpDir = new File(generatedDir2, "Processor");
 //                    gpDir.mkdirs();
 //                    gp.setDirectory(gpDir, false, true);

@@ -36,6 +36,7 @@ import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_GridDouble;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_GridDoubleFactory;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.stats.Grids_GridDoubleStatsNotUpdated;
 import uk.ac.leeds.ccg.andyt.grids.io.Grids_ESRIAsciiGridExporter;
+import uk.ac.leeds.ccg.andyt.grids.io.Grids_Files;
 import uk.ac.leeds.ccg.andyt.grids.io.Grids_ImageExporter;
 import uk.ac.leeds.ccg.andyt.grids.process.Grids_Processor;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
@@ -109,14 +110,8 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
     }
 
     private void init_gf() {
-        gf = new Grids_GridDoubleFactory(
-                ge,
-                gp.getDirectory(),
-                gp.GridChunkDoubleFactory,
-                gp.DefaultGridChunkDoubleFactory,
-                noDataValue,
-                256,
-                256,
+        gf = new Grids_GridDoubleFactory(ge, gp.GridChunkDoubleFactory,
+                gp.DefaultGridChunkDoubleFactory, noDataValue, 256, 256,
                 new Grids_Dimensions(256, 256),
                 new Grids_GridDoubleStatsNotUpdated(ge));
         gf.setNoDataValue(noDataValue);
@@ -125,15 +120,12 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
 
     @Override
     public void run() {
-
         SARIC_Colour sc;
         sc = new SARIC_Colour(se);
-
         TreeMap<Double, Color> colorMap;
         colorMap = sc.getVarianceColorMap();
         Color noDataValueColor;
         noDataValueColor = Color.BLACK;
-
         // Initial declaration
         File inspireWMTSCapabilities;
         SARIC_MetOfficeParameters p;
@@ -152,27 +144,24 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
         p = new SARIC_MetOfficeParameters();
         r = new SARIC_MetOfficeCapabilitiesXMLDOMReader(se, inspireWMTSCapabilities);
         tileMatrixSet = "EPSG:27700"; // British National Grid
-
         // Initialisation for Wissey
         SARIC_Wissey sw = null;
         Object[] sw1KMGrid = null;
         Object[] sw1KMGridMaskedToCatchment = null;
         if (doWissey) {
             sw = se.getWissey();
-            sw1KMGrid = sw.get1KMGrid();
+            sw1KMGrid = sw.get1KMGrid("1KMGrid");
             sw1KMGridMaskedToCatchment = sw.get1KMGridMaskedToCatchment();
         }
-
         // Initialisation for Wissey
         SARIC_Teifi st = null;
         Object[] st1KMGrid = null;
         Object[] st1KMGridMaskedToCatchment = null;
         if (doTeifi) {
             st = se.getTeifi();
-            st1KMGrid = st.get1KMGrid();
+            st1KMGrid = st.get1KMGrid("1KMGrid");
             st1KMGridMaskedToCatchment = st.get1KMGridMaskedToCatchment();
         }
-
         layerName = ss.getString_RADAR_UK_Composite_Highres();
         for (int scale = 4; scale < 5; scale++) {
             tileMatrix = tileMatrixSet + ":" + scale;
@@ -221,6 +210,9 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
                 + "Grids_Grid2DSquareCellDouble)";
         System.out.println("<" + methodName + ">");
         // Initial declaration
+        Grids_Files gridf;
+        gridf = ge.getFiles();
+        File gdir;
         TreeMap<SARIC_YearMonth, TreeSet<SARIC_Date>> ymDates;
         SARIC_YearMonth ym;
         TreeSet<SARIC_Date> dates;
@@ -406,8 +398,8 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
                             if (variances.containsKey(rowCol)) {
                                 variance = variances.get(rowCol);
                             } else {
-                                variance = gf.create(
-                                        Generic_StaticIO.createNewFile(gf.getDirectory()),
+                                gdir = gridf.createNewFile(gridf.getGeneratedGridDoubleDir());
+                                variance = gf.create(gdir,
                                         NRows, NCols, sum.getDimensions());
                                 variances.put(rowCol, variance);
                             }
@@ -455,7 +447,8 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
                     System.out.println("<Duplicate a1KMGrid>");
                     Grids_GridDoubleFactory f;
                     f = (Grids_GridDoubleFactory) a1KMGrid[1];
-                    b1KMGrid = (Grids_GridDouble) f.create((Grids_GridDouble) a1KMGrid[0]);
+                    gdir = gridf.createNewFile(gridf.getGeneratedGridDoubleDir());
+                    b1KMGrid = (Grids_GridDouble) f.create(gdir, (Grids_GridDouble) a1KMGrid[0]);
                     //b1KMGrid = (Grids_GridDouble) a1KMGrid[0];
                     System.out.println("</Duplicate a1KMGrid>");
                     double vb;
@@ -564,7 +557,9 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
         String methodName;
         methodName = "getGrid(File,BigDecimal,Vector_Envelope2D,String,int[])";
         Grids_GridDouble result = null;
-        Boolean HandleOutOfMemoryError = true;
+        Grids_Files gridf;
+        gridf = ge.getFiles();
+        File gdir;
         Image image = null;
         int width;
         int height;
@@ -589,9 +584,8 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
 //        dimensions[4] = tileBounds.YMax.subtract(cellsize.multiply(new BigDecimal(rowColint[0]).multiply(new BigDecimal(width)))); //YMAX
 //        dimensions[2] = dimensions[4].subtract(cellsize.multiply(new BigDecimal(height))); //YMIN
 //        dimensions[3] = dimensions[1].subtract(cellsize.multiply(new BigDecimal(width)));  //XMAX
-
-            result = (Grids_GridDouble) gf.create(Generic_StaticIO.createNewFile(gf.getDirectory()),
-                    height,                    width,                    dimensions);
+            gdir = gridf.createNewFile(gridf.getGeneratedGridDoubleDir());
+            result = (Grids_GridDouble) gf.create(gdir, height, width, dimensions);
             int[] pixels = new int[width * height];
             PixelGrabber pg = new PixelGrabber(image, 0, 0, width, height, pixels, 0, width);
             try {

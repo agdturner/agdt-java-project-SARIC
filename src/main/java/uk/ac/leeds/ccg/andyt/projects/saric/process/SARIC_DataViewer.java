@@ -48,6 +48,7 @@ import uk.ac.leeds.ccg.andyt.geotools.Geotools_StyleParameters;
 import uk.ac.leeds.ccg.andyt.geotools.demo.Geotools_DisplayShapefile;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_GridDouble;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_GridDoubleFactory;
+import uk.ac.leeds.ccg.andyt.grids.io.Grids_Files;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Strings;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.catchment.SARIC_Teifi;
@@ -149,7 +150,7 @@ public class SARIC_DataViewer extends Geotools_DisplayShapefile implements Runna
             printBounds(re);
             re = mc.getMaxBounds();
             printBounds(re);
-            
+
             // Add OSM data
             String osmLayerName;
             // Roads
@@ -341,7 +342,7 @@ public class SARIC_DataViewer extends Geotools_DisplayShapefile implements Runna
         result = SLD.createPolygonStyle(outlineColor, fillColor, opacity);
         return result;
     }
-    
+
     public Style getStyleOSMRailway() {
         Style result;
         Color outlineColor;
@@ -353,7 +354,7 @@ public class SARIC_DataViewer extends Geotools_DisplayShapefile implements Runna
         result = SLD.createPolygonStyle(outlineColor, fillColor, opacity);
         return result;
     }
-    
+
     public Style getStyleOSMWater() {
         Style result;
         Color outlineColor;
@@ -365,7 +366,7 @@ public class SARIC_DataViewer extends Geotools_DisplayShapefile implements Runna
         result = SLD.createPolygonStyle(outlineColor, fillColor, opacity);
         return result;
     }
-    
+
     public Style getStyleOSMWaterWay() {
         Style result;
         Color outlineColor;
@@ -377,7 +378,7 @@ public class SARIC_DataViewer extends Geotools_DisplayShapefile implements Runna
         result = SLD.createPolygonStyle(outlineColor, fillColor, opacity);
         return result;
     }
-    
+
     public Style getStyleIHU() {
         Style result;
         Color outlineColor;
@@ -418,6 +419,8 @@ public class SARIC_DataViewer extends Geotools_DisplayShapefile implements Runna
     }
 
     public GridCoverageLayer getGridCoverageLayer(File dir, String name) {
+        Grids_Files gridf;
+        gridf = ge.getGrids_Environment().getFiles();
         GridCoverageLayer result;
         File f;
         f = new File(dir, name);
@@ -440,14 +443,16 @@ public class SARIC_DataViewer extends Geotools_DisplayShapefile implements Runna
 
         Grids_GridDoubleFactory gf;
         gf = se.getGrids_Environment().getProcessor().GridDoubleFactory;
+        File gdir;
+        gdir = gridf.createNewFile(gridf.getGeneratedGridDoubleDir());
         Grids_GridDouble g;
-        g = (Grids_GridDouble) gf.create(f);
+        g = (Grids_GridDouble) gf.create(gdir, f);
 
         double normalisation = 1.0d;
 
         Geotools_Style Style;
         Style = _Geotools_Environment.getStyle();
-                
+
         Object[] styleAndLegendItems;
         styleAndLegendItems = Style.getStyleAndLegendItems(
                 normalisation,

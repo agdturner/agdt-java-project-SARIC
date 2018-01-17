@@ -38,6 +38,7 @@ import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import uk.ac.leeds.ccg.andyt.generic.io.Generic_StaticIO;
 import uk.ac.leeds.ccg.andyt.geotools.core.Geotools_Environment;
 import uk.ac.leeds.ccg.andyt.geotools.Geotools_Shapefile;
 import uk.ac.leeds.ccg.andyt.generic.math.Generic_BigDecimal;
@@ -138,27 +139,23 @@ public abstract class SARIC_Catchment extends SARIC_Object {
     /**
      * https://www.ordnancesurvey.co.uk/resources/maps-and-geographic-resources/the-national-grid.html
      *
+     * @param name "1KMGrid", "1KMGridMaskedToCatchment"
      * @return
      */
-    public Object[] get1KMGrid() {
+    public Object[] get1KMGrid(String name) {
         Object[] result;
-        result = new Object[2];
+        result = new Object[3];
         Grids_GridDouble grid;
         Vector_Envelope2D bounds;
         bounds = get1KMGridBounds();
         //Grids_Grid2DSquareCellDoubleFactory inf;
         File dir;
-        dir = new File(
-                Files.getGeneratedDataCatchmentBoundariesDir(),
+        dir = new File(                Files.getGeneratedDataCatchmentBoundariesDir(),
                 CatchmentName);
+        dir = new File(dir, name);
         BigDecimal cellsize = new BigDecimal("1000");
         Grids_Dimensions dimensions;
-        dimensions = new Grids_Dimensions(
-                bounds.XMin,
-                bounds.XMax,
-                bounds.YMin,
-                bounds.YMax,
-                cellsize);
+        dimensions = new Grids_Dimensions(bounds.XMin, bounds.XMax, bounds.YMin, bounds.YMax, cellsize);
         long nrows;
         long ncols;
         ncols = Generic_BigDecimal.divideNoRounding(bounds.XMax.subtract(bounds.XMin), cellsize).longValueExact();
@@ -169,7 +166,6 @@ public abstract class SARIC_Catchment extends SARIC_Object {
         Grids_GridDoubleFactory f;
         f = new Grids_GridDoubleFactory(
                 _Grids_Environment,
-                Files.getGeneratedDataGridsDir(),
                 gp.GridChunkDoubleFactory,
                 gp.DefaultGridChunkDoubleFactory,
                 -Double.MAX_VALUE, //-9999.0d,
@@ -177,7 +173,14 @@ public abstract class SARIC_Catchment extends SARIC_Object {
                 (int) ncols,
                 dimensions,
                 new Grids_GridDoubleStats(_Grids_Environment));
-        grid = f.create(dir, nrows, ncols, dimensions);
+        if (dir.exists()) {
+            grid = (Grids_GridDouble) f.create(dir ,dir);
+            result[2] = true;
+        } else {
+            grid = f.create(dir, nrows, ncols, dimensions);
+            grid.writeToFile(true);
+            result[2] = false;
+        }
         result[0] = grid;
 //        System.out.println("grid " + grid);
         result[1] = f;
@@ -191,63 +194,64 @@ public abstract class SARIC_Catchment extends SARIC_Object {
      */
     public Object[] get1KMGridMaskedToCatchment() {
         Object[] result;
-        result = get1KMGrid();
-        Grids_GridDouble resultGrid;
-        resultGrid = (Grids_GridDouble) result[0];
-        // Get Outline
-        Geometry geometry2;
-        geometry2 = getOutlineGeometry();
-        //MultiPolygon p = (MultiPolygon) geometry2;
-        //System.out.println(p.toString());
-        GeometryFactory gf;
-        gf = JTSFactoryFinder.getGeometryFactory();
-  //      Polygon p = new Polygon(geometry2, null, gf);
-        // Set up for intersection
-        SimpleFeatureType sft;
-        sft = SARIC_DataForWASIM.getPointSimpleFeatureType(SARIC_DataForWASIM.defaultSRID);
-        SimpleFeatureBuilder sfb;
-        sfb = new SimpleFeatureBuilder(sft);
-        Coordinate c;
-        Coordinate[] cs;
-        cs = new Coordinate[5];
-        Point point;
-        Polygon poly;
-        PrecisionModel precisionModel;
-        precisionModel = new PrecisionModel(PrecisionModel.FLOATING);
-        SimpleFeature feature;
-        Geometry geometry;
-        Geometry intersection;
-        String name;
-        long nrows;
-        long ncols;
-        nrows = resultGrid.getNRows();
-        ncols = resultGrid.getNCols();
-        //double noDataValue = result.getNoDataValue(true);
-        //double value;
-        double cellsize;
-        cellsize = resultGrid.getCellsizeDouble();
-        double halfCellsize;
-        halfCellsize = cellsize / 2.0d;
-        double x;
-        double y;
-        for (long row = 0; row < nrows; row++) {
-            y = resultGrid.getCellYDouble(row);
-            for (long col = 0; col < ncols; col++) {
-                x = resultGrid.getCellXDouble(col);
-                c = new Coordinate(x, y);
-                //System.out.println("x, y = " + x + ", " + y);
-                //System.out.println("row, col = " + row + ", " + col);
-                cs[0] = new Coordinate(x - halfCellsize, y - halfCellsize);
-                cs[1] = new Coordinate(x - halfCellsize, y + halfCellsize);
-                cs[2] = new Coordinate(x + halfCellsize, y + halfCellsize);
-                cs[3] = new Coordinate(x + halfCellsize, y - halfCellsize);
-                cs[4] = cs[0];
-                CoordinateArraySequence coords;
-                coords = new CoordinateArraySequence(cs);
-                LinearRing lr;
-                lr = new LinearRing(coords, gf);
-                poly = new Polygon(lr, null, gf);
-                //point = gf.createPoint(c);
+        result = get1KMGrid("1KMGridMaskedToCatchment");
+        if (!(Boolean) result[2]) {
+            Grids_GridDouble resultGrid;
+            resultGrid = (Grids_GridDouble) result[0];
+            // Get Outline
+            Geometry geometry2;
+            geometry2 = getOutlineGeometry();
+            //MultiPolygon p = (MultiPolygon) geometry2;
+            //System.out.println(p.toString());
+            GeometryFactory gf;
+            gf = JTSFactoryFinder.getGeometryFactory();
+            //      Polygon p = new Polygon(geometry2, null, gf);
+            // Set up for intersection
+            SimpleFeatureType sft;
+            sft = SARIC_DataForWASIM.getPointSimpleFeatureType(SARIC_DataForWASIM.defaultSRID);
+            SimpleFeatureBuilder sfb;
+            sfb = new SimpleFeatureBuilder(sft);
+            Coordinate c;
+            Coordinate[] cs;
+            cs = new Coordinate[5];
+            Point point;
+            Polygon poly;
+            PrecisionModel precisionModel;
+            precisionModel = new PrecisionModel(PrecisionModel.FLOATING);
+            SimpleFeature feature;
+            Geometry geometry;
+            Geometry intersection;
+            String name;
+            long nrows;
+            long ncols;
+            nrows = resultGrid.getNRows();
+            ncols = resultGrid.getNCols();
+            //double noDataValue = result.getNoDataValue(true);
+            //double value;
+            double cellsize;
+            cellsize = resultGrid.getCellsizeDouble();
+            double halfCellsize;
+            halfCellsize = cellsize / 2.0d;
+            double x;
+            double y;
+            for (long row = 0; row < nrows; row++) {
+                y = resultGrid.getCellYDouble(row);
+                for (long col = 0; col < ncols; col++) {
+                    x = resultGrid.getCellXDouble(col);
+                    c = new Coordinate(x, y);
+                    //System.out.println("x, y = " + x + ", " + y);
+                    //System.out.println("row, col = " + row + ", " + col);
+                    cs[0] = new Coordinate(x - halfCellsize, y - halfCellsize);
+                    cs[1] = new Coordinate(x - halfCellsize, y + halfCellsize);
+                    cs[2] = new Coordinate(x + halfCellsize, y + halfCellsize);
+                    cs[3] = new Coordinate(x + halfCellsize, y - halfCellsize);
+                    cs[4] = cs[0];
+                    CoordinateArraySequence coords;
+                    coords = new CoordinateArraySequence(cs);
+                    LinearRing lr;
+                    lr = new LinearRing(coords, gf);
+                    poly = new Polygon(lr, null, gf);
+                    //point = gf.createPoint(c);
 //                sfb.add(point);
 //                name = "" + x + "_" + y;
 //                sfb.add(name);
@@ -255,25 +259,27 @@ public abstract class SARIC_Catchment extends SARIC_Object {
 //                geometry = (Geometry) feature.getDefaultGeometry();
 //                intersection = geometry.intersection(geometry2);
 //                intersection = poly.intersection(p);
-                intersection = poly.intersection(geometry2);
+                    intersection = poly.intersection(geometry2);
 //                intersection = p.intersection(poly);
 //                intersection = point.intersection(p);
 //                intersection = p.intersection(point);
-                if (intersection.isEmpty()) {
+                    if (intersection.isEmpty()) {
 //                intersection = poly.intersection(geometry2);
 //                if (intersection.isEmpty()) {
-                //if (!lr.crosses(geometry2)) {
-                    //System.out.println("Point " + point + " does not intersect.");
-                    //System.out.println("Poly " + poly + " does not intersect.");
-                } else {
-                    //System.out.println("Intersection");
-                    //System.out.println("row, col " + row + ", " + col);
-                    //System.out.println("x, y " + x + ", " + y);
-                    resultGrid.setCell(row, col, 0.0d);
+                        //if (!lr.crosses(geometry2)) {
+                        //System.out.println("Point " + point + " does not intersect.");
+                        //System.out.println("Poly " + poly + " does not intersect.");
+                    } else {
+                        //System.out.println("Intersection");
+                        //System.out.println("row, col " + row + ", " + col);
+                        //System.out.println("x, y " + x + ", " + y);
+                        resultGrid.setCell(row, col, 0.0d);
+                    }
                 }
             }
+            System.out.println("Catchment mask " + resultGrid);
+            resultGrid.writeToFile(true);
         }
-        System.out.println("Catchment mask " +  resultGrid);
         return result;
     }
 
@@ -370,7 +376,7 @@ public abstract class SARIC_Catchment extends SARIC_Object {
         Iterator<SARIC_Site> ite;
         ite = sites.iterator();
         SARIC_Site site;
-                Vector_OSGBtoLatLon OSGBtoLatLon = _Vector_Environment.getOSGBtoLatLon();
+        Vector_OSGBtoLatLon OSGBtoLatLon = _Vector_Environment.getOSGBtoLatLon();
         double[] OSGBEastingAndNorthing;
         Vector_Point2D p;
         while (ite.hasNext()) {
@@ -405,8 +411,10 @@ public abstract class SARIC_Catchment extends SARIC_Object {
         SimpleFeature feature2 = null;
         try {
             feature2 = (SimpleFeature) shpf.getFeatureSource().getFeatures().features().next();
+
         } catch (IOException ex) {
-            Logger.getLogger(SARIC_Catchment.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(SARIC_Catchment.class
+                    .getName()).log(Level.SEVERE, null, ex);
         }
         result = (Geometry) feature2.getDefaultGeometry();
         shpf.dispose();
