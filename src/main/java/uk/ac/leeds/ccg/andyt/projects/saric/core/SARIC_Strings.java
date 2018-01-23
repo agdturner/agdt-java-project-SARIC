@@ -49,298 +49,298 @@ public class SARIC_Strings extends Generic_Strings {
     public final String symbol_colon = ":";
     public final String symbol_underscore = "_";
     // For alphabet upper and lower case
-    public final String string_T = "T";
-    public final String string_Z = "Z";
+    public final String s_T = "T";
+    public final String s_Z = "Z";
     
-    // Normal strings listed alphabetically
-    String string_3hourly;
-    String string_all;
-    String string_Catchment;
-    String string_CatchmentBoundaries;
-    String string_CEH;
-    String string_capabilities;
-    String string_config;
-    String string_daily;
-    String string_DataPoint;
-    String string_datatype;
-    String string_Forecasts;
-    String string_Grids;
-    String string_GridDoubleFactory;
-    String string_hourly;
-    String string_inspire;
-    String string_key;
-    String string_layer;
-    String string_MetOffice;
-    String string_Nimrod;
-    String string_OSM;
-    String string_Observations;
-    String string_Precipitation_Rate;
-    String string_png;
-    String string_RADAR_UK_Composite_Highres;
-    String string_res;
-    String string_site;
-    String string_Sites;
-    String string_sitelist;
-    String string_Teifi;
-    String string_val;
-    String string_view;
-    String string_Wissey;
-    String string_wmts;
-    String string_wxfcs;
-    String string_wxobs;
-    String string_xml;
+    // Normal ss listed alphabetically
+    String S_3hourly;
+    String S_all;
+    String s_Catchment;
+    String s_CatchmentBoundaries;
+    String s_CEH;
+    String S_capabilities;
+    String s_config;
+    String s_daily;
+    String s_DataPoint;
+    String s_datatype;
+    String s_Forecasts;
+    String s_Grids;
+    String s_GridDoubleFactory;
+    String s_hourly;
+    String s_inspire;
+    String s_key;
+    String s_layer;
+    String s_MetOffice;
+    String s_Nimrod;
+    String s_OSM;
+    String s_Observations;
+    String s_Precipitation_Rate;
+    String s_png;
+    String s_RADAR_UK_Composite_Highres;
+    String s_res;
+    String s_site;
+    String s_Sites;
+    String s_sitelist;
+    String s_Teifi;
+    String s_val;
+    String s_view;
+    String s_Wissey;
+    String s_wmts;
+    String s_wxfcs;
+    String s_wxobs;
+    String s_xml;
 
-    public String getString_3hourly() {
-        if (string_3hourly == null) {
-            string_3hourly = "3" + getString_hourly();
+    public String getS_3hourly() {
+        if (S_3hourly == null) {
+            S_3hourly = "3" + getS_hourly();
         }
-        return string_3hourly;
+        return S_3hourly;
     }
 
-    public String getString_all() {
-        if (string_all == null) {
-            string_all = "all";
+    public String getS_all() {
+        if (S_all == null) {
+            S_all = "all";
         }
-        return string_all;
+        return S_all;
     }
 
-    public String getString_capabilities() {
-        if (string_capabilities == null) {
-            string_capabilities = "capabilities";
+    public String getS_capabilities() {
+        if (S_capabilities == null) {
+            S_capabilities = "capabilities";
         }
-        return string_capabilities;
+        return S_capabilities;
     }
 
-    public String getString_Catchment() {
-        if (string_Catchment == null) {
-            string_Catchment = "Catchment";
+    public String getS_Catchment() {
+        if (s_Catchment == null) {
+            s_Catchment = "Catchment";
         }
-        return string_Catchment;
+        return s_Catchment;
     }
 
-    public String getString_CatchmentBoundaries() {
-        if (string_CatchmentBoundaries == null) {
-            string_CatchmentBoundaries = "CatchmentBoundaries";
+    public String getS_CatchmentBoundaries() {
+        if (s_CatchmentBoundaries == null) {
+            s_CatchmentBoundaries = "CatchmentBoundaries";
         }
-        return string_CatchmentBoundaries;
+        return s_CatchmentBoundaries;
     }
 
-    public String getString_CEH() {
-        if (string_CEH == null) {
-            string_CEH = "CEH";
+    public String getS_CEH() {
+        if (s_CEH == null) {
+            s_CEH = "CEH";
         }
-        return string_CEH;
+        return s_CEH;
     }
 
-    public String getString_config() {
-        if (string_config == null) {
-            string_config = "config";
+    public String getS_config() {
+        if (s_config == null) {
+            s_config = "config";
         }
-        return string_config;
+        return s_config;
     }
 
-    public String getString_daily() {
-        if (string_daily == null) {
-            string_daily = "daily";
+    public String getS_daily() {
+        if (s_daily == null) {
+            s_daily = "daily";
         }
-        return string_daily;
+        return s_daily;
     }
 
-    public String getString_datatype() {
-        if (string_datatype == null) {
-            string_datatype = "datatype";
+    public String getS_datatype() {
+        if (s_datatype == null) {
+            s_datatype = "datatype";
         }
-        return string_datatype;
+        return s_datatype;
     }
 
-    public String getString_DataPoint() {
-        if (string_DataPoint == null) {
-            string_DataPoint = "DataPoint";
+    public String getS_DataPoint() {
+        if (s_DataPoint == null) {
+            s_DataPoint = "DataPoint";
         }
-        return string_DataPoint;
+        return s_DataPoint;
     }
 
-    public String getString_Forecasts() {
-        if (string_Forecasts == null) {
-            string_Forecasts = "Forecasts";
+    public String getS_Forecasts() {
+        if (s_Forecasts == null) {
+            s_Forecasts = "Forecasts";
         }
-        return string_Forecasts;
+        return s_Forecasts;
     }
 
-    public String getString_Grids() {
-        if (string_Grids == null) {
-            string_Grids = "Grids";
+    public String getS_Grids() {
+        if (s_Grids == null) {
+            s_Grids = "Grids";
         }
-        return string_Grids;
+        return s_Grids;
     }
 
-    public String getString_GridDoubleFactory() {
-        if (string_GridDoubleFactory == null) {
-            string_GridDoubleFactory = "GridDoubleFactory";
+    public String getS_GridDoubleFactory() {
+        if (s_GridDoubleFactory == null) {
+            s_GridDoubleFactory = "GridDoubleFactory";
         }
-        return string_GridDoubleFactory;
+        return s_GridDoubleFactory;
     }
             
-    public String getString_hourly() {
-        if (string_hourly == null) {
-            string_hourly = "hourly";
+    public String getS_hourly() {
+        if (s_hourly == null) {
+            s_hourly = "hourly";
         }
-        return string_hourly;
+        return s_hourly;
     }
 
-    public String getString_inspire() {
-        if (string_inspire == null) {
-            string_inspire = "inspire";
+    public String getS_inspire() {
+        if (s_inspire == null) {
+            s_inspire = "inspire";
         }
-        return string_inspire;
+        return s_inspire;
     }
 
-    public String getString_key() {
-        if (string_key == null) {
-            string_key = "key";
+    public String getS_key() {
+        if (s_key == null) {
+            s_key = "key";
         }
-        return string_key;
+        return s_key;
     }
 
-    public String getString_layer() {
-        if (string_layer == null) {
-            string_layer = "layer";
+    public String getS_layer() {
+        if (s_layer == null) {
+            s_layer = "layer";
         }
-        return string_layer;
+        return s_layer;
     }
 
-    public String getString_MetOffice() {
-        if (string_MetOffice == null) {
-            string_MetOffice = "MetOffice";
+    public String getS_MetOffice() {
+        if (s_MetOffice == null) {
+            s_MetOffice = "MetOffice";
         }
-        return string_MetOffice;
+        return s_MetOffice;
     }
 
-    public String getString_OSM() {
-        if (string_OSM == null) {
-            string_OSM = "OSM";
+    public String getS_OSM() {
+        if (s_OSM == null) {
+            s_OSM = "OSM";
         }
-        return string_OSM;
+        return s_OSM;
     }
 
     
-    public String getString_Nimrod() {
-        if (string_Nimrod == null) {
-            string_Nimrod = "Nimrod";
+    public String getS_Nimrod() {
+        if (s_Nimrod == null) {
+            s_Nimrod = "Nimrod";
         }
-        return string_Nimrod;
+        return s_Nimrod;
     }
 
-    public String getString_Observations() {
-        if (string_Observations == null) {
-            string_Observations = "Observations";
+    public String getS_Observations() {
+        if (s_Observations == null) {
+            s_Observations = "Observations";
         }
-        return string_Observations;
+        return s_Observations;
     }
 
-    public String getString_png() {
-        if (string_png == null) {
-            string_png = "png";
+    public String getS_png() {
+        if (s_png == null) {
+            s_png = "png";
         }
-        return string_png;
+        return s_png;
     }
 
-    public String getString_Precipitation_Rate() {
-        if (string_Precipitation_Rate == null) {
-            string_Precipitation_Rate = "Precipitation_Rate";
+    public String getS_Precipitation_Rate() {
+        if (s_Precipitation_Rate == null) {
+            s_Precipitation_Rate = "Precipitation_Rate";
         }
-        return string_Precipitation_Rate;
+        return s_Precipitation_Rate;
     }
 
-    public String getString_RADAR_UK_Composite_Highres() {
-        if (string_RADAR_UK_Composite_Highres == null) {
-            string_RADAR_UK_Composite_Highres = "RADAR_UK_Composite_Highres";
+    public String getS_RADAR_UK_Composite_Highres() {
+        if (s_RADAR_UK_Composite_Highres == null) {
+            s_RADAR_UK_Composite_Highres = "RADAR_UK_Composite_Highres";
         }
-        return string_RADAR_UK_Composite_Highres;
+        return s_RADAR_UK_Composite_Highres;
     }
 
-    public String getString_res() {
-        if (string_res == null) {
-            string_res = "res";
+    public String getS_res() {
+        if (s_res == null) {
+            s_res = "res";
         }
-        return string_res;
+        return s_res;
     }
 
-    public String getString_site() {
-        if (string_site == null) {
-            string_site = "site";
+    public String getS_site() {
+        if (s_site == null) {
+            s_site = "site";
         }
-        return string_site;
+        return s_site;
     }
     
-    public String getString_Sites() {
-        if (string_Sites == null) {
-            string_Sites = "Sites";
+    public String getS_Sites() {
+        if (s_Sites == null) {
+            s_Sites = "Sites";
         }
-        return string_Sites;
+        return s_Sites;
     }
 
-    public String getString_sitelist() {
-        if (string_sitelist == null) {
-            string_sitelist = "sitelist";
+    public String getS_sitelist() {
+        if (s_sitelist == null) {
+            s_sitelist = "sitelist";
         }
-        return string_sitelist;
+        return s_sitelist;
     }
 
-    public String getString_Teifi() {
-        if (string_Teifi == null) {
-            string_Teifi = "Teifi";
+    public String getS_Teifi() {
+        if (s_Teifi == null) {
+            s_Teifi = "Teifi";
         }
-        return string_Teifi;
+        return s_Teifi;
     }
 
-    public String getString_val() {
-        if (string_val == null) {
-            string_val = "val";
+    public String getS_val() {
+        if (s_val == null) {
+            s_val = "val";
         }
-        return string_val;
+        return s_val;
     }
 
-    public String getString_view() {
-        if (string_view == null) {
-            string_view = "view";
+    public String getS_view() {
+        if (s_view == null) {
+            s_view = "view";
         }
-        return string_view;
+        return s_view;
     }
 
-    public String getString_Wissey() {
-        if (string_Wissey == null) {
-            string_Wissey = "Wissey";
+    public String getS_Wissey() {
+        if (s_Wissey == null) {
+            s_Wissey = "Wissey";
         }
-        return string_Wissey;
+        return s_Wissey;
     }
 
-    public String getString_wmts() {
-        if (string_wmts == null) {
-            string_wmts = "wmts";
+    public String getS_wmts() {
+        if (s_wmts == null) {
+            s_wmts = "wmts";
         }
-        return string_wmts;
+        return s_wmts;
     }
 
-    public String getString_wxfcs() {
-        if (string_wxfcs == null) {
-            string_wxfcs = "wxfcs";
+    public String getS_wxfcs() {
+        if (s_wxfcs == null) {
+            s_wxfcs = "wxfcs";
         }
-        return string_wxfcs;
+        return s_wxfcs;
     }
 
-    public String getString_wxobs() {
-        if (string_wxobs == null) {
-            string_wxobs = "wxobs";
+    public String getS_wxobs() {
+        if (s_wxobs == null) {
+            s_wxobs = "wxobs";
         }
-        return string_wxobs;
+        return s_wxobs;
     }
 
-    public String getString_xml() {
-        if (string_xml == null) {
-            string_xml = "xml";
+    public String getS_xml() {
+        if (s_xml == null) {
+            s_xml = "xml";
         }
-        return string_xml;
+        return s_xml;
     }
 
 }

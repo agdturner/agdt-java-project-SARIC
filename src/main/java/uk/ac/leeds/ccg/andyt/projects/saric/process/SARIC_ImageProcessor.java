@@ -123,7 +123,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
         this.overwrite = overwrite;
         Files = se.getFiles();
         Strings = se.getStrings();
-        ge = se.getGrids_Environment();
+        ge = se.getGrids_Env();
         ae = new Grids_ESRIAsciiGridExporter(ge);
         ie = new Grids_ImageExporter(ge);
         gp = ge.getProcessor();
@@ -161,20 +161,20 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
             Object[] nearestForecastsSitesGridAndFactory;
             String areaName;
             if (doTeifi) {
-                areaName = Strings.getString_Teifi();
+                areaName = Strings.getS_Teifi();
                 SARIC_Teifi st;
                 st = new SARIC_Teifi(se);
-                sites = st.getForecastsSitesInStudyArea(Strings.getString_3hourly());
+                sites = st.getForecastsSitesInStudyArea(Strings.getS_3hourly());
                 nearestForecastsSitesGridAndFactory = st.getNearestForecastsSitesGrid(sites);
                 nonTiledForecastsForArea(areaName, sites,
                         nearestForecastsSitesGridAndFactory,
                         colorMap, noDataValueColor);
             }
             if (doWissey) {
-                areaName = Strings.getString_Wissey();
+                areaName = Strings.getS_Wissey();
                 SARIC_Wissey sw;
                 sw = new SARIC_Wissey(se);
-                sites = sw.getForecastsSitesInStudyArea(Strings.getString_3hourly());
+                sites = sw.getForecastsSitesInStudyArea(Strings.getS_3hourly());
                 nearestForecastsSitesGridAndFactory = sw.getNearestForecastsSitesGrid(sites);
                 nonTiledForecastsForArea(areaName, sites,
                         nearestForecastsSitesGridAndFactory,
@@ -242,13 +242,13 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                     System.out.println(bounds.toString());
                     p.setBounds(bounds);
                     if (doWissey) {
-                        area = Strings.getString_Wissey();
+                        area = Strings.getS_Wissey();
                         processForecasts(colorMap, noDataValueColor, area,
                                 scale, layerName, cellsize, p, lp, r, sw1KMGrid,
                                 sw1KMGridMaskedToCatchment);
                     }
                     if (doTeifi) {
-                        area = Strings.getString_Teifi();
+                        area = Strings.getS_Teifi();
                         processForecasts(colorMap, noDataValueColor, area,
                                 scale, layerName, cellsize, p, lp, r, st1KMGrid,
                                 st1KMGridMaskedToCatchment);
@@ -257,7 +257,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
             }
             // Observations
             if (doObservationsTileFromWMTSService) {
-                layerName = Strings.getString_RADAR_UK_Composite_Highres();
+                layerName = Strings.getS_RADAR_UK_Composite_Highres();
                 for (int scale = 4; scale < 5; scale++) {
                     tileMatrix = tileMatrixSet + ":" + scale;
                     metOfficeLayerParameters = p.getMetOfficeLayerParameters();
@@ -273,14 +273,14 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                     //System.out.println(bounds.toString());
                     p.setBounds(bounds);
                     if (doWissey) {
-                        area = Strings.getString_Wissey();
+                        area = Strings.getS_Wissey();
                         processObservations(
                                 colorMap, noDataValueColor, area, scale,
                                 layerName, cellsize, p, lp, r, sw1KMGrid,
                                 sw1KMGridMaskedToCatchment);
                     }
                     if (doTeifi) {
-                        area = Strings.getString_Teifi();
+                        area = Strings.getS_Teifi();
                         processObservations(
                                 colorMap, noDataValueColor, area, scale,
                                 layerName, cellsize, p, lp, r, st1KMGrid,
@@ -312,15 +312,15 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
         File outdir3;
         String name;
         // Initialisation part 1
-        dataType = Strings.getString_xml();
-        path = Files.getValDataTypePath(dataType, Strings.getString_wxfcs());
+        dataType = Strings.getS_xml();
+        path = Files.getValDataTypePath(dataType, Strings.getS_wxfcs());
         indir0 = new File(
                 Files.getInputDataMetOfficeDataPointDir(),
                 path);
         System.out.println(indir0);
         indir0 = new File(
                 indir0,
-                Strings.getString_site() + "0");
+                Strings.getS_site() + "0");
         /**
          * There is no need to run for daily, it is just for the same time as
          * the 3hourly, but gives lower temporal resolution and we want high
@@ -328,7 +328,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
          */
         indir0 = new File(
                 indir0,
-                Strings.getString_3hourly());
+                Strings.getS_3hourly());
         outdir0 = new File(
                 Files.getOutputDataMetOfficeDataPointDir(),
                 path);
@@ -427,7 +427,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                                         indir2,
                                         dirname);
                                 String filename;
-                                filename = siteID + Strings.getString_3hourly() + Strings.symbol_dot + dataType;
+                                filename = siteID + Strings.getS_3hourly() + Strings.symbol_dot + dataType;
                                 File f;
                                 f = new File(
                                         indir2,
@@ -566,7 +566,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
         System.out.println("scale " + scale);
         indir0 = new File(Files.getInputDataMetOfficeDataPointDir(), path + scale);
         outdir0 = new File(Files.getOutputDataMetOfficeDataPointDir(), path + scale);
-        gridsdir0 = new File(gp.getDirectory(), path + scale);
+        gridsdir0 = new File(Files.getGeneratedDataGridsDir(), path + scale);
         ymDates = new TreeMap<>();
         indirs0 = indir0.listFiles();
         for (int i = 0; i < indirs0.length; i++) {
@@ -676,7 +676,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                                 indirname2 = indirs0[j].getName();
                                 time0 = new SARIC_Time(se, indirname2,
                                         se.getStrings().symbol_minus,
-                                        se.getStrings().string_T,
+                                        se.getStrings().s_T,
                                         se.getStrings().symbol_underscore);
                                 for (int k = 0; k <= 36; k += 3) {
                                     time1 = new SARIC_Time(time0);
@@ -1232,7 +1232,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
         System.out.println("scale " + scale);
         indir0 = new File(Files.getInputDataMetOfficeDataPointDir(), path + scale);
         outdir0 = new File(Files.getOutputDataMetOfficeDataPointDir(), path + scale);
-        gridsdir0 = new File(gp.getDirectory(), path + scale);
+        gridsdir0 = new File(Files.getGeneratedDataGridsDir(), path + scale);
         ymDates = new TreeMap<>();
         indirs0 = indir0.listFiles();
         for (int i = 0; i < indirs0.length; i++) {

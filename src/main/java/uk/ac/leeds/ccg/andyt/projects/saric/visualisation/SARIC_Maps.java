@@ -46,8 +46,8 @@ public class SARIC_Maps extends Geotools_Maps {
 
     protected transient SARIC_Environment se;
     protected transient SARIC_Files Files;
-    protected transient Geotools_Environment _Geotools_Environment;
-    
+    protected transient Geotools_Environment Geotools_Env;
+
     /**
      * For storing level(s) (OA, LSOA, MSOA, PostcodeSector, PostcodeUnit, ...)
      */
@@ -58,7 +58,7 @@ public class SARIC_Maps extends Geotools_Maps {
     public SARIC_Maps(SARIC_Environment e) {
         this.se = e;
         Files = e.getFiles();
-        _Geotools_Environment = e.getGeotools_Environment();
+        Geotools_Env = e.getGeotools_Env();
     }
 
     /*
@@ -71,13 +71,9 @@ public class SARIC_Maps extends Geotools_Maps {
      * @param targetPropertyName
      * @param outputFile
      */
-    public void selectAndCreateNewShapefile(
-            ShapefileDataStoreFactory sdsf,
-            FeatureCollection fc,
-            SimpleFeatureType sft,
-            TreeSet<String> codesToSelect,
-            //String attributeName, 
-            String targetPropertyName,
+    public void selectAndCreateNewShapefile(ShapefileDataStoreFactory sdsf,
+            FeatureCollection fc, SimpleFeatureType sft,
+            TreeSet<String> codesToSelect, String targetPropertyName,
             File outputFile) {
         // Initialise the collection of new Features
         TreeSetFeatureCollection tsfc;
@@ -111,10 +107,7 @@ public class SARIC_Maps extends Geotools_Maps {
                         }
                         String id = "" + id_int;
                         addFeatureToFeatureCollection(
-                                (SimpleFeature) inputFeature,
-                                sfb,
-                                tsfc,
-                                id);
+                                (SimpleFeature) inputFeature, sfb, tsfc, id);
                         id_int++;
                     } else {
 //                        System.out.println(valueString);
@@ -131,14 +124,11 @@ public class SARIC_Maps extends Geotools_Maps {
         String name;
         //name = "62001.shp";
         name = "WW_area.shp";
-        File dir = new File(
-                Files.getInputDataCatchmentBoundariesDir(),
-                se.getStrings().getString_Teifi());
+        File dir = new File(Files.getInputDataCatchmentBoundariesDir(),
+                se.getStrings().getS_Teifi());
         dir = new File(dir, name);
         File f;
-        f = new File(
-                dir,
-                name);
+        f = new File(dir, name);
         result = new SARIC_Shapefile(f);
         return result;
     }
@@ -150,6 +140,5 @@ public class SARIC_Maps extends Geotools_Maps {
     public void setStyleParameters(Geotools_StyleParameters sp) {
         this.styleParameters = sp;
     }
-    
-    
+
 }

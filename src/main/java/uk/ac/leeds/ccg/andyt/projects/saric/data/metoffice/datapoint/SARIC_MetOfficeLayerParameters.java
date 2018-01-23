@@ -96,9 +96,9 @@ public class SARIC_MetOfficeLayerParameters extends SARIC_Object {
                     new BigDecimal(row).multiply(tileSize));
             BigDecimal ymin;
             ymin = ymax.subtract(tileSize);
-            p = new Vector_Point2D(se.getVector_Environment(), xmin, ymin);
+            p = new Vector_Point2D(se.getVector_Env(), xmin, ymin);
             result = p.getEnvelope2D();
-            p = new Vector_Point2D(se.getVector_Environment(), xmax, ymax);
+            p = new Vector_Point2D(se.getVector_Env(), xmax, ymax);
             result = result.envelope(p.getEnvelope2D());
         }
         return result;

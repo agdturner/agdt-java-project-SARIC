@@ -36,7 +36,7 @@ public class SARIC_Wissey extends SARIC_Catchment {
     protected SARIC_Wissey(){}
     
     public SARIC_Wissey(SARIC_Environment se) {
-        super(se, se.getStrings().getString_Wissey());
+        super(se, se.getStrings().getS_Wissey());
     }
 
     /**

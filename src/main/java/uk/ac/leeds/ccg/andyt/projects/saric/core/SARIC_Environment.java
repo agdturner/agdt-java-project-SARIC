@@ -32,12 +32,15 @@ import uk.ac.leeds.ccg.andyt.vector.core.Vector_Environment;
  *
  * @author geoagdt
  */
-public class SARIC_Environment extends Generic_Environment {
+public class SARIC_Environment {
 
+    private SARIC_Strings Strings;
+    private SARIC_Files Files;
+    
     SARIC_MetOfficeParameters MetOfficeParameters;
-    Grids_Environment _Grids_Environment;
-    Vector_Environment _Vector_Environment;
-    Geotools_Environment _Geotools_Environment;
+    Grids_Environment Grids_Env;
+    Vector_Environment Vector_Env;
+    Geotools_Environment Geotools_Env;
 
     SARIC_Time Time;
     SARIC_Wissey Wissey;
@@ -50,19 +53,17 @@ public class SARIC_Environment extends Generic_Environment {
         Strings = new SARIC_Strings();
         Files = new SARIC_Files(getStrings(),dataDir);
         MetOfficeParameters = new SARIC_MetOfficeParameters();
-        _Grids_Environment = new Grids_Environment(getFiles().getGeneratedDataGridsDir());
-        _Vector_Environment = new Vector_Environment(_Grids_Environment);
-        _Geotools_Environment = new Geotools_Environment();
+        Grids_Env = new Grids_Environment(getFiles().getGeneratedDataGridsDir());
+        Vector_Env = new Vector_Environment(Grids_Env);
+        Geotools_Env = new Geotools_Environment();
     }
 
-    @Override
     public final SARIC_Files getFiles(){
-        return (SARIC_Files) Files;
+        return Files;
     }
     
-    @Override
     public final SARIC_Strings getStrings(){
-        return (SARIC_Strings) Strings;
+        return Strings;
     }
     
     public void setTime(SARIC_Time time) {
@@ -78,16 +79,16 @@ public class SARIC_Environment extends Generic_Environment {
         return Time;
     }
 
-    public Grids_Environment getGrids_Environment() {
-        return _Grids_Environment;
+    public Grids_Environment getGrids_Env() {
+        return Grids_Env;
     }
 
-    public Vector_Environment getVector_Environment() {
-        return _Vector_Environment;
+    public Vector_Environment getVector_Env() {
+        return Vector_Env;
     }
     
-    public Geotools_Environment getGeotools_Environment(){
-        return _Geotools_Environment;
+    public Geotools_Environment getGeotools_Env(){
+        return Geotools_Env;
     }
 
     public SARIC_Wissey getWissey() {

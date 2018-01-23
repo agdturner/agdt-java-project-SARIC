@@ -102,7 +102,7 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
         this.overwrite = overwrite;
         sf = se.getFiles();
         ss = se.getStrings();
-        ge = se.getGrids_Environment();
+        ge = se.getGrids_Env();
         ae = new Grids_ESRIAsciiGridExporter(ge);
         ImageExporter = new Grids_ImageExporter(ge);
         gp = ge.getProcessor();
@@ -162,7 +162,7 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
             st1KMGrid = st.get1KMGrid("1KMGrid");
             st1KMGridMaskedToCatchment = st.get1KMGridMaskedToCatchment();
         }
-        layerName = ss.getString_RADAR_UK_Composite_Highres();
+        layerName = ss.getS_RADAR_UK_Composite_Highres();
         for (int scale = 4; scale < 5; scale++) {
             tileMatrix = tileMatrixSet + ":" + scale;
             metOfficeLayerParameters = p.getMetOfficeLayerParameters();
@@ -178,12 +178,12 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
             //System.out.println(bounds.toString());
             p.setBounds(bounds);
             if (doWissey) {
-                area = ss.getString_Wissey();
+                area = ss.getS_Wissey();
                 processObservations(
                         colorMap, noDataValueColor, area, scale, layerName, cellsize, p, lp, r, sw1KMGrid, sw1KMGridMaskedToCatchment);
             }
             if (doTeifi) {
-                area = ss.getString_Teifi();
+                area = ss.getS_Teifi();
                 processObservations(
                         colorMap, noDataValueColor, area, scale, layerName, cellsize, p, lp, r, st1KMGrid, st1KMGridMaskedToCatchment);
             }
@@ -296,12 +296,8 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
             s = ym.getYYYYMM();
             dates = ymDates.get(ym);
             System.out.println(s);
-            outdir1 = new File(
-                    outdir0,
-                    s);
-            indir1 = new File(
-                    indir0,
-                    s);
+            outdir1 = new File(                    outdir0,                    s);
+            indir1 = new File(                    indir0,                    s);
             ite1 = dates.iterator();
             while (ite1.hasNext()) {
 
@@ -310,22 +306,13 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
 
                 date0 = ite1.next();
                 s = date0.getYYYYMMDD();
-                outdir2 = new File(
-                        outdir1,
-                        s);
-                indir2 = new File(
-                        indir1,
-                        s);
-
+                outdir2 = new File(outdir1, s);
+                indir2 = new File(indir1, s);
                 HashMap<String, Grids_GridDouble> grids;
                 grids = new HashMap<>();
 
-                outascii = new File(
-                        outdir2,
-                        s + layerName + "Max.asc");
-                outpng2 = new File(
-                        outdir2,
-                        s + layerName + "Color.png");
+                outascii = new File(outdir2, s + layerName + "Max.asc");
+                outpng2 = new File(outdir2, s + layerName + "Color.png");
                 if (!overwrite && outpng2.exists()) {
                     System.out.println("Not overwriting and " + outascii.toString() + " exists.");
                 } else {
@@ -340,7 +327,9 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
                                 indirname2 = indirs0[j].getName();
                                 infiles = indirs0[j].listFiles();
 
-                                st = new SARIC_Time(se, indirname2, ss.symbol_minus, ss.string_T, ss.symbol_underscore);
+                                st = new SARIC_Time(se, indirname2,
+                                        ss.symbol_minus, ss.s_T,
+                                        ss.symbol_underscore);
                                 if (atg.containsKey(st)) {
                                     tg = atg.get(st);
                                 } else {

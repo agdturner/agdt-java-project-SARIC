@@ -75,7 +75,7 @@ public class SARIC_Time extends SARIC_Date
     public SARIC_Time(
             SARIC_Environment se,
             String s) {
-        this(se, s, se.getStrings().symbol_minus, se.getStrings().string_T,
+        this(se, s, se.getStrings().symbol_minus, se.getStrings().s_T,
                 se.getStrings().symbol_colon);
     }
 
@@ -166,9 +166,9 @@ public class SARIC_Time extends SARIC_Date
     public String toFormattedString0() {
         return getYYYYMMDDHHMMSS(
                 Strings.symbol_minus,
-                Strings.string_T,
+                Strings.s_T,
                 Strings.symbol_colon,
-                Strings.string_Z);
+                Strings.s_Z);
     }
 
     /**
@@ -178,9 +178,9 @@ public class SARIC_Time extends SARIC_Date
     public String toFormattedString1() {
         return getYYYYMMDDHHMMSS(
                 Strings.symbol_minus,
-                Strings.string_T,
+                Strings.s_T,
                 Strings.symbol_underscore,
-                Strings.string_Z);
+                Strings.s_Z);
     }
 
     public String toFormattedString2() {
@@ -252,7 +252,7 @@ public class SARIC_Time extends SARIC_Date
     public String getYYYYMMDDHHMMSS() {
         String result;
         result = super.toString();
-        result += Strings.string_T;
+        result += Strings.s_T;
         result += getHH();
         result += Strings.symbol_colon;
         result += getMins();

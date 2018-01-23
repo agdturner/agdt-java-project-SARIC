@@ -73,7 +73,7 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
         super(se);
         sf = se.getFiles();
         ss = se.getStrings();
-        ge = se.getGrids_Environment();
+        ge = se.getGrids_Env();
         gp = ge.getProcessor();
         gf = gp.GridDoubleFactory;
         this.doWissey = doWissey;
@@ -270,7 +270,7 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
                         gp.addToGrid(tg2, g, 1.0d);
                         outputImages(
                                 outputDir1,
-                                ss.getString_Teifi(),
+                                ss.getS_Teifi(),
                                 name,
                                 tgf,
                                 tg2,
@@ -283,7 +283,7 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
                         gp.addToGrid(wg2, g, 1.0d);
                         outputImages(
                                 outputDir1,
-                                ss.getString_Wissey(),
+                                ss.getS_Wissey(),
                                 name,
                                 wgf,
                                 wg2,
@@ -310,7 +310,7 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
         if (doTeifi) {
             outputImages(
                     outputDir1,
-                    ss.getString_Teifi(),
+                    ss.getS_Teifi(),
                     "",
                     tgf,
                     tg1,
@@ -321,7 +321,7 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
         if (doWissey) {
             outputImages(
                     outputDir1,
-                    ss.getString_Wissey(),
+                    ss.getS_Wissey(),
                     "",
                     wgf,
                     wg1,

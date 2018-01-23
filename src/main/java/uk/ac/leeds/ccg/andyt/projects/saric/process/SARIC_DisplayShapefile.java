@@ -49,7 +49,7 @@ public class SARIC_DisplayShapefile extends SARIC_Object {
         super(se);
         sf = se.getFiles();
         ss = se.getStrings();
-        _Geotools_Environment = se.getGeotools_Environment();
+        _Geotools_Environment = se.getGeotools_Env();
     }
     
     public static void main(String[] args) {
@@ -64,16 +64,16 @@ public class SARIC_DisplayShapefile extends SARIC_Object {
         File f;
 
 //        name = "Sites.shp";
-//        name = ss.getString_Wissey() + "Sites.shp";
-//        name = ss.getString_Teifi() + "Sites.shp";
-//        name = ss.getString_Wissey() + "SitesBuffered.shp";
-        name = ss.getString_Teifi()  + "SitesBuffered.shp";
+//        name = ss.getS_Wissey() + "Sites.shp";
+//        name = ss.getS_Teifi() + "Sites.shp";
+//        name = ss.getS_Wissey() + "SitesBuffered.shp";
+        name = ss.getS_Teifi()  + "SitesBuffered.shp";
 //        dir = new File(
 //                sf.getGeneratedDataMetOfficeDataPointDir(),
-//                ss.getString_Forecasts());
+//                ss.getS_Forecasts());
         dir = new File(
                 sf.getGeneratedDataMetOfficeDataPointDir(),
-                ss.getString_Observations());
+                ss.getS_Observations());
         f = _Geotools_Environment.getShapefile(dir, name, false);
         files.add(f);
 

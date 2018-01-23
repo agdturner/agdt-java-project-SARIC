@@ -22,7 +22,6 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LinearRing;
-import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.geom.PrecisionModel;
@@ -38,14 +37,12 @@ import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
-import uk.ac.leeds.ccg.andyt.generic.io.Generic_StaticIO;
 import uk.ac.leeds.ccg.andyt.geotools.core.Geotools_Environment;
 import uk.ac.leeds.ccg.andyt.geotools.Geotools_Shapefile;
 import uk.ac.leeds.ccg.andyt.generic.math.Generic_BigDecimal;
 import uk.ac.leeds.ccg.andyt.grids.core.Grids_Dimensions;
 import uk.ac.leeds.ccg.andyt.grids.core.Grids_Environment;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_GridDouble;
-import uk.ac.leeds.ccg.andyt.grids.core.grid.chunk.Grids_GridChunkDoubleArrayFactory;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_GridDoubleFactory;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.stats.Grids_GridDoubleStats;
 import uk.ac.leeds.ccg.andyt.grids.process.Grids_Processor;
@@ -82,9 +79,9 @@ public abstract class SARIC_Catchment extends SARIC_Object {
             String catchmentName) {
         super(se);
         Files = se.getFiles();
-        _Grids_Environment = se.getGrids_Environment();
-        _Vector_Environment = se.getVector_Environment();
-        _Geotools_Environment = se.getGeotools_Environment();
+        _Grids_Environment = se.getGrids_Env();
+        _Vector_Environment = se.getVector_Env();
+        _Geotools_Environment = se.getGeotools_Env();
         this.CatchmentName = catchmentName;
     }
 
@@ -122,12 +119,12 @@ public abstract class SARIC_Catchment extends SARIC_Object {
         Vector_Envelope2D result;
         Vector_Point2D aPoint;
         aPoint = new Vector_Point2D(
-                se.getVector_Environment(),
+                se.getVector_Env(),
                 xmin,
                 ymin);
         Vector_Point2D bPoint;
         bPoint = new Vector_Point2D(
-                se.getVector_Environment(),
+                se.getVector_Env(),
                 xmax,
                 ymax);
         result = new Vector_Envelope2D(aPoint, bPoint);
@@ -150,7 +147,7 @@ public abstract class SARIC_Catchment extends SARIC_Object {
         bounds = get1KMGridBounds();
         //Grids_Grid2DSquareCellDoubleFactory inf;
         File dir;
-        dir = new File(                Files.getGeneratedDataCatchmentBoundariesDir(),
+        dir = new File(Files.getGeneratedDataCatchmentBoundariesDir(),
                 CatchmentName);
         dir = new File(dir, name);
         BigDecimal cellsize = new BigDecimal("1000");
@@ -160,25 +157,20 @@ public abstract class SARIC_Catchment extends SARIC_Object {
         long ncols;
         ncols = Generic_BigDecimal.divideNoRounding(bounds.XMax.subtract(bounds.XMin), cellsize).longValueExact();
         nrows = Generic_BigDecimal.divideNoRounding(bounds.YMax.subtract(bounds.YMin), cellsize).longValueExact();
-        //inf = se.getGrids_Environment().get_Grid2DSquareCellProcessor()._Grid2DSquareCellDoubleFactory;
+        //inf = se.getGrids_Env().get_Grid2DSquareCellProcessor()._Grid2DSquareCellDoubleFactory;
         Grids_Processor gp;
         gp = _Grids_Environment.getProcessor();
         Grids_GridDoubleFactory f;
-        f = new Grids_GridDoubleFactory(
-                _Grids_Environment,
-                gp.GridChunkDoubleFactory,
-                gp.DefaultGridChunkDoubleFactory,
-                -Double.MAX_VALUE, //-9999.0d,
-                (int) nrows,
-                (int) ncols,
-                dimensions,
+        f = new Grids_GridDoubleFactory(_Grids_Environment,
+                gp.GridChunkDoubleFactory, gp.DefaultGridChunkDoubleFactory,
+                -Double.MAX_VALUE, (int) nrows, (int) ncols, dimensions,
                 new Grids_GridDoubleStats(_Grids_Environment));
         if (dir.exists()) {
-            grid = (Grids_GridDouble) f.create(dir ,dir);
+            grid = (Grids_GridDouble) f.create(dir, dir);
             result[2] = true;
         } else {
             grid = f.create(dir, nrows, ncols, dimensions);
-            grid.writeToFile(true);
+            grid.writeToFile();
             result[2] = false;
         }
         result[0] = grid;
@@ -278,7 +270,7 @@ public abstract class SARIC_Catchment extends SARIC_Object {
                 }
             }
             System.out.println("Catchment mask " + resultGrid);
-            resultGrid.writeToFile(true);
+            resultGrid.writeToFile();
         }
         return result;
     }

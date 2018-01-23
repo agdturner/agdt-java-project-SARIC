@@ -73,8 +73,8 @@ public class SARIC_CreatePointShapefiles extends SARIC_Object implements Runnabl
         super(se);
         sf = se.getFiles();
         ss = se.getStrings();
-        ve = se.getVector_Environment();
-        _Geotools_Environment = se.getGeotools_Environment();
+        ve = se.getVector_Env();
+        _Geotools_Environment = se.getGeotools_Env();
         this.doForecasts = doForecasts;
         this.doObservations = doObservations;
         this.overwrite = overwrite;
@@ -95,11 +95,11 @@ public class SARIC_CreatePointShapefiles extends SARIC_Object implements Runnabl
         BigDecimal buffer;
         if (doForecasts) {
             String time;
-            //time = ss.getString_daily();
-            time = ss.getString_3hourly();
+            //time = ss.getS_daily();
+            time = ss.getS_3hourly();
             buffer = null;
             sites = sh.getForecastsSites(time);
-            run(overwrite, ss.getString_Forecasts(), sites, buffer);
+            run(overwrite, ss.getS_Forecasts(), sites, buffer);
         }
         if (doObservations) {
 //            buffer = new BigDecimal(20000.0d);
@@ -107,7 +107,7 @@ public class SARIC_CreatePointShapefiles extends SARIC_Object implements Runnabl
 //            buffer = new BigDecimal(40000.0d);
             buffer = new BigDecimal(60000.0d);
             sites = sh.getObservationsSites();
-            run(overwrite, ss.getString_Observations(), sites, buffer);
+            run(overwrite, ss.getS_Observations(), sites, buffer);
         }
     }
 
@@ -137,12 +137,12 @@ public class SARIC_CreatePointShapefiles extends SARIC_Object implements Runnabl
             File outfileWissey;
             outfileWissey = _Geotools_Environment.getOutputShapefile(
                     dir,
-                    ss.getString_Wissey() + "SitesBuffered");
+                    ss.getS_Wissey() + "SitesBuffered");
             outfileWissey.getParentFile().mkdirs();
             File outfileTeifi;
             outfileTeifi = _Geotools_Environment.getOutputShapefile(
                     dir,
-                    ss.getString_Teifi() + "SitesBuffered");
+                    ss.getS_Teifi() + "SitesBuffered");
             outfileTeifi.getParentFile().mkdirs();
 
             // Initialise for Wissey

@@ -81,7 +81,7 @@ public class SARIC_DataViewer extends Geotools_DisplayShapefile implements Runna
         this.doTeifi = doTeifi;
         this.addGBHRUs = addGBHRUs;
         ss = se.getStrings();
-        _Geotools_Environment = se.getGeotools_Environment();
+        _Geotools_Environment = se.getGeotools_Env();
     }
 
     @Override
@@ -393,11 +393,11 @@ public class SARIC_DataViewer extends Geotools_DisplayShapefile implements Runna
 
     public ArrayList<GridCoverageLayer> getGridCoverageLayers() {
         ArrayList<GridCoverageLayer> result;
-        result = new ArrayList<GridCoverageLayer>();
+        result = new ArrayList<>();
 
         File dir;
         File f;
-        String name = "2017-08-09" + ss.getString_RADAR_UK_Composite_Highres() + ".asc";
+        String name = "2017-08-09" + ss.getS_RADAR_UK_Composite_Highres() + ".asc";
 
         if (doWissey) {
             dir = new File(sf.getOutputDataMetOfficeDataPointDir(),
@@ -442,7 +442,7 @@ public class SARIC_DataViewer extends Geotools_DisplayShapefile implements Runna
         gc = Maps.getGridCoverage2D(agr);
 
         Grids_GridDoubleFactory gf;
-        gf = se.getGrids_Environment().getProcessor().GridDoubleFactory;
+        gf = se.getGrids_Env().getProcessor().GridDoubleFactory;
         File gdir;
         gdir = gridf.createNewFile(gridf.getGeneratedGridDoubleDir());
         Grids_GridDouble g;

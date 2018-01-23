@@ -55,16 +55,16 @@ public class SARIC_SiteHandler extends SARIC_Object {
     public HashSet<SARIC_Site> getForecastsSites(String time) {
         if (forecastsSites == null) {
             String type;
-            type = strings.getString_wxfcs();
+            type = strings.getS_wxfcs();
             String filename;
-            filename = strings.getString_sitelist()
-                    + strings.symbol_dot + strings.getString_xml();
+            filename = strings.getS_sitelist()
+                    + strings.symbol_dot + strings.getS_xml();
             String path;
-            path = strings.getString_val() + strings.symbol_backslash
+            path = strings.getS_val() + strings.symbol_backslash
                     + type + strings.symbol_backslash
-                    + strings.getString_all() + strings.symbol_backslash
-                    + strings.getString_xml() + strings.symbol_backslash
-                    + strings.getString_sitelist() + strings.symbol_backslash
+                    + strings.getS_all() + strings.symbol_backslash
+                    + strings.getS_xml() + strings.symbol_backslash
+                    + strings.getS_sitelist() + strings.symbol_backslash
                     + time + strings.symbol_backslash ;
             File dir;
             dir = new File(
@@ -84,16 +84,16 @@ public class SARIC_SiteHandler extends SARIC_Object {
     public HashSet<SARIC_Site> getObservationsSites() {
         if (observationsSites == null) {
             String type;
-            type = strings.getString_wxobs();
+            type = strings.getS_wxobs();
             String filename;
-            filename = strings.getString_sitelist()
-                    + strings.symbol_dot + strings.getString_xml();
+            filename = strings.getS_sitelist()
+                    + strings.symbol_dot + strings.getS_xml();
             String path;
-            path = strings.getString_val() + strings.symbol_backslash
+            path = strings.getS_val() + strings.symbol_backslash
                     + type + strings.symbol_backslash
-                    + strings.getString_all() + strings.symbol_backslash
-                    + strings.getString_xml() + strings.symbol_backslash
-                    + strings.getString_sitelist() + strings.symbol_backslash;
+                    + strings.getS_all() + strings.symbol_backslash
+                    + strings.getS_xml() + strings.symbol_backslash
+                    + strings.getS_sitelist() + strings.symbol_backslash;
             File dir;
             dir = new File(
                     files.getInputDataMetOfficeDataPointDir(),

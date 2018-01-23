@@ -63,7 +63,7 @@ public class SARIC_Teifi extends SARIC_Catchment {
     }
 
     public SARIC_Teifi(SARIC_Environment se) {
-        super(se, se.getStrings().getString_Teifi());
+        super(se, se.getStrings().getS_Teifi());
     }
 
     /**

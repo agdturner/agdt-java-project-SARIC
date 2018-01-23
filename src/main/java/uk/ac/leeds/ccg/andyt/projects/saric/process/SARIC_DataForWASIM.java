@@ -75,13 +75,13 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
         super(se);
         sf = se.getFiles();
         ss = se.getStrings();
-        ge = se.getGrids_Environment();
+        ge = se.getGrids_Env();
         gp = ge.getProcessor();
         gf = gp.GridDoubleFactory;
         gf.setChunkNCols(62);
         gf.setChunkNRows(40);
         gf.Stats = new Grids_GridDoubleStatsNotUpdated(ge);
-        ve = se.getVector_Environment();
+        ve = se.getVector_Env();
     }
 
     @Override
@@ -92,7 +92,7 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
         day = new SARIC_Date(se, "2017-08-26");
 
         File dir;
-        dir = new File(sf.getOutputDataDir(), "WASIM");
+        dir = new File(sf.getOutputDataDir(ss), "WASIM");
         dir.mkdirs();
         String filename;
         filename = day + ".csv";
@@ -110,7 +110,7 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
         // Load all the observations grids
         String area;
         TreeMap<SARIC_Time, Grids_GridDouble> observationsGrids;
-        area = ss.getString_Teifi();
+        area = ss.getS_Teifi();
         observationsGrids = getObservationsGrids(area);
 
         // GeoTools
@@ -301,11 +301,11 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
         Grids_GridDouble result;
         File dir;
         dir = new File(sf.getOutputDataMetOfficeDataPointDir(),
-                ss.getString_inspire());
-        dir = new File(dir, ss.getString_view());
-        dir = new File(dir, ss.getString_wmts() + "0");
+                ss.getS_inspire());
+        dir = new File(dir, ss.getS_view());
+        dir = new File(dir, ss.getS_wmts() + "0");
         dir = new File(dir, area);
-        dir = new File(dir, ss.getString_Precipitation_Rate());
+        dir = new File(dir, ss.getS_Precipitation_Rate());
         dir = new File(dir, "EPSG_27700_4");
         if (offset < 2) {
             File f = new File(sf.getNestedTimeDirectory(dir, d),
@@ -331,11 +331,11 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
         result = new TreeMap<>();
         File dir;
         dir = new File(sf.getOutputDataMetOfficeDataPointDir(),
-                ss.getString_inspire());
-        dir = new File(dir, ss.getString_view());
-        dir = new File(dir, ss.getString_wmts() + "0");
+                ss.getS_inspire());
+        dir = new File(dir, ss.getS_view());
+        dir = new File(dir, ss.getS_wmts() + "0");
         dir = new File(dir, area);
-        dir = new File(dir, ss.getString_RADAR_UK_Composite_Highres());
+        dir = new File(dir, ss.getS_RADAR_UK_Composite_Highres());
         dir = new File(dir, "EPSG_27700_4");
         System.out.println(dir);
         File[] dirs;
@@ -354,7 +354,7 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
                 System.out.println(t);
                 dir3 = new File(dir2, date);
                 f = new File(dir3,
-                        date + ss.getString_RADAR_UK_Composite_Highres() + ".asc");
+                        date + ss.getS_RADAR_UK_Composite_Highres() + ".asc");
                 if (f.exists()) {
                     File gdir;
                     gdir = gridf.createNewFile(gridf.getGeneratedGridDoubleDir());
