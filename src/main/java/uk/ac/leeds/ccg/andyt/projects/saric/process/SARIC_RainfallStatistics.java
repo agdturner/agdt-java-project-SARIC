@@ -51,7 +51,7 @@ import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.site.SARIC_
 import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
 import uk.ac.leeds.ccg.andyt.projects.saric.util.SARIC_Date;
 import uk.ac.leeds.ccg.andyt.projects.saric.util.SARIC_Time;
-import uk.ac.leeds.ccg.andyt.projects.saric.util.SARIC_YearMonth;
+import uk.ac.leeds.ccg.andyt.projects.saric.util.Generic_YearMonth;
 import uk.ac.leeds.ccg.andyt.projects.saric.visualisation.SARIC_Colour;
 import uk.ac.leeds.ccg.andyt.vector.geometry.Vector_Envelope2D;
 
@@ -213,10 +213,10 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
         Grids_Files gridf;
         gridf = ge.getFiles();
         File gdir;
-        TreeMap<SARIC_YearMonth, TreeSet<SARIC_Date>> ymDates;
-        SARIC_YearMonth ym;
+        TreeMap<Generic_YearMonth, TreeSet<SARIC_Date>> ymDates;
+        Generic_YearMonth ym;
         TreeSet<SARIC_Date> dates;
-        Iterator<SARIC_YearMonth> ite0;
+        Iterator<Generic_YearMonth> ite0;
         String path;
         String s;
         File outdir0;
@@ -241,7 +241,7 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
         indirs0 = indir0.listFiles();
         for (int i = 0; i < indirs0.length; i++) {
             s = indirs0[i].getName();
-            ym = new SARIC_YearMonth(se, s);
+            ym = new Generic_YearMonth(se, s);
             dates = new TreeSet<>();
             ymDates.put(ym, dates);
             indir1 = new File(indir0, s);

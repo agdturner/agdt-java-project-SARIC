@@ -50,8 +50,8 @@ import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Strings;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.catchment.SARIC_Teifi;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.wasim.SARIC_WASIMRecord;
 import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
-import uk.ac.leeds.ccg.andyt.projects.saric.util.SARIC_Date;
-import uk.ac.leeds.ccg.andyt.projects.saric.util.SARIC_Time;
+import uk.ac.leeds.ccg.andyt.generic.utilities.time.Generic_Date;
+import uk.ac.leeds.ccg.andyt.generic.utilities.time.Generic_Time;
 import uk.ac.leeds.ccg.andyt.vector.core.Vector_Environment;
 
 /**
@@ -88,8 +88,8 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
     public void run() {
 
         // Initialise the PrintWriter for the output
-        SARIC_Date day;
-        day = new SARIC_Date(se, "2017-08-26");
+        Generic_Date day;
+        day = new Generic_Date(se, "2017-08-26");
 
         File dir;
         dir = new File(sf.getOutputDataDir(ss), "WASIM");
@@ -109,7 +109,7 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
                 + "ForecastRainfallIn96to120Hours");
         // Load all the observations grids
         String area;
-        TreeMap<SARIC_Time, Grids_GridDouble> observationsGrids;
+        TreeMap<Generic_Time, Grids_GridDouble> observationsGrids;
         area = ss.getS_Teifi();
         observationsGrids = getObservationsGrids(area);
 
@@ -154,10 +154,10 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
         double accumulation;
         long ID;
         ID = 0;
-        SARIC_Time t0;
-        t0 = new SARIC_Time(day);
-        SARIC_Time t;
-        t = new SARIC_Time(day);
+        Generic_Time t0;
+        t0 = new Generic_Time(day);
+        Generic_Time t;
+        t = new Generic_Time(day);
 
         Grids_GridDouble f1;
         Grids_GridDouble f2;
@@ -180,7 +180,7 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
         double noDataValue;
         noDataValue = g.getNoDataValue();
 
-        Iterator<SARIC_Time> ite;
+        Iterator<Generic_Time> ite;
         for (long row = 0; row < nrows; row++) {
             for (long col = 0; col < ncols; col++) {
 
@@ -291,12 +291,12 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
         }
     }
 
-    protected Grids_GridDouble getForecastsGrid(String area, SARIC_Date d,
+    protected Grids_GridDouble getForecastsGrid(String area, Generic_Date d,
             int offset) {
         Grids_Files gridf;
         gridf = ge.getFiles();
-        SARIC_Date d1;
-        d1 = new SARIC_Time(d);
+        Generic_Date d1;
+        d1 = new Generic_Time(d);
         d1.addDays(offset);
         Grids_GridDouble result;
         File dir;
@@ -324,10 +324,10 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
         return null;
     }
 
-    protected TreeMap<SARIC_Time, Grids_GridDouble> getObservationsGrids(String area) {
+    protected TreeMap<Generic_Time, Grids_GridDouble> getObservationsGrids(String area) {
         Grids_Files gridf;
         gridf = ge.getFiles();
-        TreeMap<SARIC_Time, Grids_GridDouble> result;
+        TreeMap<Generic_Time, Grids_GridDouble> result;
         result = new TreeMap<>();
         File dir;
         dir = new File(sf.getOutputDataMetOfficeDataPointDir(),
@@ -343,14 +343,14 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
         String[] dates;
         File f;
         File dir3;
-        SARIC_Time t;
+        Generic_Time t;
         Grids_GridDouble g;
         // Load each grid
         for (File dir2 : dirs) {
             System.out.println(dir2);
             dates = dir2.list();
             for (String date : dates) {
-                t = new SARIC_Time(se, date);
+                t = new Generic_Time(se, date);
                 System.out.println(t);
                 dir3 = new File(dir2, date);
                 f = new File(dir3,

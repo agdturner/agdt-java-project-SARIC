@@ -21,7 +21,6 @@ package uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.site;
 import java.io.File;
 import java.io.*;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.xml.sax.*;
@@ -29,7 +28,7 @@ import org.xml.sax.helpers.DefaultHandler;
 import org.apache.xerces.parsers.SAXParser;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
-import uk.ac.leeds.ccg.andyt.projects.saric.util.SARIC_Time;
+import uk.ac.leeds.ccg.andyt.generic.utilities.time.Generic_Time;
 
 /**
  *
@@ -42,7 +41,7 @@ public class SARIC_MetOfficeSiteXMLSAXHandler extends DefaultHandler {
 
     File f;
     SAXParser parser;
-    HashMap<SARIC_Time, SARIC_SiteForecastRecord> forecasts;
+    HashMap<Generic_Time, SARIC_SiteForecastRecord> forecasts;
 
     public SARIC_MetOfficeSiteXMLSAXHandler(
             SARIC_Environment se,
@@ -54,7 +53,7 @@ public class SARIC_MetOfficeSiteXMLSAXHandler extends DefaultHandler {
         forecasts = new HashMap<>();
     }
 
-    public HashMap<SARIC_Time, SARIC_SiteForecastRecord> parse() {
+    public HashMap<Generic_Time, SARIC_SiteForecastRecord> parse() {
         parser.setContentHandler(this);
         try {
             parser.parse(f.toString());
@@ -65,9 +64,9 @@ public class SARIC_MetOfficeSiteXMLSAXHandler extends DefaultHandler {
         return forecasts;
     }
     
-    protected SARIC_Time t0;
-    protected SARIC_Time t1;
-    protected SARIC_Time t2;
+    protected Generic_Time t0;
+    protected Generic_Time t1;
+    protected Generic_Time t2;
     protected int rep;
     protected int daysToAdd;
     protected int minutesToAdd;
@@ -83,16 +82,16 @@ public class SARIC_MetOfficeSiteXMLSAXHandler extends DefaultHandler {
         if (rawName.equalsIgnoreCase("DV")) {
             String time;
             time = attributes.getValue("dataDate");
-            t0 = new SARIC_Time(se, time);
-            //t0 = new SARIC_Time(se, time);
+            t0 = new Generic_Time(se, time);
+            //t0 = new Generic_Time(se, time);
         }
         if (rawName.equalsIgnoreCase("Period")) {
             String time;
             time = attributes.getValue("value");
-            SARIC_Time t;
-            t1 = new SARIC_Time(se, time.substring(0, time.length() - 1));
-            SARIC_Time t00;
-            t00 = new SARIC_Time(t0);
+            Generic_Time t;
+            t1 = new Generic_Time(se, time.substring(0, time.length() - 1));
+            Generic_Time t00;
+            t00 = new Generic_Time(t0);
             t00.setTime(0, 0, 0);
             daysToAdd = 0;
             while (t00.compareTo(t1) != 0) {
@@ -102,7 +101,7 @@ public class SARIC_MetOfficeSiteXMLSAXHandler extends DefaultHandler {
         }
         if (rawName.equalsIgnoreCase("Rep")) {
             inRepElement = true;
-            t2 = new SARIC_Time(t1);
+            t2 = new Generic_Time(t1);
 //            int minutes;
 //            minutes = new Integer(attributes.getValue(rawName));
 //            t.addMinutes(minutes);

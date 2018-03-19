@@ -44,8 +44,8 @@ import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Strings;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.catchment.SARIC_Teifi;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.catchment.SARIC_Wissey;
 import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
-import uk.ac.leeds.ccg.andyt.projects.saric.util.SARIC_Date;
-import uk.ac.leeds.ccg.andyt.projects.saric.util.SARIC_Time;
+import uk.ac.leeds.ccg.andyt.generic.utilities.time.Generic_Date;
+import uk.ac.leeds.ccg.andyt.generic.utilities.time.Generic_Time;
 import uk.ac.leeds.ccg.andyt.projects.saric.visualisation.SARIC_Colour;
 
 /**
@@ -119,14 +119,14 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
         String MM;
         String DD;
         String path;
-        SARIC_Date date;
+        Generic_Date date;
         File f = null;
 
         YYYY = "2017";
         MM = "06";
         DD = "27";
         path = "/" + YYYY + "/" + YYYY + "-" + MM + "/";
-        date = new SARIC_Date(se, YYYY + "-" + MM + "-" + DD);
+        date = new Generic_Date(se, YYYY + "-" + MM + "-" + DD);
         inputDir = new File(
                 sf.getInputDataMetOfficeNimrodDir(),
                 path0 + path);
@@ -143,8 +143,8 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
 
         //numberOf5MinutePeriodsIn24Hours = 2;
         //numberOf5MinutePeriodsIn24Hours = 0;
-        SARIC_Time st;
-        st = new SARIC_Time(date);
+        Generic_Time st;
+        st = new Generic_Time(date);
         String name;
         System.out.println("Time " + st.getYYYYMMDDHHMM());
         FileInputStream fis;
@@ -335,7 +335,7 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
             File outdir,
             String area,
             String name,
-            //SARIC_Time st,
+            //Generic_Time st,
             Grids_GridDoubleFactory gf,
             Grids_GridDouble g,
             Grids_GridDouble mask,

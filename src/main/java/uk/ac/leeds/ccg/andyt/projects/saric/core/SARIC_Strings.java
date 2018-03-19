@@ -26,31 +26,6 @@ import uk.ac.leeds.ccg.andyt.generic.core.Generic_Strings;
  */
 public class SARIC_Strings extends Generic_Strings {
 
-    // Empty String
-    public final String emptyString = "";
-    
-    // Symbols
-    public final String symbol_0 = "0";
-    public final String symbol_1 = "1";
-    public final String symbol_2 = "2";
-    public final String symbol_3 = "3";
-    public final String symbol_4 = "4";
-    public final String symbol_5 = "5";
-    public final String symbol_6 = "6";
-    public final String symbol_7 = "7";
-    public final String symbol_8 = "8";
-    public final String symbol_9 = "9";
-    public final String symbol_ampersand = "&";
-    public final String symbol_dot = ".";
-    public final String symbol_equals = "=";
-    public final String symbol_minus = "-";
-    public final String symbol_questionmark = "?";
-    public final String symbol_backslash = "/";
-    public final String symbol_colon = ":";
-    public final String symbol_underscore = "_";
-    // For alphabet upper and lower case
-    public final String s_T = "T";
-    public final String s_Z = "Z";
     
     // Normal ss listed alphabetically
     String S_3hourly;

@@ -56,9 +56,9 @@ import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.site.SARIC_
 import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.site.SARIC_Site;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.site.SARIC_SiteForecastRecord;
 import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
-import uk.ac.leeds.ccg.andyt.projects.saric.util.SARIC_Date;
-import uk.ac.leeds.ccg.andyt.projects.saric.util.SARIC_Time;
-import uk.ac.leeds.ccg.andyt.projects.saric.util.SARIC_YearMonth;
+import uk.ac.leeds.ccg.andyt.generic.utilities.time.Generic_Date;
+import uk.ac.leeds.ccg.andyt.generic.utilities.time.Generic_Time;
+import uk.ac.leeds.ccg.andyt.generic.utilities.time.Generic_YearMonth;
 import uk.ac.leeds.ccg.andyt.projects.saric.visualisation.SARIC_Colour;
 import uk.ac.leeds.ccg.andyt.vector.geometry.Vector_Envelope2D;
 
@@ -334,16 +334,16 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                 path);
         outdir0 = new File(outdir0, areaName);
 
-        SARIC_Date date0;
-        SARIC_Date date;
+        Generic_Date date0;
+        Generic_Date date;
         // Declaration part 2
-        SARIC_Date date1;
-        SARIC_Date date2;
-        TreeSet<SARIC_Date> dates;
-        TreeSet<SARIC_Date> dates2;
+        Generic_Date date1;
+        Generic_Date date2;
+        TreeSet<Generic_Date> dates;
+        TreeSet<Generic_Date> dates2;
         Grids_GridDouble nearestForecastsSitesGrid;
         double noDataValue1;
-        HashMap<SARIC_Site, HashMap<SARIC_Time, SARIC_SiteForecastRecord>> forecasts;
+        HashMap<SARIC_Site, HashMap<Generic_Time, SARIC_SiteForecastRecord>> forecasts;
         long nrows;
         long ncols;
         nearestForecastsSitesGrid = (Grids_GridDouble) nearestForecastsSitesGridAndFactory[0];
@@ -358,7 +358,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
         for (File dirs2 : indirs) {
             dirs3 = dirs2.listFiles();
             for (File dir3 : dirs3) {
-                date = new SARIC_Date(se, dir3.getName());
+                date = new Generic_Date(se, dir3.getName());
                 indir1 = Files.getNestedTimeDirectory(indir0, date);
                 outdir1 = Files.getNestedTimeDirectory(outdir0, date);
                 outdir1 = new File(outdir1, date + "-00"); // We could iterate through all of these.
@@ -370,11 +370,11 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                 int n = 6;
                 dates = new TreeSet<>();
                 for (int i = 0; i < n; i++) {
-                    date1 = new SARIC_Date(date);
+                    date1 = new Generic_Date(date);
                     date1.addDays(i);
                     dates.add(date1);
                 }
-                Iterator<SARIC_Date> iterat;
+                Iterator<Generic_Date> iterat;
                 iterat = dates.iterator();
                 while (iterat.hasNext()) {
                     date1 = iterat.next();
@@ -434,17 +434,17 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                                         filename);
                                 SARIC_MetOfficeSiteXMLSAXHandler h;
                                 h = new SARIC_MetOfficeSiteXMLSAXHandler(se, f);
-                                HashMap<SARIC_Time, SARIC_SiteForecastRecord> forecastsForTime;
+                                HashMap<Generic_Time, SARIC_SiteForecastRecord> forecastsForTime;
                                 forecastsForTime = h.parse();
                                 forecasts.put(site, forecastsForTime);
                                 //System.out.println("SARIC_MetOfficeSiteXMLSAXHandler " + h);
 
                                 // Get estimate of total rainfall.
                                 estimate = 0.0d;
-                                Iterator<SARIC_Time> ite2;
+                                Iterator<Generic_Time> ite2;
                                 double numberOfEstimates;
                                 numberOfEstimates = 0;
-                                SARIC_Time t;
+                                Generic_Time t;
                                 ite2 = forecastsForTime.keySet().iterator();
                                 double normalisedEstimate;
                                 while (ite2.hasNext()) {
@@ -521,8 +521,8 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
             Object[] a1KMGridMaskedToCatchment) {
         String methodName;
         methodName = "processForecasts("
-                + "TreeMap<SARIC_Time, File>,"
-                + "TreeMap<SARIC_Time, String>,"
+                + "TreeMap<Generic_Time, File>,"
+                + "TreeMap<Generic_Time, String>,"
                 + "HashSet<String>,FileString,String,"
                 + "BigDecimal,SARIC_MetOfficeParameters,"
                 + "SARIC_MetOfficeLayerParameters,"
@@ -537,10 +537,10 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
          * ymDates, ym, dates and ite0 are for organising the order of
          * processing.
          */
-        TreeMap<SARIC_YearMonth, TreeSet<SARIC_Date>> ymDates;
-        SARIC_YearMonth ym;
-        TreeSet<SARIC_Date> dates;
-        Iterator<SARIC_YearMonth> ite0;
+        TreeMap<Generic_YearMonth, TreeSet<Generic_Date>> ymDates;
+        Generic_YearMonth ym;
+        TreeSet<Generic_Date> dates;
+        Iterator<Generic_YearMonth> ite0;
         /**
          *
          */
@@ -571,14 +571,14 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
         indirs0 = indir0.listFiles();
         for (int i = 0; i < indirs0.length; i++) {
             s = indirs0[i].getName();
-            ym = new SARIC_YearMonth(se, s);
+            ym = new Generic_YearMonth(se, s);
             dates = new TreeSet<>();
             ymDates.put(ym, dates);
             indir1 = new File(indir0, s);
             indirs1 = indir1.listFiles();
             // initialise outdirs
             for (int j = 0; j < indirs1.length; j++) {
-                dates.add(new SARIC_Date(se, indirs1[j].getName().split("T")[0]));
+                dates.add(new Generic_Date(se, indirs1[j].getName().split("T")[0]));
             }
         }
 
@@ -607,19 +607,19 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
         File outtxt;
         Grids_GridDouble a1KMGridMaskedToCatchmentGrid;
         a1KMGridMaskedToCatchmentGrid = (Grids_GridDouble) a1KMGridMaskedToCatchment[0];
-        SARIC_Date date0;
-        SARIC_Date date1;
-        SARIC_Date tomorrow;
-        SARIC_Date dayAfterTomorrow;
+        Generic_Date date0;
+        Generic_Date date1;
+        Generic_Date tomorrow;
+        Generic_Date dayAfterTomorrow;
 
-        SARIC_Time time0;
-        SARIC_Time time1;
+        Generic_Time time0;
+        Generic_Time time1;
 
         String name0;
         String name1;
 
-        TreeMap<SARIC_Date, HashMap<String, Grids_GridDouble>> grids0;
-        HashMap<SARIC_Date, HashMap<String, Double>> counts0;
+        TreeMap<Generic_Date, HashMap<String, Grids_GridDouble>> grids0;
+        HashMap<Generic_Date, HashMap<String, Double>> counts0;
         HashMap<String, Grids_GridDouble> grids1;
         HashMap<String, Double> counts1;
 
@@ -628,7 +628,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
         double min;
         double scaleFactor;
 
-        Iterator<SARIC_Date> ite1;
+        Iterator<Generic_Date> ite1;
 
         ite0 = ymDates.keySet().iterator();
         while (ite0.hasNext()) {
@@ -651,9 +651,9 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                  */
                 grids0 = new TreeMap<>();
                 counts0 = new HashMap<>();
-                tomorrow = new SARIC_Date(date0);
+                tomorrow = new Generic_Date(date0);
                 tomorrow.addDays(1);
-                dayAfterTomorrow = new SARIC_Date(tomorrow);
+                dayAfterTomorrow = new Generic_Date(tomorrow);
                 dayAfterTomorrow.addDays(1);
                 outdir2 = new File(outdir1, s);
                 indir2 = new File(indir1, s);
@@ -674,12 +674,12 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                                         + "Input directory given by " + indirs0[j] + " is not a directory.");
                             } else {
                                 indirname2 = indirs0[j].getName();
-                                time0 = new SARIC_Time(se, indirname2,
+                                time0 = new Generic_Time(se, indirname2,
                                         se.getStrings().symbol_minus,
                                         se.getStrings().s_T,
                                         se.getStrings().symbol_underscore);
                                 for (int k = 0; k <= 36; k += 3) {
-                                    time1 = new SARIC_Time(time0);
+                                    time1 = new Generic_Time(time0);
                                     time1.addHours(k);
                                     indir3 = new File(indirs0[j], "" + k);
                                     gridsdir3 = new File(gridsdir2, indirname2 + k);
@@ -740,7 +740,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                     }
                     // Push out aggregated results for each tile
                     Iterator<String> ite2;
-                    Iterator<SARIC_Date> ite;
+                    Iterator<Generic_Date> ite;
                     ite = grids0.keySet().iterator();
                     while (ite.hasNext()) {
                         date1 = ite.next();
@@ -921,8 +921,8 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
     //            Object[] a1KMGridMaskedToCatchment) {
     //        String methodName;
     //        methodName = "processForecasts("
-    //                + "TreeMap<SARIC_Time, File>,"
-    //                + "TreeMap<SARIC_Time, String>,"
+    //                + "TreeMap<Generic_Time, File>,"
+    //                + "TreeMap<Generic_Time, String>,"
     //                + "HashSet<String>,FileString,String,"
     //                + "BigDecimal,SARIC_MetOfficeParameters,"
     //                + "SARIC_MetOfficeLayerParameters,"
@@ -934,10 +934,10 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
     //        File indir;
     //        File[] indirs;
     //        File outdir;
-    //        TreeMap<SARIC_Time, File> orderedForecastdirs;
-    //        TreeMap<SARIC_Time, String> orderedOutdirNames;
+    //        TreeMap<Generic_Time, File> orderedForecastdirs;
+    //        TreeMap<Generic_Time, String> orderedOutdirNames;
     //        String s;
-    //        SARIC_Time time;
+    //        Generic_Time time;
     //        // Initial assignments
     //        System.out.println("Area " + area);
     //        path = "inspire/view/wmts0/" + area + "/" + layerName + "/EPSG_27700_";
@@ -954,11 +954,11 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
     //         * date, so we create one when initialising outdirs as this already
     //         * involves going through indirs.
     //         */
-    //        orderedForecastdirs = new TreeMap<SARIC_Time, File>();
-    //        orderedOutdirNames = new TreeMap<SARIC_Time, String>();
+    //        orderedForecastdirs = new TreeMap<Generic_Time, File>();
+    //        orderedOutdirNames = new TreeMap<Generic_Time, String>();
     //        for (int j = 0; j < indirs.length; j++) {
     //            s = indirs[j].getName();
-    //            time = new SARIC_Time(s);
+    //            time = new Generic_Time(s);
     //            orderedOutdirNames.put(time, s);
     //            orderedForecastdirs.put(time, indirs[j]);
     //        }
@@ -988,9 +988,9 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
     //        File outascii;
     //        File outpng;
     //        File outpng2;
-    //        SARIC_Time time2;
-    //        SARIC_Time time3;
-    //        SARIC_Time time4;
+    //        Generic_Time time2;
+    //        Generic_Time time3;
+    //        Generic_Time time4;
     //        /**
     //         * Main processing. With a full set of forecasts there are essentially 7
     //         * forecasts of rainfall for each 3 hourly time snapshot. However, there
@@ -998,15 +998,15 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
     //         * have the forecasts from that time going forwards and likewise for the
     //         * most recent dates, there may be more forecasts to come...
     //         */
-    //        HashMap<SARIC_Time, Grids_GridDouble> output1kmGrids;
-    //        output1kmGrids = new HashMap<SARIC_Time, Grids_GridDouble>();
-    //        HashMap<SARIC_Time, HashMap<String, Grids_GridDouble>> gridsAll;
-    //        gridsAll = new HashMap<SARIC_Time, HashMap<String, Grids_GridDouble>>();
+    //        HashMap<Generic_Time, Grids_GridDouble> output1kmGrids;
+    //        output1kmGrids = new HashMap<Generic_Time, Grids_GridDouble>();
+    //        HashMap<Generic_Time, HashMap<String, Grids_GridDouble>> gridsAll;
+    //        gridsAll = new HashMap<Generic_Time, HashMap<String, Grids_GridDouble>>();
     //        HashMap<String, Grids_GridDouble> grids;
-    //        HashMap<SARIC_Time, Integer> counts;
-    //        counts = new HashMap<SARIC_Time, Integer>();
+    //        HashMap<Generic_Time, Integer> counts;
+    //        counts = new HashMap<Generic_Time, Integer>();
     //        File outdir2;
-    //        Iterator<SARIC_Time> ite;
+    //        Iterator<Generic_Time> ite;
     //        ite = orderedOutdirNames.keySet().iterator();
     //        while (ite.hasNext()) {
     //            time = ite.next();
@@ -1045,14 +1045,14 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
     //                indir = orderedForecastdirs.get(time);
     //                unorderedForecastdirs2 = indir.listFiles();
     //
-    //                TreeMap<SARIC_Time, File> orderedForecastDirs2;
-    //                orderedForecastDirs2 = new TreeMap<SARIC_Time, File>();
+    //                TreeMap<Generic_Time, File> orderedForecastDirs2;
+    //                orderedForecastDirs2 = new TreeMap<Generic_Time, File>();
     //                for (int i = 0; i < unorderedForecastdirs2.length; i++) {
-    //                    time3 = new SARIC_Time(unorderedForecastdirs2[i].getName());
+    //                    time3 = new Generic_Time(unorderedForecastdirs2[i].getName());
     //                    orderedForecastDirs2.put(time3, unorderedForecastdirs2[i]);
     //                }
     //
-    //                Iterator<SARIC_Time> ite2;
+    //                Iterator<Generic_Time> ite2;
     //                ite2 = orderedForecastDirs2.keySet().iterator();
     //                while (ite2.hasNext()) {
     //                    time3 = ite2.next();
@@ -1067,13 +1067,13 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
     //
     //                    indirname2 = dir.getName();
     //                    for (int k = 0; k <= 36; k += 3) {
-    //                        time2 = new SARIC_Time(time3);
+    //                        time2 = new Generic_Time(time3);
     //                        time2.addHours(k);
     //                        /**
     //                         * Set time4 to be the right day. There is only a need
     //                         * to add up to 2 days as only looking forward 36 hours.
     //                         */
-    //                        time4 = new SARIC_Time(time);
+    //                        time4 = new Generic_Time(time);
     //                        if (time2.getDayOfMonth() != time4.getDayOfMonth()) {
     //                            time4.addDays(1);
     //                            if (time2.getDayOfMonth() != time4.getDayOfMonth()) {
@@ -1208,10 +1208,10 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
         Grids_Files gridf;
         gridf = ge.getFiles();
         File gdir;
-        TreeMap<SARIC_YearMonth, TreeSet<SARIC_Date>> ymDates;
-        SARIC_YearMonth ym;
-        TreeSet<SARIC_Date> dates;
-        Iterator<SARIC_YearMonth> ite0;
+        TreeMap<Generic_YearMonth, TreeSet<Generic_Date>> ymDates;
+        Generic_YearMonth ym;
+        TreeSet<Generic_Date> dates;
+        Iterator<Generic_YearMonth> ite0;
         String path;
         String s;
         File outdir0;
@@ -1237,14 +1237,14 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
         indirs0 = indir0.listFiles();
         for (int i = 0; i < indirs0.length; i++) {
             s = indirs0[i].getName();
-            ym = new SARIC_YearMonth(se, s);
+            ym = new Generic_YearMonth(se, s);
             dates = new TreeSet<>();
             ymDates.put(ym, dates);
             indir1 = new File(indir0, s);
             indirs1 = indir1.listFiles();
             // initialise outdirs
             for (int j = 0; j < indirs1.length; j++) {
-                dates.add(new SARIC_Date(se, indirs1[j].getName().split("T")[0]));
+                dates.add(new Generic_Date(se, indirs1[j].getName().split("T")[0]));
             }
         }
 
@@ -1273,9 +1273,9 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
         File outpng3;
         Grids_GridDouble a1KMGridMaskedToCatchmentGrid;
         a1KMGridMaskedToCatchmentGrid = (Grids_GridDouble) a1KMGridMaskedToCatchment[0];
-        SARIC_Date date0;
+        Generic_Date date0;
 
-        Iterator<SARIC_Date> ite1;
+        Iterator<Generic_Date> ite1;
 
         ite0 = ymDates.keySet().iterator();
         while (ite0.hasNext()) {

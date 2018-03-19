@@ -21,7 +21,7 @@ package uk.ac.leeds.ccg.andyt.projects.saric.io;
 import java.io.File;
 import uk.ac.leeds.ccg.andyt.generic.io.Generic_Files;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Strings;
-import uk.ac.leeds.ccg.andyt.projects.saric.util.SARIC_Date;
+import uk.ac.leeds.ccg.andyt.generic.utilities.time.Generic_Date;
 
 /**
  *
@@ -79,7 +79,7 @@ public class SARIC_Files extends Generic_Files {
      * subdirectory is the YYYY-MM. The second is YYYY-MM-DD. If the directory
      * does not exist it is created.
      */
-    public File getNestedTimeDirectory(File dir, SARIC_Date t) {
+    public File getNestedTimeDirectory(File dir, Generic_Date t) {
         File result = new File(dir, t.getYYYYMM());
         result = new File(result, t.getYYYYMMDD());
         if (!result.exists()) {

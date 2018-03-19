@@ -19,13 +19,11 @@
 package uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.TreeSet;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Object;
-import uk.ac.leeds.ccg.andyt.projects.saric.util.SARIC_Date;
-import uk.ac.leeds.ccg.andyt.projects.saric.util.SARIC_Time;
+import uk.ac.leeds.ccg.andyt.generic.utilities.time.Generic_Time;
 import uk.ac.leeds.ccg.andyt.vector.geometry.Vector_Envelope2D;
 
 /**
@@ -48,7 +46,7 @@ public class SARIC_MetOfficeParameters extends SARIC_Object {
     Vector_Envelope2D bounds; 
     //BigDecimal[] dimensions; // Cellsize and overall bounding box dimensions.
     //ArrayList<String> times;
-    TreeSet<SARIC_Time> times;
+    TreeSet<Generic_Time> times;
     String layerName;
 
     private HashMap<String, SARIC_MetOfficeLayerParameters> metOfficeLayerParameters;
@@ -95,14 +93,14 @@ public class SARIC_MetOfficeParameters extends SARIC_Object {
 //    public ArrayList<String> getTimes() {
 //        return times;
 //    }
-    public TreeSet<SARIC_Time> getTimes() {
+    public TreeSet<Generic_Time> getTimes() {
         return times;
     }
 
 //    public void setTimes(ArrayList<String> times) {
 //        this.times = times;
 //    }
-    public void setTimes(TreeSet<SARIC_Time> times) {
+    public void setTimes(TreeSet<Generic_Time> times) {
         this.times = times;
     }
 
@@ -119,7 +117,7 @@ public class SARIC_MetOfficeParameters extends SARIC_Object {
      */
     public HashMap<String, SARIC_MetOfficeLayerParameters> getMetOfficeLayerParameters() {
         if (metOfficeLayerParameters == null) {
-            metOfficeLayerParameters = new HashMap<String, SARIC_MetOfficeLayerParameters>();
+            metOfficeLayerParameters = new HashMap<>();
         }
         return metOfficeLayerParameters;
     }
