@@ -29,39 +29,28 @@ import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
  *
  * @author geoagdt
  */
-public class SARIC_Date
-        extends SARIC_YearMonth
-        implements Serializable {
+public class SARIC_Date extends SARIC_YearMonth implements Serializable {
 
-    public  LocalDate LD;
+    public LocalDate LD;
 
-    public SARIC_Date(
-            SARIC_Environment se) {
+    public SARIC_Date(SARIC_Environment se) {
         super(se);
     }
 
-    public SARIC_Date(
-            SARIC_Date d) {
+    public SARIC_Date(SARIC_Date d) {
         this(d.se, d.LD);
     }
 
-    public SARIC_Date(
-            SARIC_Time t) {
+    public SARIC_Date(SARIC_Time t) {
         this(t.se, t.LDT.toLocalDate());
     }
-    
-    public SARIC_Date(
-            SARIC_Environment se,
-            LocalDate d) {
+
+    public SARIC_Date(SARIC_Environment se, LocalDate d) {
         super(se, YearMonth.from(d));
         LD = d;
     }
 
-    public SARIC_Date(
-            SARIC_Environment se,
-            int year,
-            int month,
-            int day) {
+    public SARIC_Date(SARIC_Environment se, int year, int month, int day) {
         super(se, YearMonth.of(year, month));
         LD = LocalDate.of(year, month, day);
     }
@@ -72,9 +61,7 @@ public class SARIC_Date
      * @param se
      * @param s
      */
-    public SARIC_Date(
-            SARIC_Environment se,
-            String s) {
+    public SARIC_Date(SARIC_Environment se, String s) {
         super(se, s);
         String[] split;
         split = s.split("-");
@@ -89,6 +76,7 @@ public class SARIC_Date
 
     public void addDays(int days) {
         LD = LD.plusDays(days);
+        super.YM = YearMonth.from(LD);
     }
 
     /**
@@ -100,7 +88,7 @@ public class SARIC_Date
     public boolean isSameDay(SARIC_Date t) {
         return LD.isEqual(t.LD);
     }
-    
+
     public String getDD() {
         String result = "";
         int dayOfMonth = LD.getDayOfMonth();

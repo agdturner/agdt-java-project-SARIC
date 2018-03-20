@@ -30,8 +30,7 @@ public class SARIC_Time extends SARIC_Date
 
     public LocalDateTime LDT;
 
-    public SARIC_Time(
-            SARIC_Environment se) {
+    public SARIC_Time(SARIC_Environment se) {
         super(se);
     }
 
@@ -47,34 +46,24 @@ public class SARIC_Time extends SARIC_Date
         this(d.se, LocalDateTime.of(d.LD, t));
     }
 
-    public SARIC_Time(
-            SARIC_Environment se,
-            LocalDateTime dt) {
+    public SARIC_Time(SARIC_Environment se, LocalDateTime dt) {
         super(se, LocalDate.from(dt));
         LDT = dt;
     }
 
-    public SARIC_Time(
-            SARIC_Environment se,
-            int year,
-            int month,
-            int day,
-            int hour,
-            int minute,
-            int second) {
+    public SARIC_Time(SARIC_Environment se, int year, int month, int day,
+            int hour, int minute, int second) {
         super(se, LocalDate.of(year, month, day));
         LDT = LocalDateTime.of(LD, LocalTime.of(hour, minute, second));
     }
-    
+
     /**
      * Expects s to be of the form "YYYY-MM-DD" or "YYYY-MM-DDTHH:MM:SSZ"
      *
      * @param se
      * @param s
      */
-    public SARIC_Time(
-            SARIC_Environment se,
-            String s) {
+    public SARIC_Time(SARIC_Environment se, String s) {
         this(se, s, se.getStrings().symbol_minus, se.getStrings().s_T,
                 se.getStrings().symbol_colon);
     }
@@ -88,12 +77,8 @@ public class SARIC_Time extends SARIC_Date
      * @param timedateSeparator
      * @param timeDelimeter
      */
-    public SARIC_Time(
-            SARIC_Environment se,
-            String s,
-            String dateDelimeter,
-            String timedateSeparator,
-            String timeDelimeter) {
+    public SARIC_Time(SARIC_Environment se, String s, String dateDelimeter,
+            String timedateSeparator, String timeDelimeter) {
         super(se, s);
         String[] splitT;
         splitT = s.split(timedateSeparator);
@@ -142,7 +127,7 @@ public class SARIC_Time extends SARIC_Date
         LDT = LDT.plusHours(hours);
         LD = LDT.toLocalDate();
     }
-    
+
     @Override
     public void addDays(int days) {
         super.addDays(days);
@@ -152,7 +137,7 @@ public class SARIC_Time extends SARIC_Date
     public final void setTime(int hour, int minute, int second) {
         LDT = LocalDateTime.of(LD, LocalTime.of(hour, minute, second));
     }
-    
+
     public SARIC_Date getDate() {
         SARIC_Date result;
         result = new SARIC_Date(this);
@@ -207,7 +192,7 @@ public class SARIC_Time extends SARIC_Date
         result += Integer.toString(dayOfMonth);
         return result;
     }
-    
+
     public String getHH() {
         String result = "";
         int hour = LDT.getHour();
@@ -261,10 +246,8 @@ public class SARIC_Time extends SARIC_Date
         return result;
     }
 
-    public String getYYYYMMDDHHMMSS(
-            String dateComponentDelimitter,
-            String dateTimeDivider,
-            String timeComponentDivider,
+    public String getYYYYMMDDHHMMSS(String dateComponentDelimitter,
+            String dateTimeDivider, String timeComponentDivider, 
             String resultEnding) {
         String result;
         result = getYYYYMMDD(dateComponentDelimitter);
@@ -288,7 +271,7 @@ public class SARIC_Time extends SARIC_Date
     public boolean isSameDay(SARIC_Date t) {
         return LDT.toLocalDate().isEqual(t.LD);
     }
-    
+
     @Override
     public boolean equals(Object o) {
         if (o instanceof SARIC_Time) {

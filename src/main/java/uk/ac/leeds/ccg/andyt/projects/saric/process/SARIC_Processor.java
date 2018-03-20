@@ -82,7 +82,7 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
 //            RunProjectShapefiles = true;
 //            RunCatchmentViewer = true;
             RunSARIC_MetOfficeScraper = true; 
-//           RunSARIC_ImageProcessor = true;
+//            RunSARIC_ImageProcessor = true;
 //            RunSARIC_CreatePointShapefile = true;
 //            RunSARIC_DisplayShapefile = true;
 //            RunSARIC_DataForWASIM = true;
@@ -200,6 +200,7 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
                  * forecasts.
                  */
                 if (doNonTiledFcs) {
+                    //CalculateForecastsSitesInStudyAreas = true; // Only need to do this once or if file is lost.
                     CalculateForecastsSitesInStudyAreas = false;
                     CalculateObservationsSitesInStudyAreas = false;
                     Observations = false;
@@ -306,22 +307,14 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
                         overwrite = false;
                         SARIC_MetOfficeScraper ForecastsMetOfficeScraper;
                         ForecastsMetOfficeScraper = new SARIC_MetOfficeScraper(
-                                se,
-                                CalculateForecastsSitesInStudyAreas,
+                                se, CalculateForecastsSitesInStudyAreas,
                                 CalculateObservationsSitesInStudyAreas,
-                                Observations,
-                                Forecasts,
-                                TileFromWMTSService,
+                                Observations, Forecasts, TileFromWMTSService,
                                 ObservationsTileFromWMTSService,
                                 ForecastsTileFromWMTSService,
-                                ObservationsSiteList,
-                                ForecastsSiteList,
-                                ForecastsForSites,
-                                ObservationsForSites,
-                                timeDelay,
-                                name,
-                                overwrite,
-                                getString_xml());
+                                ObservationsSiteList, ForecastsSiteList,
+                                ForecastsForSites, ObservationsForSites,
+                                timeDelay, name, overwrite, getString_xml());
                         Thread forecastsThread;
                         forecastsThread = new Thread(ForecastsMetOfficeScraper);
                         forecastsThread.start();
@@ -336,22 +329,14 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
                         overwrite = false;
                         SARIC_MetOfficeScraper ForecastsMetOfficeScraper;
                         ForecastsMetOfficeScraper = new SARIC_MetOfficeScraper(
-                                se,
-                                CalculateForecastsSitesInStudyAreas,
+                                se, CalculateForecastsSitesInStudyAreas,
                                 CalculateObservationsSitesInStudyAreas,
-                                Observations,
-                                Forecasts,
-                                TileFromWMTSService,
+                                Observations, Forecasts, TileFromWMTSService,
                                 ObservationsTileFromWMTSService,
                                 ForecastsTileFromWMTSService,
-                                ObservationsSiteList,
-                                ForecastsSiteList,
-                                ForecastsForSites,
-                                ObservationsForSites,
-                                timeDelay,
-                                name,
-                                overwrite,
-                                getString_xml());
+                                ObservationsSiteList, ForecastsSiteList,
+                                ForecastsForSites, ObservationsForSites,
+                                timeDelay, name, overwrite, getString_xml());
                         Thread forecastsThread;
                         forecastsThread = new Thread(ForecastsMetOfficeScraper);
                         forecastsThread.start();
@@ -365,8 +350,8 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
             if (RunSARIC_ImageProcessor) {
 
                 // Main Switches
-//                doImageProcessObservations = true;
-                doImageProcessObservations = false;
+                doImageProcessObservations = true;
+//                doImageProcessObservations = false;
                 doImageProcessForecasts = true;
 //                doImageProcessForecasts = false;
                 doWissey = true;
@@ -387,25 +372,19 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
                     File dirOut;
                     dirOut = se.getFiles().getOutputDataMetOfficeDataPointDir();
                     SARIC_ImageProcessor SARIC_ImageProcessor;
-                    SARIC_ImageProcessor = new SARIC_ImageProcessor(
-                            se,
-                            dirIn,
-                            dirOut,
-                            doNonTiledFcs,
-                            doNonTiledObs,
+                    SARIC_ImageProcessor = new SARIC_ImageProcessor(se, dirIn,
+                            dirOut, doNonTiledFcs, doNonTiledObs,
                             doTileFromWMTSService,
                             doObservationsTileFromWMTSService,
-                            doForecastsTileFromWMTSService,
-                            doWissey,
-                            doTeifi,
+                            doForecastsTileFromWMTSService, doWissey, doTeifi,
                             overwrite);
                     SARIC_ImageProcessor.run();
                 }
 
                 if (doImageProcessForecasts) {
                     // Switches
-                    doNonTiledFcs = false;
-//                    doNonTiledFcs = true;
+                    //doNonTiledFcs = false;
+                    doNonTiledFcs = true;
                     //doTileFromWMTSService = false;
                     doTileFromWMTSService = true;
                     doObservationsTileFromWMTSService = false;
@@ -417,17 +396,11 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
                     File dirOut;
                     dirOut = se.getFiles().getOutputDataMetOfficeDataPointDir();
                     SARIC_ImageProcessor SARIC_ImageProcessor;
-                    SARIC_ImageProcessor = new SARIC_ImageProcessor(
-                            se,
-                            dirIn,
-                            dirOut,
-                            doNonTiledFcs,
-                            doNonTiledObs,
+                    SARIC_ImageProcessor = new SARIC_ImageProcessor(se, dirIn,
+                            dirOut, doNonTiledFcs, doNonTiledObs,
                             doTileFromWMTSService,
                             doObservationsTileFromWMTSService,
-                            doForecastsTileFromWMTSService,
-                            doWissey,
-                            doTeifi,
+                            doForecastsTileFromWMTSService, doWissey, doTeifi,
                             overwrite);
                     SARIC_ImageProcessor.run();
                 }
@@ -445,7 +418,8 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
             doObservations = true;
             overwrite = false;
             SARIC_CreatePointShapefiles p;
-            p = new SARIC_CreatePointShapefiles(se, doForecasts, doObservations, overwrite);
+            p = new SARIC_CreatePointShapefiles(se, doForecasts, doObservations,
+                    overwrite);
             p.run();
         }
 
@@ -467,10 +441,7 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
             doTeifi = true;
 //            doTeifi = false;
             SARIC_NIMRODDataHandler p;
-            p = new SARIC_NIMRODDataHandler(
-                    se,
-                    doWissey,
-                    doTeifi);
+            p = new SARIC_NIMRODDataHandler(se, doWissey, doTeifi);
             p.run();
         }
 
@@ -485,13 +456,8 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
             File dirOut;
             dirOut = se.getFiles().getOutputDataMetOfficeDataPointDir();
             SARIC_RainfallStatistics p;
-            p = new SARIC_RainfallStatistics(
-                    se,
-                    dirIn,
-                    dirOut,
-                    doWissey,
-                    doTeifi,
-                    overwrite);
+            p = new SARIC_RainfallStatistics(se, dirIn, dirOut, doWissey,
+                    doTeifi, overwrite);
             p.run();
         }
     }

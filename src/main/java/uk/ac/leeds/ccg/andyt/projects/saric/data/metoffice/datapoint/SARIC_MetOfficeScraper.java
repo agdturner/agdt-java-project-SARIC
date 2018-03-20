@@ -65,6 +65,13 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
 
     Vector_Environment ve;
 
+    Vector_Environment getVector_Environment() {
+        if (ve == null) {
+            ve = new Vector_Environment();
+        }
+        return ve;
+    }
+
     // Variables
     String path;
 
@@ -142,6 +149,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
         this.dataType = dataType;
     }
 
+    @Override
     public void run() {
         File dir;
         SARIC_SiteHandler sh;
@@ -207,15 +215,23 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
 //                layerName = "SATELLITE_Visible_N_Section";
 //                layerName = "SATELLITE_Visible_N_Section";
                 layerName = ss.getS_RADAR_UK_Composite_Highres(); //Rainfall
-                getObservationLayer(layerName, overwrite);
+                try {
+                    getObservationLayer(layerName, overwrite);
+                } catch (Exception ex) {
+                    Logger.getLogger(SARIC_MetOfficeScraper.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
 
             if (Forecasts) {
                 layerName = "Precipitation_Rate"; // Rainfall
 //                layerName = "Total_Cloud_Cover"; // Cloud
 //                layerName = "Total_Cloud_Cover_Precip_Rate_Overlaid"; // Cloud and Rain
-                //temperature and pressure also available
-                getForecastLayer(layerName, overwrite);
+//temperature and pressure also available
+                try {
+                    getForecastLayer(layerName, overwrite);
+                } catch (Exception ex) {
+                    Logger.getLogger(SARIC_MetOfficeScraper.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
 
 //        // Download three hourly five day forecast for Dunkeswell Aerodrome
@@ -326,17 +342,33 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
                 if (ObservationsTileFromWMTSService) {
                     layerName = ss.getS_RADAR_UK_Composite_Highres();
                     //getAllObservationsTilesFromWMTSService(layerName, tileMatrixSet, p, r, overwrite);
-                    getIntersectingObservationsTilesFromWMTSService(
-                            layerName, tileMatrixSet, p, r, wisseyBounds, ss.getS_Wissey(), overwrite);
-                    getIntersectingObservationsTilesFromWMTSService(
-                            layerName, tileMatrixSet, p, r, teifiBounds, ss.getS_Teifi(), overwrite);
+                    try {
+                        getIntersectingObservationsTilesFromWMTSService(
+                                layerName, tileMatrixSet, p, r, wisseyBounds, ss.getS_Wissey(), overwrite);
+                    } catch (Exception ex) {
+                        Logger.getLogger(SARIC_MetOfficeScraper.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    try {
+                        getIntersectingObservationsTilesFromWMTSService(
+                                layerName, tileMatrixSet, p, r, teifiBounds, ss.getS_Teifi(), overwrite);
+                    } catch (Exception ex) {
+                        Logger.getLogger(SARIC_MetOfficeScraper.class.getName()).log(Level.SEVERE, null, ex);
+                    }
                 }
                 if (ForecastsTileFromWMTSService) {
                     layerName = "Precipitation_Rate";
-                    getIntersectingForecastsTilesFromWMTSService(
-                            layerName, tileMatrixSet, p, r, wisseyBounds, ss.getS_Wissey(), overwrite);
-                    getIntersectingForecastsTilesFromWMTSService(
-                            layerName, tileMatrixSet, p, r, teifiBounds, ss.getS_Teifi(), overwrite);
+                    try {
+                        getIntersectingForecastsTilesFromWMTSService(
+                                layerName, tileMatrixSet, p, r, wisseyBounds, ss.getS_Wissey(), overwrite);
+                    } catch (Exception ex) {
+                        Logger.getLogger(SARIC_MetOfficeScraper.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    try {
+                        getIntersectingForecastsTilesFromWMTSService(
+                                layerName, tileMatrixSet, p, r, teifiBounds, ss.getS_Teifi(), overwrite);
+                    } catch (Exception ex) {
+                        Logger.getLogger(SARIC_MetOfficeScraper.class.getName()).log(Level.SEVERE, null, ex);
+                    }
                 }
             }
 
@@ -439,7 +471,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
      * data and overwrite. Otherwise the file is left in place and the method
      * simply returns.
      */
-    protected void getObservationLayer(String layerName, boolean overwrite) {
+    protected void getObservationLayer(String layerName, boolean overwrite) throws Exception {
         // Download capabilities document for the observation layers in XML format
         File observationLayerCapabilities;
         observationLayerCapabilities = getObservationsLayerCapabilities();
@@ -535,9 +567,8 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
      * data and overwrite. Otherwise the file is left in place and the method
      * simply returns.
      */
-    protected void getForecastLayer(
-            String layerName,
-            boolean overwrite) {
+    protected void getForecastLayer(String layerName, boolean overwrite)
+            throws Exception {
         // Download capabilities document for the forecast layers in XML format
         File forecastLayerCapabilities;
         forecastLayerCapabilities = getForecastsLayerCapabilities();
@@ -655,7 +686,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
     protected void downloadForecastImages(
             String layerName,
             String time,
-            boolean overwrite) {
+            boolean overwrite) throws Exception {
         //http://datapoint.metoffice.gov.uk/public/data/layer/wxfcs/{LayerName}/{ImageFormat}?RUN={DefaultTime}Z&FORECAST={Timestep}&key={key}
         String imageFormat;
         imageFormat = ss.getS_png();
@@ -691,7 +722,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
     protected void downloadObservationImages(
             String layerName,
             TreeSet<SARIC_Time> times,
-            boolean overwrite) {
+            boolean overwrite) throws Exception {
         //http://datapoint.metoffice.gov.uk/public/data/layer/wxobs/{LayerName}/{ImageFormat}?TIME={Time}Z&key={key}
         String imageFormat;
         imageFormat = ss.getS_png();
@@ -734,7 +765,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
             String tileMatrixSet,
             SARIC_MetOfficeParameters p,
             SARIC_MetOfficeCapabilitiesXMLDOMReader r,
-            boolean overwrite) {
+            boolean overwrite) throws Exception {
 //        ArrayList<String> times;
 //        times = r.getTimesInspireWMTS(layerName);
         TreeSet<SARIC_Time> times;
@@ -773,7 +804,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
                 time = ite.next();
                 System.out.println(time);
                 timeformatted = time.toFormattedString1();
-                dateString = time.getYYYYMMDD(); 
+                dateString = time.getYYYYMMDD();
                 yearMonth = time.getYYYYMM();
                 for (int row = 0; row < lp.nrows; row++) {
                     for (int col = 0; col < lp.ncols; col++) {
@@ -834,7 +865,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
             SARIC_MetOfficeCapabilitiesXMLDOMReader r,
             Vector_Envelope2D areaBoundingBox,
             String areaName,
-            boolean overwrite) {
+            boolean overwrite) throws Exception {
         System.out.println("AreaBoundingBox " + areaBoundingBox);
         TreeSet<SARIC_Time> times;
         times = r.getTimesInspireWMTS(layerName);
@@ -949,7 +980,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
             SARIC_MetOfficeCapabilitiesXMLDOMReader r,
             Vector_Envelope2D areaBoundingBox,
             String areaName,
-            boolean overwrite) {
+            boolean overwrite) throws Exception {
         System.out.println("AreaBoundingBox " + areaBoundingBox);
         TreeSet<SARIC_Time> times;
         times = r.getTimesInspireWMTS(layerName);
@@ -1089,7 +1120,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
     protected File getObservationsSiteCapabilities() {
         setPath(ss.getS_val(), ss.getS_wxobs(), dataType);
         addCapabilitiesToPath();
-        path += ss.getS_res() + ss.symbol_equals + ss.getS_hourly() 
+        path += ss.getS_res() + ss.symbol_equals + ss.getS_hourly()
                 + ss.symbol_ampersand;
         return getCapabilities(0);
     }
@@ -1225,26 +1256,19 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
      * data and overwrite. Otherwise the file is left in place and the method
      * simply returns.
      */
-    protected void getPNG(
-            String outputFilenameWithoutExtension,
-            boolean overwrite) {
+    protected void getPNG(String outputFilenameWithoutExtension, boolean overwrite) throws Exception {
         File outputDir;
-        outputDir = new File(
-                sf.getInputDataMetOfficeDataPointDir(),
-                path);
+        outputDir = new File(sf.getInputDataMetOfficeDataPointDir(), path);
         outputDir.mkdirs();
         File png;
-        png = new File(
-                outputDir,
-                outputFilenameWithoutExtension + "." + ss.getS_png());
+        png = new File(outputDir, outputFilenameWithoutExtension + "." + ss.getS_png());
         if (!overwrite) {
             if (png.exists()) {
                 System.out.println("File " + png.toString() + " already exists and is not being overwritten.");
                 return; // If the file already exists and we are not in overwrite mode then don't bother getting the data and writing it out.
             }
         }
-        getPNG(url,
-                png);
+        getPNG(url, png);
     }
 
     /**
@@ -1266,9 +1290,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
      * @param url The url request.
      * @param f The file written to.
      */
-    public void getPNG(
-            String url,
-            File f) {
+    public void getPNG(String url, File f) throws Exception {
         HttpURLConnection connection;
         BufferedInputStream bis;
         BufferedOutputStream bos;
@@ -1292,7 +1314,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
                  * malformed request syntax, size too large, invalid request
                  * message framing, or deceptive request routing).
                  */
-                throw new Error(message);
+                throw new Exception(message);
             }
             bis = new BufferedInputStream(connection.getInputStream());
             try {
@@ -1328,9 +1350,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
      * @param url The url request.
      * @param f The file written to.
      */
-    public void getXML(
-            String url,
-            File f) {
+    public void getXML(String url, File f) {
         HttpURLConnection connection;
         BufferedReader br;
         boolean append;
@@ -1382,10 +1402,8 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
      * @param dir
      * @param buffer
      */
-    protected void calculateSitesInStudyAreas(
-            HashSet<SARIC_Site> sites,
-            File dir,
-            BigDecimal buffer) {
+    protected void calculateSitesInStudyAreas(HashSet<SARIC_Site> sites,
+            File dir, BigDecimal buffer) {
         // Wissey
         SARIC_Wissey wissey;
         wissey = new SARIC_Wissey(se);
@@ -1398,7 +1416,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
         teifiBounds = teifi.getBoundsBuffered(buffer);
 
         HashSet<SARIC_Site> sitesInWissey;
-        sitesInWissey = new HashSet<SARIC_Site>();
+        sitesInWissey = new HashSet<>();
         HashSet<SARIC_Site> sitesInTeifi;
         sitesInTeifi = new HashSet<>();
         Iterator<SARIC_Site> ite;
@@ -1406,7 +1424,8 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
         SARIC_Site site;
         double[] OSGBEastingAndNorthing;
         Vector_Point2D p;
-                Vector_OSGBtoLatLon OSGBtoLatLon = ve.getOSGBtoLatLon();
+        ve = getVector_Environment();
+        Vector_OSGBtoLatLon OSGBtoLatLon = ve.getOSGBtoLatLon();
         while (ite.hasNext()) {
             site = ite.next();
             OSGBEastingAndNorthing = OSGBtoLatLon.latlon2osgb(
@@ -1433,13 +1452,10 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
     protected File getSitesFile(String name, BigDecimal buffer, File dir) {
         File result;
         if (buffer == null) {
-            result = new File(
-                    dir,
-                    name + "_HashSet_SARIC_Site.dat");
+            result = new File(dir, name + "_HashSet_SARIC_Site.dat");
         } else {
-            result = new File(
-                    dir,
-                    name + "_" + buffer.toPlainString() + "_HashSet_SARIC_Site.dat");
+            result = new File(dir, name + "_" + buffer.toPlainString()
+                    + "_HashSet_SARIC_Site.dat");
         }
         return result;
     }

@@ -760,7 +760,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                              * The scaleFactor normalises the precipitation
                              * intensity.
                              */
-                            gs = g.getStats(true);
+                            gs = g.getStats(true); //Debug, why NPE null here? Think it is something to do with missing input data
                             max = gs.getMax(true).doubleValue();
                             min = gs.getMin(true).doubleValue();
                             System.out.println("max " + max);

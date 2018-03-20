@@ -31,31 +31,25 @@ import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Strings;
  *
  * @author geoagdt
  */
-public class SARIC_YearMonth
-        extends SARIC_Object
+public class SARIC_YearMonth extends SARIC_Object
         implements Serializable, Comparable<SARIC_YearMonth> {
 
     // For convenience
     protected transient SARIC_Strings Strings;
 
-    public  YearMonth YM;
+    public YearMonth YM;
 
-    public SARIC_YearMonth(
-            SARIC_Environment se){
+    public SARIC_YearMonth(SARIC_Environment se) {
         super(se);
         Strings = se.getStrings();
         YM = YearMonth.now();
     }
-    
-    public SARIC_YearMonth(
-            SARIC_Environment se,
-            SARIC_YearMonth t) {
+
+    public SARIC_YearMonth(SARIC_Environment se, SARIC_YearMonth t) {
         this(se, t.YM);
     }
 
-    public SARIC_YearMonth(
-            SARIC_Environment se,
-            YearMonth yM) {
+    public SARIC_YearMonth(SARIC_Environment se, YearMonth yM) {
         super(se);
         Strings = se.getStrings();
         YM = yM;
@@ -67,9 +61,7 @@ public class SARIC_YearMonth
      * @param se
      * @param s
      */
-    public SARIC_YearMonth(
-            SARIC_Environment se,
-            String s) {
+    public SARIC_YearMonth(SARIC_Environment se, String s) {
         super(se);
         Strings = se.getStrings();
         String[] split;
