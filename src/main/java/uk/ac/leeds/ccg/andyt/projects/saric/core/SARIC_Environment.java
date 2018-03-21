@@ -18,31 +18,32 @@
  */
 package uk.ac.leeds.ccg.andyt.projects.saric.core;
 
+
 import uk.ac.leeds.ccg.andyt.generic.core.Generic_Environment;
+import uk.ac.leeds.ccg.andyt.generic.utilities.time.Generic_Time;
 import uk.ac.leeds.ccg.andyt.geotools.core.Geotools_Environment;
 import uk.ac.leeds.ccg.andyt.grids.core.Grids_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.catchment.SARIC_Teifi;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.catchment.SARIC_Wissey;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.SARIC_MetOfficeParameters;
 import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
-import uk.ac.leeds.ccg.andyt.projects.saric.util.SARIC_Time;
 import uk.ac.leeds.ccg.andyt.vector.core.Vector_Environment;
 
 /**
  *
  * @author geoagdt
  */
-public class SARIC_Environment {
+public class SARIC_Environment extends Generic_Environment {
 
-    private SARIC_Strings Strings;
-    private SARIC_Files Files;
+//    private SARIC_Strings Strings;
+//    private SARIC_Files Files;
     
     SARIC_MetOfficeParameters MetOfficeParameters;
     Grids_Environment Grids_Env;
     Vector_Environment Vector_Env;
     Geotools_Environment Geotools_Env;
 
-    SARIC_Time Time;
+    Generic_Time Time;
     SARIC_Wissey Wissey;
     SARIC_Teifi Teifi;
 
@@ -58,15 +59,16 @@ public class SARIC_Environment {
         Geotools_Env = new Geotools_Environment();
     }
 
+    @Override
     public final SARIC_Files getFiles(){
-        return Files;
+        return (SARIC_Files) Files;
     }
     
     public final SARIC_Strings getStrings(){
-        return Strings;
+        return (SARIC_Strings) Strings;
     }
     
-    public void setTime(SARIC_Time time) {
+    public void setTime(Generic_Time time) {
         Time = time;
     }
     
@@ -75,7 +77,7 @@ public class SARIC_Environment {
         return MetOfficeParameters;
     }
 
-    public SARIC_Time getTime() {
+    public Generic_Time getTime() {
         return Time;
     }
 

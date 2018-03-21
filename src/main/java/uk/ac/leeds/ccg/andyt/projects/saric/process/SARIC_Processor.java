@@ -19,12 +19,12 @@
 package uk.ac.leeds.ccg.andyt.projects.saric.process;
 
 import java.io.File;
-import uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Time;
+//import uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Time;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Object;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.SARIC_MetOfficeScraper;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.nimrod.SARIC_NIMRODDataHandler;
-import uk.ac.leeds.ccg.andyt.projects.saric.util.SARIC_Time;
+import uk.ac.leeds.ccg.andyt.generic.utilities.time.Generic_Time;
 
 /**
  * This is the main processor/controller for SARIC processing. Everything is
@@ -62,8 +62,8 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
             System.exit(0);
         } else {
             SARIC_Environment se = new SARIC_Environment(args[0]);
-            SARIC_Time st;
-            st = new SARIC_Time(se);
+            Generic_Time st;
+            st = new Generic_Time(se);
             se.setTime(st);
             SARIC_Processor sp;
             sp = new SARIC_Processor(se);
@@ -166,7 +166,7 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
                     ForecastsForSites = false;
                     ForecastsForSites = false;
                     ObservationsForSites = false;
-                    timeDelay = (long) (Generic_Time.MilliSecondsInHour * 2.75);
+                    timeDelay = (long) (uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Time.MilliSecondsInHour * 2.75);
                     name = "CalculateSitesInStudyAreas";
                     overwrite = false;
                     SARIC_MetOfficeScraper ObservationsMetOfficeScraper;
@@ -213,7 +213,7 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
                     ForecastsForSites = true;
                     ObservationsSiteList = false;
                     ObservationsForSites = false;
-                    timeDelay = (long) (Generic_Time.MilliSecondsInHour * 1);
+                    timeDelay = (long) (uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Time.MilliSecondsInHour * 1);
                     name = "Forecasts";
                     overwrite = false;
                     SARIC_MetOfficeScraper s;
@@ -251,7 +251,7 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
                     ForecastsForSites = false;
                     ObservationsForSites = true;
                     ObservationsSiteList = true;
-                    timeDelay = (long) (Generic_Time.MilliSecondsInHour * 5.5);
+                    timeDelay = (long) (uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Time.MilliSecondsInHour * 5.5);
                     name = "Observations";
                     overwrite = false;
                     SARIC_MetOfficeScraper s;
@@ -302,7 +302,7 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
                     if (doObservationsTileFromWMTSService) {
                         ObservationsTileFromWMTSService = true;
                         ForecastsTileFromWMTSService = false;
-                        timeDelay = (long) (Generic_Time.MilliSecondsInHour * 19);
+                        timeDelay = (long) (uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Time.MilliSecondsInHour * 19);
                         name = "Higher Resolution Tiled Forecasts and Observations";
                         overwrite = false;
                         SARIC_MetOfficeScraper ForecastsMetOfficeScraper;
@@ -324,7 +324,7 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
                         CalculateObservationsSitesInStudyAreas = false;
                         ObservationsTileFromWMTSService = false;
                         ForecastsTileFromWMTSService = true;
-                        timeDelay = (long) (Generic_Time.MilliSecondsInHour * 6);
+                        timeDelay = (long) (uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Time.MilliSecondsInHour * 6);
                         name = "Higher Resolution Tiled Forecasts and Observations";
                         overwrite = false;
                         SARIC_MetOfficeScraper ForecastsMetOfficeScraper;

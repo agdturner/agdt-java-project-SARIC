@@ -26,8 +26,8 @@ import java.util.TreeSet;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
-import uk.ac.leeds.ccg.andyt.projects.saric.util.SARIC_Date;
-import uk.ac.leeds.ccg.andyt.projects.saric.util.SARIC_Time;
+import uk.ac.leeds.ccg.andyt.generic.utilities.time.Generic_Date;
+import uk.ac.leeds.ccg.andyt.generic.utilities.time.Generic_Time;
 import uk.ac.leeds.ccg.andyt.vector.geometry.Vector_Envelope2D;
 import uk.ac.leeds.ccg.andyt.vector.geometry.Vector_Point2D;
 
@@ -50,8 +50,8 @@ public class SARIC_MetOfficeCapabilitiesXMLDOMReader extends SARIC_XMLDOMReader 
         init(file, "*");
     }
 
-    protected TreeSet<SARIC_Time> getTimesInspireWMTS(String layerName) {
-        TreeSet<SARIC_Time> result;
+    protected TreeSet<Generic_Time> getTimesInspireWMTS(String layerName) {
+        TreeSet<Generic_Time> result;
         result = new TreeSet<>();
 //        ArrayList<String> result;
 //        result = new ArrayList<String>();
@@ -80,19 +80,19 @@ public class SARIC_MetOfficeCapabilitiesXMLDOMReader extends SARIC_XMLDOMReader 
         n = nodeList.item(i);
         //System.out.println(nodeList.item(i).getNodeName());
         nTextContent = n.getTextContent();
-        result.add(new SARIC_Time(se, nTextContent));
+        result.add(new Generic_Time(se, nTextContent));
         //System.out.println(nTextContent);
         i = find("Value", nodeList, i + 1);
         n = nodeList.item(i);
         while (nodeList.item(i + 1).getNodeName().equalsIgnoreCase("Value")) {
             nTextContent = n.getTextContent();
-            result.add(new SARIC_Time(se, nTextContent));
+            result.add(new Generic_Time(se, nTextContent));
             //System.out.println(nTextContent);
             i = find("Value", nodeList, i + 1);
             n = nodeList.item(i);
         }
         nTextContent = n.getTextContent();
-        result.add(new SARIC_Time(se, nTextContent));
+        result.add(new Generic_Time(se, nTextContent));
         return result;
     }
 
@@ -205,8 +205,8 @@ public class SARIC_MetOfficeCapabilitiesXMLDOMReader extends SARIC_XMLDOMReader 
         foundLayer = false;
         boolean startTimeSet;
         startTimeSet = false;
-        SARIC_Time startTime = null;
-        SARIC_Time time;
+        Generic_Time startTime = null;
+        Generic_Time time;
         for (int i = 0; i < nodeList.getLength(); i++) {
             Node n;
             n = nodeList.item(i);
@@ -259,7 +259,7 @@ public class SARIC_MetOfficeCapabilitiesXMLDOMReader extends SARIC_XMLDOMReader 
                     } else {
                         timeStartSecond = new Integer(timeSplit2[2]);
                     }
-                    startTime = new SARIC_Time(se, timeStartYear, timeStartMonth,
+                    startTime = new Generic_Time(se, timeStartYear, timeStartMonth,
                             timeStartDay, timeStartHour, timeStartMinute,
                             timeStartSecond);
                     startTimeSet = true;
@@ -267,7 +267,7 @@ public class SARIC_MetOfficeCapabilitiesXMLDOMReader extends SARIC_XMLDOMReader 
                     if (nNodeName.equalsIgnoreCase("TimeStep")) {
                         String v;
                         v = n.getTextContent();
-                        time = new SARIC_Time(startTime);
+                        time = new Generic_Time(startTime);
                         time.addHours(Integer.valueOf(v));
                         String timeString;
                         timeString = time.toFormattedString0();
@@ -312,8 +312,8 @@ public class SARIC_MetOfficeCapabilitiesXMLDOMReader extends SARIC_XMLDOMReader 
         return result;
     }
 
-    protected TreeSet<SARIC_Time> getObservationTimes(String layerName, String nodeName) {
-        TreeSet<SARIC_Time> result;
+    protected TreeSet<Generic_Time> getObservationTimes(String layerName, String nodeName) {
+        TreeSet<Generic_Time> result;
         result = new TreeSet<>();
         boolean foundLayer;
         foundLayer = false;
@@ -335,7 +335,7 @@ public class SARIC_MetOfficeCapabilitiesXMLDOMReader extends SARIC_XMLDOMReader 
             } else {
                 if (nNodeName.equalsIgnoreCase(nodeName)) {
                     nTextContent = n.getTextContent();
-                    result.add(new SARIC_Time(se, nTextContent));
+                    result.add(new Generic_Time(se, nTextContent));
 //                    System.out.println(nTextContent);
                 }
             }

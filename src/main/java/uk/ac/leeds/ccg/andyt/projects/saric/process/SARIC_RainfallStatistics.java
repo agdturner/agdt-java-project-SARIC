@@ -49,9 +49,9 @@ import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.SARIC_MetOf
 import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.SARIC_MetOfficeParameters;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.site.SARIC_SiteForecastRecord;
 import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
-import uk.ac.leeds.ccg.andyt.projects.saric.util.SARIC_Date;
-import uk.ac.leeds.ccg.andyt.projects.saric.util.SARIC_Time;
-import uk.ac.leeds.ccg.andyt.projects.saric.util.SARIC_YearMonth;
+import uk.ac.leeds.ccg.andyt.generic.utilities.time.Generic_Date;
+import uk.ac.leeds.ccg.andyt.generic.utilities.time.Generic_Time;
+import uk.ac.leeds.ccg.andyt.generic.utilities.time.Generic_YearMonth;
 import uk.ac.leeds.ccg.andyt.projects.saric.visualisation.SARIC_Colour;
 import uk.ac.leeds.ccg.andyt.vector.geometry.Vector_Envelope2D;
 
@@ -213,10 +213,10 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
         Grids_Files gridf;
         gridf = ge.getFiles();
         File gdir;
-        TreeMap<SARIC_YearMonth, TreeSet<SARIC_Date>> ymDates;
-        SARIC_YearMonth ym;
-        TreeSet<SARIC_Date> dates;
-        Iterator<SARIC_YearMonth> ite0;
+        TreeMap<Generic_YearMonth, TreeSet<Generic_Date>> ymDates;
+        Generic_YearMonth ym;
+        TreeSet<Generic_Date> dates;
+        Iterator<Generic_YearMonth> ite0;
         String path;
         String s;
         File outdir0;
@@ -241,14 +241,14 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
         indirs0 = indir0.listFiles();
         for (int i = 0; i < indirs0.length; i++) {
             s = indirs0[i].getName();
-            ym = new SARIC_YearMonth(se, s);
+            ym = new Generic_YearMonth(se, s);
             dates = new TreeSet<>();
             ymDates.put(ym, dates);
             indir1 = new File(indir0, s);
             indirs1 = indir1.listFiles();
             // initialise outdirs
             for (int j = 0; j < indirs1.length; j++) {
-                dates.add(new SARIC_Date(se, indirs1[j].getName().split("T")[0]));
+                dates.add(new Generic_Date(se, indirs1[j].getName().split("T")[0]));
             }
         }
 
@@ -271,10 +271,10 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
         halfcellsize = cellsize.doubleValue() / 2.0d;
 
         Grids_GridDouble g;
-        TreeMap<SARIC_Time, HashMap<String, Grids_GridDouble>> atg;
+        TreeMap<Generic_Time, HashMap<String, Grids_GridDouble>> atg;
         HashMap<String, Grids_GridDouble> variances;
         HashMap<String, Grids_GridDouble> tg;
-        SARIC_Time st;
+        Generic_Time st;
         double n;
         n = 0;
 
@@ -284,10 +284,10 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
         File outpng3;
         Grids_GridDouble a1KMGridMaskedToCatchmentGrid;
         a1KMGridMaskedToCatchmentGrid = (Grids_GridDouble) a1KMGridMaskedToCatchment[0];
-        SARIC_Date date0;
+        Generic_Date date0;
 
         // Number of times it is raining in each 15 minute observations
-        Iterator<SARIC_Date> ite1;
+        Iterator<Generic_Date> ite1;
 
         ite0 = ymDates.keySet().iterator();
         while (ite0.hasNext()) {
@@ -327,7 +327,7 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
                                 indirname2 = indirs0[j].getName();
                                 infiles = indirs0[j].listFiles();
 
-                                st = new SARIC_Time(se, indirname2,
+                                st = new Generic_Time(se, indirname2,
                                         ss.symbol_minus, ss.s_T,
                                         ss.symbol_underscore);
                                 if (atg.containsKey(st)) {
@@ -372,7 +372,7 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
                     Grids_GridDouble sum;
                     variances = new HashMap<>();
                     Grids_GridDouble variance = null;
-                    Iterator<SARIC_Time> iteT;
+                    Iterator<Generic_Time> iteT;
                     Iterator<String> iteT2;
                     iteT = atg.keySet().iterator();
                     while (iteT.hasNext()) {

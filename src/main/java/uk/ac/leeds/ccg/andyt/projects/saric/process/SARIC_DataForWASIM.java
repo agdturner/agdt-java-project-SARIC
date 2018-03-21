@@ -53,8 +53,8 @@ import uk.ac.leeds.ccg.andyt.projects.saric.data.catchment.SARIC_Teifi;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.catchment.SARIC_Wissey;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.wasim.SARIC_WASIMRecord;
 import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
-import uk.ac.leeds.ccg.andyt.projects.saric.util.SARIC_Date;
-import uk.ac.leeds.ccg.andyt.projects.saric.util.SARIC_Time;
+import uk.ac.leeds.ccg.andyt.generic.utilities.time.Generic_Date;
+import uk.ac.leeds.ccg.andyt.generic.utilities.time.Generic_Time;
 import uk.ac.leeds.ccg.andyt.vector.core.Vector_Environment;
 
 /**
@@ -91,7 +91,7 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
     public void run() {
 
         // Initial day set
-        SARIC_Date day0;
+        Generic_Date day0;
         // Number of days after initial day results are output for
         int numberOfDaysRun;
         // What areas to run for
@@ -103,29 +103,56 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
         overwrite = false;
         overwrite = true;
 //        // Run 1
-//        day0 = new SARIC_Date(se, "2017-09-06"); 
+//        day0 = new Generic_Date(se, "2017-09-06"); 
 //        numberOfDaysRun = 7;
 //        // Run 2
-//        day0 = new SARIC_Date(se, "2017-09-21"); 
+//        day0 = new Generic_Date(se, "2017-09-21"); 
 //        numberOfDaysRun = 9;
 //        // Run 3
-//        day0 = new SARIC_Date(se, "2017-10-01"); 
+//        day0 = new Generic_Date(se, "2017-10-01"); 
 //        numberOfDaysRun = 8;
 //        // Run 4
-//        day0 = new SARIC_Date(se, "2017-10-11");
+//        day0 = new Generic_Date(se, "2017-10-11");
 //        numberOfDaysRun = 14;
 //        // Run 5
-//        day0 = new SARIC_Date(se, "2017-10-25");
+//        day0 = new Generic_Date(se, "2017-10-25");
 //        numberOfDaysRun = 28;
         // Run 6
-        day0 = new SARIC_Date(se, "2017-09-06");
+        day0 = new Generic_Date(se, "2017-09-06");
         numberOfDaysRun = 100;
         // Declaration
         String area;
-        SARIC_Date day;
-        File dir;
-        PrintWriter pw;
-        TreeMap<SARIC_Time, Grids_GridDouble> observationsGrids;
+        Generic_Date day;
+
+        // Initialise the PrintWriter for the output
+        day = new Generic_Date(se, "2017-08-26");
+
+        TreeMap<Generic_Time, Grids_GridDouble> observationsGrids;
+        
+        // Load all the observations grids
+        area = ss.getS_Teifi();
+        observationsGrids = getObservationsGrids(area);
+
+        // GeoTools
+        SimpleFeatureType sft;
+        sft = getPointSimpleFeatureType(defaultSRID);
+        GeometryFactory geometryFactory;
+        geometryFactory = JTSFactoryFinder.getGeometryFactory();
+        SimpleFeatureBuilder sfb;
+        Point point;
+
+        // Teifi
+        SARIC_Teifi st;
+        st = new SARIC_Teifi(se);
+        Geotools_Shapefile shpf;
+        shpf = st.getWaterCompanyAGDT_Shapefile();
+        SimpleFeature feature2 = null;
+        try {
+            feature2 = (SimpleFeature) shpf.getFeatureSource().getFeatures().features().next();
+        } catch (IOException ex) {
+            Logger.getLogger(SARIC_DataForWASIM.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
         Geometry geometry2;
         double Easting;
         double Northing;
@@ -135,8 +162,12 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
         int numberOfDaysSinceLastRainfallEventGT2mm;
         double accumulation;
         long ID;
-        SARIC_Time t0;
-        SARIC_Time t;
+        Generic_Time t0;
+        Generic_Time t;
+        ID = 0;
+        t0 = new Generic_Time(day);
+        t = new Generic_Time(day);
+
         Grids_GridDouble f1;
         Grids_GridDouble f2;
         Grids_GridDouble f3;
@@ -148,20 +179,16 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
         double forecastRainfallIn72to96HoursHours;
         double forecastRainfallIn96to120Hours;
         double noDataValue;
-        // GeoTools
-        SimpleFeatureType sft;
-        sft = getPointSimpleFeatureType(defaultSRID);
-        GeometryFactory gf;
-        gf = JTSFactoryFinder.getGeometryFactory();
-        SimpleFeatureBuilder sfb;
-        Point point;
+
         SARIC_WASIMRecord r;
         File f;
+        PrintWriter pw;
 
         Iterator<String> iteArea;
         iteArea = areas.iterator();
         while (iteArea.hasNext()) {
             area = iteArea.next();
+            Iterator<Generic_Time> ite;
 
             // Load all the observations grids
             observationsGrids = getObservationsGrids(area);
@@ -170,7 +197,7 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
             geometry2 = getWaterCompanyShapefileGeometry(area);
 
             for (int days = 0; days < numberOfDaysRun; days++) {
-                day = new SARIC_Date(day0);
+                day = new Generic_Date(day0);
                 day.addDays(days);
                 // Initialise the PrintWriter for the output
                 f = getFile(area, day);
@@ -182,8 +209,8 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
                     nrows = g.getNRows();
                     ncols = g.getNCols();
                     ID = 0;
-                    t0 = new SARIC_Time(day);
-                    t = new SARIC_Time(day);
+                    t0 = new Generic_Time(day);
+                    t = new Generic_Time(day);
                     f1 = getForecastsGrid(area, t, 1);
                     f2 = getForecastsGrid(area, t, 2);
                     f3 = getForecastsGrid(area, t, 3);
@@ -192,7 +219,6 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
                     // Assuming all grids have the same noDataValue.
                     noDataValue = g.getNoDataValue();
 
-                    Iterator<SARIC_Time> ite;
                     for (long row = 0; row < nrows; row++) {
                         for (long col = 0; col < ncols; col++) {
 
@@ -201,7 +227,7 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
                             Northing = g.getCellYDouble(row);
 
                             sfb = new SimpleFeatureBuilder(sft);
-                            point = gf.createPoint(new Coordinate(Easting, Northing));
+                            point = geometryFactory.createPoint(new Coordinate(Easting, Northing));
                             sfb.add(point);
                             sfb.add("" + ID);
                             SimpleFeature feature;
@@ -331,7 +357,7 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
         }
     }
 
-    File getFile(String area, SARIC_Date day) {
+    File getFile(String area, Generic_Date day) {
         File result;
         File dir;
         dir = new File(sf.getOutputDataDir(ss), "WASIM");
@@ -361,8 +387,7 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
         return result;
     }
 
-    Geometry getWaterCompanyShapefileGeometry(String area
-    ) {
+    Geometry getWaterCompanyShapefileGeometry(String area) {
         Geometry result;
         SARIC_Catchment sc = null;
         if (area.equalsIgnoreCase(ss.getS_Teifi())) {
@@ -390,12 +415,12 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
         return result;
     }
 
-    protected Grids_GridDouble getForecastsGrid(String area, SARIC_Date d,
+    protected Grids_GridDouble getForecastsGrid(String area, Generic_Date d,
             int offset) {
         Grids_Files gridf;
         gridf = ge.getFiles();
-        SARIC_Date d1;
-        d1 = new SARIC_Time(d);
+        Generic_Date d1;
+        d1 = new Generic_Time(d);
         d1.addDays(offset);
         Grids_GridDouble result;
         File dir;
@@ -442,10 +467,11 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
         return null;
     }
 
-    protected TreeMap<SARIC_Time, Grids_GridDouble> getObservationsGrids(String area) {
+    protected TreeMap<Generic_Time, Grids_GridDouble> getObservationsGrids(
+            String area) {
         Grids_Files gridf;
         gridf = ge.getFiles();
-        TreeMap<SARIC_Time, Grids_GridDouble> result;
+        TreeMap<Generic_Time, Grids_GridDouble> result;
         result = new TreeMap<>();
         File dir;
         dir = new File(sf.getOutputDataMetOfficeDataPointDir(),
@@ -461,14 +487,14 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
         String[] dates;
         File f;
         File dir3;
-        SARIC_Time t;
+        Generic_Time t;
         Grids_GridDouble g;
         // Load each grid
         for (File dir2 : dirs) {
             System.out.println(dir2);
             dates = dir2.list();
             for (String date : dates) {
-                t = new SARIC_Time(se, date);
+                t = new Generic_Time(se, date);
                 System.out.println(t);
                 dir3 = new File(dir2, date);
                 f = new File(dir3,
@@ -485,7 +511,8 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
         return result;
     }
 
-    private static SimpleFeatureType initSimpleFeatureType(String type, String srid) {
+    private static SimpleFeatureType initSimpleFeatureType(String type,
+            String srid) {
         SimpleFeatureType result = null;
         try {
             result = DataUtilities.createType(

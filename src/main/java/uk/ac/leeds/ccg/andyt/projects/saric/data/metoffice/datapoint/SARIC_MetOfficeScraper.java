@@ -35,7 +35,7 @@ import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import uk.ac.leeds.ccg.andyt.generic.io.Generic_StaticIO;
-import uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Time;
+//import uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Time;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Strings;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.catchment.SARIC_Teifi;
@@ -43,7 +43,7 @@ import uk.ac.leeds.ccg.andyt.projects.saric.data.catchment.SARIC_Wissey;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.site.SARIC_Site;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.site.SARIC_SiteHandler;
 import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
-import uk.ac.leeds.ccg.andyt.projects.saric.util.SARIC_Time;
+import uk.ac.leeds.ccg.andyt.generic.utilities.time.Generic_Time;
 import uk.ac.leeds.ccg.andyt.vector.core.Vector_Environment;
 import uk.ac.leeds.ccg.andyt.vector.geometry.Vector_Envelope2D;
 import uk.ac.leeds.ccg.andyt.vector.geometry.Vector_Point2D;
@@ -197,7 +197,8 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
          */
         int permittedConnectionsPerHour;
         permittedConnectionsPerHour = 100 * 60;
-        permittedConnectionRate = permittedConnectionsPerHour / (double) Generic_Time.MilliSecondsInHour;
+        permittedConnectionRate = permittedConnectionsPerHour
+                / (double) uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Time.MilliSecondsInHour;
 
         // Read API_KEY from file
         API_KEY = getAPI_KEY();
@@ -458,7 +459,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
                 } catch (InterruptedException ex) {
                     Logger.getLogger(SARIC_MetOfficeScraper.class.getName()).log(Level.SEVERE, null, ex);
                 }
-                System.out.println("Waited " + Generic_Time.getTime(timeDelay) + ".");
+                System.out.println("Waited " + uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Time.getTime(timeDelay) + ".");
             }
             i++;
         }
@@ -475,7 +476,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
         // Download capabilities document for the observation layers in XML format
         File observationLayerCapabilities;
         observationLayerCapabilities = getObservationsLayerCapabilities();
-        TreeSet<SARIC_Time> times;
+        TreeSet<Generic_Time> times;
         times = getObservationsLayerTimes(layerName, observationLayerCapabilities);
         // Download observation web map
         downloadObservationImages(layerName, times, overwrite);
@@ -513,7 +514,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
         //System.out.println(url);
         // Reset path
         String currentTime;
-        currentTime = Generic_Time.getDateAndTimeHourDir();
+        currentTime = uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Time.getDateAndTimeHourDir();
         path = sf.getValDataTypePath(dataType, ss.getS_wxfcs())
                 + ss.getS_site() + ss.symbol_backslash
                 + res + ss.symbol_backslash
@@ -662,10 +663,10 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
      * @param xml
      * @return
      */
-    protected TreeSet<SARIC_Time> getObservationsLayerTimes(
+    protected TreeSet<Generic_Time> getObservationsLayerTimes(
             String layerName,
             File xml) {
-        TreeSet<SARIC_Time> result;
+        TreeSet<Generic_Time> result;
         SARIC_MetOfficeCapabilitiesXMLDOMReader r;
         r = new SARIC_MetOfficeCapabilitiesXMLDOMReader(se, xml);
         String nodeName;
@@ -683,9 +684,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
      * data and overwrite. Otherwise the file is left in place and the method
      * simply returns.
      */
-    protected void downloadForecastImages(
-            String layerName,
-            String time,
+    protected void downloadForecastImages(String layerName, String time,
             boolean overwrite) throws Exception {
         //http://datapoint.metoffice.gov.uk/public/data/layer/wxfcs/{LayerName}/{ImageFormat}?RUN={DefaultTime}Z&FORECAST={Timestep}&key={key}
         String imageFormat;
@@ -719,15 +718,13 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
      * data and overwrite. Otherwise the file is left in place and the method
      * simply returns.
      */
-    protected void downloadObservationImages(
-            String layerName,
-            TreeSet<SARIC_Time> times,
-            boolean overwrite) throws Exception {
+    protected void downloadObservationImages(String layerName,
+            TreeSet<Generic_Time> times, boolean overwrite) throws Exception {
         //http://datapoint.metoffice.gov.uk/public/data/layer/wxobs/{LayerName}/{ImageFormat}?TIME={Time}Z&key={key}
         String imageFormat;
         imageFormat = ss.getS_png();
-        SARIC_Time time;
-        Iterator<SARIC_Time> ite;
+        Generic_Time time;
+        Iterator<Generic_Time> ite;
         ite = times.iterator();
         while (ite.hasNext()) {
             time = ite.next();
@@ -768,7 +765,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
             boolean overwrite) throws Exception {
 //        ArrayList<String> times;
 //        times = r.getTimesInspireWMTS(layerName);
-        TreeSet<SARIC_Time> times;
+        TreeSet<Generic_Time> times;
         times = r.getTimesInspireWMTS(layerName);
         p.setTimes(times);
         HashMap<String, SARIC_MetOfficeLayerParameters> metOfficeLayerParameters;
@@ -792,11 +789,11 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
             String tileRow;
             String tileCol;
             //String time;
-            SARIC_Time time;
+            Generic_Time time;
             String dateString;
             String timeformatted;
             String yearMonth;
-            Iterator<SARIC_Time> ite;
+            Iterator<Generic_Time> ite;
             ite = times.iterator();
 //            Iterator<String> ite;
 //            ite = times.iterator();
@@ -867,7 +864,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
             String areaName,
             boolean overwrite) throws Exception {
         System.out.println("AreaBoundingBox " + areaBoundingBox);
-        TreeSet<SARIC_Time> times;
+        TreeSet<Generic_Time> times;
         times = r.getTimesInspireWMTS(layerName);
         p.setTimes(times);
         HashMap<String, SARIC_MetOfficeLayerParameters> metOfficeLayerParameters;
@@ -879,11 +876,11 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
         String tileMatrixFormatted;
         String tileRow;
         String tileCol;
-        SARIC_Time time;
+        Generic_Time time;
         String dateString;
         String timeformatted;
         String yearMonth;
-        Iterator<SARIC_Time> ite;
+        Iterator<Generic_Time> ite;
         int matrix = 4;
         //for (matrix = 0; matrix < 7; matrix += 1) {
         //for (matrix = 0; matrix < 5; matrix += 1) {
@@ -982,7 +979,7 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
             String areaName,
             boolean overwrite) throws Exception {
         System.out.println("AreaBoundingBox " + areaBoundingBox);
-        TreeSet<SARIC_Time> times;
+        TreeSet<Generic_Time> times;
         times = r.getTimesInspireWMTS(layerName);
         p.setTimes(times);
         HashMap<String, SARIC_MetOfficeLayerParameters> metOfficeLayerParameters;
@@ -1014,8 +1011,8 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
         path = "inspire/view/wmts";
         String tileRow;
         String tileCol;
-        SARIC_Time time;
-        Iterator<SARIC_Time> ite;
+        Generic_Time time;
+        Iterator<Generic_Time> ite;
         ite = times.iterator();
         while (ite.hasNext()) {
             time = ite.next();
