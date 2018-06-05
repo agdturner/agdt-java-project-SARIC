@@ -16,19 +16,26 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
-package uk.ac.leeds.ccg.andyt.projects.saric.data.wasim;
+package uk.ac.leeds.ccg.andyt.projects.saric.data.lex;
 
 /**
  *
  * @author geoagdt
  */
-public class SARIC_WASIMRecord {
+public class SARIC_LexRecord {
 
     String ID;
     double Easting;
     double Northing;
-    int daysSinceLast2mmRainfall;
-    double accumulatedRainfallOverTheLast10Days;
+    double observedRainfall10DaysAgo;
+    double observedRainfall9DaysAgo;
+    double observedRainfall8DaysAgo;
+    double observedRainfall7DaysAgo;
+    double observedRainfall6DaysAgo;
+    double observedRainfall5DaysAgo;
+    double observedRainfall4DaysAgo;
+    double observedRainfall3DaysAgo;
+    double observedRainfall2DaysAgo;
     double observedRainfallInTheLast24Hours;
     double forecastRainfallInTheNext24Hours;
     double forecastRainfallIn24to48Hours;
@@ -36,12 +43,19 @@ public class SARIC_WASIMRecord {
     double forecastRainfallIn72to96Hours;
     double forecastRainfallIn96to120Hours;
 
-    public SARIC_WASIMRecord(
+    public SARIC_LexRecord(
             String ID,
             double Easting,
             double Northing,
-            int daysSinceLast2mmRainfall,
-            double accumulatedRainfallOverTheLast10Days,
+            double observedRainfall10DaysAgo,
+            double observedRainfall9DaysAgo,
+            double observedRainfall8DaysAgo,
+            double observedRainfall7DaysAgo,
+            double observedRainfall6DaysAgo,
+            double observedRainfall5DaysAgo,
+            double observedRainfall4DaysAgo,
+            double observedRainfall3DaysAgo,
+            double observedRainfall2DaysAgo,
             double observedRainfallInTheLast24Hours,
             double forecastRainfallInTheNext24Hours,
             double forecastRainfallIn24to48Hours,
@@ -51,8 +65,15 @@ public class SARIC_WASIMRecord {
         this.ID = ID;
         this.Easting = Easting;
         this.Northing = Northing;
-        this.daysSinceLast2mmRainfall = daysSinceLast2mmRainfall;
-        this.accumulatedRainfallOverTheLast10Days = accumulatedRainfallOverTheLast10Days;
+        this.observedRainfall10DaysAgo = observedRainfall10DaysAgo;
+        this.observedRainfall9DaysAgo = observedRainfall9DaysAgo;
+        this.observedRainfall8DaysAgo = observedRainfall8DaysAgo;
+        this.observedRainfall7DaysAgo = observedRainfall7DaysAgo;
+        this.observedRainfall6DaysAgo = observedRainfall6DaysAgo;
+        this.observedRainfall5DaysAgo = observedRainfall5DaysAgo;
+        this.observedRainfall4DaysAgo = observedRainfall4DaysAgo;
+        this.observedRainfall3DaysAgo = observedRainfall3DaysAgo;
+        this.observedRainfall2DaysAgo = observedRainfall2DaysAgo;
         this.observedRainfallInTheLast24Hours = observedRainfallInTheLast24Hours;
         this.forecastRainfallInTheNext24Hours = forecastRainfallInTheNext24Hours;
         this.forecastRainfallIn24to48Hours = forecastRainfallIn24to48Hours;
@@ -64,8 +85,15 @@ public class SARIC_WASIMRecord {
     @Override
     public String toString() {
         return "" + ID + "," + Easting + "," + Northing + ","
-                + daysSinceLast2mmRainfall + ","
-                + accumulatedRainfallOverTheLast10Days + ","
+                + observedRainfall10DaysAgo + ","
+                + observedRainfall9DaysAgo + ","
+                + observedRainfall8DaysAgo + ","
+                + observedRainfall7DaysAgo + ","
+                + observedRainfall6DaysAgo + ","
+                + observedRainfall5DaysAgo + ","
+                + observedRainfall4DaysAgo + ","
+                + observedRainfall3DaysAgo + ","
+                + observedRainfall2DaysAgo + ","
                 + observedRainfallInTheLast24Hours + ","
                 + forecastRainfallInTheNext24Hours + ","
                 + forecastRainfallIn24to48Hours + ","

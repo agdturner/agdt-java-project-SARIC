@@ -86,6 +86,8 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
 //            RunSARIC_CreatePointShapefile = true;
 //            RunSARIC_DisplayShapefile = true;
 //            RunSARIC_DataForWASIM = true;
+//            RunSARIC_DataForWASIM2 = true;
+//            RunSARIC_DataForLex = true;
 //            RunSARIC_ProcessNIMROD = true;
 //            RunSARIC_RainfallStatistics = true;
 
@@ -359,50 +361,59 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
                 doTeifi = true;
 //                doTeifi = false;
 
-                if (doImageProcessObservations) {
-                    // Switches
-                    doNonTiledObs = false;
-                    doNonTiledFcs = false;
-                    doTileFromWMTSService = true;
-                    doObservationsTileFromWMTSService = true;
-                    doForecastsTileFromWMTSService = false;
-                    overwrite = false;
-                    File dirIn;
-                    dirIn = se.getFiles().getInputDataMetOfficeDataPointDir();
-                    File dirOut;
-                    dirOut = se.getFiles().getOutputDataMetOfficeDataPointDir();
-                    SARIC_ImageProcessor SARIC_ImageProcessor;
-                    SARIC_ImageProcessor = new SARIC_ImageProcessor(se, dirIn,
-                            dirOut, doNonTiledFcs, doNonTiledObs,
-                            doTileFromWMTSService,
-                            doObservationsTileFromWMTSService,
-                            doForecastsTileFromWMTSService, doWissey, doTeifi,
-                            overwrite);
-                    SARIC_ImageProcessor.run();
-                }
+                boolean outputGreyScale;
+                int colorDupication;
+                outputGreyScale = false;
+                colorDupication = 0;
+                for (int estimateType = -1; estimateType < 2; estimateType++) {
 
-                if (doImageProcessForecasts) {
-                    // Switches
-                    //doNonTiledFcs = false;
-                    doNonTiledFcs = true;
-                    //doTileFromWMTSService = false;
-                    doTileFromWMTSService = true;
-                    doObservationsTileFromWMTSService = false;
-                    doForecastsTileFromWMTSService = true;
+                    if (doImageProcessObservations) {
+                        // Switches
+                        doNonTiledObs = false;
+                        doNonTiledFcs = false;
+                        doTileFromWMTSService = true;
+                        doObservationsTileFromWMTSService = true;
+                        doForecastsTileFromWMTSService = false;
+                        overwrite = false;
+                        File dirIn;
+                        dirIn = se.getFiles().getInputDataMetOfficeDataPointDir();
+                        File dirOut;
+                        dirOut = se.getFiles().getOutputDataMetOfficeDataPointDir();
+                        SARIC_ImageProcessor SARIC_ImageProcessor;
+                        SARIC_ImageProcessor = new SARIC_ImageProcessor(se, dirIn,
+                                dirOut, doNonTiledFcs, doNonTiledObs,
+                                doTileFromWMTSService,
+                                doObservationsTileFromWMTSService,
+                                doForecastsTileFromWMTSService, doWissey, doTeifi,
+                                overwrite, estimateType, outputGreyScale,
+                                colorDupication);
+                        SARIC_ImageProcessor.run();
+                    }
+
+                    if (doImageProcessForecasts) {
+                        // Switches
+                        //doNonTiledFcs = false;
+                        doNonTiledFcs = true;
+                        //doTileFromWMTSService = false;
+                        doTileFromWMTSService = true;
+                        doObservationsTileFromWMTSService = false;
+                        doForecastsTileFromWMTSService = true;
 //                    doForecastsTileFromWMTSService = false;
-                    overwrite = false;
-                    File dirIn;
-                    dirIn = se.getFiles().getInputDataMetOfficeDataPointDir();
-                    File dirOut;
-                    dirOut = se.getFiles().getOutputDataMetOfficeDataPointDir();
-                    SARIC_ImageProcessor SARIC_ImageProcessor;
-                    SARIC_ImageProcessor = new SARIC_ImageProcessor(se, dirIn,
-                            dirOut, doNonTiledFcs, doNonTiledObs,
-                            doTileFromWMTSService,
-                            doObservationsTileFromWMTSService,
-                            doForecastsTileFromWMTSService, doWissey, doTeifi,
-                            overwrite);
-                    SARIC_ImageProcessor.run();
+                        overwrite = false;
+                        File dirIn;
+                        dirIn = se.getFiles().getInputDataMetOfficeDataPointDir();
+                        File dirOut;
+                        dirOut = se.getFiles().getOutputDataMetOfficeDataPointDir();
+                        SARIC_ImageProcessor SARIC_ImageProcessor;
+                        SARIC_ImageProcessor = new SARIC_ImageProcessor(se, dirIn,
+                                dirOut, doNonTiledFcs, doNonTiledObs,
+                                doTileFromWMTSService,
+                                doObservationsTileFromWMTSService,
+                                doForecastsTileFromWMTSService, doWissey, doTeifi,
+                                overwrite, estimateType, outputGreyScale,
+                                colorDupication);
+                        SARIC_ImageProcessor.run();
+                    }
                 }
 
             }
@@ -433,6 +444,20 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
             SARIC_DataForWASIM p;
             p = new SARIC_DataForWASIM(se);
             p.run();
+        }
+
+        if (RunSARIC_DataForWASIM2) {
+            SARIC_DataForWASIM2 p;
+            p = new SARIC_DataForWASIM2(se);
+            p.run();
+        }
+
+        if (RunSARIC_DataForLex) {
+            SARIC_DataForLex p;
+            for (int estimateType = -1; estimateType < 2; estimateType++) {
+                p = new SARIC_DataForLex(se, estimateType);
+                p.run();
+            }
         }
 
         if (RunSARIC_ProcessNIMROD) {
@@ -497,6 +522,8 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
     boolean RunSARIC_CreatePointShapefile = false;
     boolean RunSARIC_DisplayShapefile = false;
     boolean RunSARIC_DataForWASIM = false;
+    boolean RunSARIC_DataForWASIM2 = false;
+    boolean RunSARIC_DataForLex = false;
     boolean RunSARIC_ProcessNIMROD = false;
     boolean RunSARIC_RainfallStatistics = false;
 }

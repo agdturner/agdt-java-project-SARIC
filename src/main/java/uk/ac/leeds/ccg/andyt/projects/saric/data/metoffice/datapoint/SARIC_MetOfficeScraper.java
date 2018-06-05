@@ -48,13 +48,13 @@ import uk.ac.leeds.ccg.andyt.vector.core.Vector_Environment;
 import uk.ac.leeds.ccg.andyt.vector.geometry.Vector_Envelope2D;
 import uk.ac.leeds.ccg.andyt.vector.geometry.Vector_Point2D;
 import uk.ac.leeds.ccg.andyt.vector.projection.Vector_OSGBtoLatLon;
-import uk.ac.leeds.ccg.andyt.web.WebScraper;
+import uk.ac.leeds.ccg.andyt.web.Web_Scraper;
 
 /**
  *
  * @author geoagdt
  */
-public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
+public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
 
     /**
      * For convenience.
@@ -613,9 +613,9 @@ public class SARIC_MetOfficeScraper extends WebScraper implements Runnable {
     protected void getSiteList(String type, String time) {
         path = sf.getValDataTypePath(dataType, type)
                 + ss.getS_sitelist();
-        //http://datapoint.metoffice.gov.uk/public/data/val/wxobs/all/xml/sitelist?key=382c1804-3077-48cf-a301-f6f95e396794
-        //http://datapoint.metoffice.gov.uk/public/data/val/wxfcs/all/xml/sitelist?res=daily&key=382c1804-3077-48cf-a301-f6f95e396794
-        //http://datapoint.metoffice.gov.uk/public/data/val/wxfcs/all/xml/sitelist?res=3hourly&key=382c1804-3077-48cf-a301-f6f95e396794
+        //http://datapoint.metoffice.gov.uk/public/data/val/wxobs/all/xml/sitelist?key={key}
+        //http://datapoint.metoffice.gov.uk/public/data/val/wxfcs/all/xml/sitelist?res=daily&key={key}
+        //http://datapoint.metoffice.gov.uk/public/data/val/wxfcs/all/xml/sitelist?res=3hourly&key={key}
         url = BASE_URL
                 + path
                 + ss.symbol_questionmark;
