@@ -19,19 +19,19 @@
 package uk.ac.leeds.ccg.andyt.projects.saric.data.osm;
 
 import java.io.File;
-import org.mapsforge.core.graphics.GraphicFactory;
-import org.mapsforge.map.awt.graphics.AwtGraphicFactory;
-import org.mapsforge.map.awt.util.AwtUtil;
-import org.mapsforge.map.awt.view.MapView;
-import org.mapsforge.map.datastore.MapDataStore;
-import org.mapsforge.map.datastore.MultiMapDataStore;
-import org.mapsforge.map.datastore.MultiMapDataStore.DataPolicy;
-import org.mapsforge.map.layer.Layer;
-import org.mapsforge.map.layer.cache.TileCache;
-import org.mapsforge.map.layer.cache.TileStore;
-import org.mapsforge.map.layer.renderer.TileRendererLayer;
-import org.mapsforge.map.reader.MapFile;
-import org.mapsforge.map.rendertheme.InternalRenderTheme;
+//import org.mapsforge.core.graphics.GraphicFactory;
+//import org.mapsforge.map.awt.graphics.AwtGraphicFactory;
+//import org.mapsforge.map.awt.util.AwtUtil;
+//import org.mapsforge.map.awt.view.MapView;
+//import org.mapsforge.map.datastore.MapDataStore;
+//import org.mapsforge.map.datastore.MultiMapDataStore;
+//import org.mapsforge.map.datastore.MultiMapDataStore.DataPolicy;
+//import org.mapsforge.map.layer.Layer;
+//import org.mapsforge.map.layer.cache.TileCache;
+//import org.mapsforge.map.layer.cache.TileStore;
+//import org.mapsforge.map.layer.renderer.TileRendererLayer;
+//import org.mapsforge.map.reader.MapFile;
+//import org.mapsforge.map.rendertheme.InternalRenderTheme;
 
 /**
  *
@@ -39,7 +39,7 @@ import org.mapsforge.map.rendertheme.InternalRenderTheme;
  */
 public class SARIC_MapsForgeTest {
 
-    MapView mv;
+//    MapView mv;
 
     public SARIC_MapsForgeTest() {
     }
@@ -59,16 +59,16 @@ public class SARIC_MapsForgeTest {
         tileStoreDir = new File(osmDir, "TileStore");
         tileStoreDir.mkdir();
 
-         mv = new MapView();
-         
-        // create a tile cache of suitable size
-        TileCache tileCache = AwtUtil.createTileCache(1000, 1.0d, 1000, tileStoreDir);
-        
-        // tile renderer layer using internal render theme
-        MapDataStore mapDataStore = new MapFile(input);
-        TileRendererLayer trl = new TileRendererLayer(tileCache, mapDataStore,
-                mv.getModel().mapViewPosition, AwtGraphicFactory.INSTANCE);
-        trl.setXmlRenderTheme(InternalRenderTheme.DEFAULT);
+//         mv = new MapView();
+//         
+//        // create a tile cache of suitable size
+//        TileCache tileCache = AwtUtil.createTileCache(1000, 1.0d, 1000, tileStoreDir);
+//        
+//        // tile renderer layer using internal render theme
+//        MapDataStore mapDataStore = new MapFile(input);
+//        TileRendererLayer trl = new TileRendererLayer(tileCache, mapDataStore,
+//                mv.getModel().mapViewPosition, AwtGraphicFactory.INSTANCE);
+//        trl.setXmlRenderTheme(InternalRenderTheme.DEFAULT);
         
 ////        MapDataStore mds;
 ////        mds = new MapDataStore("xml");
@@ -85,7 +85,7 @@ public class SARIC_MapsForgeTest {
 //        TileRendererLayer trl;
 //        trl = new TileRendererLayer(ts, mmds, mv.getModel().mapViewPosition, agf);
 //        trl.setXmlRenderTheme(InternalRenderTheme.DEFAULT);
-        mv.addLayer(trl);
+//        mv.addLayer(trl);
     }
 
 }

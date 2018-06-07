@@ -352,8 +352,8 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
             if (RunSARIC_ImageProcessor) {
 
                 // Main Switches
-                doImageProcessObservations = true;
-//                doImageProcessObservations = false;
+//                doImageProcessObservations = true;
+                doImageProcessObservations = false;
                 doImageProcessForecasts = true;
 //                doImageProcessForecasts = false;
                 doWissey = true;
@@ -363,7 +363,8 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
 
                 boolean outputGreyScale;
                 int colorDupication;
-                outputGreyScale = false;
+//                outputGreyScale = false;
+                outputGreyScale = true;
                 colorDupication = 0;
                 for (int estimateType = -1; estimateType < 2; estimateType++) {
 
@@ -392,8 +393,8 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
 
                     if (doImageProcessForecasts) {
                         // Switches
-                        //doNonTiledFcs = false;
-                        doNonTiledFcs = true;
+                        doNonTiledFcs = false;
+                        //doNonTiledFcs = true;
                         //doTileFromWMTSService = false;
                         doTileFromWMTSService = true;
                         doObservationsTileFromWMTSService = false;

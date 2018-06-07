@@ -18,27 +18,10 @@
  */
 package uk.ac.leeds.ccg.andyt.projects.saric.data.catchment;
 
-import com.vividsolutions.jts.geom.Geometry;
 import java.io.File;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.geotools.data.FileDataStore;
-import org.geotools.data.FileDataStoreFinder;
-import org.geotools.data.simple.SimpleFeatureSource;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureIterator;
-import org.geotools.geometry.jts.JTS;
-import org.geotools.map.MapContent;
-import org.geotools.referencing.CRS;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.geometry.MismatchedDimensionException;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.operation.TransformException;
 import uk.ac.leeds.ccg.andyt.geotools.Geotools_Shapefile;
 import uk.ac.leeds.ccg.andyt.generic.io.Generic_StaticIO;
 import uk.ac.leeds.ccg.andyt.grids.core.Grids_2D_ID_long;
@@ -81,6 +64,7 @@ public class SARIC_Teifi extends SARIC_Catchment {
      *
      * @return
      */
+    @Override
     public Geotools_Shapefile getWaterCompanyAGDT_Shapefile() {
         return getAGDT_Shapefile("WW_area.shp");
     }

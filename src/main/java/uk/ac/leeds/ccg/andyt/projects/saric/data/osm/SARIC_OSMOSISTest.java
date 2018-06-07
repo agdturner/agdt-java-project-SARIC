@@ -20,8 +20,8 @@ package uk.ac.leeds.ccg.andyt.projects.saric.data.osm;
 
 import java.io.File;
 import java.util.List;
-import org.openstreetmap.osmosis.core.cli.CommandLineParser;
-import org.openstreetmap.osmosis.core.pipeline.common.TaskConfiguration;
+//import org.openstreetmap.osmosis.core.cli.CommandLineParser;
+//import org.openstreetmap.osmosis.core.pipeline.common.TaskConfiguration;
 
 /**
  *

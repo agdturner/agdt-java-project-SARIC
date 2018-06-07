@@ -65,9 +65,9 @@ public abstract class SARIC_Catchment extends SARIC_Object {
 
     // For convenience
     SARIC_Files Files;
-    Grids_Environment _Grids_Environment;
-    Vector_Environment _Vector_Environment;
-    Geotools_Environment _Geotools_Environment;
+    Grids_Environment Grids_Env;
+    Vector_Environment Vector_Env;
+    Geotools_Environment Geotools_Env;
 
     String CatchmentName;
 
@@ -79,16 +79,16 @@ public abstract class SARIC_Catchment extends SARIC_Object {
             String catchmentName) {
         super(se);
         Files = se.getFiles();
-        _Grids_Environment = se.getGrids_Env();
-        _Vector_Environment = se.getVector_Env();
-        _Geotools_Environment = se.getGeotools_Env();
+        Grids_Env = se.getGrids_Env();
+        Vector_Env = se.getVector_Env();
+        Geotools_Env = se.getGeotools_Env();
         this.CatchmentName = catchmentName;
     }
 
     public Geotools_Shapefile getAGDT_Shapefile(String name, File dir) {
         Geotools_Shapefile result;
-        File f = _Geotools_Environment.getShapefile(dir, name, false);
-        result = new Geotools_Shapefile(_Geotools_Environment, f);
+        File f = Geotools_Env.getShapefile(dir, name, false);
+        result = new Geotools_Shapefile(Geotools_Env, f);
         return result;
     }
 
@@ -159,12 +159,12 @@ public abstract class SARIC_Catchment extends SARIC_Object {
         nrows = Generic_BigDecimal.divideNoRounding(bounds.YMax.subtract(bounds.YMin), cellsize).longValueExact();
         //inf = se.getGrids_Env().get_Grid2DSquareCellProcessor()._Grid2DSquareCellDoubleFactory;
         Grids_Processor gp;
-        gp = _Grids_Environment.getProcessor();
+        gp = Grids_Env.getProcessor();
         Grids_GridDoubleFactory f;
-        f = new Grids_GridDoubleFactory(_Grids_Environment,
+        f = new Grids_GridDoubleFactory(Grids_Env,
                 gp.GridChunkDoubleFactory, gp.DefaultGridChunkDoubleFactory,
                 -Double.MAX_VALUE, (int) nrows, (int) ncols, dimensions,
-                new Grids_GridDoubleStats(_Grids_Environment));
+                new Grids_GridDoubleStats(Grids_Env));
         if (dir.exists()) {
             grid = (Grids_GridDouble) f.create(dir, dir);
             result[2] = true;
@@ -305,7 +305,7 @@ public abstract class SARIC_Catchment extends SARIC_Object {
         double noDataValue = resultGrid.getNoDataValue();
         double distance;
         double minDistance;
-        Vector_OSGBtoLatLon OSGBtoLatLon = _Vector_Environment.getOSGBtoLatLon();
+        Vector_OSGBtoLatLon OSGBtoLatLon = Vector_Env.getOSGBtoLatLon();
         Iterator<SARIC_Site> ite;
         SARIC_Site site;
         for (long row = 0; row < nrows; row++) {
@@ -318,7 +318,7 @@ public abstract class SARIC_Catchment extends SARIC_Object {
                     minDistance = Double.MAX_VALUE;
                     while (ite.hasNext()) {
                         site = ite.next();
-                        OSGBEastingAndNorthing = OSGBtoLatLon.latlon2osgb(
+                        OSGBEastingAndNorthing = Vector_OSGBtoLatLon.latlon2osgb(
                                 site.getLatitude(), site.getLongitude());
                         double xdiff = (double) (OSGBEastingAndNorthing[0] - x);
                         double ydiff = (double) (OSGBEastingAndNorthing[1] - y);
@@ -368,7 +368,7 @@ public abstract class SARIC_Catchment extends SARIC_Object {
         Iterator<SARIC_Site> ite;
         ite = sites.iterator();
         SARIC_Site site;
-        Vector_OSGBtoLatLon OSGBtoLatLon = _Vector_Environment.getOSGBtoLatLon();
+        Vector_OSGBtoLatLon OSGBtoLatLon = Vector_Env.getOSGBtoLatLon();
         double[] OSGBEastingAndNorthing;
         Vector_Point2D p;
         while (ite.hasNext()) {
