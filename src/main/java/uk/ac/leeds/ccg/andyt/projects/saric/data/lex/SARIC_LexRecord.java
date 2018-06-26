@@ -25,8 +25,11 @@ package uk.ac.leeds.ccg.andyt.projects.saric.data.lex;
 public class SARIC_LexRecord {
 
     String ID;
+    long row;
+    long col;
     double Easting;
     double Northing;
+    int numberOfDaysSinceLastRainfallEventGT2mm;
     double observedRainfall10DaysAgo;
     double observedRainfall9DaysAgo;
     double observedRainfall8DaysAgo;
@@ -45,8 +48,11 @@ public class SARIC_LexRecord {
 
     public SARIC_LexRecord(
             String ID,
+            long row,
+            long col,
             double Easting,
             double Northing,
+            int numberOfDaysSinceLastRainfallEventGT2mm,
             double observedRainfall10DaysAgo,
             double observedRainfall9DaysAgo,
             double observedRainfall8DaysAgo,
@@ -63,8 +69,11 @@ public class SARIC_LexRecord {
             double forecastRainfallIn72to96Hours,
             double forecastRainfallIn96to120Hours) {
         this.ID = ID;
-        this.Easting = Easting;
+        this.row = row;
+        this.col = col;
         this.Northing = Northing;
+        this.Easting = Easting;
+        this.numberOfDaysSinceLastRainfallEventGT2mm = numberOfDaysSinceLastRainfallEventGT2mm;
         this.observedRainfall10DaysAgo = observedRainfall10DaysAgo;
         this.observedRainfall9DaysAgo = observedRainfall9DaysAgo;
         this.observedRainfall8DaysAgo = observedRainfall8DaysAgo;
@@ -84,7 +93,10 @@ public class SARIC_LexRecord {
 
     @Override
     public String toString() {
-        return "" + ID + "," + Easting + "," + Northing + ","
+        return "" + ID + "," 
+                + row + "," + col + "," 
+                + Northing + "," + Easting + ","
+                + numberOfDaysSinceLastRainfallEventGT2mm + ","
                 + observedRainfall10DaysAgo + ","
                 + observedRainfall9DaysAgo + ","
                 + observedRainfall8DaysAgo + ","

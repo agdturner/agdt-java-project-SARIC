@@ -19,6 +19,14 @@
 package uk.ac.leeds.ccg.andyt.projects.saric.process;
 
 import java.io.File;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 //import uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Time;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Object;
@@ -81,7 +89,7 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
             // Main switches
 //            RunProjectShapefiles = true;
 //            RunCatchmentViewer = true;
-            RunSARIC_MetOfficeScraper = true; 
+//            RunSARIC_MetOfficeScraper = true;
 //            RunSARIC_ImageProcessor = true;
 //            RunSARIC_CreatePointShapefile = true;
 //            RunSARIC_DisplayShapefile = true;
@@ -90,9 +98,10 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
 //            RunSARIC_DataForLex = true;
 //            RunSARIC_ProcessNIMROD = true;
 //            RunSARIC_RainfallStatistics = true;
+            RunSARIC_FullWorkflow = true; RunSARIC_MetOfficeScraper = true;
 
             /**
-             * Run SARIC_MetOfficeScraper
+             * RunProjectShapefiles
              */
             if (RunProjectShapefiles) {
 //                doWissey = true;
@@ -107,7 +116,7 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
             }
 
             /**
-             * Run SARIC_MetOfficeScraper
+             * RunCatchmentViewer
              */
             if (RunCatchmentViewer) {
 //                SARIC_CatchmentViewer scv;
@@ -131,292 +140,14 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
              * Run SARIC_MetOfficeScraper
              */
             if (RunSARIC_MetOfficeScraper) {
-                long timeDelay;
-                String name;
-
-                // Main Switches
-//                doCalculateSitesInStudyAreas = true; // This is usually a one off.
-//                doNonTiledObs = true;
-//                doNonTiledFcs = true;
-//                doTileFromWMTSService = true;
-//                doObservationsTileFromWMTSService = true;
-//                doTileFromWMTSService = true;
-//                doForecastsTileFromWMTSService = true;
-//                // All
-//                doNonTiledObs = true;
-                doNonTiledFcs = true;
-                doTileFromWMTSService = true;
-                doForecastsTileFromWMTSService = true;
-                doObservationsTileFromWMTSService = true;
-                /**
-                 * This thread parses the site list and returns an
-                 * ArrayList<Integer> of siteIDs for the sites that are within
-                 * our study areas of the Wissey and Teifi catchments. This
-                 * needs improving so that the study areas are buffered.
-                 */
-                if (doCalculateSitesInStudyAreas) {
-                    CalculateForecastsSitesInStudyAreas = true;
-                    CalculateForecastsSitesInStudyAreas = false;
-                    CalculateObservationsSitesInStudyAreas = true;
-                    Observations = false;
-                    Forecasts = false;
-                    TileFromWMTSService = false;
-                    ObservationsSiteList = false;
-                    ObservationsTileFromWMTSService = false;
-                    ForecastsTileFromWMTSService = false;
-                    ForecastsSiteList = false;
-                    ForecastsForSites = false;
-                    ForecastsForSites = false;
-                    ObservationsForSites = false;
-                    timeDelay = (long) (uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Time.MilliSecondsInHour * 2.75);
-                    name = "CalculateSitesInStudyAreas";
-                    overwrite = false;
-                    SARIC_MetOfficeScraper ObservationsMetOfficeScraper;
-                    ObservationsMetOfficeScraper = new SARIC_MetOfficeScraper(
-                            se,
-                            CalculateForecastsSitesInStudyAreas,
-                            CalculateObservationsSitesInStudyAreas,
-                            Observations,
-                            Forecasts,
-                            TileFromWMTSService,
-                            ObservationsTileFromWMTSService,
-                            ForecastsTileFromWMTSService,
-                            ObservationsSiteList,
-                            ForecastsSiteList,
-                            ForecastsForSites,
-                            ObservationsForSites,
-                            timeDelay,
-                            name,
-                            overwrite,
-                            getString_xml()
-                    );
-                    Thread observationsThread;
-                    observationsThread = new Thread(ObservationsMetOfficeScraper);
-                    observationsThread.start();
-                }
-
-                /**
-                 * New data is supposed to be released hourly. The most recent
-                 * forecast will be the most useful looking forward, but to
-                 * analyse and process data it is probably useful to keep all
-                 * forecasts.
-                 */
-                if (doNonTiledFcs) {
-                    //CalculateForecastsSitesInStudyAreas = true; // Only need to do this once or if file is lost.
-                    CalculateForecastsSitesInStudyAreas = false;
-                    CalculateObservationsSitesInStudyAreas = false;
-                    Observations = false;
-                    Forecasts = false;
-                    TileFromWMTSService = false;
-                    ObservationsTileFromWMTSService = false;
-                    ForecastsTileFromWMTSService = false;
-//                    ForecastsSiteList = true;
-                    ForecastsSiteList = false;
-                    ForecastsForSites = true;
-                    ObservationsSiteList = false;
-                    ObservationsForSites = false;
-                    timeDelay = (long) (uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Time.MilliSecondsInHour * 1);
-                    name = "Forecasts";
-                    overwrite = false;
-                    SARIC_MetOfficeScraper s;
-                    s = new SARIC_MetOfficeScraper(
-                            se,
-                            CalculateForecastsSitesInStudyAreas,
-                            CalculateObservationsSitesInStudyAreas,
-                            Observations,
-                            Forecasts,
-                            TileFromWMTSService,
-                            ObservationsTileFromWMTSService,
-                            ForecastsTileFromWMTSService,
-                            ObservationsSiteList,
-                            ForecastsSiteList,
-                            ForecastsForSites,
-                            ObservationsForSites,
-                            timeDelay,
-                            name,
-                            overwrite,
-                            getString_xml());
-                    Thread forecastsThread;
-                    forecastsThread = new Thread(s);
-                    forecastsThread.start();
-                }
-
-                if (doNonTiledObs) {
-                    CalculateForecastsSitesInStudyAreas = false;
-                    CalculateObservationsSitesInStudyAreas = false;
-                    Observations = false;
-                    Forecasts = false;
-                    TileFromWMTSService = false;
-                    ObservationsTileFromWMTSService = false;
-                    ForecastsTileFromWMTSService = false;
-                    ForecastsSiteList = false;
-                    ForecastsForSites = false;
-                    ObservationsForSites = true;
-                    ObservationsSiteList = true;
-                    timeDelay = (long) (uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Time.MilliSecondsInHour * 5.5);
-                    name = "Observations";
-                    overwrite = false;
-                    SARIC_MetOfficeScraper s;
-                    s = new SARIC_MetOfficeScraper(
-                            se,
-                            CalculateForecastsSitesInStudyAreas,
-                            CalculateObservationsSitesInStudyAreas,
-                            Observations,
-                            Forecasts,
-                            TileFromWMTSService,
-                            ObservationsTileFromWMTSService,
-                            ForecastsTileFromWMTSService,
-                            ObservationsSiteList,
-                            ForecastsSiteList,
-                            ForecastsForSites,
-                            ObservationsForSites,
-                            timeDelay,
-                            name,
-                            overwrite,
-                            getString_xml());
-                    Thread forecastsThread;
-                    forecastsThread = new Thread(s);
-                    forecastsThread.start();
-                }
-
-                /**
-                 * Forecasts thread gets data every 5.5 hours. New data is
-                 * supposed to be released for every 6 hours. There is one
-                 * release marked for each of these times: 3am, 9am, 3pm, 9pm.
-                 * At each of these times there are forecasts for 3 hourly
-                 * intervals for up to 36 hours (12 forecasts). So, there are 6
-                 * forecasts for any time. The most recent forecast will be the
-                 * most useful, but sometimes we have to look a long way ahead.
-                 * It may be that there are longer term forecasts made for the
-                 * sites where there are ground observations.
-                 */
-                if (doTileFromWMTSService) {
-                    CalculateForecastsSitesInStudyAreas = false;
-                    CalculateObservationsSitesInStudyAreas = false;
-                    Observations = false;
-                    Forecasts = false;
-                    TileFromWMTSService = true;
-                    ObservationsSiteList = false;
-                    ForecastsSiteList = false;
-                    ForecastsForSites = false;
-                    ObservationsForSites = false;
-
-                    if (doObservationsTileFromWMTSService) {
-                        ObservationsTileFromWMTSService = true;
-                        ForecastsTileFromWMTSService = false;
-                        timeDelay = (long) (uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Time.MilliSecondsInHour * 19);
-                        name = "Higher Resolution Tiled Forecasts and Observations";
-                        overwrite = false;
-                        SARIC_MetOfficeScraper ForecastsMetOfficeScraper;
-                        ForecastsMetOfficeScraper = new SARIC_MetOfficeScraper(
-                                se, CalculateForecastsSitesInStudyAreas,
-                                CalculateObservationsSitesInStudyAreas,
-                                Observations, Forecasts, TileFromWMTSService,
-                                ObservationsTileFromWMTSService,
-                                ForecastsTileFromWMTSService,
-                                ObservationsSiteList, ForecastsSiteList,
-                                ForecastsForSites, ObservationsForSites,
-                                timeDelay, name, overwrite, getString_xml());
-                        Thread forecastsThread;
-                        forecastsThread = new Thread(ForecastsMetOfficeScraper);
-                        forecastsThread.start();
-                    }
-                    if (doForecastsTileFromWMTSService) {
-                        CalculateForecastsSitesInStudyAreas = false;
-                        CalculateObservationsSitesInStudyAreas = false;
-                        ObservationsTileFromWMTSService = false;
-                        ForecastsTileFromWMTSService = true;
-                        timeDelay = (long) (uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Time.MilliSecondsInHour * 6);
-                        name = "Higher Resolution Tiled Forecasts and Observations";
-                        overwrite = false;
-                        SARIC_MetOfficeScraper ForecastsMetOfficeScraper;
-                        ForecastsMetOfficeScraper = new SARIC_MetOfficeScraper(
-                                se, CalculateForecastsSitesInStudyAreas,
-                                CalculateObservationsSitesInStudyAreas,
-                                Observations, Forecasts, TileFromWMTSService,
-                                ObservationsTileFromWMTSService,
-                                ForecastsTileFromWMTSService,
-                                ObservationsSiteList, ForecastsSiteList,
-                                ForecastsForSites, ObservationsForSites,
-                                timeDelay, name, overwrite, getString_xml());
-                        Thread forecastsThread;
-                        forecastsThread = new Thread(ForecastsMetOfficeScraper);
-                        forecastsThread.start();
-                    }
-                }
+                doRunSARIC_MetOfficeScraper();
             }
 
             /**
              * Run SARIC_ImageProcessor
              */
             if (RunSARIC_ImageProcessor) {
-
-                // Main Switches
-//                doImageProcessObservations = true;
-                doImageProcessObservations = false;
-                doImageProcessForecasts = true;
-//                doImageProcessForecasts = false;
-                doWissey = true;
-//                doWissey = false;
-                doTeifi = true;
-//                doTeifi = false;
-
-                boolean outputGreyScale;
-                int colorDupication;
-//                outputGreyScale = false;
-                outputGreyScale = true;
-                colorDupication = 0;
-                for (int estimateType = -1; estimateType < 2; estimateType++) {
-
-                    if (doImageProcessObservations) {
-                        // Switches
-                        doNonTiledObs = false;
-                        doNonTiledFcs = false;
-                        doTileFromWMTSService = true;
-                        doObservationsTileFromWMTSService = true;
-                        doForecastsTileFromWMTSService = false;
-                        overwrite = false;
-                        File dirIn;
-                        dirIn = se.getFiles().getInputDataMetOfficeDataPointDir();
-                        File dirOut;
-                        dirOut = se.getFiles().getOutputDataMetOfficeDataPointDir();
-                        SARIC_ImageProcessor SARIC_ImageProcessor;
-                        SARIC_ImageProcessor = new SARIC_ImageProcessor(se, dirIn,
-                                dirOut, doNonTiledFcs, doNonTiledObs,
-                                doTileFromWMTSService,
-                                doObservationsTileFromWMTSService,
-                                doForecastsTileFromWMTSService, doWissey, doTeifi,
-                                overwrite, estimateType, outputGreyScale,
-                                colorDupication);
-                        SARIC_ImageProcessor.run();
-                    }
-
-                    if (doImageProcessForecasts) {
-                        // Switches
-                        doNonTiledFcs = false;
-                        //doNonTiledFcs = true;
-                        //doTileFromWMTSService = false;
-                        doTileFromWMTSService = true;
-                        doObservationsTileFromWMTSService = false;
-                        doForecastsTileFromWMTSService = true;
-//                    doForecastsTileFromWMTSService = false;
-                        overwrite = false;
-                        File dirIn;
-                        dirIn = se.getFiles().getInputDataMetOfficeDataPointDir();
-                        File dirOut;
-                        dirOut = se.getFiles().getOutputDataMetOfficeDataPointDir();
-                        SARIC_ImageProcessor SARIC_ImageProcessor;
-                        SARIC_ImageProcessor = new SARIC_ImageProcessor(se, dirIn,
-                                dirOut, doNonTiledFcs, doNonTiledObs,
-                                doTileFromWMTSService,
-                                doObservationsTileFromWMTSService,
-                                doForecastsTileFromWMTSService, doWissey, doTeifi,
-                                overwrite, estimateType, outputGreyScale,
-                                colorDupication);
-                        SARIC_ImageProcessor.run();
-                    }
-                }
-
+                doRunSARIC_ImageProcessor();
             }
         } catch (Exception | Error e) {
             System.err.println(e.getLocalizedMessage());
@@ -454,11 +185,163 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
         }
 
         if (RunSARIC_DataForLex) {
+            skip10 = true;
+//            dolast5days = true;
             SARIC_DataForLex p;
             for (int estimateType = -1; estimateType < 2; estimateType++) {
-                p = new SARIC_DataForLex(se, estimateType);
+                p = new SARIC_DataForLex(se, estimateType, skip10, dolast5days);
                 p.run();
             }
+        }
+
+        if (RunSARIC_FullWorkflow) {
+            if (RunSARIC_MetOfficeScraper) {
+                doRunSARIC_MetOfficeScraper();
+            }
+            // Schedule for 5am.
+            ScheduledExecutorService scheduler;
+            scheduler = Executors.newScheduledThreadPool(6);
+            SARIC_DataForLex[] p;
+            p = new SARIC_DataForLex[3];
+            long midnight;
+            midnight = LocalDateTime.now().until(LocalDate.now().plusDays(1).atStartOfDay(), ChronoUnit.MINUTES);
+            long fouram;
+            long fiveam;
+            fouram = midnight + TimeUnit.HOURS.toMinutes(4);
+            fiveam = midnight + TimeUnit.HOURS.toMinutes(5);
+
+            
+            long timeDelay;
+            String name;
+            /**
+             * New data is supposed to be released hourly. The most recent
+             * forecast will be the most useful looking forward, but to analyse
+             * and process data it is probably useful to keep all forecasts.
+             */
+            if (doNonTiledFcs) {
+                //initNonTiledFcs();
+                //CalculateForecastsSitesInStudyAreas = true; // Only need to do this once or if file is lost.
+                CalculateForecastsSitesInStudyAreas = false;
+                CalculateObservationsSitesInStudyAreas = false;
+                Observations = false;
+                Forecasts = false;
+                TileFromWMTSService = false;
+                ObservationsTileFromWMTSService = false;
+                ForecastsTileFromWMTSService = false;
+//                    ForecastsSiteList = true;
+                ForecastsSiteList = false;
+                ForecastsForSites = true;
+                ObservationsSiteList = false;
+                ObservationsForSites = false;
+                timeDelay = (long) (uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Time.MilliSecondsInHour * 1);
+                name = "Forecasts";
+                overwrite = false;
+                SARIC_MetOfficeScraper p0;
+                p0 = new SARIC_MetOfficeScraper(
+                        se,
+                        CalculateForecastsSitesInStudyAreas,
+                        CalculateObservationsSitesInStudyAreas,
+                        Observations,
+                        Forecasts,
+                        TileFromWMTSService,
+                        ObservationsTileFromWMTSService,
+                        ForecastsTileFromWMTSService,
+                        ObservationsSiteList,
+                        ForecastsSiteList,
+                        ForecastsForSites,
+                        ObservationsForSites,
+                        timeDelay,
+                        name,
+                        overwrite,
+                        getString_xml());
+                scheduler.scheduleAtFixedRate(p0, fouram, TimeUnit.DAYS.toMinutes(1), TimeUnit.MINUTES);
+            }
+
+            /**
+             * Forecasts thread gets data every 5.5 hours. New data is supposed
+             * to be released for every 6 hours. There is one release marked for
+             * each of these times: 3am, 9am, 3pm, 9pm. At each of these times
+             * there are forecasts for 3 hourly intervals for up to 36 hours (12
+             * forecasts). So, there are 6 forecasts for any time. The most
+             * recent forecast will be the most useful, but sometimes we have to
+             * look a long way ahead. It may be that there are longer term
+             * forecasts made for the sites where there are ground observations.
+             */
+            if (doTileFromWMTSService) {
+                CalculateForecastsSitesInStudyAreas = false;
+                CalculateObservationsSitesInStudyAreas = false;
+                Observations = false;
+                Forecasts = false;
+                TileFromWMTSService = true;
+                ObservationsSiteList = false;
+                ForecastsSiteList = false;
+                ForecastsForSites = false;
+                ObservationsForSites = false;
+
+                if (doObservationsTileFromWMTSService) {
+                    ObservationsTileFromWMTSService = true;
+                    ForecastsTileFromWMTSService = false;
+                    timeDelay = (long) (uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Time.MilliSecondsInHour * 19);
+                    name = "Higher Resolution Tiled Forecasts and Observations";
+                    overwrite = false;
+                    SARIC_MetOfficeScraper p1;
+                    p1 = new SARIC_MetOfficeScraper(
+                            se, CalculateForecastsSitesInStudyAreas,
+                            CalculateObservationsSitesInStudyAreas,
+                            Observations, Forecasts, TileFromWMTSService,
+                            ObservationsTileFromWMTSService,
+                            ForecastsTileFromWMTSService,
+                            ObservationsSiteList, ForecastsSiteList,
+                            ForecastsForSites, ObservationsForSites,
+                            timeDelay, name, overwrite, getString_xml());
+                    scheduler.scheduleAtFixedRate(p1, fouram, TimeUnit.DAYS.toMinutes(1), TimeUnit.MINUTES);
+                }
+                if (doForecastsTileFromWMTSService) {
+                    CalculateForecastsSitesInStudyAreas = false;
+                    CalculateObservationsSitesInStudyAreas = false;
+                    ObservationsTileFromWMTSService = false;
+                    ForecastsTileFromWMTSService = true;
+                    timeDelay = (long) (uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Time.MilliSecondsInHour * 6);
+                    name = "Higher Resolution Tiled Forecasts and Observations";
+                    overwrite = false;
+                    SARIC_MetOfficeScraper p2;
+                    p2 = new SARIC_MetOfficeScraper(
+                            se, CalculateForecastsSitesInStudyAreas,
+                            CalculateObservationsSitesInStudyAreas,
+                            Observations, Forecasts, TileFromWMTSService,
+                            ObservationsTileFromWMTSService,
+                            ForecastsTileFromWMTSService,
+                            ObservationsSiteList, ForecastsSiteList,
+                            ForecastsForSites, ObservationsForSites,
+                            timeDelay, name, overwrite, getString_xml());
+                    scheduler.scheduleAtFixedRate(p2, fouram, TimeUnit.DAYS.toMinutes(1), TimeUnit.MINUTES);
+                }
+            }
+
+            skip10 = false;
+            dolast5days = true;
+            for (int estimateType = -1; estimateType < 2; estimateType++) {
+                p[estimateType + 1] = new SARIC_DataForLex(se, estimateType, skip10,dolast5days);
+                scheduler.scheduleAtFixedRate(p[estimateType + 1], fiveam, TimeUnit.DAYS.toMinutes(1), TimeUnit.MINUTES);
+            }
+//            long timeDelay = 1000 * 60 * 60 * 24;
+//            while (true) {
+//                doRunSARIC_ImageProcessor();
+//                
+//                for (int estimateType = -1; estimateType < 2; estimateType++) {
+//                    p = new SARIC_DataForLex(se, estimateType);
+//                    p.run();
+//                }
+//                synchronized (this) {
+//                    try {
+//                        this.wait(timeDelay);
+//                    } catch (InterruptedException ex) {
+//                        Logger.getLogger(SARIC_MetOfficeScraper.class.getName()).log(Level.SEVERE, null, ex);
+//                    }
+//                    System.out.println("Waited " + uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Time.getTime(timeDelay) + ".");
+//                }
+//            }
+
         }
 
         if (RunSARIC_ProcessNIMROD) {
@@ -488,6 +371,293 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
         }
     }
 
+    protected void doRunSARIC_MetOfficeScraper() {
+        long timeDelay;
+        String name;
+        // Main Switches
+//                doCalculateSitesInStudyAreas = true; // This is usually a one off.
+//                doNonTiledObs = true;
+//                doNonTiledFcs = true;
+//                doTileFromWMTSService = true;
+//                doObservationsTileFromWMTSService = true;
+//                doTileFromWMTSService = true;
+//                doForecastsTileFromWMTSService = true;
+//                // All
+//                doNonTiledObs = true;
+        doNonTiledFcs = true;
+        doTileFromWMTSService = true;
+        doForecastsTileFromWMTSService = true;
+        doObservationsTileFromWMTSService = true;
+        /**
+         * This thread parses the site list and returns an ArrayList<Integer> of
+         * siteIDs for the sites that are within our study areas of the Wissey
+         * and Teifi catchments. This needs improving so that the study areas
+         * are buffered.
+         */
+        if (doCalculateSitesInStudyAreas) {
+            CalculateForecastsSitesInStudyAreas = true;
+            CalculateForecastsSitesInStudyAreas = false;
+            CalculateObservationsSitesInStudyAreas = true;
+            Observations = false;
+            Forecasts = false;
+            TileFromWMTSService = false;
+            ObservationsSiteList = false;
+            ObservationsTileFromWMTSService = false;
+            ForecastsTileFromWMTSService = false;
+            ForecastsSiteList = false;
+            ForecastsForSites = false;
+            ForecastsForSites = false;
+            ObservationsForSites = false;
+            timeDelay = (long) (uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Time.MilliSecondsInHour * 2.75);
+            name = "CalculateSitesInStudyAreas";
+            overwrite = false;
+            SARIC_MetOfficeScraper p;
+            p = new SARIC_MetOfficeScraper(
+                    se,
+                    CalculateForecastsSitesInStudyAreas,
+                    CalculateObservationsSitesInStudyAreas,
+                    Observations,
+                    Forecasts,
+                    TileFromWMTSService,
+                    ObservationsTileFromWMTSService,
+                    ForecastsTileFromWMTSService,
+                    ObservationsSiteList,
+                    ForecastsSiteList,
+                    ForecastsForSites,
+                    ObservationsForSites,
+                    timeDelay,
+                    name,
+                    overwrite,
+                    getString_xml()
+            );
+            Thread t;
+            t = new Thread(p);
+            t.start();
+        }
+
+        /**
+         * New data is supposed to be released hourly. The most recent forecast
+         * will be the most useful looking forward, but to analyse and process
+         * data it is probably useful to keep all forecasts.
+         */
+        if (doNonTiledFcs) {
+            //CalculateForecastsSitesInStudyAreas = true; // Only need to do this once or if file is lost.
+            CalculateForecastsSitesInStudyAreas = false;
+            CalculateObservationsSitesInStudyAreas = false;
+            Observations = false;
+            Forecasts = false;
+            TileFromWMTSService = false;
+            ObservationsTileFromWMTSService = false;
+            ForecastsTileFromWMTSService = false;
+//                    ForecastsSiteList = true;
+            ForecastsSiteList = false;
+            ForecastsForSites = true;
+            ObservationsSiteList = false;
+            ObservationsForSites = false;
+            timeDelay = (long) (uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Time.MilliSecondsInHour * 1);
+            name = "Forecasts";
+            overwrite = false;
+            SARIC_MetOfficeScraper p;
+            p = new SARIC_MetOfficeScraper(
+                    se,
+                    CalculateForecastsSitesInStudyAreas,
+                    CalculateObservationsSitesInStudyAreas,
+                    Observations,
+                    Forecasts,
+                    TileFromWMTSService,
+                    ObservationsTileFromWMTSService,
+                    ForecastsTileFromWMTSService,
+                    ObservationsSiteList,
+                    ForecastsSiteList,
+                    ForecastsForSites,
+                    ObservationsForSites,
+                    timeDelay,
+                    name,
+                    overwrite,
+                    getString_xml());
+            Thread t;
+            t = new Thread(p);
+            t.start();
+        }
+
+        if (doNonTiledObs) {
+            CalculateForecastsSitesInStudyAreas = false;
+            CalculateObservationsSitesInStudyAreas = false;
+            Observations = false;
+            Forecasts = false;
+            TileFromWMTSService = false;
+            ObservationsTileFromWMTSService = false;
+            ForecastsTileFromWMTSService = false;
+            ForecastsSiteList = false;
+            ForecastsForSites = false;
+            ObservationsForSites = true;
+            ObservationsSiteList = true;
+            timeDelay = (long) (uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Time.MilliSecondsInHour * 5.5);
+            name = "Observations";
+            overwrite = false;
+            SARIC_MetOfficeScraper p;
+            p = new SARIC_MetOfficeScraper(
+                    se,
+                    CalculateForecastsSitesInStudyAreas,
+                    CalculateObservationsSitesInStudyAreas,
+                    Observations,
+                    Forecasts,
+                    TileFromWMTSService,
+                    ObservationsTileFromWMTSService,
+                    ForecastsTileFromWMTSService,
+                    ObservationsSiteList,
+                    ForecastsSiteList,
+                    ForecastsForSites,
+                    ObservationsForSites,
+                    timeDelay,
+                    name,
+                    overwrite,
+                    getString_xml());
+            Thread t;
+            t = new Thread(p);
+            t.start();
+        }
+
+        /**
+         * Forecasts thread gets data every 5.5 hours. New data is supposed to
+         * be released for every 6 hours. There is one release marked for each
+         * of these times: 3am, 9am, 3pm, 9pm. At each of these times there are
+         * forecasts for 3 hourly intervals for up to 36 hours (12 forecasts).
+         * So, there are 6 forecasts for any time. The most recent forecast will
+         * be the most useful, but sometimes we have to look a long way ahead.
+         * It may be that there are longer term forecasts made for the sites
+         * where there are ground observations.
+         */
+        if (doTileFromWMTSService) {
+            CalculateForecastsSitesInStudyAreas = false;
+            CalculateObservationsSitesInStudyAreas = false;
+            Observations = false;
+            Forecasts = false;
+            TileFromWMTSService = true;
+            ObservationsSiteList = false;
+            ForecastsSiteList = false;
+            ForecastsForSites = false;
+            ObservationsForSites = false;
+
+            if (doObservationsTileFromWMTSService) {
+                ObservationsTileFromWMTSService = true;
+                ForecastsTileFromWMTSService = false;
+                timeDelay = (long) (uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Time.MilliSecondsInHour * 19);
+                name = "Higher Resolution Tiled Forecasts and Observations";
+                overwrite = false;
+                SARIC_MetOfficeScraper p;
+                p = new SARIC_MetOfficeScraper(
+                        se, CalculateForecastsSitesInStudyAreas,
+                        CalculateObservationsSitesInStudyAreas,
+                        Observations, Forecasts, TileFromWMTSService,
+                        ObservationsTileFromWMTSService,
+                        ForecastsTileFromWMTSService,
+                        ObservationsSiteList, ForecastsSiteList,
+                        ForecastsForSites, ObservationsForSites,
+                        timeDelay, name, overwrite, getString_xml());
+                Thread t;
+                t = new Thread(p);
+                t.start();
+            }
+            if (doForecastsTileFromWMTSService) {
+                CalculateForecastsSitesInStudyAreas = false;
+                CalculateObservationsSitesInStudyAreas = false;
+                ObservationsTileFromWMTSService = false;
+                ForecastsTileFromWMTSService = true;
+                timeDelay = (long) (uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Time.MilliSecondsInHour * 6);
+                name = "Higher Resolution Tiled Forecasts and Observations";
+                overwrite = false;
+                SARIC_MetOfficeScraper p;
+                p = new SARIC_MetOfficeScraper(
+                        se, CalculateForecastsSitesInStudyAreas,
+                        CalculateObservationsSitesInStudyAreas,
+                        Observations, Forecasts, TileFromWMTSService,
+                        ObservationsTileFromWMTSService,
+                        ForecastsTileFromWMTSService,
+                        ObservationsSiteList, ForecastsSiteList,
+                        ForecastsForSites, ObservationsForSites,
+                        timeDelay, name, overwrite, getString_xml());
+                Thread t;
+                t = new Thread(p);
+                t.start();
+            }
+        }
+    }
+
+    protected void doRunSARIC_ImageProcessor() {
+        // Main Switches
+        doImageProcessObservations = true;
+//        doImageProcessObservations = false;
+        doProcessForecasts = true;
+//                doProcessForecasts = false;
+        doWissey = true;
+//                doWissey = false;
+        doTeifi = true;
+//                doTeifi = false;
+
+        boolean outputGreyScale;
+        int colorDupication;
+//                outputGreyScale = false;
+        outputGreyScale = true;
+        colorDupication = 0;
+        for (int estimateType = -1; estimateType < 2; estimateType++) {
+
+            if (doImageProcessObservations) {
+                // Switches
+                doNonTiledObs = false;
+                doNonTiledFcs = false;
+                doTileFromWMTSService = true;
+                doObservationsTileFromWMTSService = true;
+                doForecastsTileFromWMTSService = false;
+                overwrite = false;
+                File dirIn;
+                dirIn = se.getFiles().getInputDataMetOfficeDataPointDir();
+                File dirOut;
+                dirOut = se.getFiles().getOutputDataMetOfficeDataPointDir();
+                SARIC_ImageProcessor p;
+                p = new SARIC_ImageProcessor(se, dirIn,
+                        dirOut, doNonTiledFcs, doNonTiledObs,
+                        doTileFromWMTSService,
+                        doObservationsTileFromWMTSService,
+                        doForecastsTileFromWMTSService, doWissey, doTeifi,
+                        overwrite, estimateType, outputGreyScale,
+                        colorDupication);
+//                Thread t;
+//                t = new Thread(p);
+//                t.start();
+                p.run();
+            }
+
+            if (doProcessForecasts) {
+                // Switches
+//                        doNonTiledFcs = false;
+                doNonTiledFcs = true;
+//                        doTileFromWMTSService = false;
+                doTileFromWMTSService = true;
+                doObservationsTileFromWMTSService = false;
+                doForecastsTileFromWMTSService = true;
+//                        doForecastsTileFromWMTSService = false;
+                overwrite = false;
+                File dirIn;
+                dirIn = se.getFiles().getInputDataMetOfficeDataPointDir();
+                File dirOut;
+                dirOut = se.getFiles().getOutputDataMetOfficeDataPointDir();
+                SARIC_ImageProcessor p;
+                p = new SARIC_ImageProcessor(se, dirIn,
+                        dirOut, doNonTiledFcs, doNonTiledObs,
+                        doTileFromWMTSService,
+                        doObservationsTileFromWMTSService,
+                        doForecastsTileFromWMTSService, doWissey, doTeifi,
+                        overwrite, estimateType, outputGreyScale,
+                        colorDupication);
+//                Thread t;
+//                t = new Thread(p);
+//                t.start();
+                p.run();
+            }
+        }
+    }
+
     // Parameters
     boolean CalculateForecastsSitesInStudyAreas = false;
     boolean CalculateObservationsSitesInStudyAreas = false;
@@ -513,7 +683,10 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
     boolean doTeifi = false;
     boolean addGBHRUs = false;
     boolean doImageProcessObservations = false;
-    boolean doImageProcessForecasts = false;
+    boolean doProcessForecasts = false;
+    boolean skip10;
+    boolean dolast5days;
+            
 
     // Main switches
     boolean RunProjectShapefiles = false;
@@ -525,6 +698,7 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
     boolean RunSARIC_DataForWASIM = false;
     boolean RunSARIC_DataForWASIM2 = false;
     boolean RunSARIC_DataForLex = false;
+    boolean RunSARIC_FullWorkflow = false;
     boolean RunSARIC_ProcessNIMROD = false;
     boolean RunSARIC_RainfallStatistics = false;
 }

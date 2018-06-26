@@ -175,7 +175,7 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
             calculateSitesInStudyAreas(sites, dir, buffer);
         }
 
-        // Set conmnection rate
+        // Set connection rate
         /**
          * For the purposes of this DataPoint Fair Use Policy, the Fair Use
          * Limits shall be defined as follows:
@@ -503,8 +503,7 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
      */
     protected File getForecastsSite(String siteID, String res, String timeRange) {
         File result;
-        path = sf.getValDataTypePath(dataType, ss.getS_wxfcs())
-                + siteID;
+        path = sf.getValDataTypePath(dataType, ss.getS_wxfcs())                + siteID;
         url = BASE_URL
                 + path
                 + ss.symbol_questionmark
@@ -547,8 +546,7 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
      */
     protected File getObservationsSite(String siteID, String timeRange) {
         File result;
-        path = sf.getValDataTypePath(dataType, ss.getS_wxobs())
-                + siteID;
+        path = sf.getValDataTypePath(dataType, ss.getS_wxobs())                + siteID;
         String res;
         res = ss.getS_hourly();
         url = BASE_URL
@@ -573,7 +571,6 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
         // Download capabilities document for the forecast layers in XML format
         File forecastLayerCapabilities;
         forecastLayerCapabilities = getForecastsLayerCapabilities();
-
 //        String time;
 //        time = "2017-06-15T03:00:00";
 //        downloadForecastImages(layerName, time);
@@ -611,31 +608,23 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
      * forecasts.
      */
     protected void getSiteList(String type, String time) {
-        path = sf.getValDataTypePath(dataType, type)
-                + ss.getS_sitelist();
+        path = sf.getValDataTypePath(dataType, type) + ss.getS_sitelist();
         //http://datapoint.metoffice.gov.uk/public/data/val/wxobs/all/xml/sitelist?key={key}
         //http://datapoint.metoffice.gov.uk/public/data/val/wxfcs/all/xml/sitelist?res=daily&key={key}
         //http://datapoint.metoffice.gov.uk/public/data/val/wxfcs/all/xml/sitelist?res=3hourly&key={key}
-        url = BASE_URL
-                + path
-                + ss.symbol_questionmark;
+        url = BASE_URL + path + ss.symbol_questionmark;
         if (time != null) {
             url += ss.getS_res() + ss.symbol_equals + time + ss.symbol_ampersand;
         }
         url += ss.getS_key() + ss.symbol_equals + API_KEY;
         File dir;
-        dir = new File(
-                sf.getInputDataMetOfficeDataPointDir(),
-                path);
+        dir = new File(sf.getInputDataMetOfficeDataPointDir(), path);
         if (time != null) {
-            dir = new File(
-                    dir,
-                    time);
+            dir = new File(dir, time);
         }
         dir.mkdirs();
         File xml;
-        xml = new File(dir,
-                ss.getS_sitelist() + "." + dataType);
+        xml = new File(dir, ss.getS_sitelist() + "." + dataType);
         getXML(url, xml);
     }
 
@@ -1213,31 +1202,24 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
         File outputDir;
         switch (parsePath) {
             case 0:
-                outputDir = new File(
-                        sf.getInputDataMetOfficeDataPointDir(),
+                outputDir = new File(sf.getInputDataMetOfficeDataPointDir(),
                         getParsedPath0());
                 break;
             case 1:
-                outputDir = new File(
-                        sf.getInputDataMetOfficeDataPointDir(),
+                outputDir = new File(sf.getInputDataMetOfficeDataPointDir(),
                         getParsedPath1());
                 break;
             default:
-                outputDir = new File(
-                        sf.getInputDataMetOfficeDataPointDir(),
+                outputDir = new File(sf.getInputDataMetOfficeDataPointDir(),
                         path);
                 break;
         }
         if (endDir != null) {
-            outputDir = new File(
-                    outputDir,
-                    endDir);
+            outputDir = new File(outputDir, endDir);
         }
         outputDir.mkdirs();
         File xml;
-        xml = new File(
-                outputDir,
-                name + "." + dataType);
+        xml = new File(outputDir, name + "." + dataType);
 //        xml = Generic_StaticIO.createNewFile(
 //                outputDir,
 //                name + "." + dataType);

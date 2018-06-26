@@ -18,24 +18,19 @@
  */
 package uk.ac.leeds.ccg.andyt.projects.saric.process;
 
-import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.Point;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.geotools.data.DataUtilities;
 import org.geotools.feature.SchemaException;
-import org.geotools.feature.simple.SimpleFeatureBuilder;
-import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import uk.ac.leeds.ccg.andyt.generic.io.Generic_StaticIO;
@@ -55,6 +50,7 @@ import uk.ac.leeds.ccg.andyt.projects.saric.data.catchment.SARIC_Wissey;
 import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
 import uk.ac.leeds.ccg.andyt.generic.utilities.time.Generic_Date;
 import uk.ac.leeds.ccg.andyt.generic.utilities.time.Generic_Time;
+import uk.ac.leeds.ccg.andyt.generic.utilities.time.Generic_YearMonth;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.lex.SARIC_LexRecord;
 import static uk.ac.leeds.ccg.andyt.projects.saric.process.SARIC_ImageProcessor.getEstimateName;
 import uk.ac.leeds.ccg.andyt.vector.core.Vector_Environment;
@@ -81,11 +77,13 @@ public class SARIC_DataForLex extends SARIC_Object implements Runnable {
      */
     int estimateType;
     String estimateName;
+    boolean skip10;
+    boolean dolast5days;
 
     protected SARIC_DataForLex() {
     }
 
-    public SARIC_DataForLex(SARIC_Environment se, int estimateType) {
+    public SARIC_DataForLex(SARIC_Environment se, int estimateType, boolean skip10, boolean dolast5days) {
         super(se);
         sf = se.getFiles();
         ss = se.getStrings();
@@ -97,15 +95,17 @@ public class SARIC_DataForLex extends SARIC_Object implements Runnable {
         gf.Stats = new Grids_GridDoubleStatsNotUpdated(ge);
         ve = se.getVector_Env();
         this.estimateType = estimateType;
+        this.skip10 = skip10;
+        this.dolast5days = dolast5days;
     }
 
     @Override
     public void run() {
         estimateName = getEstimateName(estimateType);
         // Initial day set
-        Generic_Date day0;
+//        Generic_Date day0;
         // Number of days after initial day results are output for
-        int numberOfDaysRun;
+//        int numberOfDaysRun;
         // What areas to run for
         ArrayList<String> areas = new ArrayList<>();
         areas.add(ss.getS_Teifi());
@@ -113,7 +113,7 @@ public class SARIC_DataForLex extends SARIC_Object implements Runnable {
         // Fill in gaps or overwrite?
         boolean overwrite;
         overwrite = false;
-//        overwrite = true;
+        //overwrite = true;
 //        // Run 1
 //        day0 = new Generic_Date(se, "2017-09-06"); 
 //        numberOfDaysRun = 7;
@@ -130,8 +130,8 @@ public class SARIC_DataForLex extends SARIC_Object implements Runnable {
 //        day0 = new Generic_Date(se, "2017-10-25");
 //        numberOfDaysRun = 28;
         // Run 6
-        day0 = new Generic_Date(se, "2017-09-06");
-        numberOfDaysRun = 200;
+//        day0 = new Generic_Date(se, "2017-09-06");
+//        numberOfDaysRun = 200;
 //        // Run 7
 //        day0 = new Generic_Date(se, "2018-03-10");
 //        numberOfDaysRun = 10;
@@ -141,8 +141,10 @@ public class SARIC_DataForLex extends SARIC_Object implements Runnable {
         //TreeMap<Generic_Time, Grids_GridDouble> observationsGrids;
 
         Grids_GridDouble g;
-        Generic_Time t0;
-        Generic_Time t;
+
+        int numberOfDaysSinceLastRainfallEventGT2mm;
+
+        TreeMap<Generic_Date, Grids_GridDouble> observationsGrids;
 
         Grids_GridDouble o10;
         Grids_GridDouble o9;
@@ -190,6 +192,7 @@ public class SARIC_DataForLex extends SARIC_Object implements Runnable {
         iteArea = areas.iterator();
         while (iteArea.hasNext()) {
             area = iteArea.next();
+            observationsGrids = getObservationsGrids(area);
             // GetWaterCompanyShapefile Geometry
             if (area.equalsIgnoreCase(ss.getS_Wissey())) {
                 // Wissey (Wissington), latitude: 52.551, longitude: 0.447
@@ -210,37 +213,106 @@ public class SARIC_DataForLex extends SARIC_Object implements Runnable {
             nrows = mask.getNRows();
             ncols = mask.getNCols();
             noDataValue = mask.getNoDataValue();
-            for (int days = 0; days < numberOfDaysRun; days++) {
-                day = new Generic_Date(day0);
-                day.addDays(days);
-                System.out.println("day " + day.getYYYYMMDD());
-                t0 = new Generic_Time(day);
-                t = new Generic_Time(day);
-                o10 = getObservationGrid(area, t, -10);
-                o9 = getObservationGrid(area, t, -9);
-                o8 = getObservationGrid(area, t, -8);
-                o7 = getObservationGrid(area, t, -7);
-                o6 = getObservationGrid(area, t, -6);
-                o5 = getObservationGrid(area, t, -5);
-                o4 = getObservationGrid(area, t, -4);
-                o3 = getObservationGrid(area, t, -3);
-                o2 = getObservationGrid(area, t, -2);
-                o1 = getObservationGrid(area, t, -1);
-                f0 = getForecastsGrid(area, t, 0);
-                f1 = getForecastsGrid(area, t, 1);
-                f2 = getForecastsGrid(area, t, 2);
-                f3 = getForecastsGrid(area, t, 3);
-                f4 = getForecastsGrid(area, t, 4);
-                //f5 = getForecastsGrid(area, t, 5);
-                // Assume all grids have the same noDataValue.
-                f = getFile(area, day);
+
+            // get days not processed yet
+            File dir;
+            TreeSet<Generic_Date> daysProcessed;
+            TreeSet<Generic_Date> daysToProcess;
+            dir = new File("Y:/projects/saric", "Lex");
+            dir = new File(dir, area);
+            dir = new File(dir, estimateName);
+            daysProcessed = getDays(dir);
+            dir = new File(sf.getOutputDataMetOfficeDataPointDir(), "/inspire/view/wmts/Wissey/RADAR_UK_Composite_Highres/EPSG_27700_4/l");
+            daysToProcess = getDays(dir);
+            File dir0;
+            //dir0 = sf.getOutputDataDir(ss);
+            dir0 = new File("Y:/projects/saric", "Lex");
+            if (!overwrite) {
+                daysToProcess.removeAll(daysProcessed);
+            }
+            Iterator<Generic_Date> ite;
+            ite = daysToProcess.iterator();
+            if (skip10) {
+                // Skip the first 10 dates as the first 10 days are needed.
+                if (overwrite || (daysProcessed.size() < 10)) {
+                    for (int i = 0; i < 10; i++) {
+                        day = ite.next();
+                        System.out.println("Skip day " + day.getYYYYMMDD());
+                    }
+                }
+            }
+            if (dolast5days) {
+                for (int i = 0; i < daysToProcess.size() - 5; i++) {
+                        day = ite.next();
+                        System.out.println("Skip day " + day.getYYYYMMDD());
+                    }
+            }
+//            for (int days = 0; days < numberOfDaysRun; days++) {
+//                day = new Generic_Date(day0);
+//                day.addDays(days);
+            while (ite.hasNext()) {
+                day = ite.next();
+                //System.out.println("day " + day.getYYYYMMDD());
+                f = getFile(dir0, area, day);
                 if (f.exists() && overwrite || !f.exists()) {
+
+                    boolean found;
+                    int i;
+                    double v;
+
+                    o10 = getObservationGrid(observationsGrids, day, -10);
+                    o9 = getObservationGrid(observationsGrids, day, -9);
+                    o8 = getObservationGrid(observationsGrids, day, -8);
+                    o7 = getObservationGrid(observationsGrids, day, -7);
+                    o6 = getObservationGrid(observationsGrids, day, -6);
+                    o5 = getObservationGrid(observationsGrids, day, -5);
+                    o4 = getObservationGrid(observationsGrids, day, -4);
+                    o3 = getObservationGrid(observationsGrids, day, -3);
+                    o2 = getObservationGrid(observationsGrids, day, -2);
+                    o1 = getObservationGrid(observationsGrids, day, -1);
+                    f0 = getForecastsGrid(area, day, 0);
+                    f1 = getForecastsGrid(area, day, 1);
+                    f2 = getForecastsGrid(area, day, 2);
+                    f3 = getForecastsGrid(area, day, 3);
+                    f4 = getForecastsGrid(area, day, 4);
+                    //f5 = getForecastsGrid(area, t, 5);
+                    // Assume all grids have the same noDataValue.
                     pw = initialisePrintWriter(f);
                     //int i;
                     //double v;
                     for (long row = 0; row < nrows; row++) {
                         for (long col = 0; col < ncols; col++) {
                             if (mask.getCell(row, col) != noDataValue) {
+                                i = 0;
+                                numberOfDaysSinceLastRainfallEventGT2mm = 1;
+                                found = false;
+                                g = observationsGrids.get(day);
+                                while (!found) {
+                                    //System.out.println(day1);
+                                    if (g != null) {
+                                        v = g.getCell(row, col);
+                                    } else {
+                                        v = 0.0d;
+                                    }
+                                    if (v != noDataValue) {
+                                        //accumulation += v;
+                                        if (!found) {
+                                            if (v > 2) {
+                                                found = true;
+                                            } else {
+                                                numberOfDaysSinceLastRainfallEventGT2mm++;
+                                                i--;
+                                                g = getObservationGrid(observationsGrids, day, i);
+                                                if (g == null) {
+                                                    if (i < -10) {
+                                                        found = true; // Found that the last rainfall event of greater than 2mm was longer than 10 days ago and we've hit a null obsevation record.
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                //System.out.println("numberOfDaysSinceLastRainfallEventGT2mm " + numberOfDaysSinceLastRainfallEventGT2mm);
                                 if (o10 == null) {
                                     observedRainfall10DaysAgo = 0.0d;
                                 } else {
@@ -369,10 +441,14 @@ public class SARIC_DataForLex extends SARIC_Object implements Runnable {
 //                                    forecastRainfallIn120to144Hours = 0.0d;
 //                                }
 //                            }
+
                                 r = new SARIC_LexRecord(
                                         Long.toString(row * ncols + col),//mask.getCellID(row, col).toString(),//day.getYYYYMMDD(),
-                                        col,//Easting_Northing[0],
                                         row,//Easting_Northing[1],
+                                        col,//Easting_Northing[0],
+                                        mask.getCellYDouble(row),
+                                        mask.getCellXDouble(col),
+                                        numberOfDaysSinceLastRainfallEventGT2mm,
                                         observedRainfall10DaysAgo,
                                         observedRainfall9DaysAgo,
                                         observedRainfall8DaysAgo,
@@ -411,29 +487,42 @@ public class SARIC_DataForLex extends SARIC_Object implements Runnable {
         }
     }
 
-    File getFile(String area, Generic_Date day) {
+    TreeSet<Generic_Date> getDays(File dir) {
+        TreeSet<Generic_Date> result;
+        result = new TreeSet<>();
+        Generic_Date date;
+        File[] files0;
+        File[] files1;
+        files0 = dir.listFiles();
+        if (files0 != null) {
+            for (int i = 0; i < files0.length; i++) {
+                files1 = files0[i].listFiles();
+                for (int j = 0; j < files1.length; j++) {
+                    date = new Generic_Date(se, files1[j].getName());
+                    result.add(date);
+                }
+            }
+        }
+        return result;
+    }
+
+    File getDir(File dir0, String area) {
+        File dir;
+        //dir = new File(dir0, "Lex");
+        dir = new File(dir0, area);
+        return dir;
+    }
+
+    File getFile(File dir0, String area, Generic_Date day) {
         File result;
         File dir;
-        dir = new File(sf.getOutputDataDir(ss), "Lex");
-        dir = new File(dir, area);
+        dir = getDir(dir0, area);
         dir = new File(dir, estimateName);
         dir = new File(dir, day.getYYYYMM());
         dir = new File(dir, day.getYYYYMMDD());
         dir.mkdirs();
         String filename;
         filename = day + ".csv";
-        result = new File(dir, filename);
-        return result;
-    }
-
-    File getFile(String area, String name) {
-        File result;
-        File dir;
-        dir = new File(sf.getOutputDataDir(ss), "Lex");
-        dir = new File(dir, area);
-        dir.mkdirs();
-        String filename;
-        filename = name + ".csv";
         result = new File(dir, filename);
         return result;
     }
@@ -445,7 +534,8 @@ public class SARIC_DataForLex extends SARIC_Object implements Runnable {
         PrintWriter result;
         result = Generic_StaticIO.getPrintWriter(f, false);
         result.println(//"ID,EASTING,NORTHING,"
-                "ID,Col,Row,"
+                "ID,Col,Row,Northing,Easting,"
+                + "NumberOfDaysSinceLastRainfallEventGT2mm,"
                 + "ObservedRainfall10DaysAgo,"
                 + "ObservedRainfall9DaysAgo,"
                 + "ObservedRainfall8DaysAgo,"
@@ -460,8 +550,7 @@ public class SARIC_DataForLex extends SARIC_Object implements Runnable {
                 + "ForecastRainfallIn24to48Hours,"
                 + "ForecastRainfallIn48to72Hours,"
                 + "ForecastRainfallIn72to96HoursHours,"
-                + "ForecastRainfallIn96to120Hours,"
-                + "ForecastRainfallIn120to144Hours");
+                + "ForecastRainfallIn96to120Hours");
         return result;
     }
 
@@ -505,23 +594,37 @@ public class SARIC_DataForLex extends SARIC_Object implements Runnable {
         dir = new File(sf.getOutputDataMetOfficeDataPointDir(),
                 ss.getS_inspire());
         dir = new File(dir, ss.getS_view());
-        dir = new File(dir, ss.getS_wmts() + "0");
+        //dir = new File(dir, ss.getS_wmts() + "0");
+        dir = new File(dir, ss.getS_wmts());
         dir = new File(dir, area);
-        dir = new File(dir, estimateName);
         dir = new File(dir, ss.getS_RADAR_UK_Composite_Highres());
         dir = new File(dir, "EPSG_27700_4");
+        dir = new File(dir, estimateName);
         File f = new File(sf.getNestedTimeDirectory(dir, d1),
-                d1.getYYYYMMDD() + ss.getS_RADAR_UK_Composite_Highres() + ".asc");
-        System.out.println(f);
+                ss.getS_RADAR_UK_Composite_Highres() + ".asc");
+        //System.out.println(f);
         if (f.exists()) {
             File gdir;
             gdir = gridf.createNewFile(gridf.getGeneratedGridDoubleDir());
             result = (Grids_GridDouble) gf.create(gdir, f);
-            System.out.println(result);
+            //System.out.println(result);
             return result;
         }
         return null;
     }
+    
+    protected Grids_GridDouble getObservationGrid(
+            TreeMap<Generic_Date, Grids_GridDouble> observationsGrids, 
+            Generic_Date d,
+            int offset) {
+        Grids_GridDouble result;
+        Generic_Date d1;
+        d1 = new Generic_Time(d);
+        d1.addDays(offset);
+        result = observationsGrids.get(d1);
+        return result;
+    }
+        
 
     protected Grids_GridDouble getForecastsGrid(String area, Generic_Date d,
             int offset) {
@@ -535,20 +638,21 @@ public class SARIC_DataForLex extends SARIC_Object implements Runnable {
         dir = new File(sf.getOutputDataMetOfficeDataPointDir(),
                 ss.getS_inspire());
         dir = new File(dir, ss.getS_view());
-        dir = new File(dir, ss.getS_wmts() + "0");
+        //dir = new File(dir, ss.getS_wmts() + "0");
+        dir = new File(dir, ss.getS_wmts());
         dir = new File(dir, area);
-        dir = new File(dir, estimateName);
         dir = new File(dir, ss.getS_Precipitation_Rate());
         dir = new File(dir, "EPSG_27700_4");
+        dir = new File(dir, estimateName);
         if (offset < 2) {
             File f = new File(sf.getNestedTimeDirectory(dir, d),
                     d.getYYYYMMDD() + "_ForecastFor_" + d1.getYYYYMMDD() + ".asc");
-            System.out.println(f);
+            //System.out.println(f);
             if (f.exists()) {
                 File gdir;
                 gdir = gridf.createNewFile(gridf.getGeneratedGridDoubleDir());
                 result = (Grids_GridDouble) gf.create(gdir, f);
-                System.out.println(result);
+                //System.out.println(result);
                 return result;
             }
         } else {
@@ -559,61 +663,65 @@ public class SARIC_DataForLex extends SARIC_Object implements Runnable {
             dir = new File(dir, ss.getS_all());
             dir = new File(dir, ss.getS_xml());
             dir = new File(dir, area);
+            dir = new File(dir, estimateName);
             dir = new File(dir, d.getYYYYMM());
             dir = new File(dir, d.getYYYYMMDD());
             dir = new File(dir, d.getYYYYMMDD() + "-00");
             File f = new File(dir,
                     d.getYYYYMMDD() + "-00_ForecastFor_" + d1.getYYYYMMDD() + ".asc");
-            System.out.println(f);
+            //System.out.println(f);
             if (f.exists()) {
                 File gdir;
                 gdir = gridf.createNewFile(gridf.getGeneratedGridDoubleDir());
                 result = (Grids_GridDouble) gf.create(gdir, f);
-                System.out.println(result);
+                //System.out.println(result);
                 return result;
             }
         }
         return null;
     }
 
-    protected TreeMap<Generic_Time, Grids_GridDouble> getObservationsGrids(
+    protected TreeMap<Generic_Date, Grids_GridDouble> getObservationsGrids(
             String area) {
         Grids_Files gridf;
         gridf = ge.getFiles();
-        TreeMap<Generic_Time, Grids_GridDouble> result;
+        TreeMap<Generic_Date, Grids_GridDouble> result;
         result = new TreeMap<>();
         File dir;
         dir = new File(sf.getOutputDataMetOfficeDataPointDir(),
                 ss.getS_inspire());
         dir = new File(dir, ss.getS_view());
-        dir = new File(dir, ss.getS_wmts() + "0");
+        //dir = new File(dir, ss.getS_wmts() + "0");
+        dir = new File(dir, ss.getS_wmts());
         dir = new File(dir, area);
         dir = new File(dir, ss.getS_RADAR_UK_Composite_Highres());
         dir = new File(dir, "EPSG_27700_4");
+        dir = new File(dir, estimateName);
         System.out.println(dir);
         File[] dirs;
         dirs = dir.listFiles();
         String[] dates;
         File f;
         File dir3;
-        Generic_Time t;
+        Generic_Date d;
         Grids_GridDouble g;
         // Load each grid
         for (File dir2 : dirs) {
-            System.out.println(dir2);
+            //System.out.println(dir2);
             dates = dir2.list();
             for (String date : dates) {
-                t = new Generic_Time(se, date);
-                System.out.println(t);
+                //System.out.println(date);
+                d = new Generic_Date(se, date);
                 dir3 = new File(dir2, date);
                 f = new File(dir3,
-                        date + ss.getS_RADAR_UK_Composite_Highres() + ".asc");
+                        ss.getS_RADAR_UK_Composite_Highres() + ".asc");
                 if (f.exists()) {
                     File gdir;
-                    gdir = gridf.createNewFile(gridf.getGeneratedGridDoubleDir());
+                    gdir = gridf.createNewFile(
+                            gridf.getGeneratedGridDoubleDir());
                     g = (Grids_GridDouble) gf.create(gdir, f);
-                    System.out.println(g);
-                    result.put(t, g);
+                    //System.out.println(g);
+                    result.put(d, g);
                 }
             }
         }
