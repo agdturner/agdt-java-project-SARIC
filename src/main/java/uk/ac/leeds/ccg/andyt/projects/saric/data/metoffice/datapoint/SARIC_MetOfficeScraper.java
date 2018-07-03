@@ -100,6 +100,11 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
      * @param dataType either "xml" or "json"
      */
     String dataType;
+    
+    /**
+     * If iterate == true, this process will iterate indefinitely. Otherwise it will run once and stop.
+     */
+    boolean iterate;
 
     /**
      * If overwrite is true then an attempt is made to get new data and
@@ -127,7 +132,8 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
             long timeDelay,
             String name,
             boolean overwrite,
-            String dataType
+            String dataType,
+            boolean iterate
     ) {
         this.se = se;
         this.sf = se.getFiles();
@@ -147,312 +153,327 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
         this.name = name;
         this.overwrite = overwrite;
         this.dataType = dataType;
+        this.iterate = iterate;
     }
 
     @Override
     public void run() {
-        File dir;
-        SARIC_SiteHandler sh;
-        HashSet<SARIC_Site> sites;
-        sh = new SARIC_SiteHandler(se);
-        if (CalculateForecastsSitesInStudyAreas) {
-            dir = sf.getGeneratedDataMetOfficeDataPointForecastsDir();
-            String time;
-            //time = ss.getS_daily();
-            time = ss.getS_3hourly();
-            sites = sh.getForecastsSites(time);
-            calculateSitesInStudyAreas(sites, dir, null);
-        }
-
-        if (CalculateObservationsSitesInStudyAreas) {
-            dir = sf.getGeneratedDataMetOfficeDataPointObservationsDir();
-            BigDecimal buffer;
-//            buffer = new BigDecimal(20000.0d);
-//            buffer = new BigDecimal(30000.0d);
-//            buffer = new BigDecimal(40000.0d);
-            buffer = new BigDecimal(60000.0d);
-            sites = sh.getObservationsSites();
-            calculateSitesInStudyAreas(sites, dir, buffer);
-        }
-
-        // Set connection rate
-        /**
-         * For the purposes of this DataPoint Fair Use Policy, the Fair Use
-         * Limits shall be defined as follows:
-         *
-         * You may make no more than 5000 data requests per day; and You may
-         * make no more than 100 data requests per minute. Usage above this
-         * limit is available by purchasing a Paid Data Plan. You may purchase a
-         * Paid Data Plan by contacting: enquiries@metoffice.gov.uk. The current
-         * price for the Paid Data Plan is £1,500 per annum, exclusive of Value
-         * Added Tax. The Met Office reserves the right to adjust the price of
-         * the Paid Data Plan.
-         *
-         * Should you exceed one or more of the Fair Use Limits without having a
-         * Paid Data Plan in place, you agree that the Met Office shall be
-         * entitled to take either of the following measures:
-         *
-         * Contact you to discuss how you might reduce your data usage; or
-         * Invoice you for a Paid Data Plan.
-         */
-        int permittedConnectionsPerHour;
-        permittedConnectionsPerHour = 100 * 60;
-        permittedConnectionRate = permittedConnectionsPerHour
-                / (double) uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Time.MilliSecondsInHour;
-
-        // Read API_KEY from file
-        API_KEY = getAPI_KEY();
-        //System.out.println(API_KEY);
-
-        String lastSiteObservationsTime0 = null;
-
-        int i = 0;
-        while (true) {
-            System.out.println("Iteration " + i + " of " + name);
-            String layerName;
-            if (Observations) {
-//                layerName = "ATDNET_Sferics"; // lightening
-//                layerName = "SATELLITE_Infrared_Fulldisk";
-//                layerName = "SATELLITE_Visible_N_Section";
-//                layerName = "SATELLITE_Visible_N_Section";
-                layerName = ss.getS_RADAR_UK_Composite_Highres(); //Rainfall
-                try {
-                    getObservationLayer(layerName, overwrite);
-                } catch (Exception ex) {
-                    Logger.getLogger(SARIC_MetOfficeScraper.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-
-            if (Forecasts) {
-                layerName = "Precipitation_Rate"; // Rainfall
-//                layerName = "Total_Cloud_Cover"; // Cloud
-//                layerName = "Total_Cloud_Cover_Precip_Rate_Overlaid"; // Cloud and Rain
-//temperature and pressure also available
-                try {
-                    getForecastLayer(layerName, overwrite);
-                } catch (Exception ex) {
-                    Logger.getLogger(SARIC_MetOfficeScraper.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-
-//        // Download three hourly five day forecast for Dunkeswell Aerodrome
-//        downloadThreeHourlyFiveDayForecastForDunkeswellAerodrome();
-            // Request a tile from the WMTS service
-            if (TileFromWMTSService) {
-                String tileMatrixSet;
-                tileMatrixSet = "EPSG:27700"; // British National Grid
-                /**
-                 * <TileMatrixSet>
-                 * <ows:Identifier>EPSG:27700</ows:Identifier>
-                 * <ows:SupportedCRS>urn:ogc:def:crs:EPSG::27700</ows:SupportedCRS>
-                 * <TileMatrix>
-                 * <ows:Identifier>EPSG:27700:0</ows:Identifier>
-                 * <ScaleDenominator>9344354.716796875</ScaleDenominator>
-                 * <TopLeftCorner>1393.0196 1230275.0454</TopLeftCorner>
-                 * <TileWidth>256</TileWidth>
-                 * <TileHeight>256</TileHeight>
-                 * <MatrixWidth>1</MatrixWidth>
-                 * <MatrixHeight>2</MatrixHeight>
-                 * </TileMatrix>
-                 * <TileMatrix>
-                 * <ows:Identifier>EPSG:27700:1</ows:Identifier>
-                 * <ScaleDenominator>4672177.3583984375</ScaleDenominator>
-                 * <TopLeftCorner>1393.0196 1230275.0454</TopLeftCorner>
-                 * <TileWidth>256</TileWidth>
-                 * <TileHeight>256</TileHeight>
-                 * <MatrixWidth>2</MatrixWidth>
-                 * <MatrixHeight>4</MatrixHeight>
-                 * </TileMatrix>
-                 * <TileMatrix>
-                 * <ows:Identifier>EPSG:27700:2</ows:Identifier>
-                 * <ScaleDenominator>2336088.6791992188</ScaleDenominator>
-                 * <TopLeftCorner>1393.0196 1230275.0454</TopLeftCorner>
-                 * <TileWidth>256</TileWidth>
-                 * <TileHeight>256</TileHeight>
-                 * <MatrixWidth>4</MatrixWidth>
-                 * <MatrixHeight>8</MatrixHeight>
-                 * </TileMatrix>
-                 * <TileMatrix>
-                 * <ows:Identifier>EPSG:27700:3</ows:Identifier>
-                 * <ScaleDenominator>1168044.3395996094</ScaleDenominator>
-                 * <TopLeftCorner>1393.0196 1230275.0454</TopLeftCorner>
-                 * <TileWidth>256</TileWidth>
-                 * <TileHeight>256</TileHeight>
-                 * <MatrixWidth>8</MatrixWidth>
-                 * <MatrixHeight>16</MatrixHeight>
-                 * </TileMatrix>
-                 * <TileMatrix>
-                 * <ows:Identifier>EPSG:27700:4</ows:Identifier>
-                 * <ScaleDenominator>584022.1697998047</ScaleDenominator>
-                 * <TopLeftCorner>1393.0196 1230275.0454</TopLeftCorner>
-                 * <TileWidth>256</TileWidth>
-                 * <TileHeight>256</TileHeight>
-                 * <MatrixWidth>16</MatrixWidth>
-                 * <MatrixHeight>32</MatrixHeight>
-                 * </TileMatrix>
-                 * <TileMatrix>
-                 * <ows:Identifier>EPSG:27700:5</ows:Identifier>
-                 * <ScaleDenominator>292011.08489990234</ScaleDenominator>
-                 * <TopLeftCorner>1393.0196 1230275.0454</TopLeftCorner>
-                 * <TileWidth>256</TileWidth>
-                 * <TileHeight>256</TileHeight>
-                 * <MatrixWidth>32</MatrixWidth>
-                 * <MatrixHeight>64</MatrixHeight>
-                 * </TileMatrix>
-                 * <TileMatrix>
-                 * <ows:Identifier>EPSG:27700:6</ows:Identifier>
-                 * <ScaleDenominator>146005.54244995117</ScaleDenominator>
-                 * <TopLeftCorner>1393.0196 1230275.0454</TopLeftCorner>
-                 * <TileWidth>256</TileWidth>
-                 * <TileHeight>256</TileHeight>
-                 * <MatrixWidth>64</MatrixWidth>
-                 * <MatrixHeight>128</MatrixHeight>
-                 * </TileMatrix>
-                 * <TileMatrix>
-                 * <ows:Identifier>EPSG:27700:6</ows:Identifier>
-                 */
-                //tileMatrixSet = "EPSG:4326"; // WGS84
-                /**
-                 * For tileMatrix = EPSG:4326:0 MinY = 48.0 MaxY = 61.0 MinX =
-                 * -12.0 MaxX = 5.0 DiffY = 13 DiffX = 17
-                 */
-
-                File inspireWMTSCapabilities = getInspireWMTSCapabilities();
-                SARIC_MetOfficeParameters p;
-                p = new SARIC_MetOfficeParameters();
-                SARIC_MetOfficeCapabilitiesXMLDOMReader r;
-                r = new SARIC_MetOfficeCapabilitiesXMLDOMReader(se, inspireWMTSCapabilities);
-                ve = new Vector_Environment();
-                String tileMatrix;
-                tileMatrix = tileMatrixSet + ":0";
-                BigDecimal cellsize;
-                cellsize = r.getCellsize(tileMatrix);
-                System.out.println("cellsize " + cellsize);
-                int nrows;
-                nrows = r.getNrows(tileMatrix);
-                int ncols;
-                ncols = r.getNcols(tileMatrix);
-                Vector_Envelope2D bounds;
-                bounds = r.getDimensions(cellsize, nrows, ncols, tileMatrix, p.TwoFiveSix);
-                System.out.println(bounds.toString());
-                p.setBounds(bounds);
-                Vector_Envelope2D wisseyBounds;
-                wisseyBounds = se.getWissey().getBounds();
-                Vector_Envelope2D teifiBounds;
-                teifiBounds = se.getTeifi().getBounds();
-                if (ObservationsTileFromWMTSService) {
-                    layerName = ss.getS_RADAR_UK_Composite_Highres();
-                    //getAllObservationsTilesFromWMTSService(layerName, tileMatrixSet, p, r, overwrite);
-                    try {
-                        getIntersectingObservationsTilesFromWMTSService(
-                                layerName, tileMatrixSet, p, r, wisseyBounds, ss.getS_Wissey(), overwrite);
-                    } catch (Exception ex) {
-                        Logger.getLogger(SARIC_MetOfficeScraper.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                    try {
-                        getIntersectingObservationsTilesFromWMTSService(
-                                layerName, tileMatrixSet, p, r, teifiBounds, ss.getS_Teifi(), overwrite);
-                    } catch (Exception ex) {
-                        Logger.getLogger(SARIC_MetOfficeScraper.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                }
-                if (ForecastsTileFromWMTSService) {
-                    layerName = "Precipitation_Rate";
-                    try {
-                        getIntersectingForecastsTilesFromWMTSService(
-                                layerName, tileMatrixSet, p, r, wisseyBounds, ss.getS_Wissey(), overwrite);
-                    } catch (Exception ex) {
-                        Logger.getLogger(SARIC_MetOfficeScraper.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                    try {
-                        getIntersectingForecastsTilesFromWMTSService(
-                                layerName, tileMatrixSet, p, r, teifiBounds, ss.getS_Teifi(), overwrite);
-                    } catch (Exception ex) {
-                        Logger.getLogger(SARIC_MetOfficeScraper.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                }
-            }
-
-            if (ObservationsSiteList) {
-                getObservationsSiteList();
-            }
-
-            if (ForecastsSiteList) {
-                boolean ForecastsForSitesDaily;
-                boolean ForecastsForSites3Hourly;
-                ForecastsForSitesDaily = true;
-                ForecastsForSites3Hourly = true;
+        try {
+            File dir;
+            SARIC_SiteHandler sh;
+            HashSet<SARIC_Site> sites;
+            sh = new SARIC_SiteHandler(se);
+            if (CalculateForecastsSitesInStudyAreas) {
+                dir = sf.getGeneratedDataMetOfficeDataPointForecastsDir();
                 String time;
-                if (ForecastsForSitesDaily) {
-                    time = ss.getS_daily();
-                    getForecastsSiteCapabilities(time);
-                    getForecastsSiteList(time);
-                }
-                if (ForecastsForSites3Hourly) {
-                    time = ss.getS_3hourly();
-                    getForecastsSiteCapabilities(time);
-                    getForecastsSiteList(time);
-                }
+                //time = ss.getS_daily();
+                time = ss.getS_3hourly();
+                sites = sh.getForecastsSites(time);
+                calculateSitesInStudyAreas(sites, dir, null);
             }
 
-            if (ForecastsForSites) {
-                // Switches
-                boolean ForecastsForSites3Hourly;
-                boolean ForecastsForSitesDaily;
-                ForecastsForSites3Hourly = true;
-//                ForecastsForSites3Hourly = false;
-//                ForecastsForSitesDaily = true;
-                ForecastsForSitesDaily = false;
-                String time;
-                File forecastsSiteCapabilities;
-                String[] timeRange;
-                if (ForecastsForSites3Hourly) {
-                    time = ss.getS_3hourly();
-                    forecastsSiteCapabilities = getForecastsSiteCapabilities(time);
-                    timeRange = getTimeRange(forecastsSiteCapabilities);
-                    getForecastsForSites(ss.getS_Wissey(), null, time, timeRange[0]);
-                    getForecastsForSites(ss.getS_Teifi(), null, time, timeRange[0]);
-                }
-                if (ForecastsForSitesDaily) {
-                    time = ss.getS_daily();
-                    forecastsSiteCapabilities = getForecastsSiteCapabilities(time);
-                    timeRange = getTimeRange(forecastsSiteCapabilities);
-                    getForecastsForSites(ss.getS_Wissey(), null, time, timeRange[0]);
-                    getForecastsForSites(ss.getS_Teifi(), null, time, timeRange[0]);
-                }
-            }
-
-            if (ObservationsForSites) {
-                /**
-                 * The UK observations data feeds provide access to the hourly
-                 * weather observations made over the 24 hour period preceding
-                 * the time at which the web service was last updated.
-                 * Observation data is only collected at some of the sites for
-                 * which forecasts are provided.
-                 */
-                File observationsSiteCapabilities;
-                observationsSiteCapabilities = getObservationsSiteCapabilities();
-                String[] timeRange;
-                timeRange = getTimeRange(observationsSiteCapabilities);
+            if (CalculateObservationsSitesInStudyAreas) {
+                dir = sf.getGeneratedDataMetOfficeDataPointObservationsDir();
                 BigDecimal buffer;
 //            buffer = new BigDecimal(20000.0d);
 //            buffer = new BigDecimal(30000.0d);
 //            buffer = new BigDecimal(40000.0d);
                 buffer = new BigDecimal(60000.0d);
-                if (lastSiteObservationsTime0 == null) {
-                    lastSiteObservationsTime0 = timeRange[2];
-                    getObservationsForSites(ss.getS_Wissey(), buffer, timeRange[0]);
-                    getObservationsForSites(ss.getS_Teifi(), buffer, timeRange[0]);
-                } else {
-                    if (lastSiteObservationsTime0.equalsIgnoreCase(timeRange[2])) {
-                        // Do nothing as we already have all the data.
-                    } else {
-                        getObservationsForSites(ss.getS_Wissey(), buffer, timeRange[0]);
-                        getObservationsForSites(ss.getS_Teifi(), buffer, timeRange[0]);
-                    }
-                }
+                sites = sh.getObservationsSites();
+                calculateSitesInStudyAreas(sites, dir, buffer);
             }
 
+            // Set connection rate
+            /**
+             * For the purposes of this DataPoint Fair Use Policy, the Fair Use
+             * Limits shall be defined as follows:
+             *
+             * You may make no more than 5000 data requests per day; and You may
+             * make no more than 100 data requests per minute. Usage above this
+             * limit is available by purchasing a Paid Data Plan. You may
+             * purchase a Paid Data Plan by contacting:
+             * enquiries@metoffice.gov.uk. The current price for the Paid Data
+             * Plan is £1,500 per annum, exclusive of Value Added Tax. The Met
+             * Office reserves the right to adjust the price of the Paid Data
+             * Plan.
+             *
+             * Should you exceed one or more of the Fair Use Limits without
+             * having a Paid Data Plan in place, you agree that the Met Office
+             * shall be entitled to take either of the following measures:
+             *
+             * Contact you to discuss how you might reduce your data usage; or
+             * Invoice you for a Paid Data Plan.
+             */
+            int permittedConnectionsPerHour;
+            permittedConnectionsPerHour = 100 * 60;
+            permittedConnectionRate = permittedConnectionsPerHour
+                    / (double) uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Time.MilliSecondsInHour;
+
+            // Read API_KEY from file
+            API_KEY = getAPI_KEY();
+            //System.out.println(API_KEY);
+
+            String lastSiteObservationsTime0 = null;
+
+            int i = 0;
+            while (iterate) {
+                System.out.println("Iteration " + i + " of " + name);
+                String layerName;
+                if (Observations) {
+//                layerName = "ATDNET_Sferics"; // lightening
+//                layerName = "SATELLITE_Infrared_Fulldisk";
+//                layerName = "SATELLITE_Visible_N_Section";
+//                layerName = "SATELLITE_Visible_N_Section";
+                    layerName = ss.getS_RADAR_UK_Composite_Highres(); //Rainfall
+                    try {
+                        getObservationLayer(layerName, overwrite);
+                    } catch (Exception ex) {
+                        Logger.getLogger(SARIC_MetOfficeScraper.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+
+                if (Forecasts) {
+                    layerName = "Precipitation_Rate"; // Rainfall
+//                layerName = "Total_Cloud_Cover"; // Cloud
+//                layerName = "Total_Cloud_Cover_Precip_Rate_Overlaid"; // Cloud and Rain
+//temperature and pressure also available
+                    try {
+                        getForecastLayer(layerName, overwrite);
+                    } catch (Exception ex) {
+                        Logger.getLogger(SARIC_MetOfficeScraper.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+
+//        // Download three hourly five day forecast for Dunkeswell Aerodrome
+//        downloadThreeHourlyFiveDayForecastForDunkeswellAerodrome();
+                // Request a tile from the WMTS service
+                if (TileFromWMTSService) {
+                    String tileMatrixSet;
+                    tileMatrixSet = "EPSG:27700"; // British National Grid
+                    /**
+                     * <TileMatrixSet>
+                     * <ows:Identifier>EPSG:27700</ows:Identifier>
+                     * <ows:SupportedCRS>urn:ogc:def:crs:EPSG::27700</ows:SupportedCRS>
+                     * <TileMatrix>
+                     * <ows:Identifier>EPSG:27700:0</ows:Identifier>
+                     * <ScaleDenominator>9344354.716796875</ScaleDenominator>
+                     * <TopLeftCorner>1393.0196 1230275.0454</TopLeftCorner>
+                     * <TileWidth>256</TileWidth>
+                     * <TileHeight>256</TileHeight>
+                     * <MatrixWidth>1</MatrixWidth>
+                     * <MatrixHeight>2</MatrixHeight>
+                     * </TileMatrix>
+                     * <TileMatrix>
+                     * <ows:Identifier>EPSG:27700:1</ows:Identifier>
+                     * <ScaleDenominator>4672177.3583984375</ScaleDenominator>
+                     * <TopLeftCorner>1393.0196 1230275.0454</TopLeftCorner>
+                     * <TileWidth>256</TileWidth>
+                     * <TileHeight>256</TileHeight>
+                     * <MatrixWidth>2</MatrixWidth>
+                     * <MatrixHeight>4</MatrixHeight>
+                     * </TileMatrix>
+                     * <TileMatrix>
+                     * <ows:Identifier>EPSG:27700:2</ows:Identifier>
+                     * <ScaleDenominator>2336088.6791992188</ScaleDenominator>
+                     * <TopLeftCorner>1393.0196 1230275.0454</TopLeftCorner>
+                     * <TileWidth>256</TileWidth>
+                     * <TileHeight>256</TileHeight>
+                     * <MatrixWidth>4</MatrixWidth>
+                     * <MatrixHeight>8</MatrixHeight>
+                     * </TileMatrix>
+                     * <TileMatrix>
+                     * <ows:Identifier>EPSG:27700:3</ows:Identifier>
+                     * <ScaleDenominator>1168044.3395996094</ScaleDenominator>
+                     * <TopLeftCorner>1393.0196 1230275.0454</TopLeftCorner>
+                     * <TileWidth>256</TileWidth>
+                     * <TileHeight>256</TileHeight>
+                     * <MatrixWidth>8</MatrixWidth>
+                     * <MatrixHeight>16</MatrixHeight>
+                     * </TileMatrix>
+                     * <TileMatrix>
+                     * <ows:Identifier>EPSG:27700:4</ows:Identifier>
+                     * <ScaleDenominator>584022.1697998047</ScaleDenominator>
+                     * <TopLeftCorner>1393.0196 1230275.0454</TopLeftCorner>
+                     * <TileWidth>256</TileWidth>
+                     * <TileHeight>256</TileHeight>
+                     * <MatrixWidth>16</MatrixWidth>
+                     * <MatrixHeight>32</MatrixHeight>
+                     * </TileMatrix>
+                     * <TileMatrix>
+                     * <ows:Identifier>EPSG:27700:5</ows:Identifier>
+                     * <ScaleDenominator>292011.08489990234</ScaleDenominator>
+                     * <TopLeftCorner>1393.0196 1230275.0454</TopLeftCorner>
+                     * <TileWidth>256</TileWidth>
+                     * <TileHeight>256</TileHeight>
+                     * <MatrixWidth>32</MatrixWidth>
+                     * <MatrixHeight>64</MatrixHeight>
+                     * </TileMatrix>
+                     * <TileMatrix>
+                     * <ows:Identifier>EPSG:27700:6</ows:Identifier>
+                     * <ScaleDenominator>146005.54244995117</ScaleDenominator>
+                     * <TopLeftCorner>1393.0196 1230275.0454</TopLeftCorner>
+                     * <TileWidth>256</TileWidth>
+                     * <TileHeight>256</TileHeight>
+                     * <MatrixWidth>64</MatrixWidth>
+                     * <MatrixHeight>128</MatrixHeight>
+                     * </TileMatrix>
+                     * <TileMatrix>
+                     * <ows:Identifier>EPSG:27700:6</ows:Identifier>
+                     */
+                    //tileMatrixSet = "EPSG:4326"; // WGS84
+                    /**
+                     * For tileMatrix = EPSG:4326:0 MinY = 48.0 MaxY = 61.0 MinX
+                     * = -12.0 MaxX = 5.0 DiffY = 13 DiffX = 17
+                     */
+
+                    File inspireWMTSCapabilities = getInspireWMTSCapabilities();
+                    SARIC_MetOfficeParameters p;
+                    p = new SARIC_MetOfficeParameters();
+                    SARIC_MetOfficeCapabilitiesXMLDOMReader r;
+                    r = new SARIC_MetOfficeCapabilitiesXMLDOMReader(se, inspireWMTSCapabilities);
+                    ve = new Vector_Environment();
+                    String tileMatrix;
+                    tileMatrix = tileMatrixSet + ":0";
+                    BigDecimal cellsize;
+                    cellsize = r.getCellsize(tileMatrix);
+                    System.out.println("cellsize " + cellsize);
+                    int nrows;
+                    nrows = r.getNrows(tileMatrix);
+                    int ncols;
+                    ncols = r.getNcols(tileMatrix);
+                    Vector_Envelope2D bounds;
+                    bounds = r.getDimensions(cellsize, nrows, ncols, tileMatrix, p.TwoFiveSix);
+                    System.out.println(bounds.toString());
+                    p.setBounds(bounds);
+                    Vector_Envelope2D wisseyBounds;
+                    wisseyBounds = se.getWissey().getBounds();
+                    Vector_Envelope2D teifiBounds;
+                    teifiBounds = se.getTeifi().getBounds();
+                    if (ObservationsTileFromWMTSService) {
+                        layerName = ss.getS_RADAR_UK_Composite_Highres();
+                        //getAllObservationsTilesFromWMTSService(layerName, tileMatrixSet, p, r, overwrite);
+                        try {
+                            getIntersectingObservationsTilesFromWMTSService(
+                                    layerName, tileMatrixSet, p, r, wisseyBounds, ss.getS_Wissey(), overwrite);
+                        } catch (Exception ex) {
+                            Logger.getLogger(SARIC_MetOfficeScraper.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                        try {
+                            getIntersectingObservationsTilesFromWMTSService(
+                                    layerName, tileMatrixSet, p, r, teifiBounds, ss.getS_Teifi(), overwrite);
+                        } catch (Exception ex) {
+                            Logger.getLogger(SARIC_MetOfficeScraper.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }
+                    if (ForecastsTileFromWMTSService) {
+                        layerName = "Precipitation_Rate";
+                        try {
+                            getIntersectingForecastsTilesFromWMTSService(
+                                    layerName, tileMatrixSet, p, r, wisseyBounds, ss.getS_Wissey(), overwrite);
+                        } catch (Exception ex) {
+                            Logger.getLogger(SARIC_MetOfficeScraper.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                        try {
+                            getIntersectingForecastsTilesFromWMTSService(
+                                    layerName, tileMatrixSet, p, r, teifiBounds, ss.getS_Teifi(), overwrite);
+                        } catch (Exception ex) {
+                            Logger.getLogger(SARIC_MetOfficeScraper.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }
+                }
+
+                if (ObservationsSiteList) {
+                    getObservationsSiteList();
+                }
+
+                if (ForecastsSiteList) {
+                    boolean ForecastsForSitesDaily;
+                    boolean ForecastsForSites3Hourly;
+                    ForecastsForSitesDaily = true;
+                    ForecastsForSites3Hourly = true;
+                    String time;
+                    if (ForecastsForSitesDaily) {
+                        time = ss.getS_daily();
+                        getForecastsSiteCapabilities(time);
+                        getForecastsSiteList(time);
+                    }
+                    if (ForecastsForSites3Hourly) {
+                        time = ss.getS_3hourly();
+                        getForecastsSiteCapabilities(time);
+                        getForecastsSiteList(time);
+                    }
+                }
+
+                if (ForecastsForSites) {
+                    // Switches
+                    boolean ForecastsForSites3Hourly;
+                    boolean ForecastsForSitesDaily;
+                    ForecastsForSites3Hourly = true;
+//                ForecastsForSites3Hourly = false;
+//                ForecastsForSitesDaily = true;
+                    ForecastsForSitesDaily = false;
+                    String time;
+                    File forecastsSiteCapabilities;
+                    String[] timeRange;
+                    if (ForecastsForSites3Hourly) {
+                        time = ss.getS_3hourly();
+                        forecastsSiteCapabilities = getForecastsSiteCapabilities(time);
+                        timeRange = getTimeRange(forecastsSiteCapabilities);
+                        getForecastsForSites(ss.getS_Wissey(), null, time, timeRange[0]);
+                        getForecastsForSites(ss.getS_Teifi(), null, time, timeRange[0]);
+                    }
+                    if (ForecastsForSitesDaily) {
+                        time = ss.getS_daily();
+                        forecastsSiteCapabilities = getForecastsSiteCapabilities(time);
+                        timeRange = getTimeRange(forecastsSiteCapabilities);
+                        getForecastsForSites(ss.getS_Wissey(), null, time, timeRange[0]);
+                        getForecastsForSites(ss.getS_Teifi(), null, time, timeRange[0]);
+                    }
+                }
+
+                if (ObservationsForSites) {
+                    /**
+                     * The UK observations data feeds provide access to the
+                     * hourly weather observations made over the 24 hour period
+                     * preceding the time at which the web service was last
+                     * updated. Observation data is only collected at some of
+                     * the sites for which forecasts are provided.
+                     */
+                    File observationsSiteCapabilities;
+                    observationsSiteCapabilities = getObservationsSiteCapabilities();
+                    String[] timeRange;
+                    timeRange = getTimeRange(observationsSiteCapabilities);
+                    BigDecimal buffer;
+//            buffer = new BigDecimal(20000.0d);
+//            buffer = new BigDecimal(30000.0d);
+//            buffer = new BigDecimal(40000.0d);
+                    buffer = new BigDecimal(60000.0d);
+                    if (lastSiteObservationsTime0 == null) {
+                        lastSiteObservationsTime0 = timeRange[2];
+                        getObservationsForSites(ss.getS_Wissey(), buffer, timeRange[0]);
+                        getObservationsForSites(ss.getS_Teifi(), buffer, timeRange[0]);
+                    } else {
+                        if (lastSiteObservationsTime0.equalsIgnoreCase(timeRange[2])) {
+                            // Do nothing as we already have all the data.
+                        } else {
+                            getObservationsForSites(ss.getS_Wissey(), buffer, timeRange[0]);
+                            getObservationsForSites(ss.getS_Teifi(), buffer, timeRange[0]);
+                        }
+                    }
+                }
+
+                synchronized (this) {
+                    try {
+                        this.wait(timeDelay);
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(SARIC_MetOfficeScraper.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    System.out.println("Waited " + uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Time.getTime(timeDelay) + ".");
+                }
+                i++;
+            }
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
             synchronized (this) {
                 try {
                     this.wait(timeDelay);
@@ -461,7 +482,7 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
                 }
                 System.out.println("Waited " + uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Time.getTime(timeDelay) + ".");
             }
-            i++;
+            run();
         }
     }
 
@@ -503,7 +524,7 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
      */
     protected File getForecastsSite(String siteID, String res, String timeRange) {
         File result;
-        path = sf.getValDataTypePath(dataType, ss.getS_wxfcs())                + siteID;
+        path = sf.getValDataTypePath(dataType, ss.getS_wxfcs()) + siteID;
         url = BASE_URL
                 + path
                 + ss.symbol_questionmark
@@ -546,7 +567,7 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
      */
     protected File getObservationsSite(String siteID, String timeRange) {
         File result;
-        path = sf.getValDataTypePath(dataType, ss.getS_wxobs())                + siteID;
+        path = sf.getValDataTypePath(dataType, ss.getS_wxobs()) + siteID;
         String res;
         res = ss.getS_hourly();
         url = BASE_URL
