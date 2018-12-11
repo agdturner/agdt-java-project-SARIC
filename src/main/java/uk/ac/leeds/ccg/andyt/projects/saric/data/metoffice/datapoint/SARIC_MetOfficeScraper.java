@@ -34,7 +34,7 @@ import java.util.Iterator;
 import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import uk.ac.leeds.ccg.andyt.generic.io.Generic_StaticIO;
+import uk.ac.leeds.ccg.andyt.generic.io.Generic_IO;
 //import uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Time;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Strings;
@@ -43,7 +43,7 @@ import uk.ac.leeds.ccg.andyt.projects.saric.data.catchment.SARIC_Wissey;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.site.SARIC_Site;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.site.SARIC_SiteHandler;
 import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
-import uk.ac.leeds.ccg.andyt.generic.utilities.time.Generic_Time;
+import uk.ac.leeds.ccg.andyt.generic.time.Generic_Time;
 import uk.ac.leeds.ccg.andyt.vector.core.Vector_Environment;
 import uk.ac.leeds.ccg.andyt.vector.geometry.Vector_Envelope2D;
 import uk.ac.leeds.ccg.andyt.vector.geometry.Vector_Point2D;
@@ -207,7 +207,7 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
             int permittedConnectionsPerHour;
             permittedConnectionsPerHour = 100 * 60;
             permittedConnectionRate = permittedConnectionsPerHour
-                    / (double) uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Time.MilliSecondsInHour;
+                    / (double) uk.ac.leeds.ccg.andyt.generic.util.Generic_Time.MilliSecondsInHour;
 
             // Read API_KEY from file
             API_KEY = getAPI_KEY();
@@ -468,7 +468,7 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
                     } catch (InterruptedException ex) {
                         Logger.getLogger(SARIC_MetOfficeScraper.class.getName()).log(Level.SEVERE, null, ex);
                     }
-                    System.out.println("Waited " + uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Time.getTime(timeDelay) + ".");
+                    System.out.println("Waited " + uk.ac.leeds.ccg.andyt.generic.util.Generic_Time.getTime(timeDelay) + ".");
                 }
                 i++;
             }
@@ -480,7 +480,7 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
                 } catch (InterruptedException ex) {
                     Logger.getLogger(SARIC_MetOfficeScraper.class.getName()).log(Level.SEVERE, null, ex);
                 }
-                System.out.println("Waited " + uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Time.getTime(timeDelay) + ".");
+                System.out.println("Waited " + uk.ac.leeds.ccg.andyt.generic.util.Generic_Time.getTime(timeDelay) + ".");
             }
             run();
         }
@@ -534,7 +534,7 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
         //System.out.println(url);
         // Reset path
         String currentTime;
-        currentTime = uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Time.getDateAndTimeHourDir();
+        currentTime = uk.ac.leeds.ccg.andyt.generic.util.Generic_Time.getDateAndTimeHourDir();
         path = sf.getValDataTypePath(dataType, ss.getS_wxfcs())
                 + ss.getS_site() + ss.symbol_backslash
                 + res + ss.symbol_backslash
@@ -1241,7 +1241,7 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
         outputDir.mkdirs();
         File xml;
         xml = new File(outputDir, name + "." + dataType);
-//        xml = Generic_StaticIO.createNewFile(
+//        xml = Generic_IO.createNewFile(
 //                outputDir,
 //                name + "." + dataType);
         // http://datapoint.metoffice.gov.uk/public/data/val/wxfcs/all/xml/sitelist?res=daily&key=382c1804-3077-48cf-a301-f6f95e396794
@@ -1280,7 +1280,7 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
         File f;
         f = sf.getInputDataMetOfficeDataPointAPIKeyFile();
         ArrayList<String> l;
-        l = Generic_StaticIO.readIntoArrayList_String(f);
+        l = Generic_IO.readIntoArrayList_String(f);
         return l.get(0);
 //        return "<" + l.get(0) + ">";
     }
@@ -1294,7 +1294,7 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
         HttpURLConnection connection;
         BufferedInputStream bis;
         BufferedOutputStream bos;
-        bos = Generic_StaticIO.getBufferedOutputStream(f);
+        bos = Generic_IO.getBufferedOutputStream(f);
         String line;
         try {
             connection = getOpenHttpURLConnection(url);
@@ -1356,7 +1356,7 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
         boolean append;
         append = false;
         BufferedWriter bw;
-        bw = Generic_StaticIO.getBufferedWriter(f, append);
+        bw = Generic_IO.getBufferedWriter(f, append);
         String line;
         try {
             connection = getOpenHttpURLConnection(url);
@@ -1444,9 +1444,9 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
 
         File outfile;
         outfile = getSitesFile(ss.getS_Wissey(), buffer, dir);
-        Generic_StaticIO.writeObject(sitesInWissey, outfile);
+        Generic_IO.writeObject(sitesInWissey, outfile);
         outfile = getSitesFile(ss.getS_Teifi(), buffer, dir);
-        Generic_StaticIO.writeObject(sitesInTeifi, outfile);
+        Generic_IO.writeObject(sitesInTeifi, outfile);
     }
 
     protected File getSitesFile(String name, BigDecimal buffer, File dir) {
@@ -1464,7 +1464,7 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
         HashSet<SARIC_Site> result;
         File f;
         f = getSitesFile(name, buffer, dir);
-        result = (HashSet<SARIC_Site>) Generic_StaticIO.readObject(f);
+        result = (HashSet<SARIC_Site>) Generic_IO.readObject(f);
         return result;
     }
 

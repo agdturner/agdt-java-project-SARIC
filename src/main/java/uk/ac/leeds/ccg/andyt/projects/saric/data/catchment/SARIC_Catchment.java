@@ -39,7 +39,7 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import uk.ac.leeds.ccg.andyt.geotools.core.Geotools_Environment;
 import uk.ac.leeds.ccg.andyt.geotools.Geotools_Shapefile;
-import uk.ac.leeds.ccg.andyt.generic.math.Generic_BigDecimal;
+import uk.ac.leeds.ccg.andyt.math.Generic_BigDecimal;
 import uk.ac.leeds.ccg.andyt.grids.core.Grids_Dimensions;
 import uk.ac.leeds.ccg.andyt.grids.core.Grids_Environment;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_GridDouble;

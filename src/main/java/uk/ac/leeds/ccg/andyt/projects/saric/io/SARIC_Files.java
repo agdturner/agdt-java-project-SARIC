@@ -21,7 +21,7 @@ package uk.ac.leeds.ccg.andyt.projects.saric.io;
 import java.io.File;
 import uk.ac.leeds.ccg.andyt.generic.io.Generic_Files;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Strings;
-import uk.ac.leeds.ccg.andyt.generic.utilities.time.Generic_Date;
+import uk.ac.leeds.ccg.andyt.generic.time.Generic_Date;
 
 /**
  *
@@ -226,7 +226,7 @@ public class SARIC_Files extends Generic_Files {
         if (InputDataDir == null) {
             InputDataDir = new File(
                     getDataDir(),
-                    Strings.getS_input());
+                    Strings.s_input);
         }
         return InputDataDir;
     }

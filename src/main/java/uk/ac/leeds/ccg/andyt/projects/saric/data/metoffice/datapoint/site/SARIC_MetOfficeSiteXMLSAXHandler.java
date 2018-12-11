@@ -28,7 +28,7 @@ import org.xml.sax.helpers.DefaultHandler;
 import org.apache.xerces.parsers.SAXParser;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
-import uk.ac.leeds.ccg.andyt.generic.utilities.time.Generic_Time;
+import uk.ac.leeds.ccg.andyt.generic.time.Generic_Time;
 
 /**
  *

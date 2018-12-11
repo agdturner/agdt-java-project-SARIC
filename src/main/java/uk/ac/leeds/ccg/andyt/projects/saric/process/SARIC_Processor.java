@@ -33,7 +33,7 @@ import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Object;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.SARIC_MetOfficeScraper;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.nimrod.SARIC_NIMRODDataHandler;
-import uk.ac.leeds.ccg.andyt.generic.utilities.time.Generic_Time;
+import uk.ac.leeds.ccg.andyt.generic.time.Generic_Time;
 
 /**
  * This is the main processor/controller for SARIC processing. Everything is
@@ -99,8 +99,19 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
 //            RunSARIC_DataForLex = true;
 //            RunSARIC_ProcessNIMROD = true;
 //            RunSARIC_RainfallStatistics = true;
-
+            RunCatchup = true;
             RunSARIC_FullWorkflow = true;
+
+            /**
+             * Run catchup
+             */
+            if (RunCatchup) {
+                doRunSARIC_MetOfficeScraper(null, 0, true);
+                // Wait for 5 minutes
+                TimeUnit.MINUTES.sleep(5);
+                doRunSARIC_ImageProcessor();
+                RunSARIC_DataForLex = true;
+            }
             /**
              * RunProjectShapefiles
              */
@@ -206,11 +217,12 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
             fiveam = midnight + TimeUnit.HOURS.toMinutes(5);
             ScheduledExecutorService scheduler;
             scheduler = Executors.newScheduledThreadPool(1);
-            // Start the scraper now and keep it running
-            doRunSARIC_MetOfficeScraper(null, 0, true);
+            // Start the scraper now and keep it running if it is not already running.
+            if (!RunCatchup) {
+                doRunSARIC_MetOfficeScraper(null, 0, true);
+            }
             // Kick the scraper at 4am to get all the latest results before processing them.
             doRunSARIC_MetOfficeScraper(scheduler, fouram, false);
-            // Schedule for 5am.
             System.out.println("Scheduling processing...");
             // For ImageProcessing of Observations
             SARIC_ImageProcessor[] pIPO;
@@ -379,7 +391,7 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
             ForecastsForSites = false;
             ForecastsForSites = false;
             ObservationsForSites = false;
-            timeDelay = (long) (uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Time.MilliSecondsInHour * 2.75);
+            timeDelay = (long) (uk.ac.leeds.ccg.andyt.generic.util.Generic_Time.MilliSecondsInHour * 2.75);
             name = "CalculateSitesInStudyAreas";
             overwrite = false;
             SARIC_MetOfficeScraper p;
@@ -420,7 +432,7 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
             ForecastsForSites = true;
             ObservationsSiteList = false;
             ObservationsForSites = false;
-            timeDelay = (long) (uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Time.MilliSecondsInHour * 1);
+            timeDelay = (long) (uk.ac.leeds.ccg.andyt.generic.util.Generic_Time.MilliSecondsInHour * 1);
             name = "Forecasts";
             overwrite = false;
             SARIC_MetOfficeScraper p;
@@ -438,7 +450,8 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
                 t = new Thread(p);
                 t.start();
             } else {
-                scheduler.scheduleAtFixedRate(p, timeAfterMidnightInMinutes, TimeUnit.DAYS.toMinutes(1), TimeUnit.MINUTES);
+                //scheduler.scheduleAtFixedRate(p, timeAfterMidnightInMinutes, TimeUnit.DAYS.toMinutes(1), TimeUnit.MINUTES);
+                scheduler.scheduleAtFixedRate(p, timeAfterMidnightInMinutes, 1, TimeUnit.HOURS);
             }
         }
 
@@ -454,7 +467,7 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
             ForecastsForSites = false;
             ObservationsForSites = true;
             ObservationsSiteList = true;
-            timeDelay = (long) (uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Time.MilliSecondsInHour * 5.5);
+            timeDelay = (long) (uk.ac.leeds.ccg.andyt.generic.util.Generic_Time.MilliSecondsInHour * 5.5);
             name = "Observations";
             overwrite = false;
             SARIC_MetOfficeScraper p;
@@ -500,7 +513,7 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
             if (doObservationsTileFromWMTSService) {
                 ObservationsTileFromWMTSService = true;
                 ForecastsTileFromWMTSService = false;
-                timeDelay = (long) (uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Time.MilliSecondsInHour * 19);
+                timeDelay = (long) (uk.ac.leeds.ccg.andyt.generic.util.Generic_Time.MilliSecondsInHour * 1);
                 name = "Higher Resolution Tiled Forecasts and Observations";
                 overwrite = false;
                 SARIC_MetOfficeScraper p;
@@ -518,7 +531,8 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
                     t = new Thread(p);
                     t.start();
                 } else {
-                    scheduler.scheduleAtFixedRate(p, timeAfterMidnightInMinutes, TimeUnit.DAYS.toMinutes(1), TimeUnit.MINUTES);
+                    //scheduler.scheduleAtFixedRate(p, timeAfterMidnightInMinutes, TimeUnit.DAYS.toMinutes(1), TimeUnit.MINUTES);
+                    scheduler.scheduleAtFixedRate(p, timeAfterMidnightInMinutes, 1, TimeUnit.HOURS);
                 }
             }
             if (doForecastsTileFromWMTSService) {
@@ -526,7 +540,8 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
                 CalculateObservationsSitesInStudyAreas = false;
                 ObservationsTileFromWMTSService = false;
                 ForecastsTileFromWMTSService = true;
-                timeDelay = (long) (uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Time.MilliSecondsInHour * 6);
+                //timeDelay = (long) (uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Time.MilliSecondsInHour * 6);
+                timeDelay = (long) (uk.ac.leeds.ccg.andyt.generic.util.Generic_Time.MilliSecondsInHour * 1);
                 name = "Higher Resolution Tiled Forecasts and Observations";
                 overwrite = false;
                 SARIC_MetOfficeScraper p;
@@ -544,7 +559,8 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
                     t = new Thread(p);
                     t.start();
                 } else {
-                    scheduler.scheduleAtFixedRate(p, timeAfterMidnightInMinutes, 6, TimeUnit.HOURS);
+                    //scheduler.scheduleAtFixedRate(p, timeAfterMidnightInMinutes, 6, TimeUnit.HOURS);
+                    scheduler.scheduleAtFixedRate(p, timeAfterMidnightInMinutes, 1, TimeUnit.HOURS);
                 }
             }
         }
@@ -664,6 +680,7 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
     boolean RunSARIC_DataForWASIM2 = false;
     boolean RunSARIC_DataForLex = false;
     boolean RunSARIC_FullWorkflow = false;
+    boolean RunCatchup = false;
     boolean RunSARIC_ProcessNIMROD = false;
     boolean RunSARIC_RainfallStatistics = false;
 }

@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.TreeSet;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Object;
-import uk.ac.leeds.ccg.andyt.generic.utilities.time.Generic_Time;
+import uk.ac.leeds.ccg.andyt.generic.time.Generic_Time;
 import uk.ac.leeds.ccg.andyt.vector.geometry.Vector_Envelope2D;
 
 /**

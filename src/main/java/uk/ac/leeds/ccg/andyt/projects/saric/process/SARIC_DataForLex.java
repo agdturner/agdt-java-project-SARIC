@@ -33,7 +33,7 @@ import org.geotools.data.DataUtilities;
 import org.geotools.feature.SchemaException;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
-import uk.ac.leeds.ccg.andyt.generic.io.Generic_StaticIO;
+import uk.ac.leeds.ccg.andyt.generic.io.Generic_IO;
 import uk.ac.leeds.ccg.andyt.geotools.Geotools_Shapefile;
 import uk.ac.leeds.ccg.andyt.grids.core.Grids_Environment;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_GridDouble;
@@ -48,9 +48,9 @@ import uk.ac.leeds.ccg.andyt.projects.saric.data.catchment.SARIC_Catchment;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.catchment.SARIC_Teifi;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.catchment.SARIC_Wissey;
 import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
-import uk.ac.leeds.ccg.andyt.generic.utilities.time.Generic_Date;
-import uk.ac.leeds.ccg.andyt.generic.utilities.time.Generic_Time;
-import uk.ac.leeds.ccg.andyt.generic.utilities.time.Generic_YearMonth;
+import uk.ac.leeds.ccg.andyt.generic.time.Generic_Date;
+import uk.ac.leeds.ccg.andyt.generic.time.Generic_Time;
+import uk.ac.leeds.ccg.andyt.generic.time.Generic_YearMonth;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.lex.SARIC_LexRecord;
 import static uk.ac.leeds.ccg.andyt.projects.saric.process.SARIC_ImageProcessor.getEstimateName;
 import uk.ac.leeds.ccg.andyt.vector.core.Vector_Environment;
@@ -532,7 +532,7 @@ public class SARIC_DataForLex extends SARIC_Object implements Runnable {
      */
     PrintWriter initialisePrintWriter(File f) {
         PrintWriter result;
-        result = Generic_StaticIO.getPrintWriter(f, false);
+        result = Generic_IO.getPrintWriter(f, false);
         result.println(//"ID,EASTING,NORTHING,"
                 "ID,Col,Row,Northing,Easting,"
                 + "NumberOfDaysSinceLastRainfallEventGT2mm,"

@@ -52,8 +52,8 @@ import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.site.SARIC_
 import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.site.SARIC_Site;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.site.SARIC_SiteForecastRecord;
 import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
-import uk.ac.leeds.ccg.andyt.generic.utilities.time.Generic_Date;
-import uk.ac.leeds.ccg.andyt.generic.utilities.time.Generic_Time;
+import uk.ac.leeds.ccg.andyt.generic.time.Generic_Date;
+import uk.ac.leeds.ccg.andyt.generic.time.Generic_Time;
 //import uk.ac.leeds.ccg.andyt.generic.utilities.time.Generic_YearMonth;
 import uk.ac.leeds.ccg.andyt.projects.saric.visualisation.SARIC_Colour;
 import uk.ac.leeds.ccg.andyt.vector.geometry.Vector_Envelope2D;
@@ -637,14 +637,16 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                                         // Get estimate of total rainfall.
                                         estimate0 = 0.0d;
                                         Iterator<Generic_Time> ite2;
-                                        Generic_Time t0;
+                                        Generic_Time t0 = null;
                                         Generic_Time t1;
                                         ite2 = forecastsForTime.keySet().iterator();
 
                                         double normalisedEstimate = 0.0d;
-                                        t0 = ite2.next();
-                                        if (t0.isSameDay(date1)) {
-                                            estimate0 += getEstimateFromPoint(forecastsForTime.get(t0));
+                                        while (ite2.hasNext()) {
+                                            t0 = ite2.next();
+                                            if (t0.isSameDay(date1)) {
+                                                estimate0 += getEstimateFromPoint(forecastsForTime.get(t0));
+                                            }
                                         }
                                         while (ite2.hasNext()) {
                                             t1 = ite2.next();
@@ -1095,11 +1097,11 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
 //                                      if (v > 100) {
 //                                          int debug = 1;
 //                                      }
-                                        if (v < 0) {
-                                            int debug = 1;
-                                        }
+                                    if (v < 0) {
+                                        int debug = 1;
+                                    }
 //                                        
-                                    b1KMGrid.addToCell(row, col, v); 
+                                    b1KMGrid.addToCell(row, col, v);
                                 }
                             } else {
                                 System.out.println("v0 != noDataValue && v1 != noDataValue fdsfdksfd");

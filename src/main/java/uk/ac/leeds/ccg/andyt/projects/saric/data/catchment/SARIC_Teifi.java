@@ -23,7 +23,7 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.HashSet;
 import uk.ac.leeds.ccg.andyt.geotools.Geotools_Shapefile;
-import uk.ac.leeds.ccg.andyt.generic.io.Generic_StaticIO;
+import uk.ac.leeds.ccg.andyt.generic.io.Generic_IO;
 import uk.ac.leeds.ccg.andyt.grids.core.Grids_2D_ID_long;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.site.SARIC_Site;
@@ -130,11 +130,11 @@ public class SARIC_Teifi extends SARIC_Catchment {
         File f;
         f = Files.getGeneratedDataMetOfficeDataPointForecastsSitesInTeifiFile();
         if (f.exists()) {
-            result = (HashSet<SARIC_Site>) Generic_StaticIO.readObject(f);
+            result = (HashSet<SARIC_Site>) Generic_IO.readObject(f);
         } else {
             f.getParentFile().mkdirs();
             result = super.getForecastsSitesInStudyArea(time);
-            Generic_StaticIO.writeObject(result, f);
+            Generic_IO.writeObject(result, f);
         }
         return result;
     }

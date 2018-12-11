@@ -37,7 +37,7 @@ import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
-import uk.ac.leeds.ccg.andyt.generic.io.Generic_StaticIO;
+import uk.ac.leeds.ccg.andyt.generic.io.Generic_IO;
 import uk.ac.leeds.ccg.andyt.geotools.Geotools_Shapefile;
 import uk.ac.leeds.ccg.andyt.grids.core.Grids_Environment;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_GridDouble;
@@ -53,8 +53,8 @@ import uk.ac.leeds.ccg.andyt.projects.saric.data.catchment.SARIC_Teifi;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.catchment.SARIC_Wissey;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.wasim.SARIC_WASIMRecord;
 import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
-import uk.ac.leeds.ccg.andyt.generic.utilities.time.Generic_Date;
-import uk.ac.leeds.ccg.andyt.generic.utilities.time.Generic_Time;
+import uk.ac.leeds.ccg.andyt.generic.time.Generic_Date;
+import uk.ac.leeds.ccg.andyt.generic.time.Generic_Time;
 import uk.ac.leeds.ccg.andyt.vector.core.Vector_Environment;
 import uk.ac.leeds.ccg.andyt.vector.projection.Vector_OSGBtoLatLon;
 
@@ -369,7 +369,7 @@ public class SARIC_DataForWASIM2 extends SARIC_Object implements Runnable {
      */
     PrintWriter initialisePrintWriter(File f) {
         PrintWriter result;
-        result = Generic_StaticIO.getPrintWriter(f, false);
+        result = Generic_IO.getPrintWriter(f, false);
         result.println("ID,EASTING,NORTHING,NumberOfDaysSinceLast2mmRainfall,"
                 + "TotalAccumulatedRainfallOverTheLast10Days,"
                 + "ObservedRainfallInTheLast24Hours,"

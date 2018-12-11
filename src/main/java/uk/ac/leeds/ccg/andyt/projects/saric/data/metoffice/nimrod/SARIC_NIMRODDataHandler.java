@@ -28,7 +28,7 @@ import java.math.BigDecimal;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import uk.ac.leeds.ccg.andyt.generic.io.Generic_StaticIO;
+import uk.ac.leeds.ccg.andyt.generic.io.Generic_IO;
 import uk.ac.leeds.ccg.andyt.grids.core.Grids_Dimensions;
 import uk.ac.leeds.ccg.andyt.grids.core.Grids_Environment;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_GridDouble;
@@ -44,8 +44,8 @@ import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Strings;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.catchment.SARIC_Teifi;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.catchment.SARIC_Wissey;
 import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
-import uk.ac.leeds.ccg.andyt.generic.utilities.time.Generic_Date;
-import uk.ac.leeds.ccg.andyt.generic.utilities.time.Generic_Time;
+import uk.ac.leeds.ccg.andyt.generic.time.Generic_Date;
+import uk.ac.leeds.ccg.andyt.generic.time.Generic_Time;
 import uk.ac.leeds.ccg.andyt.projects.saric.visualisation.SARIC_Colour;
 
 /**
@@ -207,21 +207,21 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
                     // Set archive for storing grids
                     if (generatedDir2 == null) {
 //                        try {
-//                            Generic_StaticIO.initialiseArchive(generatedDir1, range, maxID);
+//                            Generic_IO.initialiseArchive(generatedDir1, range, maxID);
 //                        } catch (IOException ex) {
 //                            Logger.getLogger(SARIC_NIMRODDataHandler.class.getName()).Log(Level.SEVERE, null, ex);
 //                        }
-//                        generatedDir2 = Generic_StaticIO.getObjectDirectory(
+//                        generatedDir2 = Generic_IO.getObjectDirectory(
 //                                generatedDir1,
 //                                GridID,
 //                                maxID,
 //                                range);
-                        Generic_StaticIO.initialiseArchive(generatedDir1, range);
-                        generatedDir2 = Generic_StaticIO.getObjectDirectory(
+                        Generic_IO.initialiseArchive(generatedDir1, range);
+                        generatedDir2 = Generic_IO.getObjectDirectory(
                                 generatedDir1, GridID, GridID, range);
                     } else {
                         GridID++;
-                        generatedDir2 = Generic_StaticIO.addToArchive(
+                        generatedDir2 = Generic_IO.addToArchive(
                                 generatedDir1, range, GridID);
                     }
                     generatedDir2.mkdirs();

@@ -20,7 +20,7 @@ package uk.ac.leeds.ccg.andyt.projects.saric.io;
 
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import uk.ac.leeds.ccg.andyt.generic.io.Generic_XMLDOMReader;
+import uk.ac.leeds.ccg.andyt.data.format.Generic_XMLDOMReader;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
 

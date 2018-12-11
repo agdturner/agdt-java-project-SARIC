@@ -20,7 +20,7 @@ package uk.ac.leeds.ccg.andyt.projects.saric.core;
 
 
 import uk.ac.leeds.ccg.andyt.generic.core.Generic_Environment;
-import uk.ac.leeds.ccg.andyt.generic.utilities.time.Generic_Time;
+import uk.ac.leeds.ccg.andyt.generic.time.Generic_Time;
 import uk.ac.leeds.ccg.andyt.geotools.core.Geotools_Environment;
 import uk.ac.leeds.ccg.andyt.grids.core.Grids_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.catchment.SARIC_Teifi;
