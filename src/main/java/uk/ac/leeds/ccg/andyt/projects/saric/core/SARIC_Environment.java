@@ -18,7 +18,7 @@
  */
 package uk.ac.leeds.ccg.andyt.projects.saric.core;
 
-
+import java.io.File;
 import uk.ac.leeds.ccg.andyt.generic.core.Generic_Environment;
 import uk.ac.leeds.ccg.andyt.generic.time.Generic_Time;
 import uk.ac.leeds.ccg.andyt.geotools.core.Geotools_Environment;
@@ -50,9 +50,9 @@ public class SARIC_Environment extends Generic_Environment {
     protected SARIC_Environment() {
     }
 
-    public SARIC_Environment(String dataDir) {
+    public SARIC_Environment(File dataDir) {
         Strings = new SARIC_Strings();
-        Files = new SARIC_Files(getStrings(),dataDir);
+        Files = new SARIC_Files(getStrings(), dataDir);
         MetOfficeParameters = new SARIC_MetOfficeParameters();
         Grids_Env = new Grids_Environment(getFiles().getGeneratedDataGridsDir());
         Vector_Env = new Vector_Environment(Grids_Env);
@@ -64,6 +64,7 @@ public class SARIC_Environment extends Generic_Environment {
         return (SARIC_Files) Files;
     }
     
+    @Override
     public final SARIC_Strings getStrings(){
         return (SARIC_Strings) Strings;
     }
@@ -71,7 +72,6 @@ public class SARIC_Environment extends Generic_Environment {
     public void setTime(Generic_Time time) {
         Time = time;
     }
-    
 
     public SARIC_MetOfficeParameters getMetOfficeParameters() {
         return MetOfficeParameters;

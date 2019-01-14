@@ -29,8 +29,6 @@ import uk.ac.leeds.ccg.andyt.generic.time.Generic_Date;
  */
 public class SARIC_Files extends Generic_Files {
 
-    protected SARIC_Strings Strings;
-
     protected File InputDataCatchmentBoundariesDir;
     protected File InputDataCEHDir;
     protected File InputDataMetOfficeDir;
@@ -62,16 +60,18 @@ public class SARIC_Files extends Generic_Files {
     protected SARIC_Files() {
     }
 
-    public SARIC_Files(String dataDirName) {
-        Strings = new SARIC_Strings();
-        setDataDirectory(dataDirName);
+    public SARIC_Files(SARIC_Strings s) {
+        super(s);
     }
 
-    public SARIC_Files(SARIC_Strings strings, String dataDirName) {
-        Strings = strings;
-        setDataDirectory(dataDirName);
+    public SARIC_Files(SARIC_Strings s, File dataDir) {
+        super(s, dataDir);
     }
 
+    public SARIC_Strings getStrings() {
+        return (SARIC_Strings) Strings;
+    }
+    
     /**
      * @param dir
      * @param t
@@ -90,8 +90,8 @@ public class SARIC_Files extends Generic_Files {
 
     public File getOutputDataMetOfficeDir() {
         if (OutputDataMetOfficeDir == null) {
-            OutputDataMetOfficeDir = new File(getOutputDataDir(Strings),
-                    Strings.getS_MetOffice());
+            OutputDataMetOfficeDir = new File(getOutputDataDir(),
+                    getStrings().getS_MetOffice());
         }
         return OutputDataMetOfficeDir;
     }
@@ -100,7 +100,7 @@ public class SARIC_Files extends Generic_Files {
         if (OutputDataMetOfficeDataPointDir == null) {
             OutputDataMetOfficeDataPointDir = new File(
                     getOutputDataMetOfficeDir(),
-                    Strings.getS_DataPoint());
+                    getStrings().getS_DataPoint());
         }
         return OutputDataMetOfficeDataPointDir;
     }
@@ -109,7 +109,7 @@ public class SARIC_Files extends Generic_Files {
         if (OutputDataMetOfficeNimrodDir == null) {
             OutputDataMetOfficeNimrodDir = new File(
                     getOutputDataMetOfficeDir(),
-                    Strings.getS_Nimrod());
+                    getStrings().getS_Nimrod());
         }
         return OutputDataMetOfficeNimrodDir;
     }
@@ -117,8 +117,8 @@ public class SARIC_Files extends Generic_Files {
     public File getGeneratedDataCatchmentBoundariesDir() {
         if (GeneratedDataCatchmentDir == null) {
             GeneratedDataCatchmentDir = new File(
-                    getGeneratedDataDir(Strings),
-                    Strings.getS_Catchment());
+                    getGeneratedDataDir(),
+                    getStrings().getS_Catchment());
         }
         return GeneratedDataCatchmentDir;
     }
@@ -126,8 +126,8 @@ public class SARIC_Files extends Generic_Files {
     public File getGeneratedDataGridsDir() {
         if (GeneratedDataGridsDir == null) {
             GeneratedDataGridsDir = new File(
-                    getGeneratedDataDir(Strings),
-                    Strings.getS_Grids());
+                    getGeneratedDataDir(),
+                    getStrings().getS_Grids());
         }
         return GeneratedDataGridsDir;
     }
@@ -136,7 +136,7 @@ public class SARIC_Files extends Generic_Files {
         if (GeneratedDataGridsGridDoubleFactoryDir == null) {
             GeneratedDataGridsGridDoubleFactoryDir = new File(
                     getGeneratedDataGridsDir(),
-                    Strings.getS_GridDoubleFactory());
+                    getStrings().getS_GridDoubleFactory());
         }
         return GeneratedDataGridsGridDoubleFactoryDir;
     }
@@ -144,8 +144,8 @@ public class SARIC_Files extends Generic_Files {
     public File getGeneratedDataMetOfficeDir() {
         if (GeneratedDataMetOfficeDir == null) {
             GeneratedDataMetOfficeDir = new File(
-                    getGeneratedDataDir(Strings),
-                    Strings.getS_MetOffice());
+                    getGeneratedDataDir(),
+                    getStrings().getS_MetOffice());
         }
         return GeneratedDataMetOfficeDir;
     }
@@ -154,7 +154,7 @@ public class SARIC_Files extends Generic_Files {
         if (GeneratedDataMetOfficeNimrodDir == null) {
             GeneratedDataMetOfficeNimrodDir = new File(
                     getGeneratedDataMetOfficeDir(),
-                    Strings.getS_Nimrod());
+                    getStrings().getS_Nimrod());
         }
         return GeneratedDataMetOfficeNimrodDir;
     }
@@ -163,7 +163,7 @@ public class SARIC_Files extends Generic_Files {
         if (GeneratedDataMetOfficeDataPointDir == null) {
             GeneratedDataMetOfficeDataPointDir = new File(
                     getGeneratedDataMetOfficeDir(),
-                    Strings.getS_DataPoint());
+                    getStrings().getS_DataPoint());
         }
         return GeneratedDataMetOfficeDataPointDir;
     }
@@ -172,7 +172,7 @@ public class SARIC_Files extends Generic_Files {
         if (GeneratedDataMetOfficeDataPointForecastsDir == null) {
             GeneratedDataMetOfficeDataPointForecastsDir = new File(
                     getGeneratedDataMetOfficeDataPointDir(),
-                    Strings.getS_Forecasts());
+                    getStrings().getS_Forecasts());
         }
         return GeneratedDataMetOfficeDataPointForecastsDir;
     }
@@ -181,7 +181,7 @@ public class SARIC_Files extends Generic_Files {
         if (GeneratedDataMetOfficeDataPointForecastsSitesDir == null) {
             GeneratedDataMetOfficeDataPointForecastsSitesDir = new File(
                     getGeneratedDataMetOfficeDataPointForecastsDir(),
-                    Strings.getS_Sites());
+                    getStrings().getS_Sites());
         }
         return GeneratedDataMetOfficeDataPointForecastsSitesDir;
     }
@@ -190,7 +190,7 @@ public class SARIC_Files extends Generic_Files {
         if (GeneratedDataMetOfficeDataPointForecastsSitesInTeifiFile == null) {
             GeneratedDataMetOfficeDataPointForecastsSitesInTeifiFile = new File(
                     getGeneratedDataMetOfficeDataPointForecastsSitesDir(),
-                    Strings.getS_Teifi() + ".dat");
+                    getStrings().getS_Teifi() + ".dat");
         }
         return GeneratedDataMetOfficeDataPointForecastsSitesInTeifiFile;
     }
@@ -199,7 +199,7 @@ public class SARIC_Files extends Generic_Files {
         if (GeneratedDataMetOfficeDataPointForecastsSitesInWisseyFile == null) {
             GeneratedDataMetOfficeDataPointForecastsSitesInWisseyFile = new File(
                     getGeneratedDataMetOfficeDataPointForecastsSitesDir(),
-                    Strings.getS_Wissey() + ".dat");
+                    getStrings().getS_Wissey() + ".dat");
         }
         return GeneratedDataMetOfficeDataPointForecastsSitesInWisseyFile;
     }
@@ -208,27 +208,17 @@ public class SARIC_Files extends Generic_Files {
         if (GeneratedDataMetOfficeDataPointForecastsDir == null) {
             GeneratedDataMetOfficeDataPointForecastsDir = new File(
                     getGeneratedDataMetOfficeDataPointDir(),
-                    Strings.getS_Observations());
+                    getStrings().getS_Observations());
         }
         return GeneratedDataMetOfficeDataPointForecastsDir;
     }
 
     public File getGeneratedDataOSMDir() {
         if (GeneratedDataOSMDir == null) {
-            GeneratedDataOSMDir = new File(
-                    getGeneratedDataDir(Strings),
-                    Strings.getS_OSM());
+            GeneratedDataOSMDir = new File(                    getGeneratedDataDir(),
+                    getStrings().getS_OSM());
         }
         return GeneratedDataOSMDir;
-    }
-
-    public File getInputDataDir() {
-        if (InputDataDir == null) {
-            InputDataDir = new File(
-                    getDataDir(),
-                    Strings.s_input);
-        }
-        return InputDataDir;
     }
 
     public File getInputDataMetOfficeDataPointAPIKeyFile() {
@@ -244,25 +234,22 @@ public class SARIC_Files extends Generic_Files {
         if (InputDataMetOfficeDataPointConfigDir == null) {
             InputDataMetOfficeDataPointConfigDir = new File(
                     getInputDataMetOfficeDataPointDir(),
-                    Strings.getS_config());
+                    getStrings().getS_config());
         }
         return InputDataMetOfficeDataPointConfigDir;
     }
 
     public File getInputDataMetOfficeDir() {
         if (InputDataMetOfficeDir == null) {
-            InputDataMetOfficeDir = new File(
-                    getInputDataDir(),
-                    Strings.getS_MetOffice());
+            InputDataMetOfficeDir = new File(                    getInputDataDir(),
+                    getStrings().getS_MetOffice());
         }
         return InputDataMetOfficeDir;
     }
 
     public File getInputDataOSMDir() {
         if (InputDataOSMDir == null) {
-            InputDataOSMDir = new File(
-                    getInputDataDir(),
-                    Strings.getS_OSM());
+            InputDataOSMDir = new File(                    getInputDataDir(),                    getStrings().getS_OSM());
         }
         return InputDataOSMDir;
     }
@@ -271,7 +258,7 @@ public class SARIC_Files extends Generic_Files {
         if (InputDataMetOfficeDataPointDir == null) {
             InputDataMetOfficeDataPointDir = new File(
                     getInputDataMetOfficeDir(),
-                    Strings.getS_DataPoint());
+                    getStrings().getS_DataPoint());
         }
         return InputDataMetOfficeDataPointDir;
     }
@@ -280,7 +267,7 @@ public class SARIC_Files extends Generic_Files {
         if (InputDataMetOfficeDataPointInspireDir == null) {
             InputDataMetOfficeDataPointInspireDir = new File(
                     getInputDataMetOfficeDataPointDir(),
-                    Strings.getS_inspire());
+                    getStrings().getS_inspire());
         }
         return InputDataMetOfficeDataPointInspireDir;
     }
@@ -289,7 +276,7 @@ public class SARIC_Files extends Generic_Files {
         if (InputDataMetOfficeDataPointInspireViewDir == null) {
             InputDataMetOfficeDataPointInspireViewDir = new File(
                     getInputDataMetOfficeDataPointInspireDir(),
-                    Strings.getS_view());
+                    getStrings().getS_view());
         }
         return InputDataMetOfficeDataPointInspireViewDir;
     }
@@ -298,7 +285,7 @@ public class SARIC_Files extends Generic_Files {
         if (InputDataMetOfficeDataPointInspireViewWmtsDir == null) {
             InputDataMetOfficeDataPointInspireViewWmtsDir = new File(
                     getInputDataMetOfficeDataPointInspireViewDir(),
-                    Strings.getS_wmts());
+                    getStrings().getS_wmts());
         }
         return InputDataMetOfficeDataPointInspireViewWmtsDir;
     }
@@ -307,7 +294,7 @@ public class SARIC_Files extends Generic_Files {
         if (InputDataMetOfficeDataPointInspireViewWmtsCapabilitiesFile == null) {
             InputDataMetOfficeDataPointInspireViewWmtsCapabilitiesFile = new File(
                     getInputDataMetOfficeDataPointInspireViewWmtsDir(),
-                    Strings.getS_capabilities() + "." + Strings.getS_xml());
+                    getStrings().getS_capabilities() + "." + getStrings().getS_xml());
         }
         return InputDataMetOfficeDataPointInspireViewWmtsCapabilitiesFile;
     }
@@ -315,14 +302,14 @@ public class SARIC_Files extends Generic_Files {
     public File getInputDataMetOfficeNimrodDir() {
         if (InputDataMetOfficeNimrodDir == null) {
             InputDataMetOfficeNimrodDir = new File(getInputDataMetOfficeDir(),
-                    Strings.getS_Nimrod());
+                    getStrings().getS_Nimrod());
         }
         return InputDataMetOfficeNimrodDir;
     }
 
     public File getInputDataCEHDir() {
         if (InputDataCEHDir == null) {
-            InputDataCEHDir = new File(getInputDataDir(), Strings.getS_CEH());
+            InputDataCEHDir = new File(getInputDataDir(), getStrings().getS_CEH());
         }
         return InputDataCEHDir;
     }
@@ -330,7 +317,7 @@ public class SARIC_Files extends Generic_Files {
     public File getInputDataCatchmentBoundariesDir() {
         if (InputDataCatchmentBoundariesDir == null) {
             InputDataCatchmentBoundariesDir = new File(getInputDataDir(),
-                    Strings.getS_CatchmentBoundaries());
+                    getStrings().getS_CatchmentBoundaries());
         }
         return InputDataCatchmentBoundariesDir;
     }
@@ -342,9 +329,10 @@ public class SARIC_Files extends Generic_Files {
      * @return
      */
     public String getValDataTypePath(String dataType, String obs_or_fcs) {
-        return Strings.getS_val() + Strings.symbol_backslash
-                + obs_or_fcs + Strings.symbol_backslash
-                + Strings.getS_all() + Strings.symbol_backslash
-                + dataType + Strings.symbol_backslash;
+        SARIC_Strings s = getStrings();
+        return s.getS_val() + s.symbol_backslash
+                + obs_or_fcs + s.symbol_backslash
+                + s.getS_all() + s.symbol_backslash
+                + dataType + s.symbol_backslash;
     }
 }

@@ -56,7 +56,7 @@ public class SARIC_MetOfficeDataPointViewer extends Geotools_DisplayShapefile {
     
     public SARIC_MetOfficeDataPointViewer(SARIC_Environment se) {
         this.se = se;
-        Files = new SARIC_Files("data"); 
+        Files = new SARIC_Files(new SARIC_Strings()); 
         _Geotools_Environment = se.getGeotools_Env();
     }
 

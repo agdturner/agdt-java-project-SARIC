@@ -356,7 +356,7 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
     File getFile(String area, Generic_Date day) {
         File result;
         File dir;
-        dir = new File(sf.getOutputDataDir(ss), "WASIM");
+        dir = new File(sf.getOutputDataDir(), "WASIM");
         dir = new File(dir, area);
         dir = new File(dir, day.getYYYYMM());
         dir = new File(dir, day.getYYYYMMDD());

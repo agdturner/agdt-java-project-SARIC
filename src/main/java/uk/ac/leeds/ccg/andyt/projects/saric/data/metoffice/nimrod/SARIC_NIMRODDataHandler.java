@@ -34,7 +34,6 @@ import uk.ac.leeds.ccg.andyt.grids.core.Grids_Environment;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_GridDouble;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.chunk.Grids_GridChunkDoubleArrayFactory;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_GridDoubleFactory;
-import uk.ac.leeds.ccg.andyt.grids.core.grid.stats.Grids_GridDoubleStatsNotUpdated;
 import uk.ac.leeds.ccg.andyt.grids.io.Grids_Files;
 import uk.ac.leeds.ccg.andyt.grids.io.Grids_ImageExporter;
 import uk.ac.leeds.ccg.andyt.grids.process.Grids_Processor;
@@ -120,22 +119,16 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
         String DD;
         String path;
         Generic_Date date;
-        File f = null;
+        File f;
 
         YYYY = "2017";
         MM = "06";
         DD = "27";
         path = "/" + YYYY + "/" + YYYY + "-" + MM + "/";
         date = new Generic_Date(se, YYYY + "-" + MM + "-" + DD);
-        inputDir = new File(
-                sf.getInputDataMetOfficeNimrodDir(),
-                path0 + path);
-        generatedDir1 = new File(
-                generatedDir0,
-                path);
-        outputDir1 = new File(
-                outputDir0,
-                path);
+        inputDir = new File(sf.getInputDataMetOfficeNimrodDir(), path0 + path);
+        generatedDir1 = new File(generatedDir0, path);
+        outputDir1 = new File(outputDir0, path);
 
         //metoffice-c-band-rain-radar_uk_201706270000_1km-composite.dat
         int numberOf5MinutePeriodsIn24Hours;
@@ -217,7 +210,7 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
 //                                maxID,
 //                                range);
                         Generic_IO.initialiseArchive(generatedDir1, range);
-                        generatedDir2 = Generic_IO.getObjectDirectory(
+                        generatedDir2 = Generic_IO.getObjectDir(
                                 generatedDir1, GridID, GridID, range);
                     } else {
                         GridID++;

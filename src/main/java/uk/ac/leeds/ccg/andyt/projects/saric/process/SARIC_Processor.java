@@ -63,21 +63,20 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
+        File dataDir;
         if (args.length != 1) {
-            System.err.println(
-                    "Expected an argument which is the location "
-                    + "of the directory containing the (input) data. "
-                    + "Aborting.");
-            System.exit(0);
+            dataDir = new File(System.getProperty("user.dir"), "data");
         } else {
-            SARIC_Environment se = new SARIC_Environment(args[0]);
-            Generic_Time st;
-            st = new Generic_Time(se);
-            se.setTime(st);
-            SARIC_Processor sp;
-            sp = new SARIC_Processor(se);
-            sp.run();
+            dataDir = new File(args[0]);
         }
+        SARIC_Environment se;
+        se = new SARIC_Environment(dataDir);
+        Generic_Time st;
+        st = new Generic_Time(se);
+        se.setTime(st);
+        SARIC_Processor sp;
+        sp = new SARIC_Processor(se);
+        sp.run();
     }
 
     /**

@@ -49,22 +49,22 @@ public class SARIC_MetOfficeSiteListXMLSAXHandler extends DefaultHandler {
         files = se.getFiles();
         this.f = f;
         parser = new SAXParser();
-        sites = new HashSet<SARIC_Site>();
+        sites = new HashSet<>();
     }
 
     public static void main(String[] args) {
         try {
+            File dataDir = new File(System.getProperty("user.dir"), "data");
             SARIC_Environment se;
-            se = new SARIC_Environment("C:/Users/geoagdt/src/projects/saric/data");
-            File f = new File(
-                    se.getFiles().getInputDataMetOfficeDataPointDir(),
+            se = new SARIC_Environment(dataDir);
+            File f = new File(se.getFiles().getInputDataMetOfficeDataPointDir(),
                     "/val/wxfcs/all/xml/sitelist/sitelist.xml");
             SARIC_MetOfficeSiteListXMLSAXHandler r;
             r = new SARIC_MetOfficeSiteListXMLSAXHandler(se, f);
             r.parser.setContentHandler(r);
             try {
                 r.parser.parse(f.toString());
-            } catch (Exception e) {
+            } catch (IOException | SAXException e) {
                 e.printStackTrace(System.err);
             }
             System.out.println(r.sites);
@@ -77,16 +77,13 @@ public class SARIC_MetOfficeSiteListXMLSAXHandler extends DefaultHandler {
         parser.setContentHandler(this);
         try {
             parser.parse(f.toString());
-        } catch (SAXException ex) {
-            Logger.getLogger(SARIC_MetOfficeSiteListXMLSAXHandler.class.getName()).log(Level.SEVERE, null, ex);
-            ex.printStackTrace(System.err);
-        } catch (IOException ex) {
+        } catch (SAXException | IOException ex) {
             Logger.getLogger(SARIC_MetOfficeSiteListXMLSAXHandler.class.getName()).log(Level.SEVERE, null, ex);
             ex.printStackTrace(System.err);
         }
         return sites;
     }
-    
+
     // override the startElement() method
     @Override
     public void startElement(String uri, String localName,

@@ -18,10 +18,7 @@
  */
 package uk.ac.leeds.ccg.andyt.projects.saric.process;
 
-import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.Point;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -33,8 +30,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.geotools.data.DataUtilities;
 import org.geotools.feature.SchemaException;
-import org.geotools.feature.simple.SimpleFeatureBuilder;
-import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import uk.ac.leeds.ccg.andyt.generic.io.Generic_IO;
@@ -341,7 +336,7 @@ public class SARIC_DataForWASIM2 extends SARIC_Object implements Runnable {
     File getFile(String area, Generic_Date day) {
         File result;
         File dir;
-        dir = new File(sf.getOutputDataDir(ss), "WASIM");
+        dir = new File(sf.getOutputDataDir(), "WASIM");
         dir = new File(dir, area);
         dir = new File(dir, day.getYYYYMM());
         dir = new File(dir, day.getYYYYMMDD());
@@ -355,7 +350,7 @@ public class SARIC_DataForWASIM2 extends SARIC_Object implements Runnable {
     File getFile(String area, String name) {
         File result;
         File dir;
-        dir = new File(sf.getOutputDataDir(ss), "WASIM");
+        dir = new File(sf.getOutputDataDir(), "WASIM");
         dir = new File(dir, area);
         dir.mkdirs();
         String filename;
