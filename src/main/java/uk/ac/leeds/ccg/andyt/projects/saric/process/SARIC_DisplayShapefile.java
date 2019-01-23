@@ -10,8 +10,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.JButton;
-import javax.swing.JToolBar;
 import org.geotools.data.FileDataStore;
 import org.geotools.data.FileDataStoreFinder;
 import org.geotools.data.simple.SimpleFeatureSource;
@@ -23,13 +21,9 @@ import org.geotools.map.MapViewport;
 import org.geotools.styling.SLD;
 import org.geotools.styling.Style;
 import org.geotools.swing.JMapFrame;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import uk.ac.leeds.ccg.andyt.geotools.core.Geotools_Environment;
-import uk.ac.leeds.ccg.andyt.geotools.Geotools_Shapefile;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Object;
-import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Strings;
-import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
 
 /**
  *
@@ -38,43 +32,32 @@ import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
 public class SARIC_DisplayShapefile extends SARIC_Object {
 
     // For convenience
-    SARIC_Files sf;
-    SARIC_Strings ss;
-    Geotools_Environment _Geotools_Environment;
-    
-    protected SARIC_DisplayShapefile() {
-    }
+    Geotools_Environment Geotools_Env;
     
     protected SARIC_DisplayShapefile(SARIC_Environment se) {
         super(se);
-        sf = se.getFiles();
-        ss = se.getStrings();
-        _Geotools_Environment = se.getGeotools_Env();
+        Geotools_Env = se.Geotools_Env;
     }
     
-    public static void main(String[] args) {
-        new SARIC_DisplayShapefile().run();
-    }
-
     public void run() {
         ArrayList<File> files;
-        files = new ArrayList<File>();
+        files = new ArrayList<>();
         String name;
         File dir;
         File f;
 
 //        name = "Sites.shp";
-//        name = ss.getS_Wissey() + "Sites.shp";
-//        name = ss.getS_Teifi() + "Sites.shp";
-//        name = ss.getS_Wissey() + "SitesBuffered.shp";
-        name = ss.getS_Teifi()  + "SitesBuffered.shp";
+//        name = Strings.getS_Wissey() + "Sites.shp";
+//        name = Strings.getS_Teifi() + "Sites.shp";
+//        name = Strings.getS_Wissey() + "SitesBuffered.shp";
+        name = Strings.getS_Teifi()  + "SitesBuffered.shp";
 //        dir = new File(
-//                sf.getGeneratedDataMetOfficeDataPointDir(),
-//                ss.getS_Forecasts());
+//                Files.getGeneratedDataMetOfficeDataPointDir(),
+//                Strings.getS_Forecasts());
         dir = new File(
-                sf.getGeneratedDataMetOfficeDataPointDir(),
-                ss.getS_Observations());
-        f = _Geotools_Environment.getShapefile(dir, name, false);
+                Files.getGeneratedDataMetOfficeDataPointDir(),
+                Strings.getS_Observations());
+        f = Geotools_Env.getShapefile(dir, name, false);
         files.add(f);
 
         try {

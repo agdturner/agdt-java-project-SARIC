@@ -24,10 +24,11 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
+//import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import uk.ac.leeds.ccg.andyt.generic.core.Generic_Environment;
 //import uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Time;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Object;
@@ -52,9 +53,6 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
         return string_xml;
     }
 
-    protected SARIC_Processor() {
-    }
-
     public SARIC_Processor(SARIC_Environment se) {
         super(se);
     }
@@ -69,10 +67,11 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
         } else {
             dataDir = new File(args[0]);
         }
+        Generic_Environment ge = new Generic_Environment(dataDir);
         SARIC_Environment se;
-        se = new SARIC_Environment(dataDir);
+        se = new SARIC_Environment(ge, dataDir);
         Generic_Time st;
-        st = new Generic_Time(se);
+        st = new Generic_Time(se.ge);
         se.setTime(st);
         SARIC_Processor sp;
         sp = new SARIC_Processor(se);
@@ -258,8 +257,8 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
                     doObservationsTileFromWMTSService = true;
                     doForecastsTileFromWMTSService = false;
                     overwrite = false;
-                    dirIn = se.getFiles().getInputDataMetOfficeDataPointDir();
-                    dirOut = se.getFiles().getOutputDataMetOfficeDataPointDir();
+                    dirIn = Files.getInputDataMetOfficeDataPointDir();
+                    dirOut = Files.getOutputDataMetOfficeDataPointDir();
                     pIPO[estimateType + 1] = new SARIC_ImageProcessor(se, dirIn,
                             dirOut, doNonTiledFcs, doNonTiledObs,
                             doTileFromWMTSService,
@@ -280,8 +279,8 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
                     doForecastsTileFromWMTSService = true;
 //                        doForecastsTileFromWMTSService = false;
                     overwrite = false;
-                    dirIn = se.getFiles().getInputDataMetOfficeDataPointDir();
-                    dirOut = se.getFiles().getOutputDataMetOfficeDataPointDir();
+                    dirIn = Files.getInputDataMetOfficeDataPointDir();
+                    dirOut = Files.getOutputDataMetOfficeDataPointDir();
                     pIPF[estimateType + 1] = new SARIC_ImageProcessor(se, dirIn,
                             dirOut, doNonTiledFcs, doNonTiledObs,
                             doTileFromWMTSService,
@@ -342,9 +341,9 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
 //            doTeifi = false;
             overwrite = true;
             File dirIn;
-            dirIn = se.getFiles().getInputDataMetOfficeDataPointDir();
+            dirIn = Files.getInputDataMetOfficeDataPointDir();
             File dirOut;
-            dirOut = se.getFiles().getOutputDataMetOfficeDataPointDir();
+            dirOut = Files.getOutputDataMetOfficeDataPointDir();
             SARIC_RainfallStatistics p;
             p = new SARIC_RainfallStatistics(se, dirIn, dirOut, doWissey,
                     doTeifi, overwrite);
@@ -592,9 +591,9 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
                 doForecastsTileFromWMTSService = false;
                 overwrite = false;
                 File dirIn;
-                dirIn = se.getFiles().getInputDataMetOfficeDataPointDir();
+                dirIn = Files.getInputDataMetOfficeDataPointDir();
                 File dirOut;
-                dirOut = se.getFiles().getOutputDataMetOfficeDataPointDir();
+                dirOut = Files.getOutputDataMetOfficeDataPointDir();
                 SARIC_ImageProcessor p;
                 p = new SARIC_ImageProcessor(se, dirIn,
                         dirOut, doNonTiledFcs, doNonTiledObs,
@@ -620,9 +619,9 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
 //                        doForecastsTileFromWMTSService = false;
                 overwrite = false;
                 File dirIn;
-                dirIn = se.getFiles().getInputDataMetOfficeDataPointDir();
+                dirIn = Files.getInputDataMetOfficeDataPointDir();
                 File dirOut;
-                dirOut = se.getFiles().getOutputDataMetOfficeDataPointDir();
+                dirOut = Files.getOutputDataMetOfficeDataPointDir();
                 SARIC_ImageProcessor p;
                 p = new SARIC_ImageProcessor(se, dirIn,
                         dirOut, doNonTiledFcs, doNonTiledObs,

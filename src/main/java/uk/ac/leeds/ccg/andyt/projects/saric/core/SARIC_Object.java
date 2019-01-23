@@ -19,22 +19,38 @@
 package uk.ac.leeds.ccg.andyt.projects.saric.core;
 
 import java.io.Serializable;
+import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
 
 /**
  *
  * @author geoagdt
  */
-
 public abstract class SARIC_Object implements Serializable {
 
     public transient SARIC_Environment se;
 
+    // For convenience
+    public transient SARIC_Strings Strings;
+    public transient SARIC_Files Files;
+    public transient int logID;
+
     /**
-     * Default constructor.
+     * {@link #logID} defaulted to 0.
+     * @param e 
      */
-    protected SARIC_Object(){}
-    
-    public SARIC_Object(SARIC_Environment se) {
-        this.se = se;
+    public SARIC_Object(SARIC_Environment e) {
+        this(e, 0);
+    }
+
+    /**
+     * 
+     * @param e
+     * @param i The logID.
+     */
+    public SARIC_Object(SARIC_Environment e, int i) {
+        this.se = e;
+        Strings = e.Strings;
+        Files = e.Files;
+        this.logID = i;
     }
 }

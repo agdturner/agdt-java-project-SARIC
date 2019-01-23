@@ -22,7 +22,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import uk.ac.leeds.ccg.andyt.data.format.Generic_XMLDOMReader;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
-import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
 
 /**
  *
@@ -36,10 +35,9 @@ public abstract class SARIC_XMLDOMReader extends Generic_XMLDOMReader {
     protected SARIC_XMLDOMReader() {
     }
     
-    protected SARIC_XMLDOMReader(
-        SARIC_Environment se) {
+    protected SARIC_XMLDOMReader(        SARIC_Environment se) {
             this.se = se;
-             this.files = se.getFiles();
+             this.files = se.Files;
     }
 
     protected void initNodeList() {

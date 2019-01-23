@@ -50,7 +50,6 @@ import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Object;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.site.SARIC_Site;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.site.SARIC_SiteHandler;
-import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
 import uk.ac.leeds.ccg.andyt.projects.saric.process.SARIC_DataForWASIM;
 import uk.ac.leeds.ccg.andyt.vector.core.Vector_Environment;
 import uk.ac.leeds.ccg.andyt.vector.geometry.Vector_Envelope2D;
@@ -64,24 +63,17 @@ import uk.ac.leeds.ccg.andyt.vector.projection.Vector_OSGBtoLatLon;
 public abstract class SARIC_Catchment extends SARIC_Object {
 
     // For convenience
-    SARIC_Files Files;
     Grids_Environment Grids_Env;
     Vector_Environment Vector_Env;
     Geotools_Environment Geotools_Env;
 
     String CatchmentName;
 
-    protected SARIC_Catchment() {
-    }
-
-    public SARIC_Catchment(
-            SARIC_Environment se,
-            String catchmentName) {
+    public SARIC_Catchment(SARIC_Environment se, String catchmentName) {
         super(se);
-        Files = se.getFiles();
-        Grids_Env = se.getGrids_Env();
-        Vector_Env = se.getVector_Env();
-        Geotools_Env = se.getGeotools_Env();
+        Grids_Env = se.Grids_Env;
+        Vector_Env = se.Vector_Env;
+        Geotools_Env = se.Geotools_Env;
         this.CatchmentName = catchmentName;
     }
 
@@ -101,34 +93,24 @@ public abstract class SARIC_Catchment extends SARIC_Object {
     public abstract Geotools_Shapefile getWaterCompanyAGDT_Shapefile();
 
     public Geotools_Shapefile getAGDT_Shapefile(String name) {
-        Geotools_Shapefile result;
-        File dir = new File(
-                Files.getInputDataCatchmentBoundariesDir(),
+        Geotools_Shapefile r;
+        File dir = new File(Files.getInputDataCatchmentBoundariesDir(),
                 CatchmentName);
-        result = getAGDT_Shapefile(name, dir);
-        return result;
+        r = getAGDT_Shapefile(name, dir);
+        return r;
     }
 
     public abstract Vector_Envelope2D getBounds();
 
-    public Vector_Envelope2D getBounds(
-            BigDecimal xmin,
-            BigDecimal xmax,
-            BigDecimal ymin,
-            BigDecimal ymax) {
-        Vector_Envelope2D result;
+    public Vector_Envelope2D getBounds(BigDecimal xmin, BigDecimal xmax,
+            BigDecimal ymin, BigDecimal ymax) {
+        Vector_Envelope2D r;
         Vector_Point2D aPoint;
-        aPoint = new Vector_Point2D(
-                se.getVector_Env(),
-                xmin,
-                ymin);
+        aPoint = new Vector_Point2D(se.Vector_Env, xmin, ymin);
         Vector_Point2D bPoint;
-        bPoint = new Vector_Point2D(
-                se.getVector_Env(),
-                xmax,
-                ymax);
-        result = new Vector_Envelope2D(aPoint, bPoint);
-        return result;
+        bPoint = new Vector_Point2D(se.Vector_Env, xmax, ymax);
+        r = new Vector_Envelope2D(aPoint, bPoint);
+        return r;
     }
 
     public abstract Vector_Envelope2D get1KMGridBounds();

@@ -38,13 +38,8 @@ public class SARIC_SiteHandler extends SARIC_Object {
     HashSet<SARIC_Site> forecastsSites;
     HashSet<SARIC_Site> observationsSites;
 
-    private SARIC_SiteHandler() {
-    }
-
     public SARIC_SiteHandler(SARIC_Environment se) {
         super(se);
-        files = se.getFiles();
-        strings = se.getStrings();
     }
 
     /**
@@ -95,13 +90,9 @@ public class SARIC_SiteHandler extends SARIC_Object {
                     + strings.getS_xml() + strings.symbol_backslash
                     + strings.getS_sitelist() + strings.symbol_backslash;
             File dir;
-            dir = new File(
-                    files.getInputDataMetOfficeDataPointDir(),
-                    path);
+            dir = new File(                    files.getInputDataMetOfficeDataPointDir(),                    path);
             File f;
-            f = new File(
-                    dir,
-                    filename);
+            f = new File(                    dir,                    filename);
             SARIC_MetOfficeSiteListXMLSAXHandler r;
             r = new SARIC_MetOfficeSiteListXMLSAXHandler(se, f);
             observationsSites = r.parse();

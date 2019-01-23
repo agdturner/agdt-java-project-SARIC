@@ -64,7 +64,7 @@ public class SARIC_DataViewer extends Geotools_DisplayShapefile implements Runna
     SARIC_Environment se;
     SARIC_Files sf;
     SARIC_Strings ss;
-    Geotools_Environment _Geotools_Environment;
+    Geotools_Environment Geotools_Env;
 
     boolean doWissey;
     boolean doTeifi;
@@ -76,12 +76,12 @@ public class SARIC_DataViewer extends Geotools_DisplayShapefile implements Runna
 
     public SARIC_DataViewer(SARIC_Environment se, boolean doWissey, boolean doTeifi, boolean addGBHRUs) {
         this.se = se;
-        this.sf = se.getFiles();
+        this.sf = se.Files;
         this.doWissey = doWissey;
         this.doTeifi = doTeifi;
         this.addGBHRUs = addGBHRUs;
-        ss = se.getStrings();
-        _Geotools_Environment = se.getGeotools_Env();
+        ss = se.Strings;
+        Geotools_Env = se.Geotools_Env;
     }
 
     @Override
@@ -112,7 +112,7 @@ public class SARIC_DataViewer extends Geotools_DisplayShapefile implements Runna
                     this.sf.getInputDataCEHDir(),
                     "WGS84");
             name = "ihu_catchments.shp";
-            f = _Geotools_Environment.getShapefile(dir, name, false);
+            f = Geotools_Env.getShapefile(dir, name, false);
             files.put(0, f);
         }
 
@@ -433,7 +433,7 @@ public class SARIC_DataViewer extends Geotools_DisplayShapefile implements Runna
         styleParameters.setClassificationFunctionName("EqualInterval");
 
         Geotools_Maps Maps;
-        Maps = _Geotools_Environment.getMaps();
+        Maps = Geotools_Env.getMaps();
 
         ArcGridReader agr;
         agr = Maps.getArcGridReader(f);
@@ -442,7 +442,7 @@ public class SARIC_DataViewer extends Geotools_DisplayShapefile implements Runna
         gc = Maps.getGridCoverage2D(agr);
 
         Grids_GridDoubleFactory gf;
-        gf = se.getGrids_Env().getProcessor().GridDoubleFactory;
+        gf = se.Grids_Env.getProcessor().GridDoubleFactory;
         File gdir;
         gdir = gridf.createNewFile(gridf.getGeneratedGridDoubleDir());
         Grids_GridDouble g;
@@ -451,7 +451,7 @@ public class SARIC_DataViewer extends Geotools_DisplayShapefile implements Runna
         double normalisation = 1.0d;
 
         Geotools_Style Style;
-        Style = _Geotools_Environment.getStyle();
+        Style = Geotools_Env.getStyle();
 
         Object[] styleAndLegendItems;
         styleAndLegendItems = Style.getStyleAndLegendItems(

@@ -59,18 +59,11 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
     /**
      * For convenience.
      */
-    SARIC_Files sf;
-    SARIC_Environment se;
-    SARIC_Strings ss;
+    final SARIC_Files sf;
+    final SARIC_Environment se;
+    final SARIC_Strings ss;
 
-    Vector_Environment ve;
-
-    Vector_Environment getVector_Environment() {
-        if (ve == null) {
-            ve = new Vector_Environment();
-        }
-        return ve;
-    }
+    final Vector_Environment ve;
 
     // Variables
     String path;
@@ -100,9 +93,10 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
      * @param dataType either "xml" or "json"
      */
     String dataType;
-    
+
     /**
-     * If iterate == true, this process will iterate indefinitely. Otherwise it will run once and stop.
+     * If iterate == true, this process will iterate indefinitely. Otherwise it
+     * will run once and stop.
      */
     boolean iterate;
 
@@ -112,9 +106,6 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
      * returns.
      */
     long timeDelay;
-
-    protected SARIC_MetOfficeScraper() {
-    }
 
     public SARIC_MetOfficeScraper(
             SARIC_Environment se,
@@ -136,8 +127,9 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
             boolean iterate
     ) {
         this.se = se;
-        this.sf = se.getFiles();
-        this.ss = se.getStrings();
+        this.sf = se.Files;
+        this.ss = se.Strings;
+        ve = se.Vector_Env;
         this.CalculateForecastsSitesInStudyAreas = CalculateForecastsSitesInStudyAreas;
         this.CalculateObservationsSitesInStudyAreas = CalculateObservationsSitesInStudyAreas;
         this.Observations = Observation;
@@ -328,10 +320,9 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
 
                     File inspireWMTSCapabilities = getInspireWMTSCapabilities();
                     SARIC_MetOfficeParameters p;
-                    p = new SARIC_MetOfficeParameters();
+                    p = new SARIC_MetOfficeParameters(se);
                     SARIC_MetOfficeCapabilitiesXMLDOMReader r;
                     r = new SARIC_MetOfficeCapabilitiesXMLDOMReader(se, inspireWMTSCapabilities);
-                    ve = new Vector_Environment();
                     String tileMatrix;
                     tileMatrix = tileMatrixSet + ":0";
                     BigDecimal cellsize;
@@ -1424,7 +1415,6 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
         SARIC_Site site;
         double[] OSGBEastingAndNorthing;
         Vector_Point2D p;
-        ve = getVector_Environment();
         Vector_OSGBtoLatLon OSGBtoLatLon = ve.getOSGBtoLatLon();
         while (ite.hasNext()) {
             site = ite.next();

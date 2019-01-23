@@ -42,7 +42,6 @@ import uk.ac.leeds.ccg.andyt.grids.io.Grids_ImageExporter;
 import uk.ac.leeds.ccg.andyt.grids.process.Grids_Processor;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Object;
-import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Strings;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.catchment.SARIC_Teifi;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.catchment.SARIC_Wissey;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.SARIC_MetOfficeCapabilitiesXMLDOMReader;
@@ -51,7 +50,6 @@ import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.SARIC_MetOf
 import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.site.SARIC_MetOfficeSiteXMLSAXHandler;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.site.SARIC_Site;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.site.SARIC_SiteForecastRecord;
-import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
 import uk.ac.leeds.ccg.andyt.generic.time.Generic_Date;
 import uk.ac.leeds.ccg.andyt.generic.time.Generic_Time;
 //import uk.ac.leeds.ccg.andyt.generic.utilities.time.Generic_YearMonth;
@@ -69,8 +67,6 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
     /**
      * For convenience
      */
-    SARIC_Files Files;
-    SARIC_Strings Strings;
     Grids_Environment ge;
     Grids_Processor gp;
     //Grids_GridDoubleFactory gf;
@@ -134,7 +130,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
             boolean outputGreyscale,
             int colorDubpication
     ) {
-        this.se = se;
+        super(se);
         this.dirIn = dirIn;
         this.dirOut = dirOut;
         this.doNonTiledFcs = doNonTiledFcs;
@@ -150,9 +146,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
         this.outputGreyscale = outputGreyscale;
         this.colorDubpication = colorDubpication;
         ouputLargeColorDubpication = colorDubpication >= 1;
-        Files = se.getFiles();
-        Strings = se.getStrings();
-        ge = se.getGrids_Env();
+        ge = se.Grids_Env;
         ae = new Grids_ESRIAsciiGridExporter(ge);
         ie = new Grids_ImageExporter(ge);
         gp = ge.getProcessor();
@@ -255,7 +249,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
             Vector_Envelope2D bounds;
             // Initial assignment
             inspireWMTSCapabilities = Files.getInputDataMetOfficeDataPointInspireViewWmtsCapabilitiesFile();
-            p = new SARIC_MetOfficeParameters();
+            p = new SARIC_MetOfficeParameters(se);
             r = new SARIC_MetOfficeCapabilitiesXMLDOMReader(se, inspireWMTSCapabilities);
             tileMatrixSet = "EPSG:27700"; // British National Grid
 
@@ -393,7 +387,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
             for (File dirs2 : indirs) {
                 dirs3 = dirs2.listFiles();
                 for (File dir3 : dirs3) {
-                    date = new Generic_Date(se, dir3.getName());
+                    date = new Generic_Date(se.ge, dir3.getName());
                     indir1 = Files.getNestedTimeDirectory(indir0, date);
                     outdir1 = Files.getNestedTimeDirectory(outdir0, date);
                     outdir1 = new File(outdir1, date + "-00"); // Could iterate through all of these.
@@ -589,7 +583,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
             for (File dirs2 : indirs) {
                 dirs3 = dirs2.listFiles();
                 for (File dir3 : dirs3) {
-                    date = new Generic_Date(se, dir3.getName());
+                    date = new Generic_Date(se.ge, dir3.getName());
                     indir1 = Files.getNestedTimeDirectory(indir0, date);
                     outdir1 = Files.getNestedTimeDirectory(outdir0, date);
                     outdir1 = new File(outdir1, date + "-00"); // Could iterate through all of these.
@@ -905,7 +899,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                 indirs2 = indirs1[j].listFiles();
                 for (int k = 0; k < indirs2.length; k++) {
                     Generic_Time t;
-                    t = new Generic_Time(se, indirs2[k].getName(),
+                    t = new Generic_Time(se.ge, indirs2[k].getName(),
                             timeComponentDivider, dateTimeDivider,
                             timeComponentDivider);
                     result.add(t);
@@ -940,7 +934,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                 indirs2 = indirs1[j].listFiles();
                 for (int k = 0; k < indirs2.length; k++) {
                     Generic_Time t;
-                    t = new Generic_Time(se, indirs2[k].getName(),
+                    t = new Generic_Time(se.ge, indirs2[k].getName(),
                             timeComponentDivider, dateTimeDivider,
                             timeComponentDivider);
                     for (int l = 0; l <= 36; l += 3) {

@@ -50,14 +50,14 @@ public class SARIC_MetOfficeDataPointViewer extends Geotools_DisplayShapefile {
 
     SARIC_Environment se;
     SARIC_Files Files;
-    Geotools_Environment _Geotools_Environment;
+    Geotools_Environment Geotools_Env;
     
     protected SARIC_MetOfficeDataPointViewer(){}
     
     public SARIC_MetOfficeDataPointViewer(SARIC_Environment se) {
         this.se = se;
         Files = new SARIC_Files(new SARIC_Strings()); 
-        _Geotools_Environment = se.getGeotools_Env();
+        Geotools_Env = se.Geotools_Env;
     }
 
     public static void main(String[] args) {
@@ -84,15 +84,15 @@ public class SARIC_MetOfficeDataPointViewer extends Geotools_DisplayShapefile {
                 Files.getInputDataCatchmentBoundariesDir(),
                 "Wissey");
         name = "33006.shp";
-        f = _Geotools_Environment.getShapefile(dir, name, false);
+        f = Geotools_Env.getShapefile(dir, name, false);
         files.add(f);
         Geotools_Shapefile f33006;
-        f33006 = new Geotools_Shapefile(_Geotools_Environment, f);
+        f33006 = new Geotools_Shapefile(Geotools_Env, f);
         mc.addLayer(f33006.getFeatureLayer());
         name = "WISSEY_RBMP2.shp";
-        f = _Geotools_Environment.getShapefile(dir, name, false);
+        f = Geotools_Env.getShapefile(dir, name, false);
         files.add(f);
-        as = new Geotools_Shapefile(_Geotools_Environment, f);
+        as = new Geotools_Shapefile(Geotools_Env, f);
         fl = as.getFeatureLayer();
         mc.addLayer(fl);
         re = mc.getMaxBounds();
@@ -103,12 +103,12 @@ public class SARIC_MetOfficeDataPointViewer extends Geotools_DisplayShapefile {
                 Files.getInputDataCatchmentBoundariesDir(),
                  "Teifi");
         name = "62001.shp";
-        f = _Geotools_Environment.getShapefile(dir, name, false);
+        f = Geotools_Env.getShapefile(dir, name, false);
         files.add(f);
         name = "WW_area.shp";
-        f = _Geotools_Environment.getShapefile(dir, name, false);
+        f = Geotools_Env.getShapefile(dir, name, false);
         files.add(f);
-        as = new Geotools_Shapefile(_Geotools_Environment, f);
+        as = new Geotools_Shapefile(Geotools_Env, f);
         fl = as.getFeatureLayer();
         re = fl.getBounds();
         printBounds(re);
@@ -117,7 +117,7 @@ public class SARIC_MetOfficeDataPointViewer extends Geotools_DisplayShapefile {
                 Files.getInputDataCEHDir(),
                 "WGS84");
         name = "ihu_catchments.shp";
-        f = _Geotools_Environment.getShapefile(dir, name, false);
+        f = Geotools_Env.getShapefile(dir, name, false);
         files.add(f);
 
         try {

@@ -43,18 +43,14 @@ import uk.ac.leeds.ccg.andyt.grids.io.Grids_Files;
 import uk.ac.leeds.ccg.andyt.grids.process.Grids_Processor;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Object;
-import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Strings;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.catchment.SARIC_Catchment;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.catchment.SARIC_Teifi;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.catchment.SARIC_Wissey;
-import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
 import uk.ac.leeds.ccg.andyt.generic.time.Generic_Date;
 import uk.ac.leeds.ccg.andyt.generic.time.Generic_Time;
-import uk.ac.leeds.ccg.andyt.generic.time.Generic_YearMonth;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.lex.SARIC_LexRecord;
 import static uk.ac.leeds.ccg.andyt.projects.saric.process.SARIC_ImageProcessor.getEstimateName;
 import uk.ac.leeds.ccg.andyt.vector.core.Vector_Environment;
-import uk.ac.leeds.ccg.andyt.vector.projection.Vector_OSGBtoLatLon;
 
 /**
  *
@@ -63,8 +59,6 @@ import uk.ac.leeds.ccg.andyt.vector.projection.Vector_OSGBtoLatLon;
 public class SARIC_DataForLex extends SARIC_Object implements Runnable {
 
     // For convenience
-    SARIC_Files sf;
-    SARIC_Strings ss;
     Grids_Environment ge;
     Grids_Processor gp;
     Grids_GridDoubleFactory gf;
@@ -80,20 +74,15 @@ public class SARIC_DataForLex extends SARIC_Object implements Runnable {
     boolean skip10;
     boolean dolast5days;
 
-    protected SARIC_DataForLex() {
-    }
-
     public SARIC_DataForLex(SARIC_Environment se, int estimateType, boolean skip10, boolean dolast5days) {
         super(se);
-        sf = se.getFiles();
-        ss = se.getStrings();
-        ge = se.getGrids_Env();
+        ge = se.Grids_Env;
         gp = ge.getProcessor();
         gf = gp.GridDoubleFactory;
         gf.setChunkNCols(62);
         gf.setChunkNRows(40);
         gf.Stats = new Grids_GridDoubleStatsNotUpdated(ge);
-        ve = se.getVector_Env();
+        ve = se.Vector_Env;
         this.estimateType = estimateType;
         this.skip10 = skip10;
         this.dolast5days = dolast5days;
@@ -108,8 +97,8 @@ public class SARIC_DataForLex extends SARIC_Object implements Runnable {
 //        int numberOfDaysRun;
         // What areas to run for
         ArrayList<String> areas = new ArrayList<>();
-        areas.add(ss.getS_Teifi());
-        areas.add(ss.getS_Wissey());
+        areas.add(Strings.getS_Teifi());
+        areas.add(Strings.getS_Wissey());
         // Fill in gaps or overwrite?
         boolean overwrite;
         overwrite = false;
@@ -194,7 +183,7 @@ public class SARIC_DataForLex extends SARIC_Object implements Runnable {
             area = iteArea.next();
             observationsGrids = getObservationsGrids(area);
             // GetWaterCompanyShapefile Geometry
-            if (area.equalsIgnoreCase(ss.getS_Wissey())) {
+            if (area.equalsIgnoreCase(Strings.getS_Wissey())) {
                 // Wissey (Wissington), latitude: 52.551, longitude: 0.447
                 //Easting_Northing = Vector_OSGBtoLatLon.latlon2osgb(52.551, 0.447);
                 //Easting_Northing = Vector_OSGBtoLatLon.latlon2osgb(52.6, 0.5);
@@ -222,10 +211,11 @@ public class SARIC_DataForLex extends SARIC_Object implements Runnable {
             dir = new File(dir, area);
             dir = new File(dir, estimateName);
             daysProcessed = getDays(dir);
-            dir = new File(sf.getOutputDataMetOfficeDataPointDir(), "/inspire/view/wmts/Wissey/RADAR_UK_Composite_Highres/EPSG_27700_4/l");
+            dir = new File(Files.getOutputDataMetOfficeDataPointDir(),
+                    "/inspire/view/wmts/Wissey/RADAR_UK_Composite_Highres/EPSG_27700_4/l");
             daysToProcess = getDays(dir);
             File dir0;
-            //dir0 = sf.getOutputDataDir(ss);
+            //dir0 = Files.getOutputDataDir(ss);
             dir0 = new File("Y:/projects/saric", "Lex");
             if (!overwrite) {
                 daysToProcess.removeAll(daysProcessed);
@@ -498,7 +488,7 @@ public class SARIC_DataForLex extends SARIC_Object implements Runnable {
             for (int i = 0; i < files0.length; i++) {
                 files1 = files0[i].listFiles();
                 for (int j = 0; j < files1.length; j++) {
-                    date = new Generic_Date(se, files1[j].getName());
+                    date = new Generic_Date(se.ge, files1[j].getName());
                     result.add(date);
                 }
             }
@@ -557,9 +547,9 @@ public class SARIC_DataForLex extends SARIC_Object implements Runnable {
     Geometry getWaterCompanyShapefileGeometry(String area) {
         Geometry result;
         SARIC_Catchment sc = null;
-        if (area.equalsIgnoreCase(ss.getS_Teifi())) {
+        if (area.equalsIgnoreCase(Strings.getS_Teifi())) {
             sc = new SARIC_Teifi(se);
-        } else if (area.equalsIgnoreCase(ss.getS_Wissey())) {
+        } else if (area.equalsIgnoreCase(Strings.getS_Wissey())) {
             sc = new SARIC_Wissey(se);
         }
         Geotools_Shapefile shpf;
@@ -591,17 +581,17 @@ public class SARIC_DataForLex extends SARIC_Object implements Runnable {
         d1.addDays(offset);
         Grids_GridDouble result;
         File dir;
-        dir = new File(sf.getOutputDataMetOfficeDataPointDir(),
-                ss.getS_inspire());
-        dir = new File(dir, ss.getS_view());
-        //dir = new File(dir, ss.getS_wmts() + "0");
-        dir = new File(dir, ss.getS_wmts());
+        dir = new File(Files.getOutputDataMetOfficeDataPointDir(),
+                Strings.getS_inspire());
+        dir = new File(dir, Strings.getS_view());
+        //dir = new File(dir, Strings.getS_wmts() + "0");
+        dir = new File(dir, Strings.getS_wmts());
         dir = new File(dir, area);
-        dir = new File(dir, ss.getS_RADAR_UK_Composite_Highres());
+        dir = new File(dir, Strings.getS_RADAR_UK_Composite_Highres());
         dir = new File(dir, "EPSG_27700_4");
         dir = new File(dir, estimateName);
-        File f = new File(sf.getNestedTimeDirectory(dir, d1),
-                ss.getS_RADAR_UK_Composite_Highres() + ".asc");
+        File f = new File(Files.getNestedTimeDirectory(dir, d1),
+                Strings.getS_RADAR_UK_Composite_Highres() + ".asc");
         //System.out.println(f);
         if (f.exists()) {
             File gdir;
@@ -635,17 +625,17 @@ public class SARIC_DataForLex extends SARIC_Object implements Runnable {
         d1.addDays(offset);
         Grids_GridDouble result;
         File dir;
-        dir = new File(sf.getOutputDataMetOfficeDataPointDir(),
-                ss.getS_inspire());
-        dir = new File(dir, ss.getS_view());
-        //dir = new File(dir, ss.getS_wmts() + "0");
-        dir = new File(dir, ss.getS_wmts());
+        dir = new File(Files.getOutputDataMetOfficeDataPointDir(),
+                Strings.getS_inspire());
+        dir = new File(dir, Strings.getS_view());
+        //dir = new File(dir, Strings.getS_wmts() + "0");
+        dir = new File(dir, Strings.getS_wmts());
         dir = new File(dir, area);
-        dir = new File(dir, ss.getS_Precipitation_Rate());
+        dir = new File(dir, Strings.getS_Precipitation_Rate());
         dir = new File(dir, "EPSG_27700_4");
         dir = new File(dir, estimateName);
         if (offset < 2) {
-            File f = new File(sf.getNestedTimeDirectory(dir, d),
+            File f = new File(Files.getNestedTimeDirectory(dir, d),
                     d.getYYYYMMDD() + "_ForecastFor_" + d1.getYYYYMMDD() + ".asc");
             //System.out.println(f);
             if (f.exists()) {
@@ -657,11 +647,11 @@ public class SARIC_DataForLex extends SARIC_Object implements Runnable {
             }
         } else {
             // System.out.println("Load in some other data from the longer range forecasts.");
-            dir = new File(sf.getOutputDataMetOfficeDataPointDir(),
-                    ss.getS_val());
-            dir = new File(dir, ss.getS_wxfcs());
-            dir = new File(dir, ss.getS_all());
-            dir = new File(dir, ss.getS_xml());
+            dir = new File(Files.getOutputDataMetOfficeDataPointDir(),
+                    Strings.getS_val());
+            dir = new File(dir, Strings.getS_wxfcs());
+            dir = new File(dir, Strings.getS_all());
+            dir = new File(dir, Strings.getS_xml());
             dir = new File(dir, area);
             dir = new File(dir, estimateName);
             dir = new File(dir, d.getYYYYMM());
@@ -688,13 +678,13 @@ public class SARIC_DataForLex extends SARIC_Object implements Runnable {
         TreeMap<Generic_Date, Grids_GridDouble> result;
         result = new TreeMap<>();
         File dir;
-        dir = new File(sf.getOutputDataMetOfficeDataPointDir(),
-                ss.getS_inspire());
-        dir = new File(dir, ss.getS_view());
-        //dir = new File(dir, ss.getS_wmts() + "0");
-        dir = new File(dir, ss.getS_wmts());
+        dir = new File(Files.getOutputDataMetOfficeDataPointDir(),
+                Strings.getS_inspire());
+        dir = new File(dir, Strings.getS_view());
+        //dir = new File(dir, Strings.getS_wmts() + "0");
+        dir = new File(dir, Strings.getS_wmts());
         dir = new File(dir, area);
-        dir = new File(dir, ss.getS_RADAR_UK_Composite_Highres());
+        dir = new File(dir, Strings.getS_RADAR_UK_Composite_Highres());
         dir = new File(dir, "EPSG_27700_4");
         dir = new File(dir, estimateName);
         System.out.println(dir);
@@ -711,10 +701,10 @@ public class SARIC_DataForLex extends SARIC_Object implements Runnable {
             dates = dir2.list();
             for (String date : dates) {
                 //System.out.println(date);
-                d = new Generic_Date(se, date);
+                d = new Generic_Date(se.ge, date);
                 dir3 = new File(dir2, date);
                 f = new File(dir3,
-                        ss.getS_RADAR_UK_Composite_Highres() + ".asc");
+                        Strings.getS_RADAR_UK_Composite_Highres() + ".asc");
                 if (f.exists()) {
                     File gdir;
                     gdir = gridf.createNewFile(

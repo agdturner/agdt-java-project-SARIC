@@ -42,11 +42,8 @@ public class SARIC_Teifi extends SARIC_Catchment {
      */
     HashMap<Grids_2D_ID_long, SARIC_Site> siteMap;
 
-    protected SARIC_Teifi() {
-    }
-
     public SARIC_Teifi(SARIC_Environment se) {
-        super(se, se.getStrings().getS_Teifi());
+        super(se, se.Strings.getS_Teifi());
     }
 
     /**

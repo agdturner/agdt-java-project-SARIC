@@ -16,8 +16,6 @@ import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Object;
  */
 public class SARIC_Colour extends SARIC_Object {
     
-    protected SARIC_Colour(){}
-    
     public SARIC_Colour(SARIC_Environment se){
         super(se);
     }

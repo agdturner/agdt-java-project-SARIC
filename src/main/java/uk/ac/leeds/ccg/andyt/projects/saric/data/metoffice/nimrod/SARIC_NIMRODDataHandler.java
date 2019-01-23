@@ -39,10 +39,8 @@ import uk.ac.leeds.ccg.andyt.grids.io.Grids_ImageExporter;
 import uk.ac.leeds.ccg.andyt.grids.process.Grids_Processor;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Object;
-import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Strings;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.catchment.SARIC_Teifi;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.catchment.SARIC_Wissey;
-import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
 import uk.ac.leeds.ccg.andyt.generic.time.Generic_Date;
 import uk.ac.leeds.ccg.andyt.generic.time.Generic_Time;
 import uk.ac.leeds.ccg.andyt.projects.saric.visualisation.SARIC_Colour;
@@ -53,8 +51,6 @@ import uk.ac.leeds.ccg.andyt.projects.saric.visualisation.SARIC_Colour;
  */
 public class SARIC_NIMRODDataHandler extends SARIC_Object {
 
-    SARIC_Files sf;
-    SARIC_Strings ss;
     Grids_Environment ge;
     Grids_Processor gp;
     Grids_GridDoubleFactory gf;
@@ -62,17 +58,10 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
     boolean doWissey;
     boolean doTeifi;
 
-    protected SARIC_NIMRODDataHandler() {
-    }
-
-    public SARIC_NIMRODDataHandler(
-            SARIC_Environment se,
-            boolean doWissey,
+    public SARIC_NIMRODDataHandler(SARIC_Environment se, boolean doWissey, 
             boolean doTeifi) {
         super(se);
-        sf = se.getFiles();
-        ss = se.getStrings();
-        ge = se.getGrids_Env();
+        ge = se.Grids_Env;
         gp = ge.getProcessor();
         gf = gp.GridDoubleFactory;
         this.doWissey = doWissey;
@@ -102,13 +91,13 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
         File outputDir1;
         path0 = "data/composite/uk-1km/";
         generatedDir0 = new File(
-                sf.getGeneratedDataMetOfficeNimrodDir(),
+                Files.getGeneratedDataMetOfficeNimrodDir(),
                 path0);
         generatedDir0 = new File(
                 generatedDir0,
                 "Grids");
         outputDir0 = new File(
-                sf.getOutputDataMetOfficeNimrodDir(),
+                Files.getOutputDataMetOfficeNimrodDir(),
                 path0);
         outputDir0.mkdirs();
         //metoffice-c-band-rain-radar_uk_201706270000_1km-composite.dat
@@ -125,8 +114,8 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
         MM = "06";
         DD = "27";
         path = "/" + YYYY + "/" + YYYY + "-" + MM + "/";
-        date = new Generic_Date(se, YYYY + "-" + MM + "-" + DD);
-        inputDir = new File(sf.getInputDataMetOfficeNimrodDir(), path0 + path);
+        date = new Generic_Date(se.ge, YYYY + "-" + MM + "-" + DD);
+        inputDir = new File(Files.getInputDataMetOfficeNimrodDir(), path0 + path);
         generatedDir1 = new File(generatedDir0, path);
         outputDir1 = new File(outputDir0, path);
 
@@ -261,9 +250,8 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
                     if (doTeifi) {
                         gp.addToGrid(tg1, g, 1.0d);
                         gp.addToGrid(tg2, g, 1.0d);
-                        outputImages(
-                                outputDir1,
-                                ss.getS_Teifi(),
+                        outputImages(outputDir1,
+                                Strings.getS_Teifi(),
                                 name,
                                 tgf,
                                 tg2,
@@ -274,9 +262,8 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
                     if (doWissey) {
                         gp.addToGrid(wg1, g, 1.0d);
                         gp.addToGrid(wg2, g, 1.0d);
-                        outputImages(
-                                outputDir1,
-                                ss.getS_Wissey(),
+                        outputImages(outputDir1,
+                                Strings.getS_Wissey(),
                                 name,
                                 wgf,
                                 wg2,
@@ -301,9 +288,8 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
             st.addMinutes(5);
         }
         if (doTeifi) {
-            outputImages(
-                    outputDir1,
-                    ss.getS_Teifi(),
+            outputImages(outputDir1,
+                    Strings.getS_Teifi(),
                     "",
                     tgf,
                     tg1,
@@ -312,9 +298,8 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
                     cm);
         }
         if (doWissey) {
-            outputImages(
-                    outputDir1,
-                    ss.getS_Wissey(),
+            outputImages(outputDir1,
+                    Strings.getS_Wissey(),
                     "",
                     wgf,
                     wg1,

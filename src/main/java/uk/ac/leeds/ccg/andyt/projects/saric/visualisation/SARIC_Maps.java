@@ -56,9 +56,9 @@ public class SARIC_Maps extends Geotools_Maps {
     public boolean doDebug;
 
     public SARIC_Maps(SARIC_Environment e) {
-        this.se = e;
-        Files = e.getFiles();
-        Geotools_Env = e.getGeotools_Env();
+        se = e;
+        Files = se.Files;
+        Geotools_Env = e.Geotools_Env;
     }
 
     /*
@@ -125,7 +125,7 @@ public class SARIC_Maps extends Geotools_Maps {
         //name = "62001.shp";
         name = "WW_area.shp";
         File dir = new File(Files.getInputDataCatchmentBoundariesDir(),
-                se.getStrings().getS_Teifi());
+                se.Strings.getS_Teifi());
         dir = new File(dir, name);
         File f;
         f = new File(dir, name);

@@ -37,12 +37,7 @@ public class SARIC_MetOfficeLayerParameters extends SARIC_Object {
     HashMap<Integer, Vector_Envelope2D> tileBounds;
     SARIC_MetOfficeParameters metOfficeParameters;
 
-    private SARIC_MetOfficeLayerParameters() {
-    }
-
-    public SARIC_MetOfficeLayerParameters(
-            SARIC_Environment se,
-            BigDecimal cellsize,
+    public SARIC_MetOfficeLayerParameters(            SARIC_Environment se,            BigDecimal cellsize,
             SARIC_MetOfficeParameters metOfficeParameters) {
         super(se);
         this.cellsize = cellsize;
@@ -96,9 +91,9 @@ public class SARIC_MetOfficeLayerParameters extends SARIC_Object {
                     new BigDecimal(row).multiply(tileSize));
             BigDecimal ymin;
             ymin = ymax.subtract(tileSize);
-            p = new Vector_Point2D(se.getVector_Env(), xmin, ymin);
+            p = new Vector_Point2D(se.Vector_Env, xmin, ymin);
             result = p.getEnvelope2D();
-            p = new Vector_Point2D(se.getVector_Env(), xmax, ymax);
+            p = new Vector_Point2D(se.Vector_Env, xmax, ymax);
             result = result.envelope(p.getEnvelope2D());
         }
         return result;

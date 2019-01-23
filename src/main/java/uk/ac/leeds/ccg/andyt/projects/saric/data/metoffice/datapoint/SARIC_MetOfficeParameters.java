@@ -51,11 +51,8 @@ public class SARIC_MetOfficeParameters extends SARIC_Object {
 
     private HashMap<String, SARIC_MetOfficeLayerParameters> metOfficeLayerParameters;
 
-    public SARIC_MetOfficeParameters() {
-    }
-
-    public SARIC_MetOfficeParameters(SARIC_Environment env) {
-        this.se = env;
+    public SARIC_MetOfficeParameters(SARIC_Environment e) {
+        super(e);
     }
 
     public int getNrows(String key) {

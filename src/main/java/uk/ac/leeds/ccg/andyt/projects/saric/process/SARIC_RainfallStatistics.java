@@ -29,7 +29,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import uk.ac.leeds.ccg.andyt.generic.io.Generic_IO;
 import uk.ac.leeds.ccg.andyt.grids.core.Grids_Dimensions;
 import uk.ac.leeds.ccg.andyt.grids.core.Grids_Environment;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_GridDouble;
@@ -41,14 +40,12 @@ import uk.ac.leeds.ccg.andyt.grids.io.Grids_ImageExporter;
 import uk.ac.leeds.ccg.andyt.grids.process.Grids_Processor;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Object;
-import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Strings;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.catchment.SARIC_Teifi;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.catchment.SARIC_Wissey;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.SARIC_MetOfficeCapabilitiesXMLDOMReader;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.SARIC_MetOfficeLayerParameters;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.SARIC_MetOfficeParameters;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.site.SARIC_SiteForecastRecord;
-import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
 import uk.ac.leeds.ccg.andyt.generic.time.Generic_Date;
 import uk.ac.leeds.ccg.andyt.generic.time.Generic_Time;
 import uk.ac.leeds.ccg.andyt.generic.time.Generic_YearMonth;
@@ -64,8 +61,6 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
     /**
      * For convenience
      */
-    SARIC_Files sf;
-    SARIC_Strings ss;
     Grids_Environment ge;
     Grids_Processor gp;
     Grids_GridDoubleFactory gf;
@@ -94,15 +89,13 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
             boolean doTeifi,
             boolean overwrite
     ) {
-        this.se = se;
+        super(se);
         this.dirIn = dirIn;
         this.dirOut = dirOut;
         this.doWissey = doWissey;
         this.doTeifi = doTeifi;
         this.overwrite = overwrite;
-        sf = se.getFiles();
-        ss = se.getStrings();
-        ge = se.getGrids_Env();
+        ge = se.Grids_Env;
         ae = new Grids_ESRIAsciiGridExporter(ge);
         ImageExporter = new Grids_ImageExporter(ge);
         gp = ge.getProcessor();
@@ -140,12 +133,12 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
         int ncols;
         Vector_Envelope2D bounds;
         // Initial assignment
-        inspireWMTSCapabilities = sf.getInputDataMetOfficeDataPointInspireViewWmtsCapabilitiesFile();
-        p = new SARIC_MetOfficeParameters();
+        inspireWMTSCapabilities = Files.getInputDataMetOfficeDataPointInspireViewWmtsCapabilitiesFile();
+        p = new SARIC_MetOfficeParameters(se);
         r = new SARIC_MetOfficeCapabilitiesXMLDOMReader(se, inspireWMTSCapabilities);
         tileMatrixSet = "EPSG:27700"; // British National Grid
         // Initialisation for Wissey
-        SARIC_Wissey sw = null;
+        SARIC_Wissey sw;
         Object[] sw1KMGrid = null;
         Object[] sw1KMGridMaskedToCatchment = null;
         if (doWissey) {
@@ -154,7 +147,7 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
             sw1KMGridMaskedToCatchment = sw.get1KMGridMaskedToCatchment();
         }
         // Initialisation for Wissey
-        SARIC_Teifi st = null;
+        SARIC_Teifi st;
         Object[] st1KMGrid = null;
         Object[] st1KMGridMaskedToCatchment = null;
         if (doTeifi) {
@@ -162,7 +155,7 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
             st1KMGrid = st.get1KMGrid("1KMGrid");
             st1KMGridMaskedToCatchment = st.get1KMGridMaskedToCatchment();
         }
-        layerName = ss.getS_RADAR_UK_Composite_Highres();
+        layerName = Strings.getS_RADAR_UK_Composite_Highres();
         for (int scale = 4; scale < 5; scale++) {
             tileMatrix = tileMatrixSet + ":" + scale;
             metOfficeLayerParameters = p.getMetOfficeLayerParameters();
@@ -178,12 +171,12 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
             //System.out.println(bounds.toString());
             p.setBounds(bounds);
             if (doWissey) {
-                area = ss.getS_Wissey();
+                area = Strings.getS_Wissey();
                 processObservations(
                         colorMap, noDataValueColor, area, scale, layerName, cellsize, p, lp, r, sw1KMGrid, sw1KMGridMaskedToCatchment);
             }
             if (doTeifi) {
-                area = ss.getS_Teifi();
+                area = Strings.getS_Teifi();
                 processObservations(
                         colorMap, noDataValueColor, area, scale, layerName, cellsize, p, lp, r, st1KMGrid, st1KMGridMaskedToCatchment);
             }
@@ -232,23 +225,23 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
         path = "inspire/view/wmts0/" + area + "/" + layerName + "/EPSG_27700_";
         System.out.println("scale " + scale);
         indir0 = new File(
-                sf.getInputDataMetOfficeDataPointDir(),
+                Files.getInputDataMetOfficeDataPointDir(),
                 path + scale);
         outdir0 = new File(
-                sf.getOutputDataMetOfficeDataPointDir(),
+                Files.getOutputDataMetOfficeDataPointDir(),
                 path + scale);
         ymDates = new TreeMap<>();
         indirs0 = indir0.listFiles();
         for (int i = 0; i < indirs0.length; i++) {
             s = indirs0[i].getName();
-            ym = new Generic_YearMonth(se, s);
+            ym = new Generic_YearMonth(se.ge, s);
             dates = new TreeSet<>();
             ymDates.put(ym, dates);
             indir1 = new File(indir0, s);
             indirs1 = indir1.listFiles();
             // initialise outdirs
             for (int j = 0; j < indirs1.length; j++) {
-                dates.add(new Generic_Date(se, indirs1[j].getName().split("T")[0]));
+                dates.add(new Generic_Date(se.ge, indirs1[j].getName().split("T")[0]));
             }
         }
 
@@ -327,9 +320,9 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
                                 indirname2 = indirs0[j].getName();
                                 infiles = indirs0[j].listFiles();
 
-                                st = new Generic_Time(se, indirname2,
-                                        ss.symbol_minus, ss.s_T,
-                                        ss.symbol_underscore);
+                                st = new Generic_Time(se.ge, indirname2,
+                                        Strings.symbol_minus, Strings.s_T,
+                                        Strings.symbol_underscore);
                                 if (atg.containsKey(st)) {
                                     tg = atg.get(st);
                                 } else {
@@ -364,14 +357,14 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
                             }
                         }
                     }
-                    long NRows = 0;
-                    long NCols = 0;
+                    long NRows;
+                    long NCols;
                     n /= 4;
                     System.out.println("n " + n);
                     // Do Statistics
                     Grids_GridDouble sum;
                     variances = new HashMap<>();
-                    Grids_GridDouble variance = null;
+                    Grids_GridDouble variance;
                     Iterator<Generic_Time> iteT;
                     Iterator<String> iteT2;
                     iteT = atg.keySet().iterator();
@@ -432,7 +425,7 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
 
                     Iterator<String> gridsIte;
                     gridsIte = variances.keySet().iterator();
-                    Grids_GridDouble b1KMGrid = null;
+                    Grids_GridDouble b1KMGrid;
                     System.out.println("<Duplicate a1KMGrid>");
                     Grids_GridDoubleFactory f;
                     f = (Grids_GridDoubleFactory) a1KMGrid[1];

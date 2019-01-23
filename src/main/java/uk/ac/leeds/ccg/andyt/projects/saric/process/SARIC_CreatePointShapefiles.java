@@ -25,12 +25,10 @@ import uk.ac.leeds.ccg.andyt.geotools.core.Geotools_Environment;
 import uk.ac.leeds.ccg.andyt.geotools.Geotools_Shapefile;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Object;
-import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Strings;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.catchment.SARIC_Teifi;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.catchment.SARIC_Wissey;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.site.SARIC_Site;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.site.SARIC_SiteHandler;
-import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
 import uk.ac.leeds.ccg.andyt.vector.core.Vector_Environment;
 import uk.ac.leeds.ccg.andyt.vector.geometry.Vector_Envelope2D;
 import uk.ac.leeds.ccg.andyt.vector.geometry.Vector_Point2D;
@@ -43,18 +41,13 @@ import uk.ac.leeds.ccg.andyt.vector.projection.Vector_OSGBtoLatLon;
 public class SARIC_CreatePointShapefiles extends SARIC_Object implements Runnable {
 
     // For convenience
-    SARIC_Files sf;
-    SARIC_Strings ss;
     Vector_Environment ve;
-    Geotools_Environment _Geotools_Environment;
+    Geotools_Environment Geotools_Env;
 
     // For processing
     boolean doForecasts;
     boolean doObservations;
     boolean overwrite;
-
-    protected SARIC_CreatePointShapefiles() {
-    }
 
     /**
      *
@@ -71,20 +64,11 @@ public class SARIC_CreatePointShapefiles extends SARIC_Object implements Runnabl
             boolean doObservations,
             boolean overwrite) {
         super(se);
-        sf = se.getFiles();
-        ss = se.getStrings();
-        ve = se.getVector_Env();
-        _Geotools_Environment = se.getGeotools_Env();
+        ve = se.Vector_Env;
+        Geotools_Env = se.Geotools_Env;
         this.doForecasts = doForecasts;
         this.doObservations = doObservations;
         this.overwrite = overwrite;
-    }
-
-    public static void main(String[] args) {
-        SARIC_CreatePointShapefiles p;
-        p = new SARIC_CreatePointShapefiles();
-        p.overwrite = true;
-        p.run();
     }
 
     @Override
@@ -96,10 +80,10 @@ public class SARIC_CreatePointShapefiles extends SARIC_Object implements Runnabl
         if (doForecasts) {
             String time;
             //time = ss.getS_daily();
-            time = ss.getS_3hourly();
+            time = Strings.getS_3hourly();
             buffer = null;
             sites = sh.getForecastsSites(time);
-            run(overwrite, ss.getS_Forecasts(), sites, buffer);
+            run(overwrite, Strings.getS_Forecasts(), sites, buffer);
         }
         if (doObservations) {
 //            buffer = new BigDecimal(20000.0d);
@@ -107,7 +91,7 @@ public class SARIC_CreatePointShapefiles extends SARIC_Object implements Runnabl
 //            buffer = new BigDecimal(40000.0d);
             buffer = new BigDecimal(60000.0d);
             sites = sh.getObservationsSites();
-            run(overwrite, ss.getS_Observations(), sites, buffer);
+            run(overwrite, Strings.getS_Observations(), sites, buffer);
         }
     }
 
@@ -126,23 +110,23 @@ public class SARIC_CreatePointShapefiles extends SARIC_Object implements Runnabl
             BigDecimal buffer) {
         File dir;
         dir = new File(
-                sf.getGeneratedDataMetOfficeDataPointDir(),
+                Files.getGeneratedDataMetOfficeDataPointDir(),
                 type);
         File outfileAll;
-        outfileAll = _Geotools_Environment.getOutputShapefile(
+        outfileAll = Geotools_Env.getOutputShapefile(
                 dir,
                 "Sites");
         if (!outfileAll.exists() || overwrite == true) {
             outfileAll.getParentFile().mkdirs();
             File outfileWissey;
-            outfileWissey = _Geotools_Environment.getOutputShapefile(
+            outfileWissey = Geotools_Env.getOutputShapefile(
                     dir,
-                    ss.getS_Wissey() + "SitesBuffered");
+                    Strings.getS_Wissey() + "SitesBuffered");
             outfileWissey.getParentFile().mkdirs();
             File outfileTeifi;
-            outfileTeifi = _Geotools_Environment.getOutputShapefile(
+            outfileTeifi = Geotools_Env.getOutputShapefile(
                     dir,
-                    ss.getS_Teifi() + "SitesBuffered");
+                    Strings.getS_Teifi() + "SitesBuffered");
             outfileTeifi.getParentFile().mkdirs();
 
             // Initialise for Wissey

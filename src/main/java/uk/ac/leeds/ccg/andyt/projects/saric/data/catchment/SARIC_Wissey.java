@@ -33,10 +33,8 @@ import uk.ac.leeds.ccg.andyt.vector.geometry.Vector_Envelope2D;
  */
 public class SARIC_Wissey extends SARIC_Catchment {
 
-    protected SARIC_Wissey(){}
-    
     public SARIC_Wissey(SARIC_Environment se) {
-        super(se, se.getStrings().getS_Wissey());
+        super(se, se.Strings.getS_Wissey());
     }
 
     /**

@@ -51,15 +51,15 @@ public class SARIC_CatchmentViewer extends Geotools_DisplayShapefile implements 
 
     SARIC_Environment se;
     SARIC_Files sf;
-    Geotools_Environment _Geotools_Environment;
+    Geotools_Environment Geotools_Env;
 
     private SARIC_CatchmentViewer() {
     }
 
     public SARIC_CatchmentViewer(SARIC_Environment se) {
         this.se = se;
-        this.sf = se.getFiles();
-        _Geotools_Environment = se.getGeotools_Env();
+        this.sf = se.Files;
+        Geotools_Env = se.Geotools_Env;
     }
 
     @Override
@@ -79,14 +79,11 @@ public class SARIC_CatchmentViewer extends Geotools_DisplayShapefile implements 
         mc = new MapContent();
 
         // Wissey
-        
-        dir = new File(
-                this.sf.getInputDataCEHDir(),
-                "WGS84");
+        dir = new File(this.sf.getInputDataCEHDir(), "WGS84");
         name = "ihu_catchments.shp";
-        f = _Geotools_Environment.getShapefile(dir, name, false);
+        f = Geotools_Env.getShapefile(dir, name, false);
         files.add(f);
-        
+
         SARIC_Wissey sw;
         sw = new SARIC_Wissey(se);
         as = sw.getNRFAAGDT_Shapefile();
@@ -115,9 +112,6 @@ public class SARIC_CatchmentViewer extends Geotools_DisplayShapefile implements 
         printBounds(re);
         re = mc.getMaxBounds();
         printBounds(re);
-
-        
-
         try {
             displayShapefiles(files, 800, 600, re);
         } catch (Exception ex) {
@@ -148,11 +142,8 @@ public class SARIC_CatchmentViewer extends Geotools_DisplayShapefile implements 
      * @throws Exception
      */
     @Override
-    protected void displayShapefiles(
-            ArrayList<File> files,
-            int displayWidth,
-            int displayHeight,
-            ReferencedEnvelope re) throws Exception {
+    protected void displayShapefiles(ArrayList<File> files, int displayWidth,
+            int displayHeight, ReferencedEnvelope re) throws Exception {
         MapContent mc;
         mc = new MapContent();
         int i;
@@ -218,8 +209,7 @@ public class SARIC_CatchmentViewer extends Geotools_DisplayShapefile implements 
 
         mapFrame.setVisible(true);
     }
-    
-    
+
     public Style getStyleNRFA() {
         Style result;
         Color outlineColor;
@@ -231,7 +221,7 @@ public class SARIC_CatchmentViewer extends Geotools_DisplayShapefile implements 
         result = SLD.createPolygonStyle(outlineColor, fillColor, opacity);
         return result;
     }
-    
+
     public Style getStyleWaterCompany() {
         Style result;
         Color outlineColor;
@@ -243,8 +233,7 @@ public class SARIC_CatchmentViewer extends Geotools_DisplayShapefile implements 
         result = SLD.createPolygonStyle(outlineColor, fillColor, opacity);
         return result;
     }
-    
-    
+
     public Style getStyleIHU() {
         Style result;
         Color outlineColor;
