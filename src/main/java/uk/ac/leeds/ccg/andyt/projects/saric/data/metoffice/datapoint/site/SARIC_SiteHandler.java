@@ -55,12 +55,12 @@ public class SARIC_SiteHandler extends SARIC_Object {
             filename = strings.getS_sitelist()
                     + strings.symbol_dot + strings.getS_xml();
             String path;
-            path = strings.getS_val() + strings.symbol_backslash
-                    + type + strings.symbol_backslash
-                    + strings.getS_all() + strings.symbol_backslash
-                    + strings.getS_xml() + strings.symbol_backslash
-                    + strings.getS_sitelist() + strings.symbol_backslash
-                    + time + strings.symbol_backslash ;
+            path = strings.getS_val() + strings.symbol_forwardslash
+                    + type + strings.symbol_forwardslash
+                    + strings.getS_all() + strings.symbol_forwardslash
+                    + strings.getS_xml() + strings.symbol_forwardslash
+                    + strings.getS_sitelist() + strings.symbol_forwardslash
+                    + time + strings.symbol_forwardslash ;
             File dir;
             dir = new File(
                     files.getInputDataMetOfficeDataPointDir(),
@@ -84,11 +84,11 @@ public class SARIC_SiteHandler extends SARIC_Object {
             filename = strings.getS_sitelist()
                     + strings.symbol_dot + strings.getS_xml();
             String path;
-            path = strings.getS_val() + strings.symbol_backslash
-                    + type + strings.symbol_backslash
-                    + strings.getS_all() + strings.symbol_backslash
-                    + strings.getS_xml() + strings.symbol_backslash
-                    + strings.getS_sitelist() + strings.symbol_backslash;
+            path = strings.getS_val() + strings.symbol_forwardslash
+                    + type + strings.symbol_forwardslash
+                    + strings.getS_all() + strings.symbol_forwardslash
+                    + strings.getS_xml() + strings.symbol_forwardslash
+                    + strings.getS_sitelist() + strings.symbol_forwardslash;
             File dir;
             dir = new File(                    files.getInputDataMetOfficeDataPointDir(),                    path);
             File f;

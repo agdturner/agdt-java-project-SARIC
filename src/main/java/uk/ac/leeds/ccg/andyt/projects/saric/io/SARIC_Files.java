@@ -68,14 +68,15 @@ public class SARIC_Files extends Generic_Files {
         super(s, dataDir);
     }
 
+    @Override
     public SARIC_Strings getStrings() {
-        return (SARIC_Strings) Strings;
+        return (SARIC_Strings) strings;
     }
     
     /**
      * @param dir
      * @param t
-     * @return a directory which is a subsubdirectory of dir. The first
+     * @return a directory which is a sub-subdirectory of dir. The first
      * subdirectory is the YYYY-MM. The second is YYYY-MM-DD. If the directory
      * does not exist it is created.
      */
@@ -330,9 +331,9 @@ public class SARIC_Files extends Generic_Files {
      */
     public String getValDataTypePath(String dataType, String obs_or_fcs) {
         SARIC_Strings s = getStrings();
-        return s.getS_val() + s.symbol_backslash
-                + obs_or_fcs + s.symbol_backslash
-                + s.getS_all() + s.symbol_backslash
-                + dataType + s.symbol_backslash;
+        return s.getS_val() + s.symbol_forwardslash
+                + obs_or_fcs + s.symbol_forwardslash
+                + s.getS_all() + s.symbol_forwardslash
+                + dataType + s.symbol_forwardslash;
     }
 }

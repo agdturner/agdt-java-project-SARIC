@@ -20,14 +20,14 @@ package uk.ac.leeds.ccg.andyt.projects.saric.io;
 
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import uk.ac.leeds.ccg.andyt.data.format.Generic_XMLDOMReader;
+import uk.ac.leeds.ccg.andyt.data.format.Data_ReadXML;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 
 /**
  *
  * @author geoagdt
  */
-public abstract class SARIC_XMLDOMReader extends Generic_XMLDOMReader {
+public abstract class SARIC_XMLDOMReader extends Data_ReadXML {
     
     public SARIC_Environment se;
     public SARIC_Files files;

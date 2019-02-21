@@ -527,11 +527,11 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
         String currentTime;
         currentTime = uk.ac.leeds.ccg.andyt.generic.util.Generic_Time.getDateAndTimeHourDir();
         path = sf.getValDataTypePath(dataType, ss.getS_wxfcs())
-                + ss.getS_site() + ss.symbol_backslash
-                + res + ss.symbol_backslash
-                + currentTime.substring(0, 7) + ss.symbol_backslash
-                + currentTime.substring(0, 10) + ss.symbol_backslash
-                + currentTime + ss.symbol_backslash
+                + ss.getS_site() + ss.symbol_forwardslash
+                + res + ss.symbol_forwardslash
+                + currentTime.substring(0, 7) + ss.symbol_forwardslash
+                + currentTime.substring(0, 10) + ss.symbol_forwardslash
+                + currentTime + ss.symbol_forwardslash
                 + siteID;
         result = getXML(siteID + res, -1, timeRange);
         return result;
@@ -695,9 +695,9 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
         for (int step = 0; step <= 36; step += 3) {
             timeStep = Integer.toString(step);
             System.out.println("Getting forecast for time " + timeStep);
-            path = ss.getS_layer() + ss.symbol_backslash
-                    + ss.getS_wxfcs() + ss.symbol_backslash
-                    + layerName + ss.symbol_backslash
+            path = ss.getS_layer() + ss.symbol_forwardslash
+                    + ss.getS_wxfcs() + ss.symbol_forwardslash
+                    + layerName + ss.symbol_forwardslash
                     + imageFormat;
             url = BASE_URL
                     + path
@@ -731,9 +731,9 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
             time = ite.next();
             //System.out.println(time);
             //if (time.contains("00:00")) {
-            path = ss.getS_layer() + ss.symbol_backslash
-                    + ss.getS_wxobs() + ss.symbol_backslash
-                    + layerName + ss.symbol_backslash
+            path = ss.getS_layer() + ss.symbol_forwardslash
+                    + ss.getS_wxobs() + ss.symbol_forwardslash
+                    + layerName + ss.symbol_forwardslash
                     + imageFormat;
             url = BASE_URL
                     + path
@@ -1170,10 +1170,10 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
             String val_Or_layer,
             String wxfcs_Or_Wxobs,
             String dataType) {
-        path = val_Or_layer + ss.symbol_backslash
-                + wxfcs_Or_Wxobs + ss.symbol_backslash
-                + ss.getS_all() + ss.symbol_backslash
-                + dataType + ss.symbol_backslash;
+        path = val_Or_layer + ss.symbol_forwardslash
+                + wxfcs_Or_Wxobs + ss.symbol_forwardslash
+                + ss.getS_all() + ss.symbol_forwardslash
+                + dataType + ss.symbol_forwardslash;
     }
 
     public String getParsedPath0() {
@@ -1188,8 +1188,8 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
         String result;
         String[] parts;
         parts = path.split(ss.getS_xml());
-        result = parts[0] + ss.getS_xml() + ss.symbol_backslash
-                + ss.getS_site() + ss.symbol_backslash + parts[1];
+        result = parts[0] + ss.getS_xml() + ss.symbol_forwardslash
+                + ss.getS_site() + ss.symbol_forwardslash + parts[1];
         return result;
     }
 
