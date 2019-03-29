@@ -52,6 +52,7 @@ import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.site.SARIC_
 import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.site.SARIC_SiteForecastRecord;
 import uk.ac.leeds.ccg.andyt.generic.time.Generic_Date;
 import uk.ac.leeds.ccg.andyt.generic.time.Generic_Time;
+import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Strings;
 //import uk.ac.leeds.ccg.andyt.generic.utilities.time.Generic_YearMonth;
 import uk.ac.leeds.ccg.andyt.projects.saric.visualisation.SARIC_Colour;
 import uk.ac.leeds.ccg.andyt.vector.geometry.Vector_Envelope2D;
@@ -214,20 +215,20 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
             Object[] nearestForecastsSitesGridAndFactory;
 
             if (doWissey) {
-                area = Strings.getS_Wissey();
+                area = SARIC_Strings.s_Wissey;
                 SARIC_Wissey sw;
                 sw = new SARIC_Wissey(se);
-                sites = sw.getForecastsSitesInStudyArea(Strings.getS_3hourly());
+                sites = sw.getForecastsSitesInStudyArea(SARIC_Strings.s_3hourly);
                 nearestForecastsSitesGridAndFactory = sw.getNearestForecastsSitesGrid(sites);
                 g = (Grids_GridDouble) nearestForecastsSitesGridAndFactory[0];
                 f = (Grids_GridDoubleFactory) nearestForecastsSitesGridAndFactory[1];
                 processForecastPoints2(area, sites, f, g, colorMap);
             }
             if (doTeifi) {
-                area = Strings.getS_Teifi();
+                area = SARIC_Strings.s_Teifi;
                 SARIC_Teifi st;
                 st = new SARIC_Teifi(se);
-                sites = st.getForecastsSitesInStudyArea(Strings.getS_3hourly());
+                sites = st.getForecastsSitesInStudyArea(SARIC_Strings.s_3hourly);
                 nearestForecastsSitesGridAndFactory = st.getNearestForecastsSitesGrid(sites);
                 g = (Grids_GridDouble) nearestForecastsSitesGridAndFactory[0];
                 f = (Grids_GridDoubleFactory) nearestForecastsSitesGridAndFactory[1];
@@ -274,7 +275,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                     System.out.println(bounds.toString());
                     p.setBounds(bounds);
                     if (doWissey) {
-                        area = Strings.getS_Wissey();
+                        area = SARIC_Strings.s_Wissey;
                         f = (Grids_GridDoubleFactory) sw1KMGridMaskedToCatchment[1];
                         g = (Grids_GridDouble) sw1KMGridMaskedToCatchment[0];
                         System.out.println(g.toString());
@@ -282,7 +283,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                                 scale, layerName, cellsize, p, lp, r, f, g);
                     }
                     if (doTeifi) {
-                        area = Strings.getS_Teifi();
+                        area = SARIC_Strings.s_Teifi;
                         f = (Grids_GridDoubleFactory) st1KMGridMaskedToCatchment[1];
                         g = (Grids_GridDouble) st1KMGridMaskedToCatchment[0];
                         processForecastImages(colorMap, ndvColor, area,
@@ -292,7 +293,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
             }
             // Observations
             if (doObservationsTileFromWMTSService) {
-                layerName = Strings.getS_RADAR_UK_Composite_Highres();
+                layerName = SARIC_Strings.s_RADAR_UK_Composite_Highres;
                 for (int scale = 4; scale < 5; scale++) {
                     tileMatrix = tileMatrixSet + ":" + scale;
                     metOfficeLayerParameters = p.getMetOfficeLayerParameters();
@@ -308,14 +309,14 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                     //System.out.println(bounds.toString());
                     p.setBounds(bounds);
                     if (doWissey) {
-                        area = Strings.getS_Wissey();
+                        area = SARIC_Strings.s_Wissey;
                         f = (Grids_GridDoubleFactory) sw1KMGridMaskedToCatchment[1];
                         g = (Grids_GridDouble) sw1KMGridMaskedToCatchment[0];
                         processObservationImages(colorMap, ndvColor, area, scale,
                                 layerName, cellsize, p, lp, r, f, g);
                     }
                     if (doTeifi) {
-                        area = Strings.getS_Teifi();
+                        area = SARIC_Strings.s_Teifi;
                         f = (Grids_GridDoubleFactory) st1KMGridMaskedToCatchment[1];
                         g = (Grids_GridDouble) st1KMGridMaskedToCatchment[0];
                         processObservationImages(colorMap, ndvColor, area, scale,
@@ -352,17 +353,17 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
         File outdir1;
         String name;
         // Initialisation part 1
-        dataType = Strings.getS_xml();
-        path = Files.getValDataTypePath(dataType, Strings.getS_wxfcs());
+        dataType = SARIC_Strings.s_xml;
+        path = Files.getValDataTypePath(dataType, SARIC_Strings.s_wxfcs);
         indir0 = new File(Files.getInputDataMetOfficeDataPointDir(), path);
         System.out.println(indir0);
-        indir0 = new File(indir0, Strings.getS_site() + "0");
+        indir0 = new File(indir0, SARIC_Strings.s_site + "0");
         /**
          * There is no need to run for daily, it is just for the same time as
          * the 3hourly, but gives lower temporal resolution and greater temporal
          * resolution is more desirable.
          */
-        indir0 = new File(indir0, Strings.getS_3hourly());
+        indir0 = new File(indir0, SARIC_Strings.s_3hourly);
         outdir0 = new File(Files.getOutputDataMetOfficeDataPointDir(), path);
         outdir0 = new File(outdir0, area);
         Generic_Date date;
@@ -506,7 +507,8 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
         if (dirnames != null) {
             dirname = dir1.list()[0]; //Sometimes data are missing here!
             dir2 = new File(dir1, dirname);
-            filename = siteID + Strings.getS_3hourly() + Strings.symbol_dot + dataType;
+            filename = siteID + SARIC_Strings.s_3hourly 
+                    + SARIC_Strings.symbol_dot + dataType;
             file = new File(dir2, filename);
             h = new SARIC_MetOfficeSiteXMLSAXHandler(se, file);
             forecastsForTime = h.parse();
@@ -541,18 +543,18 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
         File outdir1;
         String name;
         // Initialisation part 1
-        dataType = Strings.getS_xml();
-        path = Files.getValDataTypePath(dataType, Strings.getS_wxfcs());
+        dataType = SARIC_Strings.s_xml;
+        path = Files.getValDataTypePath(dataType, SARIC_Strings.s_wxfcs);
         indir0 = new File(Files.getInputDataMetOfficeDataPointDir(), path);
         System.out.println(indir0);
-        //indir0 = new File(indir0, Strings.getS_site() + "all");
-        indir0 = new File(indir0, Strings.getS_site());
+        //indir0 = new File(indir0, SARIC_Strings.s_site + "all");
+        indir0 = new File(indir0, SARIC_Strings.s_site);
         /**
          * There is no need to run for daily, it is just for the same time as
          * the 3hourly, but gives lower temporal resolution and greater temporal
          * resolution is more desirable.
          */
-        indir0 = new File(indir0, Strings.getS_3hourly());
+        indir0 = new File(indir0, SARIC_Strings.s_3hourly);
         outdir0 = new File(Files.getOutputDataMetOfficeDataPointDir(), path);
         outdir0 = new File(outdir0, area);
         outdir0 = new File(outdir0, estimateName);

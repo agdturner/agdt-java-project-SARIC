@@ -33,7 +33,6 @@ public class SARIC_SiteHandler extends SARIC_Object {
 
     // For convenience
     SARIC_Files files;
-    SARIC_Strings strings;
 
     HashSet<SARIC_Site> forecastsSites;
     HashSet<SARIC_Site> observationsSites;
@@ -43,32 +42,26 @@ public class SARIC_SiteHandler extends SARIC_Object {
     }
 
     /**
-     * 
+     *
      * @param time Expecting "3hourly" or "daily".
-     * @return 
+     * @return
      */
     public HashSet<SARIC_Site> getForecastsSites(String time) {
         if (forecastsSites == null) {
             String type;
-            type = strings.getS_wxfcs();
+            type = SARIC_Strings.s_wxfcs;
             String filename;
-            filename = strings.getS_sitelist()
-                    + strings.symbol_dot + strings.getS_xml();
+            filename = SARIC_Strings.s_sitelist + SARIC_Strings.symbol_dot
+                    + SARIC_Strings.s_xml;
+            String s = SARIC_Strings.symbol_forwardslash;
             String path;
-            path = strings.getS_val() + strings.symbol_forwardslash
-                    + type + strings.symbol_forwardslash
-                    + strings.getS_all() + strings.symbol_forwardslash
-                    + strings.getS_xml() + strings.symbol_forwardslash
-                    + strings.getS_sitelist() + strings.symbol_forwardslash
-                    + time + strings.symbol_forwardslash ;
+            path = SARIC_Strings.s_val + s + type + s + SARIC_Strings.s_all + s
+                    + SARIC_Strings.s_xml + s + SARIC_Strings.s_sitelist + s
+                    + time + s;
             File dir;
-            dir = new File(
-                    files.getInputDataMetOfficeDataPointDir(),
-                    path);
+            dir = new File(files.getInputDataMetOfficeDataPointDir(), path);
             File f;
-            f = new File(
-                    dir,
-                    filename);
+            f = new File(dir, filename);
             SARIC_MetOfficeSiteListXMLSAXHandler r;
             r = new SARIC_MetOfficeSiteListXMLSAXHandler(se, f);
             forecastsSites = r.parse();
@@ -79,20 +72,18 @@ public class SARIC_SiteHandler extends SARIC_Object {
     public HashSet<SARIC_Site> getObservationsSites() {
         if (observationsSites == null) {
             String type;
-            type = strings.getS_wxobs();
+            type = SARIC_Strings.s_wxobs;
             String filename;
-            filename = strings.getS_sitelist()
-                    + strings.symbol_dot + strings.getS_xml();
+            filename = SARIC_Strings.s_sitelist + SARIC_Strings.symbol_dot 
+                    + SARIC_Strings.s_xml;
             String path;
-            path = strings.getS_val() + strings.symbol_forwardslash
-                    + type + strings.symbol_forwardslash
-                    + strings.getS_all() + strings.symbol_forwardslash
-                    + strings.getS_xml() + strings.symbol_forwardslash
-                    + strings.getS_sitelist() + strings.symbol_forwardslash;
+            String s = SARIC_Strings.symbol_forwardslash;
+            path = SARIC_Strings.s_val + s + type + s + SARIC_Strings.s_all + s
+                    + SARIC_Strings.s_xml + s + SARIC_Strings.s_sitelist + s;
             File dir;
-            dir = new File(                    files.getInputDataMetOfficeDataPointDir(),                    path);
+            dir = new File(files.getInputDataMetOfficeDataPointDir(), path);
             File f;
-            f = new File(                    dir,                    filename);
+            f = new File(dir, filename);
             SARIC_MetOfficeSiteListXMLSAXHandler r;
             r = new SARIC_MetOfficeSiteListXMLSAXHandler(se, f);
             observationsSites = r.parse();

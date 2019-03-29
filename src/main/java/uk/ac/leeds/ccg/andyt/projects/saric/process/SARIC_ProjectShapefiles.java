@@ -47,7 +47,7 @@ public class SARIC_ProjectShapefiles extends Geotools_ProjectShapefile implement
             boolean doTeifi) {
         this.se = se;
         sf = se.Files;
-        ss = se.Strings;
+        ss = se.strings;
         this.doWissey = doWissey;
         this.doTeifi = doTeifi;
     }

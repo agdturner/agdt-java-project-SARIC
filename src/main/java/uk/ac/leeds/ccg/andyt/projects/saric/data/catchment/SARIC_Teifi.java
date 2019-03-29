@@ -26,6 +26,7 @@ import uk.ac.leeds.ccg.andyt.geotools.Geotools_Shapefile;
 import uk.ac.leeds.ccg.andyt.generic.io.Generic_IO;
 import uk.ac.leeds.ccg.andyt.grids.core.Grids_2D_ID_long;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
+import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Strings;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.site.SARIC_Site;
 import uk.ac.leeds.ccg.andyt.vector.geometry.Vector_Envelope2D;
 
@@ -43,7 +44,7 @@ public class SARIC_Teifi extends SARIC_Catchment {
     HashMap<Grids_2D_ID_long, SARIC_Site> siteMap;
 
     public SARIC_Teifi(SARIC_Environment se) {
-        super(se, se.Strings.getS_Teifi());
+        super(se, SARIC_Strings.s_Teifi);
     }
 
     /**

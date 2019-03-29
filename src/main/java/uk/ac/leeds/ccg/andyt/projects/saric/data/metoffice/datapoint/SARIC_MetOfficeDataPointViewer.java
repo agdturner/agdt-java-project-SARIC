@@ -49,14 +49,14 @@ import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
 public class SARIC_MetOfficeDataPointViewer extends Geotools_DisplayShapefile {
 
     SARIC_Environment se;
-    SARIC_Files Files;
+    SARIC_Files files;
     Geotools_Environment Geotools_Env;
     
     protected SARIC_MetOfficeDataPointViewer(){}
     
     public SARIC_MetOfficeDataPointViewer(SARIC_Environment se) {
         this.se = se;
-        Files = new SARIC_Files(new SARIC_Strings()); 
+        files = new SARIC_Files(); 
         Geotools_Env = se.Geotools_Env;
     }
 
@@ -81,7 +81,7 @@ public class SARIC_MetOfficeDataPointViewer extends Geotools_DisplayShapefile {
         // Wissey
         mc = new MapContent();
         dir = new File(
-                Files.getInputDataCatchmentBoundariesDir(),
+                this.files.getInputDataCatchmentBoundariesDir(),
                 "Wissey");
         name = "33006.shp";
         f = Geotools_Env.getShapefile(dir, name, false);
@@ -100,7 +100,7 @@ public class SARIC_MetOfficeDataPointViewer extends Geotools_DisplayShapefile {
 
         // Teifi
          dir = new File(
-                Files.getInputDataCatchmentBoundariesDir(),
+                this.files.getInputDataCatchmentBoundariesDir(),
                  "Teifi");
         name = "62001.shp";
         f = Geotools_Env.getShapefile(dir, name, false);
@@ -114,7 +114,7 @@ public class SARIC_MetOfficeDataPointViewer extends Geotools_DisplayShapefile {
         printBounds(re);
         
          dir = new File(
-                Files.getInputDataCEHDir(),
+                this.files.getInputDataCEHDir(),
                 "WGS84");
         name = "ihu_catchments.shp";
         f = Geotools_Env.getShapefile(dir, name, false);

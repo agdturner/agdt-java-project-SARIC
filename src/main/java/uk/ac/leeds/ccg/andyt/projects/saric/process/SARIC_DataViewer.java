@@ -63,7 +63,6 @@ public class SARIC_DataViewer extends Geotools_DisplayShapefile implements Runna
 
     SARIC_Environment se;
     SARIC_Files sf;
-    SARIC_Strings ss;
     Geotools_Environment Geotools_Env;
 
     boolean doWissey;
@@ -74,13 +73,13 @@ public class SARIC_DataViewer extends Geotools_DisplayShapefile implements Runna
     private SARIC_DataViewer() {
     }
 
-    public SARIC_DataViewer(SARIC_Environment se, boolean doWissey, boolean doTeifi, boolean addGBHRUs) {
+    public SARIC_DataViewer(SARIC_Environment se, boolean doWissey, 
+            boolean doTeifi, boolean addGBHRUs) {
         this.se = se;
         this.sf = se.Files;
         this.doWissey = doWissey;
         this.doTeifi = doTeifi;
         this.addGBHRUs = addGBHRUs;
-        ss = se.Strings;
         Geotools_Env = se.Geotools_Env;
     }
 
@@ -108,9 +107,7 @@ public class SARIC_DataViewer extends Geotools_DisplayShapefile implements Runna
         if (addGBHRUs) {
             File dir;
             File f;
-            dir = new File(
-                    this.sf.getInputDataCEHDir(),
-                    "WGS84");
+            dir = new File(                    this.sf.getInputDataCEHDir(),                    "WGS84");
             name = "ihu_catchments.shp";
             f = Geotools_Env.getShapefile(dir, name, false);
             files.put(0, f);
@@ -208,10 +205,8 @@ public class SARIC_DataViewer extends Geotools_DisplayShapefile implements Runna
      * @param re Used to set MapViewport
      * @throws Exception
      */
-    protected void displayShapefiles(
-            HashMap<Integer, File> files,
-            int displayWidth,
-            int displayHeight,
+    protected void displayShapefiles(            HashMap<Integer, File> files,
+            int displayWidth,            int displayHeight,
             ReferencedEnvelope re) throws Exception {
         MapContent mc;
         mc = new MapContent();
@@ -397,7 +392,8 @@ public class SARIC_DataViewer extends Geotools_DisplayShapefile implements Runna
 
         File dir;
         File f;
-        String name = "2017-08-09" + ss.getS_RADAR_UK_Composite_Highres() + ".asc";
+        String name = "2017-08-09" 
+                + SARIC_Strings.s_RADAR_UK_Composite_Highres + ".asc";
 
         if (doWissey) {
             dir = new File(sf.getOutputDataMetOfficeDataPointDir(),

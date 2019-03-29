@@ -24,6 +24,7 @@ import java.util.HashSet;
 import uk.ac.leeds.ccg.andyt.geotools.Geotools_Shapefile;
 import uk.ac.leeds.ccg.andyt.generic.io.Generic_IO;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
+import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Strings;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.site.SARIC_Site;
 import uk.ac.leeds.ccg.andyt.vector.geometry.Vector_Envelope2D;
 
@@ -34,7 +35,7 @@ import uk.ac.leeds.ccg.andyt.vector.geometry.Vector_Envelope2D;
 public class SARIC_Wissey extends SARIC_Catchment {
 
     public SARIC_Wissey(SARIC_Environment se) {
-        super(se, se.Strings.getS_Wissey());
+        super(se, SARIC_Strings.s_Wissey);
     }
 
     /**

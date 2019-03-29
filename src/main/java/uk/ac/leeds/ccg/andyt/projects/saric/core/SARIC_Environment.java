@@ -36,7 +36,7 @@ import uk.ac.leeds.ccg.andyt.vector.core.Vector_Environment;
 public class SARIC_Environment {
 
     public Generic_Environment ge;
-    public SARIC_Strings Strings;
+    public SARIC_Strings strings;
     public SARIC_Files Files;
     
     public final SARIC_MetOfficeParameters MetOfficeParameters;
@@ -50,8 +50,8 @@ public class SARIC_Environment {
 
     public SARIC_Environment(Generic_Environment ge, File dataDir) {
         this.ge = ge;
-        Strings = new SARIC_Strings();
-        Files = new SARIC_Files(Strings, dataDir);
+        strings = new SARIC_Strings();
+        Files = new SARIC_Files(dataDir);
         MetOfficeParameters = new SARIC_MetOfficeParameters(this);
         Grids_Env = new Grids_Environment(Files.getGeneratedDataGridsDir());
         Vector_Env = new Vector_Environment(Grids_Env);

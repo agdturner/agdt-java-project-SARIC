@@ -36,6 +36,7 @@ import uk.ac.leeds.ccg.andyt.geotools.Geotools_Maps;
 import uk.ac.leeds.ccg.andyt.geotools.Geotools_Shapefile;
 import uk.ac.leeds.ccg.andyt.geotools.core.Geotools_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
+import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Strings;
 import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
 
 /**
@@ -125,7 +126,7 @@ public class SARIC_Maps extends Geotools_Maps {
         //name = "62001.shp";
         name = "WW_area.shp";
         File dir = new File(Files.getInputDataCatchmentBoundariesDir(),
-                se.Strings.getS_Teifi());
+                SARIC_Strings.s_Teifi);
         dir = new File(dir, name);
         File f;
         f = new File(dir, name);

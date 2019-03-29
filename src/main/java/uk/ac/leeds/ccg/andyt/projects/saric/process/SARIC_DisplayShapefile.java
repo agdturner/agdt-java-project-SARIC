@@ -24,6 +24,7 @@ import org.geotools.swing.JMapFrame;
 import uk.ac.leeds.ccg.andyt.geotools.core.Geotools_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Object;
+import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Strings;
 
 /**
  *
@@ -33,12 +34,12 @@ public class SARIC_DisplayShapefile extends SARIC_Object {
 
     // For convenience
     Geotools_Environment Geotools_Env;
-    
+
     protected SARIC_DisplayShapefile(SARIC_Environment se) {
         super(se);
         Geotools_Env = se.Geotools_Env;
     }
-    
+
     public void run() {
         ArrayList<File> files;
         files = new ArrayList<>();
@@ -47,16 +48,15 @@ public class SARIC_DisplayShapefile extends SARIC_Object {
         File f;
 
 //        name = "Sites.shp";
-//        name = Strings.getS_Wissey() + "Sites.shp";
-//        name = Strings.getS_Teifi() + "Sites.shp";
-//        name = Strings.getS_Wissey() + "SitesBuffered.shp";
-        name = Strings.getS_Teifi()  + "SitesBuffered.shp";
+//        name = strings.getS_Wissey() + "Sites.shp";
+//        name = strings.getS_Teifi() + "Sites.shp";
+//        name = strings.getS_Wissey() + "SitesBuffered.shp";
+        name = SARIC_Strings.s_Teifi + "SitesBuffered.shp";
 //        dir = new File(
 //                Files.getGeneratedDataMetOfficeDataPointDir(),
-//                Strings.getS_Forecasts());
-        dir = new File(
-                Files.getGeneratedDataMetOfficeDataPointDir(),
-                Strings.getS_Observations());
+//                strings.getS_Forecasts());
+        dir = new File(Files.getGeneratedDataMetOfficeDataPointDir(),
+                SARIC_Strings.s_Observations);
         f = Geotools_Env.getShapefile(dir, name, false);
         files.add(f);
 
@@ -65,7 +65,7 @@ public class SARIC_DisplayShapefile extends SARIC_Object {
         } catch (Exception ex) {
             Logger.getLogger(SARIC_DisplayShapefile.class.getName()).log(Level.SEVERE, null, ex);
         }
-}
+    }
 
     protected void displayShapefiles(ArrayList<File> files) throws Exception {
         displayShapefiles(files, 800, 600, null);
@@ -76,12 +76,10 @@ public class SARIC_DisplayShapefile extends SARIC_Object {
      * @param displayWidth
      * @param displayHeight
      * @param re Used to set MapViewport
-     * @throws Exception 
+     * @throws Exception
      */
-    protected void displayShapefiles(
-            ArrayList<File> files,
-            int displayWidth,
-            int displayHeight,
+    protected void displayShapefiles(ArrayList<File> files,
+            int displayWidth, int displayHeight,
             ReferencedEnvelope re) throws Exception {
         MapContent mc;
         mc = new MapContent();
@@ -123,7 +121,7 @@ public class SARIC_DisplayShapefile extends SARIC_Object {
             mvp.setBounds(re);
             mc.setViewport(mvp);
         }
-        
+
         mapFrame.setVisible(true);
     }
 }

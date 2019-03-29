@@ -43,6 +43,7 @@ import uk.ac.leeds.ccg.andyt.projects.saric.data.catchment.SARIC_Teifi;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.catchment.SARIC_Wissey;
 import uk.ac.leeds.ccg.andyt.generic.time.Generic_Date;
 import uk.ac.leeds.ccg.andyt.generic.time.Generic_Time;
+import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Strings;
 import uk.ac.leeds.ccg.andyt.projects.saric.visualisation.SARIC_Colour;
 
 /**
@@ -58,7 +59,7 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
     boolean doWissey;
     boolean doTeifi;
 
-    public SARIC_NIMRODDataHandler(SARIC_Environment se, boolean doWissey, 
+    public SARIC_NIMRODDataHandler(SARIC_Environment se, boolean doWissey,
             boolean doTeifi) {
         super(se);
         ge = se.Grids_Env;
@@ -188,16 +189,6 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
                 try {
                     // Set archive for storing grids
                     if (generatedDir2 == null) {
-//                        try {
-//                            Generic_IO.initialiseArchive(generatedDir1, range, maxID);
-//                        } catch (IOException ex) {
-//                            Logger.getLogger(SARIC_NIMRODDataHandler.class.getName()).Log(Level.SEVERE, null, ex);
-//                        }
-//                        generatedDir2 = Generic_IO.getObjectDirectory(
-//                                generatedDir1,
-//                                GridID,
-//                                maxID,
-//                                range);
                         Generic_IO.initialiseArchive(generatedDir1, range);
                         generatedDir2 = Generic_IO.getObjectDir(
                                 generatedDir1, GridID, GridID, range);
@@ -250,26 +241,14 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
                     if (doTeifi) {
                         gp.addToGrid(tg1, g, 1.0d);
                         gp.addToGrid(tg2, g, 1.0d);
-                        outputImages(outputDir1,
-                                Strings.getS_Teifi(),
-                                name,
-                                tgf,
-                                tg2,
-                                tg0,
-                                ie,
-                                cm);
+                        outputImages(outputDir1, SARIC_Strings.s_Teifi, name,
+                                tgf, tg2, tg0, ie, cm);
                     }
                     if (doWissey) {
                         gp.addToGrid(wg1, g, 1.0d);
                         gp.addToGrid(wg2, g, 1.0d);
-                        outputImages(outputDir1,
-                                Strings.getS_Wissey(),
-                                name,
-                                wgf,
-                                wg2,
-                                wg0,
-                                ie,
-                                cm);
+                        outputImages(outputDir1, SARIC_Strings.s_Wissey, name,
+                                wgf, wg2, wg0, ie, cm);
                     }
 //                    /**
 //                     * Initialise aggregateGrid if it has not been already and
@@ -288,41 +267,21 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
             st.addMinutes(5);
         }
         if (doTeifi) {
-            outputImages(outputDir1,
-                    Strings.getS_Teifi(),
-                    "",
-                    tgf,
-                    tg1,
-                    tg0,
-                    ie,
-                    cm);
+            outputImages(outputDir1, SARIC_Strings.s_Teifi, "", tgf, tg1, tg0,
+                    ie, cm);
         }
         if (doWissey) {
-            outputImages(outputDir1,
-                    Strings.getS_Wissey(),
-                    "",
-                    wgf,
-                    wg1,
-                    wg0,
-                    ie,
-                    cm);
+            outputImages(outputDir1, SARIC_Strings.s_Wissey, "", wgf, wg1, wg0,
+                    ie, cm);
         }
     }
 
-    public void outputImages(
-            File outdir,
-            String area,
-            String name,
-            //Generic_Time st,
-            Grids_GridDoubleFactory gf,
-            Grids_GridDouble g,
-            Grids_GridDouble mask,
-            Grids_ImageExporter ie,
+    public void outputImages(File outdir, String area, String name,
+            Grids_GridDoubleFactory gf, Grids_GridDouble g, 
+            Grids_GridDouble mask, Grids_ImageExporter ie,
             TreeMap<Double, Color> cm) {
         File outputDir1;
-        outputDir1 = new File(
-                outdir,
-                area);
+        outputDir1 = new File(                outdir,                area);
         outputDir1.mkdirs();
         File outfile;
         gp.GridDoubleFactory.setNoDataValue(gf.getNoDataValue());
@@ -331,9 +290,7 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
 //                outputDir1,
 //                area + st.getYYYYMMDDHHMM() + ".png");
 //        ie.toGreyScaleImage(g, gp, outfile, "png", true);
-        outfile = new File(
-                outputDir1,
-                area + "Colour" + name + ".png");
+        outfile = new File(                outputDir1,                area + "Colour" + name + ".png");
         ie.toColourImage(0, cm, Color.BLACK, g, outfile, "PNG");
     }
 }
