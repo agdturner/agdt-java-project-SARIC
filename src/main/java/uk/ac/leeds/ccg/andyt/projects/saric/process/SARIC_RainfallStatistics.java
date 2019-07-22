@@ -49,7 +49,6 @@ import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.site.SARIC_
 import uk.ac.leeds.ccg.andyt.generic.time.Generic_Date;
 import uk.ac.leeds.ccg.andyt.generic.time.Generic_Time;
 import uk.ac.leeds.ccg.andyt.generic.time.Generic_YearMonth;
-import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Strings;
 import uk.ac.leeds.ccg.andyt.projects.saric.visualisation.SARIC_Colour;
 import uk.ac.leeds.ccg.andyt.vector.geometry.Vector_Envelope2D;
 
@@ -156,7 +155,7 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
             st1KMGrid = st.get1KMGrid("1KMGrid");
             st1KMGridMaskedToCatchment = st.get1KMGridMaskedToCatchment();
         }
-        layerName = SARIC_Strings.s_RADAR_UK_Composite_Highres;
+        layerName = se.strings.s_RADAR_UK_Composite_Highres;
         for (int scale = 4; scale < 5; scale++) {
             tileMatrix = tileMatrixSet + ":" + scale;
             metOfficeLayerParameters = p.getMetOfficeLayerParameters();
@@ -172,12 +171,12 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
             //System.out.println(bounds.toString());
             p.setBounds(bounds);
             if (doWissey) {
-                area = SARIC_Strings.s_Wissey;
+                area = se.strings.s_Wissey;
                 processObservations(
                         colorMap, noDataValueColor, area, scale, layerName, cellsize, p, lp, r, sw1KMGrid, sw1KMGridMaskedToCatchment);
             }
             if (doTeifi) {
-                area = SARIC_Strings.s_Teifi;
+                area = se.strings.s_Teifi;
                 processObservations(
                         colorMap, noDataValueColor, area, scale, layerName, cellsize, p, lp, r, st1KMGrid, st1KMGridMaskedToCatchment);
             }
@@ -322,9 +321,9 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
                                 infiles = indirs0[j].listFiles();
 
                                 st = new Generic_Time(se.ge, indirname2,
-                                        SARIC_Strings.symbol_minus, 
-                                        SARIC_Strings.s_T,
-                                        SARIC_Strings.symbol_underscore);
+                                        se.strings.symbol_minus, 
+                                        se.strings.s_T,
+                                        se.strings.symbol_underscore);
                                 if (atg.containsKey(st)) {
                                     tg = atg.get(st);
                                 } else {

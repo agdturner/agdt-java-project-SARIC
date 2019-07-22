@@ -23,10 +23,8 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.HashSet;
 import uk.ac.leeds.ccg.andyt.geotools.Geotools_Shapefile;
-import uk.ac.leeds.ccg.andyt.generic.io.Generic_IO;
 import uk.ac.leeds.ccg.andyt.grids.core.Grids_2D_ID_long;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
-import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Strings;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.site.SARIC_Site;
 import uk.ac.leeds.ccg.andyt.vector.geometry.Vector_Envelope2D;
 
@@ -44,7 +42,7 @@ public class SARIC_Teifi extends SARIC_Catchment {
     HashMap<Grids_2D_ID_long, SARIC_Site> siteMap;
 
     public SARIC_Teifi(SARIC_Environment se) {
-        super(se, SARIC_Strings.s_Teifi);
+        super(se, se.strings.s_Teifi);
     }
 
     /**
@@ -128,11 +126,11 @@ public class SARIC_Teifi extends SARIC_Catchment {
         File f;
         f = Files.getGeneratedDataMetOfficeDataPointForecastsSitesInTeifiFile();
         if (f.exists()) {
-            result = (HashSet<SARIC_Site>) Generic_IO.readObject(f);
+            result = (HashSet<SARIC_Site>) se.ge.io.readObject(f);
         } else {
             f.getParentFile().mkdirs();
             result = super.getForecastsSitesInStudyArea(time);
-            Generic_IO.writeObject(result, f);
+            se.ge.io.writeObject(result, f);
         }
         return result;
     }

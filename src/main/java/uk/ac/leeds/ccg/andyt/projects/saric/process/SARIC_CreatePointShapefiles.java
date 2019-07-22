@@ -25,7 +25,6 @@ import uk.ac.leeds.ccg.andyt.geotools.core.Geotools_Environment;
 import uk.ac.leeds.ccg.andyt.geotools.Geotools_Shapefile;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Object;
-import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Strings;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.catchment.SARIC_Teifi;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.catchment.SARIC_Wissey;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.site.SARIC_Site;
@@ -79,10 +78,10 @@ public class SARIC_CreatePointShapefiles extends SARIC_Object
         if (doForecasts) {
             String time;
             //time = ss.getS_daily();
-            time = SARIC_Strings.s_3hourly;
+            time = se.strings.s_3hourly;
             buffer = null;
             sites = sh.getForecastsSites(time);
-            run(overwrite, SARIC_Strings.s_Forecasts, sites, buffer);
+            run(overwrite, se.strings.s_Forecasts, sites, buffer);
         }
         if (doObservations) {
 //            buffer = new BigDecimal(20000.0d);
@@ -90,7 +89,7 @@ public class SARIC_CreatePointShapefiles extends SARIC_Object
 //            buffer = new BigDecimal(40000.0d);
             buffer = new BigDecimal(60000.0d);
             sites = sh.getObservationsSites();
-            run(overwrite, SARIC_Strings.s_Observations, sites, buffer);
+            run(overwrite, se.strings.s_Observations, sites, buffer);
         }
     }
 
@@ -115,11 +114,11 @@ public class SARIC_CreatePointShapefiles extends SARIC_Object
             outfileAll.getParentFile().mkdirs();
             File outfileWissey;
             outfileWissey = Geotools_Env.getOutputShapefile(dir,
-                    SARIC_Strings.s_Wissey + "SitesBuffered");
+                    se.strings.s_Wissey + "SitesBuffered");
             outfileWissey.getParentFile().mkdirs();
             File outfileTeifi;
             outfileTeifi = Geotools_Env.getOutputShapefile(dir,
-                    SARIC_Strings.s_Teifi + "SitesBuffered");
+                    se.strings.s_Teifi + "SitesBuffered");
             outfileTeifi.getParentFile().mkdirs();
 
             // Initialise for Wissey

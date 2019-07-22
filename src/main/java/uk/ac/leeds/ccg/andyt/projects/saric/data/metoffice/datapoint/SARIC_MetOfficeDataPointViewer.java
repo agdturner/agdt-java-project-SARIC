@@ -39,7 +39,6 @@ import uk.ac.leeds.ccg.andyt.geotools.core.Geotools_Environment;
 import uk.ac.leeds.ccg.andyt.geotools.Geotools_Shapefile;
 import uk.ac.leeds.ccg.andyt.geotools.demo.Geotools_DisplayShapefile;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
-import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Strings;
 import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
 
 /**
@@ -51,12 +50,13 @@ public class SARIC_MetOfficeDataPointViewer extends Geotools_DisplayShapefile {
     SARIC_Environment se;
     SARIC_Files files;
     Geotools_Environment Geotools_Env;
-    
-    protected SARIC_MetOfficeDataPointViewer(){}
-    
+
+    protected SARIC_MetOfficeDataPointViewer() {
+    }
+
     public SARIC_MetOfficeDataPointViewer(SARIC_Environment se) {
         this.se = se;
-        files = new SARIC_Files(); 
+        files = new SARIC_Files(se.strings);
         Geotools_Env = se.Geotools_Env;
     }
 
@@ -66,67 +66,61 @@ public class SARIC_MetOfficeDataPointViewer extends Geotools_DisplayShapefile {
 
     @Override
     public void run() {
-        ArrayList<File> files;
-        files = new ArrayList<>();
+        ArrayList<File> fs;
+        fs = new ArrayList<>();
         String name;
         File dir;
         File f;
 
         Geotools_Shapefile as;
         FeatureLayer fl;
-        
+
         MapContent mc;
         ReferencedEnvelope re;
-        
+
         // Wissey
         mc = new MapContent();
-        dir = new File(
-                this.files.getInputDataCatchmentBoundariesDir(),
-                "Wissey");
+        dir = new File(files.getInputDataCatchmentBoundariesDir(), "Wissey");
         name = "33006.shp";
         f = Geotools_Env.getShapefile(dir, name, false);
-        files.add(f);
+        fs.add(f);
         Geotools_Shapefile f33006;
         f33006 = new Geotools_Shapefile(Geotools_Env, f);
         mc.addLayer(f33006.getFeatureLayer());
         name = "WISSEY_RBMP2.shp";
         f = Geotools_Env.getShapefile(dir, name, false);
-        files.add(f);
+        fs.add(f);
         as = new Geotools_Shapefile(Geotools_Env, f);
         fl = as.getFeatureLayer();
         mc.addLayer(fl);
         re = mc.getMaxBounds();
-                printBounds(re);
+        printBounds(re);
 
         // Teifi
-         dir = new File(
-                this.files.getInputDataCatchmentBoundariesDir(),
-                 "Teifi");
+        dir = new File(files.getInputDataCatchmentBoundariesDir(), "Teifi");
         name = "62001.shp";
         f = Geotools_Env.getShapefile(dir, name, false);
-        files.add(f);
+        fs.add(f);
         name = "WW_area.shp";
         f = Geotools_Env.getShapefile(dir, name, false);
-        files.add(f);
+        fs.add(f);
         as = new Geotools_Shapefile(Geotools_Env, f);
         fl = as.getFeatureLayer();
         re = fl.getBounds();
         printBounds(re);
-        
-         dir = new File(
-                this.files.getInputDataCEHDir(),
-                "WGS84");
+
+        dir = new File(files.getInputDataCEHDir(), "WGS84");
         name = "ihu_catchments.shp";
         f = Geotools_Env.getShapefile(dir, name, false);
-        files.add(f);
+        fs.add(f);
 
         try {
-            displayShapefiles(files, 800, 600, re);
+            displayShapefiles(fs, 800, 600, re);
         } catch (Exception ex) {
             Logger.getLogger(Geotools_DisplayShapefile.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
     public void printBounds(ReferencedEnvelope re) {
         double minx;
         double maxx;
@@ -141,13 +135,13 @@ public class SARIC_MetOfficeDataPointViewer extends Geotools_DisplayShapefile {
         System.out.println("miny " + miny);
         System.out.println("maxy " + maxy);
     }
-    
+
     /**
      * @param files
      * @param displayWidth
      * @param displayHeight
      * @param re Used to set MapViewport
-     * @throws Exception 
+     * @throws Exception
      */
     @Override
     protected void displayShapefiles(
@@ -177,17 +171,17 @@ public class SARIC_MetOfficeDataPointViewer extends Geotools_DisplayShapefile {
             Color fillColor;
             float opacity;
             if (i == 0) {
-               outlineColor = Color.BLACK;
-               fillColor = Color.LIGHT_GRAY;
-                       opacity = 0;
+                outlineColor = Color.BLACK;
+                fillColor = Color.LIGHT_GRAY;
+                opacity = 0;
             } else if (i == 1) {
                 outlineColor = Color.BLUE;
                 fillColor = Color.WHITE;
-                       opacity = 0;
+                opacity = 0;
             } else {
                 outlineColor = Color.CYAN;
                 fillColor = Color.WHITE;
-                       opacity = 0;
+                opacity = 0;
             }
             Style style;
             //style = SLD.createSimpleStyle(fs.getSchema());
@@ -195,7 +189,7 @@ public class SARIC_MetOfficeDataPointViewer extends Geotools_DisplayShapefile {
             Layer layer;
             layer = new FeatureLayer(fs, style);
             mc.layers().add(layer);
-            i ++;
+            i++;
         }
         // Create a JMapFrame with custom toolbar buttons
         JMapFrame mapFrame = new JMapFrame(mc);
@@ -215,7 +209,7 @@ public class SARIC_MetOfficeDataPointViewer extends Geotools_DisplayShapefile {
             mvp.setBounds(re);
             mc.setViewport(mvp);
         }
-        
+
         mapFrame.setVisible(true);
     }
 }

@@ -22,7 +22,6 @@ import java.io.File;
 import java.util.HashSet;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Object;
-import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Strings;
 import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
 
 /**
@@ -49,14 +48,14 @@ public class SARIC_SiteHandler extends SARIC_Object {
     public HashSet<SARIC_Site> getForecastsSites(String time) {
         if (forecastsSites == null) {
             String type;
-            type = SARIC_Strings.s_wxfcs;
+            type = se.strings.s_wxfcs;
             String filename;
-            filename = SARIC_Strings.s_sitelist + SARIC_Strings.symbol_dot
-                    + SARIC_Strings.s_xml;
-            String s = SARIC_Strings.symbol_forwardslash;
+            filename = se.strings.s_sitelist + se.strings.symbol_dot
+                    + se.strings.s_xml;
+            String s = se.strings.symbol_forwardslash;
             String path;
-            path = SARIC_Strings.s_val + s + type + s + SARIC_Strings.s_all + s
-                    + SARIC_Strings.s_xml + s + SARIC_Strings.s_sitelist + s
+            path = se.strings.s_val + s + type + s + se.strings.s_all + s
+                    + se.strings.s_xml + s + se.strings.s_sitelist + s
                     + time + s;
             File dir;
             dir = new File(files.getInputDataMetOfficeDataPointDir(), path);
@@ -72,14 +71,14 @@ public class SARIC_SiteHandler extends SARIC_Object {
     public HashSet<SARIC_Site> getObservationsSites() {
         if (observationsSites == null) {
             String type;
-            type = SARIC_Strings.s_wxobs;
+            type = se.strings.s_wxobs;
             String filename;
-            filename = SARIC_Strings.s_sitelist + SARIC_Strings.symbol_dot 
-                    + SARIC_Strings.s_xml;
+            filename = se.strings.s_sitelist + se.strings.symbol_dot 
+                    + se.strings.s_xml;
             String path;
-            String s = SARIC_Strings.symbol_forwardslash;
-            path = SARIC_Strings.s_val + s + type + s + SARIC_Strings.s_all + s
-                    + SARIC_Strings.s_xml + s + SARIC_Strings.s_sitelist + s;
+            String s = se.strings.symbol_forwardslash;
+            path = se.strings.s_val + s + type + s + se.strings.s_all + s
+                    + se.strings.s_xml + s + se.strings.s_sitelist + s;
             File dir;
             dir = new File(files.getInputDataMetOfficeDataPointDir(), path);
             File f;

@@ -34,10 +34,8 @@ import java.util.Iterator;
 import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import uk.ac.leeds.ccg.andyt.generic.io.Generic_IO;
 //import uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Time;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
-import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Strings;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.catchment.SARIC_Teifi;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.catchment.SARIC_Wissey;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.site.SARIC_Site;
@@ -150,11 +148,11 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
     public void run() {
         try {
             // For convenience
-            String s_3hourly = SARIC_Strings.s_3hourly;
-            String s_daily = SARIC_Strings.s_daily;
-            String s_Wissey = SARIC_Strings.s_Wissey;
-            String s_Teifi = SARIC_Strings.s_Teifi;
-            
+            String s_3hourly = se.strings.s_3hourly;
+            String s_daily = se.strings.s_daily;
+            String s_Wissey = se.strings.s_Wissey;
+            String s_Teifi = se.strings.s_Teifi;
+
             File dir;
             SARIC_SiteHandler sh;
             HashSet<SARIC_Site> sites;
@@ -217,7 +215,7 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
 //                layerName = "SATELLITE_Infrared_Fulldisk";
 //                layerName = "SATELLITE_Visible_N_Section";
 //                layerName = "SATELLITE_Visible_N_Section";
-                    layerName = SARIC_Strings.s_RADAR_UK_Composite_Highres; //Rainfall
+                    layerName = se.strings.s_RADAR_UK_Composite_Highres; //Rainfall
                     try {
                         getObservationLayer(layerName, overwrite);
                     } catch (Exception ex) {
@@ -342,7 +340,7 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
                     Vector_Envelope2D teifiBounds;
                     teifiBounds = se.getTeifi().getBounds();
                     if (ObservationsTileFromWMTSService) {
-                        layerName = SARIC_Strings.s_RADAR_UK_Composite_Highres;
+                        layerName = se.strings.s_RADAR_UK_Composite_Highres;
                         //getAllObservationsTilesFromWMTSService(layerName, tileMatrixSet, p, r, overwrite);
                         try {
                             getIntersectingObservationsTilesFromWMTSService(
@@ -516,23 +514,23 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
      */
     protected File getForecastsSite(String siteID, String res, String timeRange) {
         File result;
-        path = sf.getValDataTypePath(dataType, SARIC_Strings.s_wxfcs) + siteID;
+        path = sf.getValDataTypePath(dataType, se.strings.s_wxfcs) + siteID;
         url = BASE_URL
                 + path
-                + SARIC_Strings.symbol_questionmark
-                + SARIC_Strings.s_res + SARIC_Strings.symbol_equals + res
-                + SARIC_Strings.symbol_ampersand
-                + SARIC_Strings.s_key + SARIC_Strings.symbol_equals + API_KEY;
+                + se.strings.symbol_questionmark
+                + se.strings.s_res + se.strings.symbol_equals + res
+                + se.strings.symbol_ampersand
+                + se.strings.s_key + se.strings.symbol_equals + API_KEY;
         //System.out.println(url);
         // Reset path
         String currentTime;
         currentTime = uk.ac.leeds.ccg.andyt.generic.util.Generic_Time.getDateAndTimeHourDir();
-        path = sf.getValDataTypePath(dataType, SARIC_Strings.s_wxfcs)
-                + SARIC_Strings.s_site + SARIC_Strings.symbol_forwardslash
-                + res + SARIC_Strings.symbol_forwardslash
-                + currentTime.substring(0, 7) + SARIC_Strings.symbol_forwardslash
-                + currentTime.substring(0, 10) + SARIC_Strings.symbol_forwardslash
-                + currentTime + SARIC_Strings.symbol_forwardslash
+        path = sf.getValDataTypePath(dataType, se.strings.s_wxfcs)
+                + se.strings.s_site + se.strings.symbol_forwardslash
+                + res + se.strings.symbol_forwardslash
+                + currentTime.substring(0, 7) + se.strings.symbol_forwardslash
+                + currentTime.substring(0, 10) + se.strings.symbol_forwardslash
+                + currentTime + se.strings.symbol_forwardslash
                 + siteID;
         result = getXML(siteID + res, -1, timeRange);
         return result;
@@ -559,15 +557,15 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
      */
     protected File getObservationsSite(String siteID, String timeRange) {
         File result;
-        path = sf.getValDataTypePath(dataType, SARIC_Strings.s_wxobs) + siteID;
+        path = sf.getValDataTypePath(dataType, se.strings.s_wxobs) + siteID;
         String res;
-        res = SARIC_Strings.s_hourly;
+        res = se.strings.s_hourly;
         url = BASE_URL
                 + path
-                + SARIC_Strings.symbol_questionmark
-                + SARIC_Strings.s_res + SARIC_Strings.symbol_equals + res
-                + SARIC_Strings.symbol_ampersand
-                + SARIC_Strings.s_key + SARIC_Strings.symbol_equals + API_KEY;
+                + se.strings.symbol_questionmark
+                + se.strings.s_res + se.strings.symbol_equals + res
+                + se.strings.symbol_ampersand
+                + se.strings.s_key + se.strings.symbol_equals + API_KEY;
         result = getXML(siteID + res, 1, timeRange);
         return result;
     }
@@ -601,7 +599,7 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
      * Get observation site list.
      */
     protected void getObservationsSiteList() {
-        getSiteList(SARIC_Strings.s_wxobs, null);
+        getSiteList(se.strings.s_wxobs, null);
     }
 
     /**
@@ -610,7 +608,7 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
      * @param time Expect "3hourly" or "daily".
      */
     protected void getForecastsSiteList(String time) {
-        getSiteList(SARIC_Strings.s_wxfcs, time);
+        getSiteList(se.strings.s_wxfcs, time);
     }
 
     /**
@@ -621,15 +619,15 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
      * forecasts.
      */
     protected void getSiteList(String type, String time) {
-        path = sf.getValDataTypePath(dataType, type) + SARIC_Strings.s_sitelist;
+        path = sf.getValDataTypePath(dataType, type) + se.strings.s_sitelist;
         //http://datapoint.metoffice.gov.uk/public/data/val/wxobs/all/xml/sitelist?key={key}
         //http://datapoint.metoffice.gov.uk/public/data/val/wxfcs/all/xml/sitelist?res=daily&key={key}
         //http://datapoint.metoffice.gov.uk/public/data/val/wxfcs/all/xml/sitelist?res=3hourly&key={key}
-        url = BASE_URL + path + SARIC_Strings.symbol_questionmark;
+        url = BASE_URL + path + se.strings.symbol_questionmark;
         if (time != null) {
-            url += SARIC_Strings.s_res + SARIC_Strings.symbol_equals + time + SARIC_Strings.symbol_ampersand;
+            url += se.strings.s_res + se.strings.symbol_equals + time + se.strings.symbol_ampersand;
         }
-        url += SARIC_Strings.s_key + SARIC_Strings.symbol_equals + API_KEY;
+        url += se.strings.s_key + se.strings.symbol_equals + API_KEY;
         File dir;
         dir = new File(sf.getInputDataMetOfficeDataPointDir(), path);
         if (time != null) {
@@ -637,7 +635,7 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
         }
         dir.mkdirs();
         File xml;
-        xml = new File(dir, SARIC_Strings.s_sitelist + "." + dataType);
+        xml = new File(dir, se.strings.s_sitelist + "." + dataType);
         getXML(url, xml);
     }
 
@@ -690,22 +688,22 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
             boolean overwrite) throws Exception {
         //http://datapoint.metoffice.gov.uk/public/data/layer/wxfcs/{LayerName}/{ImageFormat}?RUN={DefaultTime}Z&FORECAST={Timestep}&key={key}
         String imageFormat;
-        imageFormat = SARIC_Strings.s_png;
+        imageFormat = se.strings.s_png;
         String timeStep;
         String outputFilenameWithoutExtension;
         for (int step = 0; step <= 36; step += 3) {
             timeStep = Integer.toString(step);
             System.out.println("Getting forecast for time " + timeStep);
-            path = SARIC_Strings.s_layer + SARIC_Strings.symbol_forwardslash
-                    + SARIC_Strings.s_wxfcs + SARIC_Strings.symbol_forwardslash
-                    + layerName + SARIC_Strings.symbol_forwardslash
+            path = se.strings.s_layer + se.strings.symbol_forwardslash
+                    + se.strings.s_wxfcs + se.strings.symbol_forwardslash
+                    + layerName + se.strings.symbol_forwardslash
                     + imageFormat;
             url = BASE_URL
                     + path
-                    + SARIC_Strings.symbol_questionmark
-                    + "RUN" + SARIC_Strings.symbol_equals + time + "Z"
-                    + SARIC_Strings.symbol_ampersand + "FORECAST" + SARIC_Strings.symbol_equals + timeStep
-                    + SARIC_Strings.symbol_ampersand + SARIC_Strings.s_key + SARIC_Strings.symbol_equals + API_KEY;
+                    + se.strings.symbol_questionmark
+                    + "RUN" + se.strings.symbol_equals + time + "Z"
+                    + se.strings.symbol_ampersand + "FORECAST" + se.strings.symbol_equals + timeStep
+                    + se.strings.symbol_ampersand + se.strings.s_key + se.strings.symbol_equals + API_KEY;
             outputFilenameWithoutExtension = layerName + time.replace(':', '_') + timeStep;
             getPNG(outputFilenameWithoutExtension, overwrite);
         }
@@ -724,7 +722,7 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
             TreeSet<Generic_Time> times, boolean overwrite) throws Exception {
         //http://datapoint.metoffice.gov.uk/public/data/layer/wxobs/{LayerName}/{ImageFormat}?TIME={Time}Z&key={key}
         String imageFormat;
-        imageFormat = SARIC_Strings.s_png;
+        imageFormat = se.strings.s_png;
         Generic_Time time;
         Iterator<Generic_Time> ite;
         ite = times.iterator();
@@ -732,15 +730,15 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
             time = ite.next();
             //System.out.println(time);
             //if (time.contains("00:00")) {
-            path = SARIC_Strings.s_layer + SARIC_Strings.symbol_forwardslash
-                    + SARIC_Strings.s_wxobs + SARIC_Strings.symbol_forwardslash
-                    + layerName + SARIC_Strings.symbol_forwardslash
+            path = se.strings.s_layer + se.strings.symbol_forwardslash
+                    + se.strings.s_wxobs + se.strings.symbol_forwardslash
+                    + layerName + se.strings.symbol_forwardslash
                     + imageFormat;
             url = BASE_URL
                     + path
-                    + SARIC_Strings.symbol_questionmark
-                    + "TIME" + SARIC_Strings.symbol_equals + time + SARIC_Strings.s_Z
-                    + SARIC_Strings.symbol_ampersand + SARIC_Strings.s_key + SARIC_Strings.symbol_equals + API_KEY;
+                    + se.strings.symbol_questionmark
+                    + "TIME" + se.strings.symbol_equals + time + se.strings.s_Z
+                    + se.strings.symbol_ampersand + se.strings.s_key + se.strings.symbol_equals + API_KEY;
             String outputFilenameWithoutExtension;
             outputFilenameWithoutExtension = layerName + time.toFormattedString1();
             getPNG(outputFilenameWithoutExtension, overwrite);
@@ -1091,10 +1089,10 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
         path = "inspire/view/wmts";
         url = BASE_URL
                 + path
-                + "?REQUEST=get" + SARIC_Strings.s_capabilities
-                + SARIC_Strings.symbol_ampersand
-                + SARIC_Strings.s_key + SARIC_Strings.symbol_equals + API_KEY;
-        File result = getXML(SARIC_Strings.s_capabilities, -1, null);
+                + "?REQUEST=get" + se.strings.s_capabilities
+                + se.strings.symbol_ampersand
+                + se.strings.s_key + se.strings.symbol_equals + API_KEY;
+        File result = getXML(se.strings.s_capabilities, -1, null);
         return result;
     }
 
@@ -1106,7 +1104,7 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
      */
     protected File getObservationsLayerCapabilities() {
         // http://datapoint.metoffice.gov.uk/public/data/layer/wxobs/all/xml/capabilities?key=<API key>
-        setPath(SARIC_Strings.s_val, SARIC_Strings.s_wxobs, dataType);
+        setPath(se.strings.s_val, se.strings.s_wxobs, dataType);
         addCapabilitiesToPath();
         return getCapabilities(-1);
     }
@@ -1117,10 +1115,10 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
      * @return
      */
     protected File getObservationsSiteCapabilities() {
-        setPath(SARIC_Strings.s_val, SARIC_Strings.s_wxobs, dataType);
+        setPath(se.strings.s_val, se.strings.s_wxobs, dataType);
         addCapabilitiesToPath();
-        path += SARIC_Strings.s_res + SARIC_Strings.symbol_equals + SARIC_Strings.s_hourly
-                + SARIC_Strings.symbol_ampersand;
+        path += se.strings.s_res + se.strings.symbol_equals + se.strings.s_hourly
+                + se.strings.symbol_ampersand;
         return getCapabilities(0);
     }
 
@@ -1133,12 +1131,10 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
      * @return
      */
     protected File getCapabilities(int parsePath) {
-        File result;
-        url = BASE_URL
-                + path
-                + SARIC_Strings.s_key + SARIC_Strings.symbol_equals + API_KEY;
-        result = getXML(SARIC_Strings.s_capabilities, parsePath, null);
-        return result;
+        url = BASE_URL + path + se.strings.s_key
+                + se.strings.symbol_equals + API_KEY;
+        File r = getXML(se.strings.s_capabilities, parsePath, null);
+        return r;
     }
 
     /**
@@ -1148,7 +1144,7 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
      */
     protected File getForecastsLayerCapabilities() {
         // http://datapoint.metoffice.gov.uk/public/data/layer/wxfcs/all/xml/capabilities?key=<API key>
-        setPath(SARIC_Strings.s_val, SARIC_Strings.s_wxfcs, dataType);
+        setPath(se.strings.s_val, se.strings.s_wxfcs, dataType);
         addCapabilitiesToPath();
         return getCapabilities(-1);
     }
@@ -1161,41 +1157,36 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
      */
     protected File getForecastsSiteCapabilities(String time) {
         // http://datapoint.metoffice.gov.uk/public/data/val/wxfcs/all/xml/capabilities?res=3hourly&key=01234567-89ab-cdef-0123-456789abcdef
-        setPath(SARIC_Strings.s_val, SARIC_Strings.s_wxfcs, dataType);
+        setPath(se.strings.s_val, se.strings.s_wxfcs, dataType);
         addCapabilitiesToPath();
-        path += SARIC_Strings.s_res + SARIC_Strings.symbol_equals + time + SARIC_Strings.symbol_ampersand;
+        path += se.strings.s_res + se.strings.symbol_equals + time 
+                + se.strings.symbol_ampersand;
         return getCapabilities(0);
     }
 
-    protected void setPath(
-            String val_Or_layer,
-            String wxfcs_Or_Wxobs,
+    protected void setPath(String val_Or_layer, String wxfcs_Or_Wxobs,
             String dataType) {
-        path = val_Or_layer + SARIC_Strings.symbol_forwardslash
-                + wxfcs_Or_Wxobs + SARIC_Strings.symbol_forwardslash
-                + SARIC_Strings.s_all + SARIC_Strings.symbol_forwardslash
-                + dataType + SARIC_Strings.symbol_forwardslash;
+        path = val_Or_layer + se.strings.symbol_forwardslash
+                + wxfcs_Or_Wxobs + se.strings.symbol_forwardslash
+                + se.strings.s_all + se.strings.symbol_forwardslash
+                + dataType + se.strings.symbol_forwardslash;
     }
 
     public String getParsedPath0() {
-        String result;
-        String[] parts;
-        parts = path.split("capabilities\\?res=");
-        result = parts[0] + parts[1].substring(0, parts[1].length() - 1);
-        return result;
+        String[] parts = path.split("capabilities\\?res=");
+        return parts[0] + parts[1].substring(0, parts[1].length() - 1);
     }
 
     public String getParsedPath1() {
-        String result;
-        String[] parts;
-        parts = path.split(SARIC_Strings.s_xml);
-        result = parts[0] + SARIC_Strings.s_xml + SARIC_Strings.symbol_forwardslash
-                + SARIC_Strings.s_site + SARIC_Strings.symbol_forwardslash + parts[1];
-        return result;
+        String[] parts = path.split(se.strings.s_xml);
+        return parts[0] + se.strings.s_xml 
+                + se.strings.symbol_forwardslash
+                + se.strings.s_site + se.strings.symbol_forwardslash 
+                + parts[1];
     }
 
     protected void addCapabilitiesToPath() {
-        path += SARIC_Strings.s_capabilities + SARIC_Strings.symbol_questionmark;
+        path += se.strings.s_capabilities + se.strings.symbol_questionmark;
     }
 
     /**
@@ -1231,11 +1222,8 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
             outputDir = new File(outputDir, endDir);
         }
         outputDir.mkdirs();
-        File xml;
-        xml = new File(outputDir, name + "." + dataType);
-//        xml = Generic_IO.createNewFile(
-//                outputDir,
-//                name + "." + dataType);
+        File xml = new File(outputDir, name + "." + dataType);
+//        xml = se.ge.io.createNewFile(outputDir, name + "." + dataType);
         // http://datapoint.metoffice.gov.uk/public/data/val/wxfcs/all/xml/sitelist?res=daily&key=382c1804-3077-48cf-a301-f6f95e396794
         getXML(url, xml);
         return xml;
@@ -1253,7 +1241,7 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
         outputDir = new File(sf.getInputDataMetOfficeDataPointDir(), path);
         outputDir.mkdirs();
         File png;
-        png = new File(outputDir, outputFilenameWithoutExtension + "." + SARIC_Strings.s_png);
+        png = new File(outputDir, outputFilenameWithoutExtension + "." + se.strings.s_png);
         if (!overwrite) {
             if (png.exists()) {
                 System.out.println("File " + png.toString() + " already exists and is not being overwritten.");
@@ -1269,12 +1257,9 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
      * @return
      */
     public String getAPI_KEY() {
-        File f;
-        f = sf.getInputDataMetOfficeDataPointAPIKeyFile();
-        ArrayList<String> l;
-        l = Generic_IO.readIntoArrayList_String(f);
+        File f = sf.getInputDataMetOfficeDataPointAPIKeyFile();
+        ArrayList<String> l = se.ge.io.readIntoArrayList_String(f);
         return l.get(0);
-//        return "<" + l.get(0) + ">";
     }
 
     /**
@@ -1286,7 +1271,7 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
         HttpURLConnection connection;
         BufferedInputStream bis;
         BufferedOutputStream bos;
-        bos = Generic_IO.getBufferedOutputStream(f);
+        bos = se.ge.io.getBufferedOutputStream(f);
         String line;
         try {
             connection = getOpenHttpURLConnection(url);
@@ -1348,7 +1333,7 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
         boolean append;
         append = false;
         BufferedWriter bw;
-        bw = Generic_IO.getBufferedWriter(f, append);
+        bw = se.ge.io.getBufferedWriter(f, append);
         String line;
         try {
             connection = getOpenHttpURLConnection(url);
@@ -1434,10 +1419,10 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
         // Write out sites in the Wissey/Teifi
 
         File outfile;
-        outfile = getSitesFile(SARIC_Strings.s_Wissey, buffer, dir);
-        Generic_IO.writeObject(sitesInWissey, outfile);
-        outfile = getSitesFile(SARIC_Strings.s_Teifi, buffer, dir);
-        Generic_IO.writeObject(sitesInTeifi, outfile);
+        outfile = getSitesFile(se.strings.s_Wissey, buffer, dir);
+        se.ge.io.writeObject(sitesInWissey, outfile);
+        outfile = getSitesFile(se.strings.s_Teifi, buffer, dir);
+        se.ge.io.writeObject(sitesInTeifi, outfile);
     }
 
     protected File getSitesFile(String name, BigDecimal buffer, File dir) {
@@ -1455,7 +1440,7 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
         HashSet<SARIC_Site> result;
         File f;
         f = getSitesFile(name, buffer, dir);
-        result = (HashSet<SARIC_Site>) Generic_IO.readObject(f);
+        result = (HashSet<SARIC_Site>) se.ge.io.readObject(f);
         return result;
     }
 
@@ -1505,9 +1490,9 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
         firstTime = times.get(0);
         lastTime = times.get(times.size() - 1);
         result[0] = firstTime.substring(0, firstTime.length() - 4);
-        result[0] += SARIC_Strings.symbol_underscore + SARIC_Strings.symbol_underscore;
+        result[0] += se.strings.symbol_underscore + se.strings.symbol_underscore;
         result[0] += lastTime.substring(0, lastTime.length() - 4);
-        result[0] = result[0].replaceAll(SARIC_Strings.symbol_colon, SARIC_Strings.symbol_underscore);
+        result[0] = result[0].replaceAll(se.strings.symbol_colon, se.strings.symbol_underscore);
         result[1] = firstTime;
         result[2] = lastTime;
         return result;

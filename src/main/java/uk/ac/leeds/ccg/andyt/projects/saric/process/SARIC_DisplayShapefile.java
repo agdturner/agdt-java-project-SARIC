@@ -24,7 +24,6 @@ import org.geotools.swing.JMapFrame;
 import uk.ac.leeds.ccg.andyt.geotools.core.Geotools_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Object;
-import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Strings;
 
 /**
  *
@@ -51,12 +50,12 @@ public class SARIC_DisplayShapefile extends SARIC_Object {
 //        name = strings.getS_Wissey() + "Sites.shp";
 //        name = strings.getS_Teifi() + "Sites.shp";
 //        name = strings.getS_Wissey() + "SitesBuffered.shp";
-        name = SARIC_Strings.s_Teifi + "SitesBuffered.shp";
+        name = se.strings.s_Teifi + "SitesBuffered.shp";
 //        dir = new File(
 //                Files.getGeneratedDataMetOfficeDataPointDir(),
 //                strings.getS_Forecasts());
         dir = new File(Files.getGeneratedDataMetOfficeDataPointDir(),
-                SARIC_Strings.s_Observations);
+                se.strings.s_Observations);
         f = Geotools_Env.getShapefile(dir, name, false);
         files.add(f);
 

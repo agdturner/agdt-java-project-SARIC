@@ -51,7 +51,7 @@ public class SARIC_Environment {
     public SARIC_Environment(Generic_Environment ge, File dataDir) {
         this.ge = ge;
         strings = new SARIC_Strings();
-        Files = new SARIC_Files(dataDir);
+        Files = new SARIC_Files(strings, dataDir);
         MetOfficeParameters = new SARIC_MetOfficeParameters(this);
         Grids_Env = new Grids_Environment(Files.getGeneratedDataGridsDir());
         Vector_Env = new Vector_Environment(Grids_Env);
