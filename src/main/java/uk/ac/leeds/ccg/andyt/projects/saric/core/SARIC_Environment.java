@@ -33,41 +33,37 @@ import uk.ac.leeds.ccg.andyt.vector.core.Vector_Environment;
  *
  * @author geoagdt
  */
-public class SARIC_Environment {
-
-    public Generic_Environment ge;
-    public SARIC_Strings strings;
-    public SARIC_Files Files;
+public class SARIC_Environment extends Generic_Environment{
     
-    public final SARIC_MetOfficeParameters MetOfficeParameters;
-    public final Grids_Environment Grids_Env;
-    public final Vector_Environment Vector_Env;
-    public final Geotools_Environment Geotools_Env;
+    public SARIC_Files files;
+    
+    public final SARIC_MetOfficeParameters metOfficeParameters;
+    public final Grids_Environment gridsEnv;
+    public final Vector_Environment vectorEnv;
+    public final Geotools_Environment geotoolsEnv;
 
-    Generic_Time Time;
+    Generic_Time time;
     SARIC_Wissey Wissey;
     SARIC_Teifi Teifi;
 
-    public SARIC_Environment(Generic_Environment ge, File dataDir) {
-        this.ge = ge;
-        strings = new SARIC_Strings();
-        Files = new SARIC_Files(strings, dataDir);
-        MetOfficeParameters = new SARIC_MetOfficeParameters(this);
-        Grids_Env = new Grids_Environment(Files.getGeneratedDataGridsDir());
-        Vector_Env = new Vector_Environment(Grids_Env);
-        Geotools_Env = new Geotools_Environment();
+    public SARIC_Environment(File dataDir) {
+        files = new SARIC_Files(dataDir);
+        metOfficeParameters = new SARIC_MetOfficeParameters(this);
+        gridsEnv = new Grids_Environment(files.getGeneratedDataGridsDir());
+        vectorEnv = new Vector_Environment(gridsEnv);
+        geotoolsEnv = new Geotools_Environment();
     }
 
     public void setTime(Generic_Time time) {
-        Time = time;
+        this.time = time;
     }
 
     public SARIC_MetOfficeParameters getMetOfficeParameters() {
-        return MetOfficeParameters;
+        return metOfficeParameters;
     }
 
     public Generic_Time getTime() {
-        return Time;
+        return time;
     }
 
     public SARIC_Wissey getWissey() {

@@ -80,19 +80,19 @@ public class SARIC_MetOfficeCapabilitiesXMLDOMReader extends SARIC_XMLDOMReader 
         n = nodeList.item(i);
         //System.out.println(nodeList.item(i).getNodeName());
         nTextContent = n.getTextContent();
-        result.add(new Generic_Time(se.ge, nTextContent));
+        result.add(new Generic_Time(se, nTextContent));
         //System.out.println(nTextContent);
         i = find("Value", nodeList, i + 1);
         n = nodeList.item(i);
         while (nodeList.item(i + 1).getNodeName().equalsIgnoreCase("Value")) {
             nTextContent = n.getTextContent();
-            result.add(new Generic_Time(se.ge, nTextContent));
+            result.add(new Generic_Time(se, nTextContent));
             //System.out.println(nTextContent);
             i = find("Value", nodeList, i + 1);
             n = nodeList.item(i);
         }
         nTextContent = n.getTextContent();
-        result.add(new Generic_Time(se.ge, nTextContent));
+        result.add(new Generic_Time(se, nTextContent));
         return result;
     }
 
@@ -151,9 +151,9 @@ public class SARIC_MetOfficeCapabilitiesXMLDOMReader extends SARIC_XMLDOMReader 
         BigDecimal xmax;
         xmax = xmin.add((TwoFiveSixCellsize.multiply(new BigDecimal(ncols))));
         Vector_Point2D p;
-        p = new Vector_Point2D(se.Vector_Env, xmin, ymin);
+        p = new Vector_Point2D(se.vectorEnv, xmin, ymin);
         result = p.getEnvelope2D();
-        p = new Vector_Point2D(se.Vector_Env, xmax, ymax);
+        p = new Vector_Point2D(se.vectorEnv, xmax, ymax);
         result = result.envelope(p.getEnvelope2D());
         return result;
     }
@@ -259,7 +259,7 @@ public class SARIC_MetOfficeCapabilitiesXMLDOMReader extends SARIC_XMLDOMReader 
                     } else {
                         timeStartSecond = new Integer(timeSplit2[2]);
                     }
-                    startTime = new Generic_Time(se.ge, timeStartYear, timeStartMonth,
+                    startTime = new Generic_Time(se, timeStartYear, timeStartMonth,
                             timeStartDay, timeStartHour, timeStartMinute,
                             timeStartSecond);
                     startTimeSet = true;
@@ -335,7 +335,7 @@ public class SARIC_MetOfficeCapabilitiesXMLDOMReader extends SARIC_XMLDOMReader 
             } else {
                 if (nNodeName.equalsIgnoreCase(nodeName)) {
                     nTextContent = n.getTextContent();
-                    result.add(new Generic_Time(se.ge, nTextContent));
+                    result.add(new Generic_Time(se, nTextContent));
 //                    System.out.println(nTextContent);
                 }
             }

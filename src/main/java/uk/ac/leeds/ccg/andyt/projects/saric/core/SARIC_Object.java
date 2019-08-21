@@ -48,7 +48,7 @@ public abstract class SARIC_Object implements Serializable {
      */
     public SARIC_Object(SARIC_Environment e, int i) {
         this.se = e;
-        Files = e.Files;
+        Files = e.files;
         this.logID = i;
     }
 }

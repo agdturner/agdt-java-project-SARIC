@@ -37,7 +37,7 @@ public abstract class SARIC_XMLDOMReader extends Data_ReadXML {
     
     protected SARIC_XMLDOMReader(        SARIC_Environment se) {
             this.se = se;
-             this.files = se.Files;
+             this.files = se.files;
     }
 
     protected void initNodeList() {

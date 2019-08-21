@@ -49,6 +49,7 @@ import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.site.SARIC_
 import uk.ac.leeds.ccg.andyt.generic.time.Generic_Date;
 import uk.ac.leeds.ccg.andyt.generic.time.Generic_Time;
 import uk.ac.leeds.ccg.andyt.generic.time.Generic_YearMonth;
+import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Strings;
 import uk.ac.leeds.ccg.andyt.projects.saric.visualisation.SARIC_Colour;
 import uk.ac.leeds.ccg.andyt.vector.geometry.Vector_Envelope2D;
 
@@ -95,7 +96,7 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
         this.doWissey = doWissey;
         this.doTeifi = doTeifi;
         this.overwrite = overwrite;
-        ge = se.Grids_Env;
+        ge = se.gridsEnv;
         ae = new Grids_ESRIAsciiGridExporter(ge);
         ImageExporter = new Grids_ImageExporter(ge);
         gp = ge.getProcessor();
@@ -155,7 +156,7 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
             st1KMGrid = st.get1KMGrid("1KMGrid");
             st1KMGridMaskedToCatchment = st.get1KMGridMaskedToCatchment();
         }
-        layerName = se.strings.s_RADAR_UK_Composite_Highres;
+        layerName = SARIC_Strings.s_RADAR_UK_Composite_Highres;
         for (int scale = 4; scale < 5; scale++) {
             tileMatrix = tileMatrixSet + ":" + scale;
             metOfficeLayerParameters = p.getMetOfficeLayerParameters();
@@ -171,12 +172,12 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
             //System.out.println(bounds.toString());
             p.setBounds(bounds);
             if (doWissey) {
-                area = se.strings.s_Wissey;
+                area = SARIC_Strings.s_Wissey;
                 processObservations(
                         colorMap, noDataValueColor, area, scale, layerName, cellsize, p, lp, r, sw1KMGrid, sw1KMGridMaskedToCatchment);
             }
             if (doTeifi) {
-                area = se.strings.s_Teifi;
+                area = SARIC_Strings.s_Teifi;
                 processObservations(
                         colorMap, noDataValueColor, area, scale, layerName, cellsize, p, lp, r, st1KMGrid, st1KMGridMaskedToCatchment);
             }
@@ -234,14 +235,14 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
         indirs0 = indir0.listFiles();
         for (int i = 0; i < indirs0.length; i++) {
             s = indirs0[i].getName();
-            ym = new Generic_YearMonth(se.ge, s);
+            ym = new Generic_YearMonth(se, s);
             dates = new TreeSet<>();
             ymDates.put(ym, dates);
             indir1 = new File(indir0, s);
             indirs1 = indir1.listFiles();
             // initialise outdirs
             for (int j = 0; j < indirs1.length; j++) {
-                dates.add(new Generic_Date(se.ge, indirs1[j].getName().split("T")[0]));
+                dates.add(new Generic_Date(se, indirs1[j].getName().split("T")[0]));
             }
         }
 
@@ -320,10 +321,10 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
                                 indirname2 = indirs0[j].getName();
                                 infiles = indirs0[j].listFiles();
 
-                                st = new Generic_Time(se.ge, indirname2,
-                                        se.strings.symbol_minus, 
-                                        se.strings.s_T,
-                                        se.strings.symbol_underscore);
+                                st = new Generic_Time(se, indirname2,
+                                        SARIC_Strings.symbol_minus, 
+                                        SARIC_Strings.s_T,
+                                        SARIC_Strings.symbol_underscore);
                                 if (atg.containsKey(st)) {
                                     tg = atg.get(st);
                                 } else {

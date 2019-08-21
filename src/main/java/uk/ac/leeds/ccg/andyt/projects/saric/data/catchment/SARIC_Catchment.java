@@ -79,9 +79,9 @@ public abstract class SARIC_Catchment extends SARIC_Object {
 
     public SARIC_Catchment(SARIC_Environment se, String catchmentName) {
         super(se);
-        Grids_Env = se.Grids_Env;
-        Vector_Env = se.Vector_Env;
-        Geotools_Env = se.Geotools_Env;
+        Grids_Env = se.gridsEnv;
+        Vector_Env = se.vectorEnv;
+        Geotools_Env = se.geotoolsEnv;
         this.CatchmentName = catchmentName;
     }
 
@@ -114,9 +114,9 @@ public abstract class SARIC_Catchment extends SARIC_Object {
             BigDecimal ymin, BigDecimal ymax) {
         Vector_Envelope2D r;
         Vector_Point2D aPoint;
-        aPoint = new Vector_Point2D(se.Vector_Env, xmin, ymin);
+        aPoint = new Vector_Point2D(se.vectorEnv, xmin, ymin);
         Vector_Point2D bPoint;
-        bPoint = new Vector_Point2D(se.Vector_Env, xmax, ymax);
+        bPoint = new Vector_Point2D(se.vectorEnv, xmax, ymax);
         r = new Vector_Envelope2D(aPoint, bPoint);
         return r;
     }

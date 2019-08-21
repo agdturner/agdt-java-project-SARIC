@@ -26,7 +26,6 @@ import java.util.logging.Logger;
 import org.xml.sax.*;
 import org.xml.sax.helpers.DefaultHandler;
 import org.apache.xerces.parsers.SAXParser;
-import uk.ac.leeds.ccg.andyt.generic.core.Generic_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
 
@@ -45,7 +44,7 @@ public class SARIC_MetOfficeSiteListXMLSAXHandler extends DefaultHandler {
 
     public SARIC_MetOfficeSiteListXMLSAXHandler(SARIC_Environment se, File f) {
         this.se = se;
-        files = se.Files;
+        files = se.files;
         this.f = f;
         parser = new SAXParser();
         sites = new HashSet<>();
@@ -54,10 +53,8 @@ public class SARIC_MetOfficeSiteListXMLSAXHandler extends DefaultHandler {
     public static void main(String[] args) {
         try {
             File dataDir = new File(System.getProperty("user.dir"), "data");
-            Generic_Environment ge = new Generic_Environment(dataDir);
-            SARIC_Environment se;
-            se = new SARIC_Environment(ge, dataDir);
-            File f = new File(se.Files.getInputDataMetOfficeDataPointDir(),
+            SARIC_Environment se  = new SARIC_Environment(dataDir);
+            File f = new File(se.files.getInputDataMetOfficeDataPointDir(),
                     "/val/wxfcs/all/xml/sitelist/sitelist.xml");
             SARIC_MetOfficeSiteListXMLSAXHandler r;
             r = new SARIC_MetOfficeSiteListXMLSAXHandler(se, f);

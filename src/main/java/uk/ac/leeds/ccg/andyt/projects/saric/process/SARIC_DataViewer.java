@@ -50,6 +50,7 @@ import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_GridDouble;
 import uk.ac.leeds.ccg.andyt.grids.core.grid.Grids_GridDoubleFactory;
 import uk.ac.leeds.ccg.andyt.grids.io.Grids_Files;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
+import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Strings;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.catchment.SARIC_Teifi;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.catchment.SARIC_Wissey;
 import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
@@ -75,11 +76,11 @@ public class SARIC_DataViewer extends Geotools_DisplayShapefile implements Runna
     public SARIC_DataViewer(SARIC_Environment se, boolean doWissey, 
             boolean doTeifi, boolean addGBHRUs) {
         this.se = se;
-        this.sf = se.Files;
+        this.sf = se.files;
         this.doWissey = doWissey;
         this.doTeifi = doTeifi;
         this.addGBHRUs = addGBHRUs;
-        Geotools_Env = se.Geotools_Env;
+        Geotools_Env = se.geotoolsEnv;
     }
 
     @Override
@@ -392,7 +393,7 @@ public class SARIC_DataViewer extends Geotools_DisplayShapefile implements Runna
         File dir;
         File f;
         String name = "2017-08-09" 
-                + se.strings.s_RADAR_UK_Composite_Highres + ".asc";
+                + SARIC_Strings.s_RADAR_UK_Composite_Highres + ".asc";
 
         if (doWissey) {
             dir = new File(sf.getOutputDataMetOfficeDataPointDir(),
@@ -415,7 +416,7 @@ public class SARIC_DataViewer extends Geotools_DisplayShapefile implements Runna
 
     public GridCoverageLayer getGridCoverageLayer(File dir, String name) {
         Grids_Files gridf;
-        gridf = ge.getGrids_Environment().getFiles();
+        gridf = env.getGrids_Environment().getFiles();
         GridCoverageLayer result;
         File f;
         f = new File(dir, name);
@@ -437,7 +438,7 @@ public class SARIC_DataViewer extends Geotools_DisplayShapefile implements Runna
         gc = Maps.getGridCoverage2D(agr);
 
         Grids_GridDoubleFactory gf;
-        gf = se.Grids_Env.getProcessor().GridDoubleFactory;
+        gf = se.gridsEnv.getProcessor().GridDoubleFactory;
         File gdir;
         gdir = gridf.createNewFile(gridf.getGeneratedGridDoubleDir());
         Grids_GridDouble g;

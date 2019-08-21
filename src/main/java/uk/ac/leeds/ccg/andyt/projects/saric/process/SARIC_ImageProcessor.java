@@ -52,6 +52,7 @@ import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.site.SARIC_
 import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.site.SARIC_SiteForecastRecord;
 import uk.ac.leeds.ccg.andyt.generic.time.Generic_Date;
 import uk.ac.leeds.ccg.andyt.generic.time.Generic_Time;
+import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Strings;
 //import uk.ac.leeds.ccg.andyt.generic.utilities.time.Generic_YearMonth;
 import uk.ac.leeds.ccg.andyt.projects.saric.visualisation.SARIC_Colour;
 import uk.ac.leeds.ccg.andyt.vector.geometry.Vector_Envelope2D;
@@ -146,7 +147,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
         this.outputGreyscale = outputGreyscale;
         this.colorDubpication = colorDubpication;
         ouputLargeColorDubpication = colorDubpication >= 1;
-        ge = se.Grids_Env;
+        ge = se.gridsEnv;
         ae = new Grids_ESRIAsciiGridExporter(ge);
         ie = new Grids_ImageExporter(ge);
         gp = ge.getProcessor();
@@ -154,10 +155,10 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
     }
 
 //    private void init_gf() {
-//        gf = new Grids_GridDoubleFactory(ge, gp.GridChunkDoubleFactory,
+//        gf = new Grids_GridDoubleFactory(env, gp.GridChunkDoubleFactory,
 //                gp.DefaultGridChunkDoubleFactory, -Double.MAX_VALUE,
 //                256, 256, new Grids_Dimensions(256, 256),
-//                new Grids_GridDoubleStatsNotUpdated(ge));
+//                new Grids_GridDoubleStatsNotUpdated(env));
 //        gp.GridDoubleFactory = gf;
 //    }
     public static String getEstimateName(int estimateType) {
@@ -214,20 +215,20 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
             Object[] nearestForecastsSitesGridAndFactory;
 
             if (doWissey) {
-                area = se.strings.s_Wissey;
+                area = SARIC_Strings.s_Wissey;
                 SARIC_Wissey sw;
                 sw = new SARIC_Wissey(se);
-                sites = sw.getForecastsSitesInStudyArea(se.strings.s_3hourly);
+                sites = sw.getForecastsSitesInStudyArea(SARIC_Strings.s_3hourly);
                 nearestForecastsSitesGridAndFactory = sw.getNearestForecastsSitesGrid(sites);
                 g = (Grids_GridDouble) nearestForecastsSitesGridAndFactory[0];
                 f = (Grids_GridDoubleFactory) nearestForecastsSitesGridAndFactory[1];
                 processForecastPoints2(area, sites, f, g, colorMap);
             }
             if (doTeifi) {
-                area = se.strings.s_Teifi;
+                area = SARIC_Strings.s_Teifi;
                 SARIC_Teifi st;
                 st = new SARIC_Teifi(se);
-                sites = st.getForecastsSitesInStudyArea(se.strings.s_3hourly);
+                sites = st.getForecastsSitesInStudyArea(SARIC_Strings.s_3hourly);
                 nearestForecastsSitesGridAndFactory = st.getNearestForecastsSitesGrid(sites);
                 g = (Grids_GridDouble) nearestForecastsSitesGridAndFactory[0];
                 f = (Grids_GridDoubleFactory) nearestForecastsSitesGridAndFactory[1];
@@ -274,7 +275,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                     System.out.println(bounds.toString());
                     p.setBounds(bounds);
                     if (doWissey) {
-                        area = se.strings.s_Wissey;
+                        area = SARIC_Strings.s_Wissey;
                         f = (Grids_GridDoubleFactory) sw1KMGridMaskedToCatchment[1];
                         g = (Grids_GridDouble) sw1KMGridMaskedToCatchment[0];
                         System.out.println(g.toString());
@@ -282,7 +283,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                                 scale, layerName, cellsize, p, lp, r, f, g);
                     }
                     if (doTeifi) {
-                        area = se.strings.s_Teifi;
+                        area = SARIC_Strings.s_Teifi;
                         f = (Grids_GridDoubleFactory) st1KMGridMaskedToCatchment[1];
                         g = (Grids_GridDouble) st1KMGridMaskedToCatchment[0];
                         processForecastImages(colorMap, ndvColor, area,
@@ -292,7 +293,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
             }
             // Observations
             if (doObservationsTileFromWMTSService) {
-                layerName = se.strings.s_RADAR_UK_Composite_Highres;
+                layerName = SARIC_Strings.s_RADAR_UK_Composite_Highres;
                 for (int scale = 4; scale < 5; scale++) {
                     tileMatrix = tileMatrixSet + ":" + scale;
                     metOfficeLayerParameters = p.getMetOfficeLayerParameters();
@@ -308,14 +309,14 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                     //System.out.println(bounds.toString());
                     p.setBounds(bounds);
                     if (doWissey) {
-                        area = se.strings.s_Wissey;
+                        area = SARIC_Strings.s_Wissey;
                         f = (Grids_GridDoubleFactory) sw1KMGridMaskedToCatchment[1];
                         g = (Grids_GridDouble) sw1KMGridMaskedToCatchment[0];
                         processObservationImages(colorMap, ndvColor, area, scale,
                                 layerName, cellsize, p, lp, r, f, g);
                     }
                     if (doTeifi) {
-                        area = se.strings.s_Teifi;
+                        area = SARIC_Strings.s_Teifi;
                         f = (Grids_GridDoubleFactory) st1KMGridMaskedToCatchment[1];
                         g = (Grids_GridDouble) st1KMGridMaskedToCatchment[0];
                         processObservationImages(colorMap, ndvColor, area, scale,
@@ -352,17 +353,17 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
         File outdir1;
         String name;
         // Initialisation part 1
-        dataType = se.strings.s_xml;
-        path = Files.getValDataTypePath(dataType, se.strings.s_wxfcs);
+        dataType = SARIC_Strings.s_xml;
+        path = Files.getValDataTypePath(dataType, SARIC_Strings.s_wxfcs);
         indir0 = new File(Files.getInputDataMetOfficeDataPointDir(), path);
         System.out.println(indir0);
-        indir0 = new File(indir0, se.strings.s_site + "0");
+        indir0 = new File(indir0, SARIC_Strings.s_site + "0");
         /**
          * There is no need to run for daily, it is just for the same time as
          * the 3hourly, but gives lower temporal resolution and greater temporal
          * resolution is more desirable.
          */
-        indir0 = new File(indir0, se.strings.s_3hourly);
+        indir0 = new File(indir0, SARIC_Strings.s_3hourly);
         outdir0 = new File(Files.getOutputDataMetOfficeDataPointDir(), path);
         outdir0 = new File(outdir0, area);
         Generic_Date date;
@@ -387,7 +388,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
             for (File dirs2 : indirs) {
                 dirs3 = dirs2.listFiles();
                 for (File dir3 : dirs3) {
-                    date = new Generic_Date(se.ge, dir3.getName());
+                    date = new Generic_Date(se, dir3.getName());
                     indir1 = Files.getNestedTimeDirectory(indir0, date);
                     outdir1 = Files.getNestedTimeDirectory(outdir0, date);
                     outdir1 = new File(outdir1, date + "-00"); // Could iterate through all of these.
@@ -506,8 +507,8 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
         if (dirnames != null) {
             dirname = dir1.list()[0]; //Sometimes data are missing here!
             dir2 = new File(dir1, dirname);
-            filename = siteID + se.strings.s_3hourly 
-                    + se.strings.symbol_dot + dataType;
+            filename = siteID + SARIC_Strings.s_3hourly 
+                    + SARIC_Strings.symbol_dot + dataType;
             file = new File(dir2, filename);
             h = new SARIC_MetOfficeSiteXMLSAXHandler(se, file);
             forecastsForTime = h.parse();
@@ -542,18 +543,18 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
         File outdir1;
         String name;
         // Initialisation part 1
-        dataType = se.strings.s_xml;
-        path = Files.getValDataTypePath(dataType, se.strings.s_wxfcs);
+        dataType = SARIC_Strings.s_xml;
+        path = Files.getValDataTypePath(dataType, SARIC_Strings.s_wxfcs);
         indir0 = new File(Files.getInputDataMetOfficeDataPointDir(), path);
         System.out.println(indir0);
-        //indir0 = new File(indir0, se.strings.s_site + "all");
-        indir0 = new File(indir0, se.strings.s_site);
+        //indir0 = new File(indir0, SARIC_Strings.s_site + "all");
+        indir0 = new File(indir0, SARIC_Strings.s_site);
         /**
          * There is no need to run for daily, it is just for the same time as
          * the 3hourly, but gives lower temporal resolution and greater temporal
          * resolution is more desirable.
          */
-        indir0 = new File(indir0, se.strings.s_3hourly);
+        indir0 = new File(indir0, SARIC_Strings.s_3hourly);
         outdir0 = new File(Files.getOutputDataMetOfficeDataPointDir(), path);
         outdir0 = new File(outdir0, area);
         outdir0 = new File(outdir0, estimateName);
@@ -584,7 +585,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
             for (File dirs2 : indirs) {
                 dirs3 = dirs2.listFiles();
                 for (File dir3 : dirs3) {
-                    date = new Generic_Date(se.ge, dir3.getName());
+                    date = new Generic_Date(se, dir3.getName());
                     indir1 = Files.getNestedTimeDirectory(indir0, date);
                     outdir1 = Files.getNestedTimeDirectory(outdir0, date);
                     outdir1 = new File(outdir1, date + "-00"); // Could iterate through all of these.
@@ -900,7 +901,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                 indirs2 = indirs1[j].listFiles();
                 for (int k = 0; k < indirs2.length; k++) {
                     Generic_Time t;
-                    t = new Generic_Time(se.ge, indirs2[k].getName(),
+                    t = new Generic_Time(se, indirs2[k].getName(),
                             timeComponentDivider, dateTimeDivider,
                             timeComponentDivider);
                     result.add(t);
@@ -935,7 +936,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                 indirs2 = indirs1[j].listFiles();
                 for (int k = 0; k < indirs2.length; k++) {
                     Generic_Time t;
-                    t = new Generic_Time(se.ge, indirs2[k].getName(),
+                    t = new Generic_Time(se, indirs2[k].getName(),
                             timeComponentDivider, dateTimeDivider,
                             timeComponentDivider);
                     for (int l = 0; l <= 36; l += 3) {
@@ -1133,7 +1134,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
      */
     private Grids_GridDouble reinitGrid(Grids_GridDouble g, Grids_GridDouble g0,
             Grids_GridDoubleFactory f, Grids_Files gridf) {
-        g.ge.removeGrid(g);
+        g.env.removeGrid(g);
         File gdir;
         gdir = gridf.createNewFile(gridf.getGeneratedGridDoubleDir());
         g = (Grids_GridDouble) f.create(gdir, g0);
@@ -1202,8 +1203,8 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
 //            return getGrid(indir, gridDir, cellsize, tileBounds);
 //        } catch (OutOfMemoryError e) {
 //            if (hoome) {
-//                ge.clearMemoryReserve();
-//                ge.swapChunks(hoome);
+//                env.clearMemoryReserve();
+//                env.swapChunks(hoome);
 //                return getGrid(indir, gridDir, cellsize, tileBounds, hoome);
 //            } else {
 //                throw e;

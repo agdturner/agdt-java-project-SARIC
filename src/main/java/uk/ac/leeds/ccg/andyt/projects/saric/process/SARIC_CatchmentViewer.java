@@ -58,8 +58,8 @@ public class SARIC_CatchmentViewer extends Geotools_DisplayShapefile implements 
 
     public SARIC_CatchmentViewer(SARIC_Environment se) {
         this.se = se;
-        this.sf = se.Files;
-        Geotools_Env = se.Geotools_Env;
+        this.sf = se.files;
+        Geotools_Env = se.geotoolsEnv;
     }
 
     @Override

@@ -23,6 +23,7 @@ import java.math.BigDecimal;
 import java.util.HashSet;
 import uk.ac.leeds.ccg.andyt.geotools.Geotools_Shapefile;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
+import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Strings;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.site.SARIC_Site;
 import uk.ac.leeds.ccg.andyt.vector.geometry.Vector_Envelope2D;
 
@@ -33,7 +34,7 @@ import uk.ac.leeds.ccg.andyt.vector.geometry.Vector_Envelope2D;
 public class SARIC_Wissey extends SARIC_Catchment {
 
     public SARIC_Wissey(SARIC_Environment se) {
-        super(se, se.strings.s_Wissey);
+        super(se, SARIC_Strings.s_Wissey);
     }
 
     /**
@@ -60,10 +61,10 @@ public class SARIC_Wissey extends SARIC_Catchment {
         File f;
         f = Files.getGeneratedDataMetOfficeDataPointForecastsSitesInWisseyFile();
         if (f.exists()) {
-            result = (HashSet<SARIC_Site>) se.ge.io.readObject(f);
+            result = (HashSet<SARIC_Site>) se.io.readObject(f);
         } else {
             result = super.getForecastsSitesInStudyArea(time);
-            se.ge.io.writeObject(result, f);
+            se.io.writeObject(result, f);
         }
         return result;
     }

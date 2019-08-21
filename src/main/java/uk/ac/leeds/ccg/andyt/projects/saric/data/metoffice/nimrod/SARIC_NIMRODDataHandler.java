@@ -42,6 +42,7 @@ import uk.ac.leeds.ccg.andyt.projects.saric.data.catchment.SARIC_Teifi;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.catchment.SARIC_Wissey;
 import uk.ac.leeds.ccg.andyt.generic.time.Generic_Date;
 import uk.ac.leeds.ccg.andyt.generic.time.Generic_Time;
+import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Strings;
 import uk.ac.leeds.ccg.andyt.projects.saric.visualisation.SARIC_Colour;
 
 /**
@@ -60,7 +61,7 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
     public SARIC_NIMRODDataHandler(SARIC_Environment se, boolean doWissey,
             boolean doTeifi) {
         super(se);
-        ge = se.Grids_Env;
+        ge = se.gridsEnv;
         gp = ge.getProcessor();
         gf = gp.GridDoubleFactory;
         this.doWissey = doWissey;
@@ -113,7 +114,7 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
         MM = "06";
         DD = "27";
         path = "/" + YYYY + "/" + YYYY + "-" + MM + "/";
-        date = new Generic_Date(se.ge, YYYY + "-" + MM + "-" + DD);
+        date = new Generic_Date(se, YYYY + "-" + MM + "-" + DD);
         inputDir = new File(Files.getInputDataMetOfficeNimrodDir(), path0 + path);
         generatedDir1 = new File(generatedDir0, path);
         outputDir1 = new File(outputDir0, path);
@@ -187,12 +188,12 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
                 try {
                     // Set archive for storing grids
                     if (generatedDir2 == null) {
-                        se.ge.io.initialiseArchive(generatedDir1, range);
-                        generatedDir2 = se.ge.io.getObjectDir(
+                        se.io.initialiseArchive(generatedDir1, range);
+                        generatedDir2 = se.io.getObjectDir(
                                 generatedDir1, GridID, GridID, range);
                     } else {
                         GridID++;
-                        generatedDir2 = se.ge.io.addToArchive(
+                        generatedDir2 = se.io.addToArchive(
                                 generatedDir1, range, GridID);
                     }
                     generatedDir2.mkdirs();
@@ -239,13 +240,13 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
                     if (doTeifi) {
                         gp.addToGrid(tg1, g, 1.0d);
                         gp.addToGrid(tg2, g, 1.0d);
-                        outputImages(outputDir1, se.strings.s_Teifi, name,
+                        outputImages(outputDir1, SARIC_Strings.s_Teifi, name,
                                 tgf, tg2, tg0, ie, cm);
                     }
                     if (doWissey) {
                         gp.addToGrid(wg1, g, 1.0d);
                         gp.addToGrid(wg2, g, 1.0d);
-                        outputImages(outputDir1, se.strings.s_Wissey, name,
+                        outputImages(outputDir1, SARIC_Strings.s_Wissey, name,
                                 wgf, wg2, wg0, ie, cm);
                     }
 //                    /**
@@ -265,11 +266,11 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
             st.addMinutes(5);
         }
         if (doTeifi) {
-            outputImages(outputDir1, se.strings.s_Teifi, "", tgf, tg1, tg0,
+            outputImages(outputDir1, SARIC_Strings.s_Teifi, "", tgf, tg1, tg0,
                     ie, cm);
         }
         if (doWissey) {
-            outputImages(outputDir1, se.strings.s_Wissey, "", wgf, wg1, wg0,
+            outputImages(outputDir1, SARIC_Strings.s_Wissey, "", wgf, wg1, wg0,
                     ie, cm);
         }
     }

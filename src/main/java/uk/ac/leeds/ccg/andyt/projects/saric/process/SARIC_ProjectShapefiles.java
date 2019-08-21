@@ -21,7 +21,6 @@ package uk.ac.leeds.ccg.andyt.projects.saric.process;
 import java.io.File;
 import uk.ac.leeds.ccg.andyt.geotools.demo.Geotools_ProjectShapefile;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
-import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Strings;
 import uk.ac.leeds.ccg.andyt.projects.saric.io.SARIC_Files;
 
 /**
@@ -34,7 +33,6 @@ public class SARIC_ProjectShapefiles extends Geotools_ProjectShapefile implement
     
     // For convenience
     SARIC_Files sf;
-    SARIC_Strings ss;
     
     boolean doWissey;
     boolean doTeifi;
@@ -46,8 +44,7 @@ public class SARIC_ProjectShapefiles extends Geotools_ProjectShapefile implement
             boolean doWissey,
             boolean doTeifi) {
         this.se = se;
-        sf = se.Files;
-        ss = se.strings;
+        sf = se.files;
         this.doWissey = doWissey;
         this.doTeifi = doTeifi;
     }

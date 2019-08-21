@@ -25,6 +25,7 @@ import uk.ac.leeds.ccg.andyt.geotools.core.Geotools_Environment;
 import uk.ac.leeds.ccg.andyt.geotools.Geotools_Shapefile;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Environment;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Object;
+import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Strings;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.catchment.SARIC_Teifi;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.catchment.SARIC_Wissey;
 import uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint.site.SARIC_Site;
@@ -62,8 +63,8 @@ public class SARIC_CreatePointShapefiles extends SARIC_Object
     public SARIC_CreatePointShapefiles(SARIC_Environment se,
             boolean doForecasts, boolean doObservations, boolean overwrite) {
         super(se);
-        ve = se.Vector_Env;
-        Geotools_Env = se.Geotools_Env;
+        ve = se.vectorEnv;
+        Geotools_Env = se.geotoolsEnv;
         this.doForecasts = doForecasts;
         this.doObservations = doObservations;
         this.overwrite = overwrite;
@@ -78,10 +79,10 @@ public class SARIC_CreatePointShapefiles extends SARIC_Object
         if (doForecasts) {
             String time;
             //time = ss.getS_daily();
-            time = se.strings.s_3hourly;
+            time = SARIC_Strings.s_3hourly;
             buffer = null;
             sites = sh.getForecastsSites(time);
-            run(overwrite, se.strings.s_Forecasts, sites, buffer);
+            run(overwrite, SARIC_Strings.s_Forecasts, sites, buffer);
         }
         if (doObservations) {
 //            buffer = new BigDecimal(20000.0d);
@@ -89,7 +90,7 @@ public class SARIC_CreatePointShapefiles extends SARIC_Object
 //            buffer = new BigDecimal(40000.0d);
             buffer = new BigDecimal(60000.0d);
             sites = sh.getObservationsSites();
-            run(overwrite, se.strings.s_Observations, sites, buffer);
+            run(overwrite, SARIC_Strings.s_Observations, sites, buffer);
         }
     }
 
@@ -114,11 +115,11 @@ public class SARIC_CreatePointShapefiles extends SARIC_Object
             outfileAll.getParentFile().mkdirs();
             File outfileWissey;
             outfileWissey = Geotools_Env.getOutputShapefile(dir,
-                    se.strings.s_Wissey + "SitesBuffered");
+                    SARIC_Strings.s_Wissey + "SitesBuffered");
             outfileWissey.getParentFile().mkdirs();
             File outfileTeifi;
             outfileTeifi = Geotools_Env.getOutputShapefile(dir,
-                    se.strings.s_Teifi + "SitesBuffered");
+                    SARIC_Strings.s_Teifi + "SitesBuffered");
             outfileTeifi.getParentFile().mkdirs();
 
             // Initialise for Wissey

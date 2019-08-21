@@ -69,9 +69,9 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
         }
         Generic_Environment ge = new Generic_Environment(dataDir);
         SARIC_Environment se;
-        se = new SARIC_Environment(ge, dataDir);
+        se = new SARIC_Environment(dataDir);
         Generic_Time st;
-        st = new Generic_Time(se.ge);
+        st = new Generic_Time(se);
         se.setTime(st);
         SARIC_Processor sp;
         sp = new SARIC_Processor(se);
