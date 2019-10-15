@@ -134,7 +134,7 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
         int ncols;
         Vector_Envelope2D bounds;
         // Initial assignment
-        inspireWMTSCapabilities = Files.getInputDataMetOfficeDataPointInspireViewWmtsCapabilitiesFile();
+        inspireWMTSCapabilities = files.getInputDataMetOfficeDataPointInspireViewWmtsCapabilitiesFile();
         p = new SARIC_MetOfficeParameters(se);
         r = new SARIC_MetOfficeCapabilitiesXMLDOMReader(se, inspireWMTSCapabilities);
         tileMatrixSet = "EPSG:27700"; // British National Grid
@@ -204,8 +204,7 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
                 + "Grids_Grid2DSquareCellDouble)";
         System.out.println("<" + methodName + ">");
         // Initial declaration
-        Grids_Files gridf;
-        gridf = ge.getFiles();
+        Grids_Files gridf = ge.files;
         File gdir;
         TreeMap<Generic_YearMonth, TreeSet<Generic_Date>> ymDates;
         Generic_YearMonth ym;
@@ -226,23 +225,23 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
         path = "inspire/view/wmts0/" + area + "/" + layerName + "/EPSG_27700_";
         System.out.println("scale " + scale);
         indir0 = new File(
-                Files.getInputDataMetOfficeDataPointDir(),
+                files.getInputDataMetOfficeDataPointDir(),
                 path + scale);
         outdir0 = new File(
-                Files.getOutputDataMetOfficeDataPointDir(),
+                files.getOutputDataMetOfficeDataPointDir(),
                 path + scale);
         ymDates = new TreeMap<>();
         indirs0 = indir0.listFiles();
         for (int i = 0; i < indirs0.length; i++) {
             s = indirs0[i].getName();
-            ym = new Generic_YearMonth(se, s);
+            ym = new Generic_YearMonth(se.env, s);
             dates = new TreeSet<>();
             ymDates.put(ym, dates);
             indir1 = new File(indir0, s);
             indirs1 = indir1.listFiles();
             // initialise outdirs
             for (int j = 0; j < indirs1.length; j++) {
-                dates.add(new Generic_Date(se, indirs1[j].getName().split("T")[0]));
+                dates.add(new Generic_Date(se.env, indirs1[j].getName().split("T")[0]));
             }
         }
 
@@ -321,7 +320,7 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
                                 indirname2 = indirs0[j].getName();
                                 infiles = indirs0[j].listFiles();
 
-                                st = new Generic_Time(se, indirname2,
+                                st = new Generic_Time(se.env, indirname2,
                                         SARIC_Strings.symbol_minus, 
                                         SARIC_Strings.s_T,
                                         SARIC_Strings.symbol_underscore);
@@ -540,9 +539,8 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
             int[] rowColint) {
         String methodName;
         methodName = "getGrid(File,BigDecimal,Vector_Envelope2D,String,int[])";
-        Grids_GridDouble result = null;
-        Grids_Files gridf;
-        gridf = ge.getFiles();
+        Grids_GridDouble r = null;
+        Grids_Files gridf  = ge.files;
         File gdir;
         Image image = null;
         int width;
@@ -569,7 +567,7 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
 //        dimensions[2] = dimensions[4].subtract(cellsize.multiply(new BigDecimal(height))); //YMIN
 //        dimensions[3] = dimensions[1].subtract(cellsize.multiply(new BigDecimal(width)));  //XMAX
             gdir = gridf.createNewFile(gridf.getGeneratedGridDoubleDir());
-            result = (Grids_GridDouble) gf.create(gdir, height, width, dimensions);
+            r = (Grids_GridDouble) gf.create(gdir, height, width, dimensions);
             int[] pixels = new int[width * height];
             PixelGrabber pg = new PixelGrabber(image, 0, 0, width, height, pixels, 0, width);
             try {
@@ -597,23 +595,23 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
 //      Pale Blue: #E5FEFE: 32+: 48
                 Color pixel = new Color(pixels[i]);
                 if (pixel.equals(Blue)) {
-                    result.setCell(row, col, 0.25d);
+                    r.setCell(row, col, 0.25d);
                 } else if (pixel.equals(LightBlue)) {
-                    result.setCell(row, col, 0.75d);
+                    r.setCell(row, col, 0.75d);
                 } else if (pixel.equals(MuddyGreen)) {
-                    result.setCell(row, col, 1.5d);
+                    r.setCell(row, col, 1.5d);
                 } else if (pixel.equals(Yellow)) {
-                    result.setCell(row, col, 3d);
+                    r.setCell(row, col, 3d);
                 } else if (pixel.equals(Orange)) {
-                    result.setCell(row, col, 6d);
+                    r.setCell(row, col, 6d);
                 } else if (pixel.equals(Red)) {
-                    result.setCell(row, col, 12d);
+                    r.setCell(row, col, 12d);
                 } else if (pixel.equals(Pink)) {
-                    result.setCell(row, col, 24d);
+                    r.setCell(row, col, 24d);
                 } else if (pixel.equals(PaleBlue)) {
-                    result.setCell(row, col, 48d);
+                    r.setCell(row, col, 48d);
                 } else if (pixel.equals(Color.BLACK)) {
-                    result.setCell(row, col, 0.0d);
+                    r.setCell(row, col, 0.0d);
 //                if (scale == 0) {
 //                    if (row == height - 1 && col == 0) {
 //                        // There is no lower resolution image.
@@ -740,7 +738,7 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
 //                    }
 //                }
                 } else {
-                    result.setCell(row, col, 0.0d);
+                    r.setCell(row, col, 0.0d);
                 }
                 col++;
             }
@@ -753,7 +751,7 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
                     + ", but is empty or there is some other problem with it "
                     + "being loaded as an image, returning null.");
         }
-        return result;
+        return r;
     }
 
     /**

@@ -108,7 +108,7 @@ public class SARIC_CreatePointShapefiles extends SARIC_Object
             HashSet<SARIC_Site> sites,
             BigDecimal buffer) {
         File dir;
-        dir = new File(Files.getGeneratedDataMetOfficeDataPointDir(), type);
+        dir = new File(files.getGeneratedDataMetOfficeDataPointDir(), type);
         File outfileAll;
         outfileAll = Geotools_Env.getOutputShapefile(dir, "Sites");
         if (!outfileAll.exists() || overwrite == true) {

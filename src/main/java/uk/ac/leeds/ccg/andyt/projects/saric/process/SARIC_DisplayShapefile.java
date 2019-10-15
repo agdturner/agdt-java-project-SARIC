@@ -55,7 +55,7 @@ public class SARIC_DisplayShapefile extends SARIC_Object {
 //        dir = new File(
 //                files.getGeneratedDataMetOfficeDataPointDir(),
 //                strings.getS_Forecasts());
-        dir = new File(Files.getGeneratedDataMetOfficeDataPointDir(),
+        dir = new File(this.files.getGeneratedDataMetOfficeDataPointDir(),
                 SARIC_Strings.s_Observations);
         f = Geotools_Env.getShapefile(dir, name, false);
         files.add(f);

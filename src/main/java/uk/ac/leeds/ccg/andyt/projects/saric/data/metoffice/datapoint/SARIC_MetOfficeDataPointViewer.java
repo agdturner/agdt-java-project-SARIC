@@ -144,11 +144,8 @@ public class SARIC_MetOfficeDataPointViewer extends Geotools_DisplayShapefile {
      * @throws Exception
      */
     @Override
-    protected void displayShapefiles(
-            ArrayList<File> files,
-            int displayWidth,
-            int displayHeight,
-            ReferencedEnvelope re) throws Exception {
+    public void displayShapefiles(ArrayList<File> files, int displayWidth,
+            int displayHeight, ReferencedEnvelope re) throws Exception {
         MapContent mc;
         mc = new MapContent();
         int i;

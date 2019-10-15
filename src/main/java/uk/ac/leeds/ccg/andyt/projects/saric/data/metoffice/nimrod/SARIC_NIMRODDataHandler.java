@@ -78,8 +78,7 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
         Grids_ImageExporter ie;
         ie = new Grids_ImageExporter(ge);
 
-        Grids_Files gridf;
-        gridf = ge.getFiles();
+        Grids_Files gridf  = ge.files;
         File outfile;
 
         String path0;
@@ -90,15 +89,9 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
         File outputDir0;
         File outputDir1;
         path0 = "data/composite/uk-1km/";
-        generatedDir0 = new File(
-                Files.getGeneratedDataMetOfficeNimrodDir(),
-                path0);
-        generatedDir0 = new File(
-                generatedDir0,
-                "Grids");
-        outputDir0 = new File(
-                Files.getOutputDataMetOfficeNimrodDir(),
-                path0);
+        generatedDir0 = new File(                files.getGeneratedDataMetOfficeNimrodDir(),                path0);
+        generatedDir0 = new File(                generatedDir0,                "Grids");
+        outputDir0 = new File(                files.getOutputDataMetOfficeNimrodDir(),                path0);
         outputDir0.mkdirs();
         //metoffice-c-band-rain-radar_uk_201706270000_1km-composite.dat
         File gpDir;
@@ -114,8 +107,8 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
         MM = "06";
         DD = "27";
         path = "/" + YYYY + "/" + YYYY + "-" + MM + "/";
-        date = new Generic_Date(se, YYYY + "-" + MM + "-" + DD);
-        inputDir = new File(Files.getInputDataMetOfficeNimrodDir(), path0 + path);
+        date = new Generic_Date(se.env, YYYY + "-" + MM + "-" + DD);
+        inputDir = new File(files.getInputDataMetOfficeNimrodDir(), path0 + path);
         generatedDir1 = new File(generatedDir0, path);
         outputDir1 = new File(outputDir0, path);
 
@@ -188,12 +181,12 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
                 try {
                     // Set archive for storing grids
                     if (generatedDir2 == null) {
-                        se.io.initialiseArchive(generatedDir1, range);
-                        generatedDir2 = se.io.getObjectDir(
+                        se.env.io.initialiseArchive(generatedDir1, range);
+                        generatedDir2 = se.env.io.getObjectDir(
                                 generatedDir1, GridID, GridID, range);
                     } else {
                         GridID++;
-                        generatedDir2 = se.io.addToArchive(
+                        generatedDir2 = se.env.io.addToArchive(
                                 generatedDir1, range, GridID);
                     }
                     generatedDir2.mkdirs();

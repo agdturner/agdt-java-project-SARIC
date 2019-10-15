@@ -80,19 +80,19 @@ public class SARIC_MetOfficeCapabilitiesXMLDOMReader extends SARIC_XMLDOMReader 
         n = nodeList.item(i);
         //System.out.println(nodeList.item(i).getNodeName());
         nTextContent = n.getTextContent();
-        result.add(new Generic_Time(se, nTextContent));
+        result.add(new Generic_Time(se.env, nTextContent));
         //System.out.println(nTextContent);
         i = find("Value", nodeList, i + 1);
         n = nodeList.item(i);
         while (nodeList.item(i + 1).getNodeName().equalsIgnoreCase("Value")) {
             nTextContent = n.getTextContent();
-            result.add(new Generic_Time(se, nTextContent));
+            result.add(new Generic_Time(se.env, nTextContent));
             //System.out.println(nTextContent);
             i = find("Value", nodeList, i + 1);
             n = nodeList.item(i);
         }
         nTextContent = n.getTextContent();
-        result.add(new Generic_Time(se, nTextContent));
+        result.add(new Generic_Time(se.env, nTextContent));
         return result;
     }
 
@@ -259,7 +259,7 @@ public class SARIC_MetOfficeCapabilitiesXMLDOMReader extends SARIC_XMLDOMReader 
                     } else {
                         timeStartSecond = new Integer(timeSplit2[2]);
                     }
-                    startTime = new Generic_Time(se, timeStartYear, timeStartMonth,
+                    startTime = new Generic_Time(se.env, timeStartYear, timeStartMonth,
                             timeStartDay, timeStartHour, timeStartMinute,
                             timeStartSecond);
                     startTimeSet = true;
@@ -335,7 +335,7 @@ public class SARIC_MetOfficeCapabilitiesXMLDOMReader extends SARIC_XMLDOMReader 
             } else {
                 if (nNodeName.equalsIgnoreCase(nodeName)) {
                     nTextContent = n.getTextContent();
-                    result.add(new Generic_Time(se, nTextContent));
+                    result.add(new Generic_Time(se.env, nTextContent));
 //                    System.out.println(nTextContent);
                 }
             }

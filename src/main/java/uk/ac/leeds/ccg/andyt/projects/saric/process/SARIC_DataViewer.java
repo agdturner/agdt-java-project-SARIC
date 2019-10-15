@@ -415,8 +415,7 @@ public class SARIC_DataViewer extends Geotools_DisplayShapefile implements Runna
     }
 
     public GridCoverageLayer getGridCoverageLayer(File dir, String name) {
-        Grids_Files gridf;
-        gridf = env.getGrids_Environment().getFiles();
+        Grids_Files gridf = env.grids_env.files;
         GridCoverageLayer result;
         File f;
         f = new File(dir, name);

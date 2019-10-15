@@ -30,7 +30,7 @@ public abstract class SARIC_Object implements Serializable {
     public transient SARIC_Environment se;
 
     // For convenience
-    public transient SARIC_Files Files;
+    public transient SARIC_Files files;
     public transient int logID;
 
     /**
@@ -48,7 +48,7 @@ public abstract class SARIC_Object implements Serializable {
      */
     public SARIC_Object(SARIC_Environment e, int i) {
         this.se = e;
-        Files = e.files;
+        files = e.files;
         this.logID = i;
     }
 }

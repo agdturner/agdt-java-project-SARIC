@@ -33,7 +33,9 @@ import uk.ac.leeds.ccg.andyt.vector.core.Vector_Environment;
  *
  * @author geoagdt
  */
-public class SARIC_Environment extends Generic_Environment{
+public class SARIC_Environment {
+    
+    public Generic_Environment env;
     
     public SARIC_Files files;
     
@@ -47,11 +49,12 @@ public class SARIC_Environment extends Generic_Environment{
     SARIC_Teifi Teifi;
 
     public SARIC_Environment(File dataDir) {
+        env = new Generic_Environment(dataDir);
         files = new SARIC_Files(dataDir);
         metOfficeParameters = new SARIC_MetOfficeParameters(this);
-        gridsEnv = new Grids_Environment(files.getGeneratedDataGridsDir());
+        gridsEnv = new Grids_Environment(env, files.getGeneratedDataGridsDir());
         vectorEnv = new Vector_Environment(gridsEnv);
-        geotoolsEnv = new Geotools_Environment();
+        geotoolsEnv = new Geotools_Environment(env, dataDir);
     }
 
     public void setTime(Generic_Time time) {

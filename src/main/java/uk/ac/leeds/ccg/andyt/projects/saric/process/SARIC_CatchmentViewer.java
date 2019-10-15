@@ -84,8 +84,7 @@ public class SARIC_CatchmentViewer extends Geotools_DisplayShapefile implements 
         f = Geotools_Env.getShapefile(dir, name, false);
         files.add(f);
 
-        SARIC_Wissey sw;
-        sw = new SARIC_Wissey(se);
+        SARIC_Wissey sw  = new SARIC_Wissey(se);
         as = sw.getNRFAAGDT_Shapefile();
         files.add(as.getFile());
         fl = as.getFeatureLayer();
@@ -98,8 +97,7 @@ public class SARIC_CatchmentViewer extends Geotools_DisplayShapefile implements 
         printBounds(re);
 
         // Teifi
-        SARIC_Teifi st;
-        st = new SARIC_Teifi(se);
+        SARIC_Teifi st = new SARIC_Teifi(se);
         as = st.getNRFAAGDT_Shapefile();
         files.add(as.getFile());
         fl = as.getFeatureLayer();
@@ -142,7 +140,7 @@ public class SARIC_CatchmentViewer extends Geotools_DisplayShapefile implements 
      * @throws Exception
      */
     @Override
-    protected void displayShapefiles(ArrayList<File> files, int displayWidth,
+    public void displayShapefiles(ArrayList<File> files, int displayWidth,
             int displayHeight, ReferencedEnvelope re) throws Exception {
         MapContent mc;
         mc = new MapContent();

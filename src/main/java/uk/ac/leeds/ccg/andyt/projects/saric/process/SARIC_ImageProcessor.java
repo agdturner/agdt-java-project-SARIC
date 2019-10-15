@@ -249,7 +249,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
             int ncols;
             Vector_Envelope2D bounds;
             // Initial assignment
-            inspireWMTSCapabilities = Files.getInputDataMetOfficeDataPointInspireViewWmtsCapabilitiesFile();
+            inspireWMTSCapabilities = files.getInputDataMetOfficeDataPointInspireViewWmtsCapabilitiesFile();
             p = new SARIC_MetOfficeParameters(se);
             r = new SARIC_MetOfficeCapabilitiesXMLDOMReader(se, inspireWMTSCapabilities);
             tileMatrixSet = "EPSG:27700"; // British National Grid
@@ -342,8 +342,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
         methodName = "processForecastPoints(...)";
         System.out.println("<" + methodName + ">");
         System.out.println("Area " + area);
-        Grids_Files gridf;
-        gridf = ge.getFiles();
+        Grids_Files gridf  = ge.files;
         File gdir;
         String dataType;
         String path;
@@ -354,8 +353,8 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
         String name;
         // Initialisation part 1
         dataType = SARIC_Strings.s_xml;
-        path = Files.getValDataTypePath(dataType, SARIC_Strings.s_wxfcs);
-        indir0 = new File(Files.getInputDataMetOfficeDataPointDir(), path);
+        path = files.getValDataTypePath(dataType, SARIC_Strings.s_wxfcs);
+        indir0 = new File(files.getInputDataMetOfficeDataPointDir(), path);
         System.out.println(indir0);
         indir0 = new File(indir0, SARIC_Strings.s_site + "0");
         /**
@@ -364,7 +363,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
          * resolution is more desirable.
          */
         indir0 = new File(indir0, SARIC_Strings.s_3hourly);
-        outdir0 = new File(Files.getOutputDataMetOfficeDataPointDir(), path);
+        outdir0 = new File(files.getOutputDataMetOfficeDataPointDir(), path);
         outdir0 = new File(outdir0, area);
         Generic_Date date;
         // Declaration part 2
@@ -388,9 +387,9 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
             for (File dirs2 : indirs) {
                 dirs3 = dirs2.listFiles();
                 for (File dir3 : dirs3) {
-                    date = new Generic_Date(se, dir3.getName());
-                    indir1 = Files.getNestedTimeDirectory(indir0, date);
-                    outdir1 = Files.getNestedTimeDirectory(outdir0, date);
+                    date = new Generic_Date(se.env, dir3.getName());
+                    indir1 = files.getNestedTimeDirectory(indir0, date);
+                    outdir1 = files.getNestedTimeDirectory(outdir0, date);
                     outdir1 = new File(outdir1, date + "-00"); // Could iterate through all of these.
                     indir1 = new File(indir1, date + "-00");
                     outdir1.mkdirs();
@@ -532,8 +531,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
         methodName = "processForecastPoints(...)";
         System.out.println("<" + methodName + ">");
         System.out.println("Area " + area);
-        Grids_Files gridf;
-        gridf = ge.getFiles();
+        Grids_Files gridf  = ge.files;
         File gdir;
         String dataType;
         String path;
@@ -544,8 +542,8 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
         String name;
         // Initialisation part 1
         dataType = SARIC_Strings.s_xml;
-        path = Files.getValDataTypePath(dataType, SARIC_Strings.s_wxfcs);
-        indir0 = new File(Files.getInputDataMetOfficeDataPointDir(), path);
+        path = files.getValDataTypePath(dataType, SARIC_Strings.s_wxfcs);
+        indir0 = new File(files.getInputDataMetOfficeDataPointDir(), path);
         System.out.println(indir0);
         //indir0 = new File(indir0, SARIC_Strings.s_site + "all");
         indir0 = new File(indir0, SARIC_Strings.s_site);
@@ -555,7 +553,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
          * resolution is more desirable.
          */
         indir0 = new File(indir0, SARIC_Strings.s_3hourly);
-        outdir0 = new File(Files.getOutputDataMetOfficeDataPointDir(), path);
+        outdir0 = new File(files.getOutputDataMetOfficeDataPointDir(), path);
         outdir0 = new File(outdir0, area);
         outdir0 = new File(outdir0, estimateName);
         Generic_Date date;
@@ -585,9 +583,9 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
             for (File dirs2 : indirs) {
                 dirs3 = dirs2.listFiles();
                 for (File dir3 : dirs3) {
-                    date = new Generic_Date(se, dir3.getName());
-                    indir1 = Files.getNestedTimeDirectory(indir0, date);
-                    outdir1 = Files.getNestedTimeDirectory(outdir0, date);
+                    date = new Generic_Date(se.env, dir3.getName());
+                    indir1 = files.getNestedTimeDirectory(indir0, date);
+                    outdir1 = files.getNestedTimeDirectory(outdir0, date);
                     outdir1 = new File(outdir1, date + "-00"); // Could iterate through all of these.
                     indir1 = new File(indir1, date + "-00");
                     outdir1.mkdirs();
@@ -701,8 +699,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
         System.out.println("<" + methodName + ">");
         System.out.println("Area " + area);
         // Initial declaration
-        Grids_Files gridf;
-        gridf = ge.getFiles();
+        Grids_Files gridf  = ge.files;
         File gdir;
         String pathIn;
         String pathOut;
@@ -717,10 +714,10 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
         //pathOut = "inspire/view/wmts0/" + area + "/" + layerName + "/EPSG_27700_";
         pathOut = "inspire/view/wmts/" + area + "/" + layerName + "/EPSG_27700_";
         System.out.println("scale " + scale);
-        indir0 = new File(Files.getInputDataMetOfficeDataPointDir(), pathIn + scale);
-        outdir0 = new File(Files.getOutputDataMetOfficeDataPointDir(), pathOut + scale);
+        indir0 = new File(files.getInputDataMetOfficeDataPointDir(), pathIn + scale);
+        outdir0 = new File(files.getOutputDataMetOfficeDataPointDir(), pathOut + scale);
         outdir0 = new File(outdir0, estimateName);
-        gridsdir = new File(Files.getGeneratedDataGridsDir(), pathOut + scale);
+        gridsdir = new File(files.getGeneratedDataGridsDir(), pathOut + scale);
 
         String dateComponentDelimeter;
         String dateTimeDivider;
@@ -787,7 +784,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
             if (!writtenOut) {
                 // Write out result
                 name = name0 + d0.getYYYYMMDD();
-                outdir1 = Files.getNestedTimeDirectory(outdir0, d);
+                outdir1 = files.getNestedTimeDirectory(outdir0, d);
                 outputGrid(outdir1, name, b1KMGrid, ndvColor, colorMap);
                 b1KMGrid = reinitGrid(b1KMGrid, g, f, gridf);
                 writtenOut = true;
@@ -800,7 +797,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
             itet = times.iterator();
             t0 = itet.next();
             d0 = t0.getDate();
-            outdir1 = Files.getNestedTimeDirectory(outdir0, d);
+            outdir1 = files.getNestedTimeDirectory(outdir0, d);
             timen = Integer.toString((int) t0.differenceInHours(t));
             boolean initg0;
             initg0 = false;
@@ -901,7 +898,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                 indirs2 = indirs1[j].listFiles();
                 for (int k = 0; k < indirs2.length; k++) {
                     Generic_Time t;
-                    t = new Generic_Time(se, indirs2[k].getName(),
+                    t = new Generic_Time(se.env, indirs2[k].getName(),
                             timeComponentDivider, dateTimeDivider,
                             timeComponentDivider);
                     result.add(t);
@@ -936,7 +933,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                 indirs2 = indirs1[j].listFiles();
                 for (int k = 0; k < indirs2.length; k++) {
                     Generic_Time t;
-                    t = new Generic_Time(se, indirs2[k].getName(),
+                    t = new Generic_Time(se.env, indirs2[k].getName(),
                             timeComponentDivider, dateTimeDivider,
                             timeComponentDivider);
                     for (int l = 0; l <= 36; l += 3) {
@@ -990,8 +987,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
         System.out.println("<" + methodName + ">");
         System.out.println("Area " + area);
         // Initial declaration
-        Grids_Files gridf;
-        gridf = ge.getFiles();
+        Grids_Files gridf  = ge.files;
         File gdir;
         String pathIn;
         String pathOut;
@@ -1007,10 +1003,10 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
         //pathOut = "inspire/view/wmts0/" + area + "/" + layerName + "/EPSG_27700_";
         pathOut = "inspire/view/wmts/" + area + "/" + layerName + "/EPSG_27700_";
         System.out.println("scale " + scale);
-        indir0 = new File(Files.getInputDataMetOfficeDataPointDir(), pathIn + scale);
-        outdir0 = new File(Files.getOutputDataMetOfficeDataPointDir(), pathOut + scale);
+        indir0 = new File(files.getInputDataMetOfficeDataPointDir(), pathIn + scale);
+        outdir0 = new File(files.getOutputDataMetOfficeDataPointDir(), pathOut + scale);
         outdir0 = new File(outdir0, estimateName);
-        gridsdir = new File(Files.getGeneratedDataGridsDir(), pathOut + scale);
+        gridsdir = new File(files.getGeneratedDataGridsDir(), pathOut + scale);
 
         String dateComponentDelimeter;
         String dateTimeDivider;
@@ -1064,7 +1060,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
             t1 = itet.next();
             d1 = t1.getDate();
             name = layerName;
-            outdir1 = Files.getNestedTimeDirectory(outdir0, d0);
+            outdir1 = files.getNestedTimeDirectory(outdir0, d0);
             file = new File(outdir1, name + ".asc");
             if (overwrite || !file.exists()) {
                 g1 = getGridObserved(f, b1KMGrid, nrows, ncols, ndv,
@@ -1112,7 +1108,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                 if (d0.compareTo(d1) != 0) {
                     // Write out result
                     name = layerName;
-                    outdir1 = Files.getNestedTimeDirectory(outdir0, d0);
+                    outdir1 = files.getNestedTimeDirectory(outdir0, d0);
                     outputGrid(outdir1, name, b1KMGrid, ndvColor, colorMap);
                     b1KMGrid = reinitGrid(b1KMGrid, g, f, gridf);
                 }

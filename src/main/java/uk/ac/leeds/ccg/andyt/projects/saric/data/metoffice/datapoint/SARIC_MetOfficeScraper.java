@@ -1261,7 +1261,7 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
      */
     public String getAPI_KEY() {
         File f = sf.getInputDataMetOfficeDataPointAPIKeyFile();
-        ArrayList<String> l = se.io.readIntoArrayList_String(f);
+        ArrayList<String> l = se.env.io.readIntoArrayList_String(f);
         return l.get(0);
     }
 
@@ -1274,7 +1274,7 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
         HttpURLConnection connection;
         BufferedInputStream bis;
         BufferedOutputStream bos;
-        bos = se.io.getBufferedOutputStream(f);
+        bos = se.env.io.getBufferedOutputStream(f);
         String line;
         try {
             connection = getOpenHttpURLConnection(url);
@@ -1336,7 +1336,7 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
         boolean append;
         append = false;
         BufferedWriter bw;
-        bw = se.io.getBufferedWriter(f, append);
+        bw = se.env.io.getBufferedWriter(f, append);
         String line;
         try {
             connection = getOpenHttpURLConnection(url);
@@ -1423,25 +1423,25 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
 
         File outfile;
         outfile = getSitesFile(SARIC_Strings.s_Wissey, buffer, dir);
-        se.io.writeObject(sitesInWissey, outfile);
+        se.env.io.writeObject(sitesInWissey, outfile);
         outfile = getSitesFile(SARIC_Strings.s_Teifi, buffer, dir);
-        se.io.writeObject(sitesInTeifi, outfile);
+        se.env.io.writeObject(sitesInTeifi, outfile);
     }
 
     protected File getSitesFile(String name, BigDecimal buffer, File dir) {
-        File result;
+        File r;
         if (buffer == null) {
-            result = new File(dir, name + "_HashSet_SARIC_Site.dat");
+            r = new File(dir, name + "_HashSet_SARIC_Site.dat");
         } else {
-            result = new File(dir, name + "_" + buffer.toPlainString()
+            r = new File(dir, name + "_" + buffer.toPlainString()
                     + "_HashSet_SARIC_Site.dat");
         }
-        return result;
+        return r;
     }
 
     protected HashSet<SARIC_Site> getSites(String name, BigDecimal buffer, File dir) {
         File f  = getSitesFile(name, buffer, dir);
-        return (HashSet<SARIC_Site>) se.io.readObject(f);
+        return (HashSet<SARIC_Site>) se.env.io.readObject(f);
     }
 
     protected void getForecastsForSites(String name, BigDecimal buffer, String res, String timeRange) {

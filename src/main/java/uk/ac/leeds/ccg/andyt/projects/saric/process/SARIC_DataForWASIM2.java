@@ -105,7 +105,7 @@ public class SARIC_DataForWASIM2 extends SARIC_Object implements Runnable {
 //        day0 = new Generic_Date(se, "2017-10-25");
 //        numberOfDaysRun = 28;
         // Run 6
-        day0 = new Generic_Date(se, "2017-09-06");
+        day0 = new Generic_Date(se.env, "2017-09-06");
         numberOfDaysRun = 100;
 //        // Run 7
 //        day0 = new Generic_Date(se, "2018-03-10");
@@ -327,7 +327,7 @@ public class SARIC_DataForWASIM2 extends SARIC_Object implements Runnable {
     File getFile(String area, Generic_Date day) {
         File result;
         File dir;
-        dir = new File(Files.getOutputDataDir(), "WASIM");
+        dir = new File(files.getOutputDir(), "WASIM");
         dir = new File(dir, area);
         dir = new File(dir, day.getYYYYMM());
         dir = new File(dir, day.getYYYYMMDD());
@@ -341,7 +341,7 @@ public class SARIC_DataForWASIM2 extends SARIC_Object implements Runnable {
     File getFile(String area, String name) {
         File result;
         File dir;
-        dir = new File(Files.getOutputDataDir(), "WASIM");
+        dir = new File(files.getOutputDir(), "WASIM");
         dir = new File(dir, area);
         dir.mkdirs();
         String filename;
@@ -355,7 +355,7 @@ public class SARIC_DataForWASIM2 extends SARIC_Object implements Runnable {
      */
     PrintWriter initialisePrintWriter(File f) {
         PrintWriter result;
-        result = se.io.getPrintWriter(f, false);
+        result = se.env.io.getPrintWriter(f, false);
         result.println("ID,EASTING,NORTHING,NumberOfDaysSinceLast2mmRainfall,"
                 + "TotalAccumulatedRainfallOverTheLast10Days,"
                 + "ObservedRainfallInTheLast24Hours,"
@@ -397,14 +397,11 @@ public class SARIC_DataForWASIM2 extends SARIC_Object implements Runnable {
 
     protected Grids_GridDouble getForecastsGrid(String area, Generic_Date d,
             int offset) {
-        Grids_Files gridf;
-        gridf = ge.getFiles();
-        Generic_Date d1;
-        d1 = new Generic_Time(d);
+        Grids_Files gridf = ge.files;
+        Generic_Date d1  = new Generic_Time(d);
         d1.addDays(offset);
         Grids_GridDouble result;
-        File dir;
-        dir = new File(Files.getOutputDataMetOfficeDataPointDir(),
+        File dir  = new File(files.getOutputDataMetOfficeDataPointDir(),
                 SARIC_Strings.s_inspire);
         dir = new File(dir, SARIC_Strings.s_view);
         dir = new File(dir, SARIC_Strings.s_wmts + "0");
@@ -412,7 +409,7 @@ public class SARIC_DataForWASIM2 extends SARIC_Object implements Runnable {
         dir = new File(dir, SARIC_Strings.s_Precipitation_Rate);
         dir = new File(dir, "EPSG_27700_4");
         if (offset < 2) {
-            File f = new File(Files.getNestedTimeDirectory(dir, d),
+            File f = new File(files.getNestedTimeDirectory(dir, d),
                     d.getYYYYMMDD() + "_ForecastFor_" + d1.getYYYYMMDD() + ".asc");
             System.out.println(f);
             if (f.exists()) {
@@ -424,7 +421,7 @@ public class SARIC_DataForWASIM2 extends SARIC_Object implements Runnable {
             }
         } else {
             // System.out.println("Load in some other data from the longer range forecasts.");
-            dir = new File(Files.getOutputDataMetOfficeDataPointDir(),
+            dir = new File(files.getOutputDataMetOfficeDataPointDir(),
                     SARIC_Strings.s_val);
             dir = new File(dir, SARIC_Strings.s_wxfcs);
             dir = new File(dir, SARIC_Strings.s_all);
@@ -449,12 +446,10 @@ public class SARIC_DataForWASIM2 extends SARIC_Object implements Runnable {
 
     protected TreeMap<Generic_Time, Grids_GridDouble> getObservationsGrids(
             String area) {
-        Grids_Files gridf;
-        gridf = ge.getFiles();
+        Grids_Files gridf  = ge.files;
         TreeMap<Generic_Time, Grids_GridDouble> result;
         result = new TreeMap<>();
-        File dir;
-        dir = new File(Files.getOutputDataMetOfficeDataPointDir(),
+        File dir  = new File(files.getOutputDataMetOfficeDataPointDir(),
                 SARIC_Strings.s_inspire);
         dir = new File(dir, SARIC_Strings.s_view);
         dir = new File(dir, SARIC_Strings.s_wmts + "0");
@@ -474,7 +469,7 @@ public class SARIC_DataForWASIM2 extends SARIC_Object implements Runnable {
             System.out.println(dir2);
             dates = dir2.list();
             for (String date : dates) {
-                t = new Generic_Time(se, date);
+                t = new Generic_Time(se.env, date);
                 System.out.println(t);
                 dir3 = new File(dir2, date);
                 f = new File(dir3,

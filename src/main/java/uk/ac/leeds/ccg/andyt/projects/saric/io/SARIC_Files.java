@@ -83,7 +83,7 @@ public class SARIC_Files extends Generic_Files {
 
     public File getOutputDataMetOfficeDir() {
         if (OutputDataMetOfficeDir == null) {
-            OutputDataMetOfficeDir = new File(getOutputDataDir(),
+            OutputDataMetOfficeDir = new File(getOutputDir(),
                     SARIC_Strings.s_MetOffice);
         }
         return OutputDataMetOfficeDir;
@@ -107,7 +107,7 @@ public class SARIC_Files extends Generic_Files {
 
     public File getGeneratedDataCatchmentBoundariesDir() {
         if (GeneratedDataCatchmentDir == null) {
-            GeneratedDataCatchmentDir = new File(getGeneratedDataDir(),
+            GeneratedDataCatchmentDir = new File(getGeneratedDir(),
                     SARIC_Strings.s_Catchment);
         }
         return GeneratedDataCatchmentDir;
@@ -115,7 +115,7 @@ public class SARIC_Files extends Generic_Files {
 
     public File getGeneratedDataGridsDir() {
         if (GeneratedDataGridsDir == null) {
-            GeneratedDataGridsDir = new File(getGeneratedDataDir(),
+            GeneratedDataGridsDir = new File(getGeneratedDir(),
                     SARIC_Strings.s_Grids);
         }
         return GeneratedDataGridsDir;
@@ -132,7 +132,7 @@ public class SARIC_Files extends Generic_Files {
 
     public File getGeneratedDataMetOfficeDir() {
         if (GeneratedDataMetOfficeDir == null) {
-            GeneratedDataMetOfficeDir = new File(getGeneratedDataDir(),
+            GeneratedDataMetOfficeDir = new File(getGeneratedDir(),
                     SARIC_Strings.s_MetOffice);
         }
         return GeneratedDataMetOfficeDir;
@@ -201,7 +201,7 @@ public class SARIC_Files extends Generic_Files {
 
     public File getGeneratedDataOSMDir() {
         if (GeneratedDataOSMDir == null) {
-            GeneratedDataOSMDir = new File(getGeneratedDataDir(),
+            GeneratedDataOSMDir = new File(getGeneratedDir(),
                     SARIC_Strings.s_OSM);
         }
         return GeneratedDataOSMDir;
@@ -227,7 +227,7 @@ public class SARIC_Files extends Generic_Files {
 
     public File getInputDataMetOfficeDir() {
         if (InputDataMetOfficeDir == null) {
-            InputDataMetOfficeDir = new File(getInputDataDir(),
+            InputDataMetOfficeDir = new File(getInputDir(),
                     SARIC_Strings.s_MetOffice);
         }
         return InputDataMetOfficeDir;
@@ -235,7 +235,7 @@ public class SARIC_Files extends Generic_Files {
 
     public File getInputDataOSMDir() {
         if (InputDataOSMDir == null) {
-            InputDataOSMDir = new File(getInputDataDir(), SARIC_Strings.s_OSM);
+            InputDataOSMDir = new File(getInputDir(), SARIC_Strings.s_OSM);
         }
         return InputDataOSMDir;
     }
@@ -294,14 +294,14 @@ public class SARIC_Files extends Generic_Files {
 
     public File getInputDataCEHDir() {
         if (InputDataCEHDir == null) {
-            InputDataCEHDir = new File(getInputDataDir(), SARIC_Strings.s_CEH);
+            InputDataCEHDir = new File(getInputDir(), SARIC_Strings.s_CEH);
         }
         return InputDataCEHDir;
     }
 
     public File getInputDataCatchmentBoundariesDir() {
         if (InputDataCatchmentBoundariesDir == null) {
-            InputDataCatchmentBoundariesDir = new File(getInputDataDir(),
+            InputDataCatchmentBoundariesDir = new File(getInputDir(),
                     SARIC_Strings.s_CatchmentBoundaries);
         }
         return InputDataCatchmentBoundariesDir;

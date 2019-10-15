@@ -109,7 +109,7 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
 //        day0 = new Generic_Date(se, "2017-10-25");
 //        numberOfDaysRun = 28;
         // Run 6
-        day0 = new Generic_Date(se, "2017-09-06");
+        day0 = new Generic_Date(se.env, "2017-09-06");
         numberOfDaysRun = 100;
         // Declaration
         String area;
@@ -347,7 +347,7 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
     File getFile(String area, Generic_Date day) {
         File result;
         File dir;
-        dir = new File(Files.getOutputDataDir(), "WASIM");
+        dir = new File(files.getOutputDir(), "WASIM");
         dir = new File(dir, area);
         dir = new File(dir, day.getYYYYMM());
         dir = new File(dir, day.getYYYYMMDD());
@@ -363,7 +363,7 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
      */
     PrintWriter initialisePrintWriter(File f) {
         PrintWriter result;
-        result = se.io.getPrintWriter(f, false);
+        result = se.env.io.getPrintWriter(f, false);
         result.println("ID,EASTING,NORTHING,NumberOfDaysSinceLast2mmRainfall,"
                 + "TotalAccumulatedRainfallOverTheLast10Days,"
                 + "ObservedRainfallInTheLast24Hours,"
@@ -405,14 +405,11 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
 
     protected Grids_GridDouble getForecastsGrid(String area, Generic_Date d,
             int offset) {
-        Grids_Files gridf;
-        gridf = ge.getFiles();
-        Generic_Date d1;
-        d1 = new Generic_Time(d);
+        Grids_Files gridf  = ge.files;
+        Generic_Date d1  = new Generic_Time(d);
         d1.addDays(offset);
-        Grids_GridDouble result;
-        File dir;
-        dir = new File(Files.getOutputDataMetOfficeDataPointDir(),
+        Grids_GridDouble r;
+        File dir  = new File(files.getOutputDataMetOfficeDataPointDir(),
                 SARIC_Strings.s_inspire);
         dir = new File(dir, SARIC_Strings.s_view);
         dir = new File(dir, SARIC_Strings.s_wmts + "0");
@@ -420,19 +417,19 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
         dir = new File(dir, SARIC_Strings.s_Precipitation_Rate);
         dir = new File(dir, "EPSG_27700_4");
         if (offset < 2) {
-            File f = new File(Files.getNestedTimeDirectory(dir, d),
+            File f = new File(files.getNestedTimeDirectory(dir, d),
                     d.getYYYYMMDD() + "_ForecastFor_" + d1.getYYYYMMDD() + ".asc");
             System.out.println(f);
             if (f.exists()) {
                 File gdir;
                 gdir = gridf.createNewFile(gridf.getGeneratedGridDoubleDir());
-                result = (Grids_GridDouble) gf.create(gdir, f);
-                System.out.println(result);
-                return result;
+                r = (Grids_GridDouble) gf.create(gdir, f);
+                System.out.println(r);
+                return r;
             }
         } else {
             // System.out.println("Load in some other data from the longer range forecasts.");
-            dir = new File(Files.getOutputDataMetOfficeDataPointDir(),
+            dir = new File(files.getOutputDataMetOfficeDataPointDir(),
                     SARIC_Strings.s_val);
             dir = new File(dir, SARIC_Strings.s_wxfcs);
             dir = new File(dir, SARIC_Strings.s_all);
@@ -447,9 +444,9 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
             if (f.exists()) {
                 File gdir;
                 gdir = gridf.createNewFile(gridf.getGeneratedGridDoubleDir());
-                result = (Grids_GridDouble) gf.create(gdir, f);
-                System.out.println(result);
-                return result;
+                r = (Grids_GridDouble) gf.create(gdir, f);
+                System.out.println(r);
+                return r;
             }
         }
         return null;
@@ -457,12 +454,9 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
 
     protected TreeMap<Generic_Time, Grids_GridDouble> getObservationsGrids(
             String area) {
-        Grids_Files gridf;
-        gridf = ge.getFiles();
-        TreeMap<Generic_Time, Grids_GridDouble> result;
-        result = new TreeMap<>();
-        File dir;
-        dir = new File(Files.getOutputDataMetOfficeDataPointDir(),
+        Grids_Files gridf  = ge.files;
+        TreeMap<Generic_Time, Grids_GridDouble> r= new TreeMap<>();
+        File dir  = new File(files.getOutputDataMetOfficeDataPointDir(),
                 SARIC_Strings.s_inspire);
         dir = new File(dir, SARIC_Strings.s_view);
         dir = new File(dir, SARIC_Strings.s_wmts + "0");
@@ -470,8 +464,7 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
         dir = new File(dir, SARIC_Strings.s_RADAR_UK_Composite_Highres);
         dir = new File(dir, "EPSG_27700_4");
         System.out.println(dir);
-        File[] dirs;
-        dirs = dir.listFiles();
+        File[] dirs  = dir.listFiles();
         String[] dates;
         File f;
         File dir3;
@@ -482,7 +475,7 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
             System.out.println(dir2);
             dates = dir2.list();
             for (String date : dates) {
-                t = new Generic_Time(se, date);
+                t = new Generic_Time(se.env, date);
                 System.out.println(t);
                 dir3 = new File(dir2, date);
                 f = new File(dir3,
@@ -492,18 +485,18 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
                     gdir = gridf.createNewFile(gridf.getGeneratedGridDoubleDir());
                     g = (Grids_GridDouble) gf.create(gdir, f);
                     System.out.println(g);
-                    result.put(t, g);
+                    r.put(t, g);
                 }
             }
         }
-        return result;
+        return r;
     }
 
     private static SimpleFeatureType initSimpleFeatureType(String type,
             String srid) {
-        SimpleFeatureType result = null;
+        SimpleFeatureType r = null;
         try {
-            result = DataUtilities.createType(
+            r = DataUtilities.createType(
                     "Location",
                     "the_geom:" + type + ":srid=" + srid + ","
                     + // <- the geometry attribute
@@ -514,7 +507,7 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
             Logger.getLogger(SARIC_DataForWASIM.class
                     .getName()).log(Level.SEVERE, null, ex);
         }
-        return result;
+        return r;
     }
 
     public static SimpleFeatureType getPointSimpleFeatureType(String srid) {

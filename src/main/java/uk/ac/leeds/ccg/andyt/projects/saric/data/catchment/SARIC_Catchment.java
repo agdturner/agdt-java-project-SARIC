@@ -102,7 +102,7 @@ public abstract class SARIC_Catchment extends SARIC_Object {
 
     public Geotools_Shapefile getAGDT_Shapefile(String name) {
         Geotools_Shapefile r;
-        File dir = new File(Files.getInputDataCatchmentBoundariesDir(),
+        File dir = new File(files.getInputDataCatchmentBoundariesDir(),
                 CatchmentName);
         r = getAGDT_Shapefile(name, dir);
         return r;
@@ -137,7 +137,7 @@ public abstract class SARIC_Catchment extends SARIC_Object {
         bounds = get1KMGridBounds();
         //Grids_Grid2DSquareCellDoubleFactory inf;
         File dir;
-        dir = new File(Files.getGeneratedDataCatchmentBoundariesDir(),
+        dir = new File(files.getGeneratedDataCatchmentBoundariesDir(),
                 CatchmentName);
         dir = new File(dir, name);
         BigDecimal cellsize = new BigDecimal("1000");
