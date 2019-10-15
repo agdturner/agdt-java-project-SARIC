@@ -41,12 +41,15 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <jts.version>1.12</jts.version>
-        <!--
         <jts.version>1.13</jts.version>
-        -->
-        <geotools.version>18.0</geotools.version>
         <!--
+        <jts.version>1.14.0</jts.version>
+        <jts.version>1.12</jts.version>
+        -->
+        <geotools.version>21.3</geotools.version>
+        <!--
+        <geotools.version>20.2</geotools.version>
+        <geotools.version>18.0</geotools.version>
         <geotools.version>17.3</geotools.version>
         <geotools.version>13.6</geotools.version>
         <geotools.version>13.3</geotools.version>
@@ -63,15 +66,21 @@
         -->
         <mapsforge.version>0.8.0</mapsforge.version>
         <osmosis.version>0.45</osmosis.version>
-        <agdt-java-generic-geotools.version>0.1-SNAPSHOT</agdt-java-generic-geotools.version>
+        <agdt-java-generic-geotools.version>1.0-SNAPSHOT</agdt-java-generic-geotools.version>
         <agdt-java-generic.version>1.0-SNAPSHOT</agdt-java-generic.version>
         <agdt-java-generic-math.version>1.0-SNAPSHOT</agdt-java-generic-math.version>
         <agdt-java-generic-data.version>1.0-SNAPSHOT</agdt-java-generic-data.version>
         <agdt-java-generic-grids.version>1.0-SNAPSHOT</agdt-java-generic-grids.version>
         <agdt-java-generic-vector.version>1.0-SNAPSHOT</agdt-java-generic-vector.version>
         <agdt-java-generic-web.version>1.0-SNAPSHOT</agdt-java-generic-web.version>
+        <maven.compiler.source>12</maven.compiler.source>
+        <maven.compiler.target>12</maven.compiler.target>
+        <!--
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+        -->
     </properties>
 
     <dependencies>
