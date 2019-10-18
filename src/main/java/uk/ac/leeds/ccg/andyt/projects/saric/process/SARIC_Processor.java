@@ -19,6 +19,7 @@
 package uk.ac.leeds.ccg.andyt.projects.saric.process;
 
 import java.io.File;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -61,20 +62,24 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        File dataDir;
-        if (args.length != 1) {
-            dataDir = new File(System.getProperty("user.dir"), "data");
-        } else {
-            dataDir = new File(args[0]);
+        try {
+            File dataDir;
+            if (args.length != 1) {
+                dataDir = new File(System.getProperty("user.dir"), "data");
+            } else {
+                dataDir = new File(args[0]);
+            }
+            Generic_Environment ge = new Generic_Environment(dataDir);
+            SARIC_Environment se = new SARIC_Environment(dataDir);
+            Generic_Time st;
+            st = new Generic_Time(se.env);
+            se.setTime(st);
+            SARIC_Processor sp;
+            sp = new SARIC_Processor(se);
+            sp.run();
+        } catch (IOException ex) {
+            ex.printStackTrace(System.err);
         }
-        Generic_Environment ge = new Generic_Environment(dataDir);
-        SARIC_Environment se  = new SARIC_Environment(dataDir);
-        Generic_Time st;
-        st = new Generic_Time(se.env);
-        se.setTime(st);
-        SARIC_Processor sp;
-        sp = new SARIC_Processor(se);
-        sp.run();
     }
 
     /**
@@ -158,151 +163,147 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
             if (RunSARIC_ImageProcessor) {
                 doRunSARIC_ImageProcessor();
             }
-        } catch (Exception | Error e) {
-            System.err.println(e.getLocalizedMessage());
-            e.printStackTrace(System.err);
-        }
 
-        if (RunSARIC_CreatePointShapefile) {
-            boolean doForecasts;
-            boolean doObservations;
-            doForecasts = true;
-            doObservations = true;
-            overwrite = false;
-            SARIC_CreatePointShapefiles p;
-            p = new SARIC_CreatePointShapefiles(se, doForecasts, doObservations,
-                    overwrite);
-            p.run();
-        }
-
-        if (RunSARIC_DisplayShapefile) {
-            SARIC_DisplayShapefile p;
-            p = new SARIC_DisplayShapefile(se);
-            p.run();
-        }
-
-        if (RunSARIC_DataForWASIM) {
-            SARIC_DataForWASIM p;
-            p = new SARIC_DataForWASIM(se);
-            p.run();
-        }
-
-        if (RunSARIC_DataForWASIM2) {
-            SARIC_DataForWASIM2 p;
-            p = new SARIC_DataForWASIM2(se);
-            p.run();
-        }
-
-        if (RunSARIC_DataForLex) {
-            skip10 = true;
-//            dolast5days = true;
-            SARIC_DataForLex p;
-            for (int estimateType = -1; estimateType < 2; estimateType++) {
-                p = new SARIC_DataForLex(se, estimateType, skip10, dolast5days);
+            if (RunSARIC_CreatePointShapefile) {
+                boolean doForecasts;
+                boolean doObservations;
+                doForecasts = true;
+                doObservations = true;
+                overwrite = false;
+                SARIC_CreatePointShapefiles p;
+                p = new SARIC_CreatePointShapefiles(se, doForecasts, doObservations,
+                        overwrite);
                 p.run();
             }
-        }
 
-        if (RunSARIC_FullWorkflow) {
-            long midnight;
-            midnight = LocalDateTime.now().until(LocalDate.now().plusDays(1).atStartOfDay(), ChronoUnit.MINUTES);
-            long fouram;
-            long four30am;
-            long fiveam;
-            fouram = midnight + TimeUnit.HOURS.toMinutes(4);
-            four30am = midnight + TimeUnit.HOURS.toMinutes(4) + 30;
-            fiveam = midnight + TimeUnit.HOURS.toMinutes(5);
-            ScheduledExecutorService scheduler;
-            scheduler = Executors.newScheduledThreadPool(1);
-            // Start the scraper now and keep it running if it is not already running.
-            if (!RunCatchup) {
-                doRunSARIC_MetOfficeScraper(null, 0, true);
+            if (RunSARIC_DisplayShapefile) {
+                SARIC_DisplayShapefile p;
+                p = new SARIC_DisplayShapefile(se);
+                p.run();
             }
-            // Kick the scraper at 4am to get all the latest results before processing them.
-            doRunSARIC_MetOfficeScraper(scheduler, fouram, false);
-            System.out.println("Scheduling processing...");
-            // For ImageProcessing of Observations
-            SARIC_ImageProcessor[] pIPO;
-            pIPO = new SARIC_ImageProcessor[3];
-            SARIC_ImageProcessor[] pIPF;
-            pIPF = new SARIC_ImageProcessor[3];
-            SARIC_DataForLex[] p;
-            p = new SARIC_DataForLex[3];
 
-            // Main Switches
-            doImageProcessObservations = true;
+            if (RunSARIC_DataForWASIM) {
+                SARIC_DataForWASIM p;
+                p = new SARIC_DataForWASIM(se);
+                p.run();
+            }
+
+            if (RunSARIC_DataForWASIM2) {
+                SARIC_DataForWASIM2 p;
+                p = new SARIC_DataForWASIM2(se);
+                p.run();
+            }
+
+            if (RunSARIC_DataForLex) {
+                skip10 = true;
+//            dolast5days = true;
+                SARIC_DataForLex p;
+                for (int estimateType = -1; estimateType < 2; estimateType++) {
+                    p = new SARIC_DataForLex(se, estimateType, skip10, dolast5days);
+                    p.run();
+                }
+            }
+
+            if (RunSARIC_FullWorkflow) {
+                long midnight;
+                midnight = LocalDateTime.now().until(LocalDate.now().plusDays(1).atStartOfDay(), ChronoUnit.MINUTES);
+                long fouram;
+                long four30am;
+                long fiveam;
+                fouram = midnight + TimeUnit.HOURS.toMinutes(4);
+                four30am = midnight + TimeUnit.HOURS.toMinutes(4) + 30;
+                fiveam = midnight + TimeUnit.HOURS.toMinutes(5);
+                ScheduledExecutorService scheduler;
+                scheduler = Executors.newScheduledThreadPool(1);
+                // Start the scraper now and keep it running if it is not already running.
+                if (!RunCatchup) {
+                    doRunSARIC_MetOfficeScraper(null, 0, true);
+                }
+                // Kick the scraper at 4am to get all the latest results before processing them.
+                doRunSARIC_MetOfficeScraper(scheduler, fouram, false);
+                System.out.println("Scheduling processing...");
+                // For ImageProcessing of Observations
+                SARIC_ImageProcessor[] pIPO;
+                pIPO = new SARIC_ImageProcessor[3];
+                SARIC_ImageProcessor[] pIPF;
+                pIPF = new SARIC_ImageProcessor[3];
+                SARIC_DataForLex[] p;
+                p = new SARIC_DataForLex[3];
+
+                // Main Switches
+                doImageProcessObservations = true;
 //        doImageProcessObservations = false;
-            doProcessForecasts = true;
+                doProcessForecasts = true;
 //                doProcessForecasts = false;
-            doWissey = true;
+                doWissey = true;
 //                doWissey = false;
-            doTeifi = true;
+                doTeifi = true;
 //                doTeifi = false;
 
-            File dirIn;
-            File dirOut;
-            boolean outputGreyScale;
-            int colorDupication;
+                File dirIn;
+                File dirOut;
+                boolean outputGreyScale;
+                int colorDupication;
 //                outputGreyScale = false;
-            outputGreyScale = true;
-            colorDupication = 0;
-            for (int estimateType = -1; estimateType < 2; estimateType++) {
+                outputGreyScale = true;
+                colorDupication = 0;
+                for (int estimateType = -1; estimateType < 2; estimateType++) {
 
-                if (doImageProcessObservations) {
-                    // Switches
-                    doNonTiledObs = false;
-                    doNonTiledFcs = false;
-                    doTileFromWMTSService = true;
-                    doObservationsTileFromWMTSService = true;
-                    doForecastsTileFromWMTSService = false;
-                    overwrite = false;
-                    dirIn = files.getInputDataMetOfficeDataPointDir();
-                    dirOut = files.getOutputDataMetOfficeDataPointDir();
-                    pIPO[estimateType + 1] = new SARIC_ImageProcessor(se, dirIn,
-                            dirOut, doNonTiledFcs, doNonTiledObs,
-                            doTileFromWMTSService,
-                            doObservationsTileFromWMTSService,
-                            doForecastsTileFromWMTSService, doWissey, doTeifi,
-                            overwrite, estimateType, outputGreyScale,
-                            colorDupication);
-                    scheduler.scheduleAtFixedRate(pIPO[estimateType + 1], four30am, TimeUnit.DAYS.toMinutes(1), TimeUnit.MINUTES);
-                }
+                    if (doImageProcessObservations) {
+                        // Switches
+                        doNonTiledObs = false;
+                        doNonTiledFcs = false;
+                        doTileFromWMTSService = true;
+                        doObservationsTileFromWMTSService = true;
+                        doForecastsTileFromWMTSService = false;
+                        overwrite = false;
+                        dirIn = files.getInputDataMetOfficeDataPointDir();
+                        dirOut = files.getOutputDataMetOfficeDataPointDir();
+                        pIPO[estimateType + 1] = new SARIC_ImageProcessor(se, dirIn,
+                                dirOut, doNonTiledFcs, doNonTiledObs,
+                                doTileFromWMTSService,
+                                doObservationsTileFromWMTSService,
+                                doForecastsTileFromWMTSService, doWissey, doTeifi,
+                                overwrite, estimateType, outputGreyScale,
+                                colorDupication);
+                        scheduler.scheduleAtFixedRate(pIPO[estimateType + 1], four30am, TimeUnit.DAYS.toMinutes(1), TimeUnit.MINUTES);
+                    }
 
-                if (doProcessForecasts) {
-                    // Switches
+                    if (doProcessForecasts) {
+                        // Switches
 //                        doNonTiledFcs = false;
-                    doNonTiledFcs = true;
+                        doNonTiledFcs = true;
 //                        doTileFromWMTSService = false;
-                    doTileFromWMTSService = true;
-                    doObservationsTileFromWMTSService = false;
-                    doForecastsTileFromWMTSService = true;
+                        doTileFromWMTSService = true;
+                        doObservationsTileFromWMTSService = false;
+                        doForecastsTileFromWMTSService = true;
 //                        doForecastsTileFromWMTSService = false;
-                    overwrite = false;
-                    dirIn = files.getInputDataMetOfficeDataPointDir();
-                    dirOut = files.getOutputDataMetOfficeDataPointDir();
-                    pIPF[estimateType + 1] = new SARIC_ImageProcessor(se, dirIn,
-                            dirOut, doNonTiledFcs, doNonTiledObs,
-                            doTileFromWMTSService,
-                            doObservationsTileFromWMTSService,
-                            doForecastsTileFromWMTSService, doWissey, doTeifi,
-                            overwrite, estimateType, outputGreyScale,
-                            colorDupication);
-                    scheduler.scheduleAtFixedRate(pIPF[estimateType + 1], four30am, TimeUnit.DAYS.toMinutes(1), TimeUnit.MINUTES);
+                        overwrite = false;
+                        dirIn = files.getInputDataMetOfficeDataPointDir();
+                        dirOut = files.getOutputDataMetOfficeDataPointDir();
+                        pIPF[estimateType + 1] = new SARIC_ImageProcessor(se, dirIn,
+                                dirOut, doNonTiledFcs, doNonTiledObs,
+                                doTileFromWMTSService,
+                                doObservationsTileFromWMTSService,
+                                doForecastsTileFromWMTSService, doWissey, doTeifi,
+                                overwrite, estimateType, outputGreyScale,
+                                colorDupication);
+                        scheduler.scheduleAtFixedRate(pIPF[estimateType + 1], four30am, TimeUnit.DAYS.toMinutes(1), TimeUnit.MINUTES);
+                    }
                 }
-            }
 
-            skip10 = false;
-            dolast5days = true;
-            for (int estimateType = -1; estimateType < 2; estimateType++) {
-                p[estimateType + 1] = new SARIC_DataForLex(se, estimateType, skip10, dolast5days);
-                scheduler.scheduleAtFixedRate(p[estimateType + 1], fiveam, TimeUnit.DAYS.toMinutes(1), TimeUnit.MINUTES);
-            }
-            try {
-                // waits for termination for 1000 days
-                scheduler.awaitTermination(1000, TimeUnit.DAYS);
-            } catch (InterruptedException ex) {
-                Logger.getLogger(SARIC_Processor.class.getName()).log(Level.SEVERE, null, ex);
-            }
+                skip10 = false;
+                dolast5days = true;
+                for (int estimateType = -1; estimateType < 2; estimateType++) {
+                    p[estimateType + 1] = new SARIC_DataForLex(se, estimateType, skip10, dolast5days);
+                    scheduler.scheduleAtFixedRate(p[estimateType + 1], fiveam, TimeUnit.DAYS.toMinutes(1), TimeUnit.MINUTES);
+                }
+                try {
+                    // waits for termination for 1000 days
+                    scheduler.awaitTermination(1000, TimeUnit.DAYS);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(SARIC_Processor.class.getName()).log(Level.SEVERE, null, ex);
+                }
 
 //            long timeDelay = 1000 * 60 * 60 * 24;
 //            while (true) {
@@ -321,37 +322,42 @@ public class SARIC_Processor extends SARIC_Object implements Runnable {
 //                    System.out.println("Waited " + uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Time.getTime(timeDelay) + ".");
 //                }
 //            }
-        }
+            }
 
-        if (RunSARIC_ProcessNIMROD) {
-            doWissey = true;
+            if (RunSARIC_ProcessNIMROD) {
+                doWissey = true;
 //            doWissey = false;
-            doTeifi = true;
+                doTeifi = true;
 //            doTeifi = false;
-            SARIC_NIMRODDataHandler p;
-            p = new SARIC_NIMRODDataHandler(se, doWissey, doTeifi);
-            p.run();
-        }
+                SARIC_NIMRODDataHandler p;
+                p = new SARIC_NIMRODDataHandler(se, doWissey, doTeifi);
+                p.run();
+            }
 
-        if (RunSARIC_RainfallStatistics) {
-            doWissey = true;
-            doWissey = false;
-            doTeifi = true;
+            if (RunSARIC_RainfallStatistics) {
+                doWissey = true;
+                doWissey = false;
+                doTeifi = true;
 //            doTeifi = false;
-            overwrite = true;
-            File dirIn;
-            dirIn = files.getInputDataMetOfficeDataPointDir();
-            File dirOut;
-            dirOut = files.getOutputDataMetOfficeDataPointDir();
-            SARIC_RainfallStatistics p;
-            p = new SARIC_RainfallStatistics(se, dirIn, dirOut, doWissey,
-                    doTeifi, overwrite);
-            p.run();
+                overwrite = true;
+                File dirIn;
+                dirIn = files.getInputDataMetOfficeDataPointDir();
+                File dirOut;
+                dirOut = files.getOutputDataMetOfficeDataPointDir();
+                SARIC_RainfallStatistics p;
+                p = new SARIC_RainfallStatistics(se, dirIn, dirOut, doWissey,
+                        doTeifi, overwrite);
+                p.run();
+            }
+        } catch (Exception | Error e) {
+            System.err.println(e.getLocalizedMessage());
+            e.printStackTrace(System.err);
         }
     }
 
     protected void doRunSARIC_MetOfficeScraper(
-            ScheduledExecutorService scheduler, long timeAfterMidnightInMinutes, boolean iterate) {
+            ScheduledExecutorService scheduler, long timeAfterMidnightInMinutes, 
+            boolean iterate) throws IOException {
         long timeDelay;
         String name;
         // Main Switches

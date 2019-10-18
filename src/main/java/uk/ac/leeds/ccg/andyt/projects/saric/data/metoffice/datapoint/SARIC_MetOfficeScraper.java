@@ -124,7 +124,7 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
             boolean overwrite,
             String dataType,
             boolean iterate
-    ) {
+    ) throws IOException {
         super(new Web_Environment());
         this.se = se;
         this.sf = se.files;

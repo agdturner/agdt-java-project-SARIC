@@ -174,156 +174,160 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
 
     @Override
     public void run() {
+        try {
+            SARIC_Colour sc;
+            sc = new SARIC_Colour(se);
 
-        SARIC_Colour sc;
-        sc = new SARIC_Colour(se);
+            TreeMap<Double, Color> colorMap;
+            colorMap = sc.getColorMap();
+            Color ndvColor;
+            ndvColor = Color.BLACK;
+            HashSet<SARIC_Site> sites;
 
-        TreeMap<Double, Color> colorMap;
-        colorMap = sc.getColorMap();
-        Color ndvColor;
-        ndvColor = Color.BLACK;
-        HashSet<SARIC_Site> sites;
+            String area;
+            Grids_GridDoubleFactory f;
+            Grids_GridDouble g;
 
-        String area;
-        Grids_GridDoubleFactory f;
-        Grids_GridDouble g;
-
-        // Initialisation for Wissey
-        Object[] sw1KMGridMaskedToCatchment = null;
-        if (doWissey) {
-            SARIC_Wissey sw;
-            sw = se.getWissey();
-            sw1KMGridMaskedToCatchment = sw.get1KMGridMaskedToCatchment();
-        }
-
-        // Initialisation for Teifi
-        Object[] st1KMGridMaskedToCatchment = null;
-        if (doTeifi) {
-            SARIC_Teifi st;
-            st = se.getTeifi();
-            st1KMGridMaskedToCatchment = st.get1KMGridMaskedToCatchment();
-        }
-
-        if (doNonTiledFcs) {
-            //C:\Users\geoagdt\src\projects\saric\data\input\MetOffice\DataPoint\val\wxfcs\all\xml\site\3hourly\2017-09-04-11
-            // Declaration part 1
-            /**
-             * dates is for storing a set of dates that will be processed. This
-             * is initialised in a manual way currently below, but it could also
-             * be initialised by looking at what data are stored in a directory.
-             */
-            Object[] nearestForecastsSitesGridAndFactory;
-
+            // Initialisation for Wissey
+            Object[] sw1KMGridMaskedToCatchment = null;
             if (doWissey) {
-                area = SARIC_Strings.s_Wissey;
                 SARIC_Wissey sw;
-                sw = new SARIC_Wissey(se);
-                sites = sw.getForecastsSitesInStudyArea(SARIC_Strings.s_3hourly);
-                nearestForecastsSitesGridAndFactory = sw.getNearestForecastsSitesGrid(sites);
-                g = (Grids_GridDouble) nearestForecastsSitesGridAndFactory[0];
-                f = (Grids_GridDoubleFactory) nearestForecastsSitesGridAndFactory[1];
-                processForecastPoints2(area, sites, f, g, colorMap);
+                sw = se.getWissey();
+                sw1KMGridMaskedToCatchment = sw.get1KMGridMaskedToCatchment();
             }
-            if (doTeifi) {
-                area = SARIC_Strings.s_Teifi;
-                SARIC_Teifi st;
-                st = new SARIC_Teifi(se);
-                sites = st.getForecastsSitesInStudyArea(SARIC_Strings.s_3hourly);
-                nearestForecastsSitesGridAndFactory = st.getNearestForecastsSitesGrid(sites);
-                g = (Grids_GridDouble) nearestForecastsSitesGridAndFactory[0];
-                f = (Grids_GridDoubleFactory) nearestForecastsSitesGridAndFactory[1];
-                processForecastPoints2(area, sites, f, g, colorMap);
-            }
-        }
-        if (doTileFromWMTSService) {
-            // Initial declaration
-            File inspireWMTSCapabilities;
-            SARIC_MetOfficeParameters p;
-            SARIC_MetOfficeCapabilitiesXMLDOMReader r;
-            String layerName;
-            String tileMatrixSet;
-            String tileMatrix;
-            HashMap<String, SARIC_MetOfficeLayerParameters> metOfficeLayerParameters;
-            BigDecimal cellsize;
-            int nrows;
-            int ncols;
-            Vector_Envelope2D bounds;
-            // Initial assignment
-            inspireWMTSCapabilities = files.getInputDataMetOfficeDataPointInspireViewWmtsCapabilitiesFile();
-            p = new SARIC_MetOfficeParameters(se);
-            r = new SARIC_MetOfficeCapabilitiesXMLDOMReader(se, inspireWMTSCapabilities);
-            tileMatrixSet = "EPSG:27700"; // British National Grid
 
-            // Forecasts
-            if (doForecastsTileFromWMTSService) {
-                layerName = "Precipitation_Rate";
-                for (int scale = 4; scale < 5; scale++) {
-                    System.out.println("scale " + scale);
-                    tileMatrix = tileMatrixSet + ":" + scale;
-                    metOfficeLayerParameters = p.getMetOfficeLayerParameters();
-                    SARIC_MetOfficeLayerParameters lp;
-                    lp = metOfficeLayerParameters.get(tileMatrix);
-                    cellsize = r.getCellsize(tileMatrix);
-                    if (lp == null) {
-                        lp = new SARIC_MetOfficeLayerParameters(se, cellsize, p);
-                        lp.setNrows(256);
-                        lp.setNcols(256);
+            // Initialisation for Teifi
+            Object[] st1KMGridMaskedToCatchment = null;
+            if (doTeifi) {
+                SARIC_Teifi st;
+                st = se.getTeifi();
+                st1KMGridMaskedToCatchment = st.get1KMGridMaskedToCatchment();
+            }
+
+            if (doNonTiledFcs) {
+                //C:\Users\geoagdt\src\projects\saric\data\input\MetOffice\DataPoint\val\wxfcs\all\xml\site\3hourly\2017-09-04-11
+                // Declaration part 1
+                /**
+                 * dates is for storing a set of dates that will be processed.
+                 * This is initialised in a manual way currently below, but it
+                 * could also be initialised by looking at what data are stored
+                 * in a directory.
+                 */
+                Object[] nearestForecastsSitesGridAndFactory;
+
+                if (doWissey) {
+                    area = SARIC_Strings.s_Wissey;
+                    SARIC_Wissey sw;
+                    sw = new SARIC_Wissey(se);
+                    sites = sw.getForecastsSitesInStudyArea(SARIC_Strings.s_3hourly);
+                    nearestForecastsSitesGridAndFactory = sw.getNearestForecastsSitesGrid(sites);
+                    g = (Grids_GridDouble) nearestForecastsSitesGridAndFactory[0];
+                    f = (Grids_GridDoubleFactory) nearestForecastsSitesGridAndFactory[1];
+                    processForecastPoints2(area, sites, f, g, colorMap);
+                }
+                if (doTeifi) {
+                    area = SARIC_Strings.s_Teifi;
+                    SARIC_Teifi st;
+                    st = new SARIC_Teifi(se);
+                    sites = st.getForecastsSitesInStudyArea(SARIC_Strings.s_3hourly);
+                    nearestForecastsSitesGridAndFactory = st.getNearestForecastsSitesGrid(sites);
+                    g = (Grids_GridDouble) nearestForecastsSitesGridAndFactory[0];
+                    f = (Grids_GridDoubleFactory) nearestForecastsSitesGridAndFactory[1];
+                    processForecastPoints2(area, sites, f, g, colorMap);
+                }
+            }
+            if (doTileFromWMTSService) {
+                // Initial declaration
+                File inspireWMTSCapabilities;
+                SARIC_MetOfficeParameters p;
+                SARIC_MetOfficeCapabilitiesXMLDOMReader r;
+                String layerName;
+                String tileMatrixSet;
+                String tileMatrix;
+                HashMap<String, SARIC_MetOfficeLayerParameters> metOfficeLayerParameters;
+                BigDecimal cellsize;
+                int nrows;
+                int ncols;
+                Vector_Envelope2D bounds;
+                // Initial assignment
+                inspireWMTSCapabilities = files.getInputDataMetOfficeDataPointInspireViewWmtsCapabilitiesFile();
+                p = new SARIC_MetOfficeParameters(se);
+                r = new SARIC_MetOfficeCapabilitiesXMLDOMReader(se, inspireWMTSCapabilities);
+                tileMatrixSet = "EPSG:27700"; // British National Grid
+
+                // Forecasts
+                if (doForecastsTileFromWMTSService) {
+                    layerName = "Precipitation_Rate";
+                    for (int scale = 4; scale < 5; scale++) {
+                        System.out.println("scale " + scale);
+                        tileMatrix = tileMatrixSet + ":" + scale;
+                        metOfficeLayerParameters = p.getMetOfficeLayerParameters();
+                        SARIC_MetOfficeLayerParameters lp;
+                        lp = metOfficeLayerParameters.get(tileMatrix);
+                        cellsize = r.getCellsize(tileMatrix);
+                        if (lp == null) {
+                            lp = new SARIC_MetOfficeLayerParameters(se, cellsize, p);
+                            lp.setNrows(256);
+                            lp.setNcols(256);
+                        }
+                        nrows = r.getNrows(tileMatrix);
+                        ncols = r.getNcols(tileMatrix);
+                        bounds = r.getDimensions(cellsize, nrows, ncols, tileMatrix, p.TwoFiveSix);
+                        System.out.println(bounds.toString());
+                        p.setBounds(bounds);
+                        if (doWissey) {
+                            area = SARIC_Strings.s_Wissey;
+                            f = (Grids_GridDoubleFactory) sw1KMGridMaskedToCatchment[1];
+                            g = (Grids_GridDouble) sw1KMGridMaskedToCatchment[0];
+                            System.out.println(g.toString());
+                            processForecastImages(colorMap, ndvColor, area,
+                                    scale, layerName, cellsize, p, lp, r, f, g);
+                        }
+                        if (doTeifi) {
+                            area = SARIC_Strings.s_Teifi;
+                            f = (Grids_GridDoubleFactory) st1KMGridMaskedToCatchment[1];
+                            g = (Grids_GridDouble) st1KMGridMaskedToCatchment[0];
+                            processForecastImages(colorMap, ndvColor, area,
+                                    scale, layerName, cellsize, p, lp, r, f, g);
+                        }
                     }
-                    nrows = r.getNrows(tileMatrix);
-                    ncols = r.getNcols(tileMatrix);
-                    bounds = r.getDimensions(cellsize, nrows, ncols, tileMatrix, p.TwoFiveSix);
-                    System.out.println(bounds.toString());
-                    p.setBounds(bounds);
-                    if (doWissey) {
-                        area = SARIC_Strings.s_Wissey;
-                        f = (Grids_GridDoubleFactory) sw1KMGridMaskedToCatchment[1];
-                        g = (Grids_GridDouble) sw1KMGridMaskedToCatchment[0];
-                        System.out.println(g.toString());
-                        processForecastImages(colorMap, ndvColor, area,
-                                scale, layerName, cellsize, p, lp, r, f, g);
-                    }
-                    if (doTeifi) {
-                        area = SARIC_Strings.s_Teifi;
-                        f = (Grids_GridDoubleFactory) st1KMGridMaskedToCatchment[1];
-                        g = (Grids_GridDouble) st1KMGridMaskedToCatchment[0];
-                        processForecastImages(colorMap, ndvColor, area,
-                                scale, layerName, cellsize, p, lp, r, f, g);
+                }
+                // Observations
+                if (doObservationsTileFromWMTSService) {
+                    layerName = SARIC_Strings.s_RADAR_UK_Composite_Highres;
+                    for (int scale = 4; scale < 5; scale++) {
+                        tileMatrix = tileMatrixSet + ":" + scale;
+                        metOfficeLayerParameters = p.getMetOfficeLayerParameters();
+                        SARIC_MetOfficeLayerParameters lp;
+                        lp = metOfficeLayerParameters.get(tileMatrix);
+                        cellsize = r.getCellsize(tileMatrix);
+                        if (lp == null) {
+                            lp = new SARIC_MetOfficeLayerParameters(se, cellsize, p);
+                        }
+                        nrows = r.getNrows(tileMatrix); // nrows is the number of rows of tiles.
+                        ncols = r.getNcols(tileMatrix); // ncols is the number of columns of tiles.
+                        bounds = r.getDimensions(cellsize, nrows, ncols, tileMatrix, p.TwoFiveSix);
+                        //System.out.println(bounds.toString());
+                        p.setBounds(bounds);
+                        if (doWissey) {
+                            area = SARIC_Strings.s_Wissey;
+                            f = (Grids_GridDoubleFactory) sw1KMGridMaskedToCatchment[1];
+                            g = (Grids_GridDouble) sw1KMGridMaskedToCatchment[0];
+                            processObservationImages(colorMap, ndvColor, area, scale,
+                                    layerName, cellsize, p, lp, r, f, g);
+                        }
+                        if (doTeifi) {
+                            area = SARIC_Strings.s_Teifi;
+                            f = (Grids_GridDoubleFactory) st1KMGridMaskedToCatchment[1];
+                            g = (Grids_GridDouble) st1KMGridMaskedToCatchment[0];
+                            processObservationImages(colorMap, ndvColor, area, scale,
+                                    layerName, cellsize, p, lp, r, f, g);
+                        }
                     }
                 }
             }
-            // Observations
-            if (doObservationsTileFromWMTSService) {
-                layerName = SARIC_Strings.s_RADAR_UK_Composite_Highres;
-                for (int scale = 4; scale < 5; scale++) {
-                    tileMatrix = tileMatrixSet + ":" + scale;
-                    metOfficeLayerParameters = p.getMetOfficeLayerParameters();
-                    SARIC_MetOfficeLayerParameters lp;
-                    lp = metOfficeLayerParameters.get(tileMatrix);
-                    cellsize = r.getCellsize(tileMatrix);
-                    if (lp == null) {
-                        lp = new SARIC_MetOfficeLayerParameters(se, cellsize, p);
-                    }
-                    nrows = r.getNrows(tileMatrix); // nrows is the number of rows of tiles.
-                    ncols = r.getNcols(tileMatrix); // ncols is the number of columns of tiles.
-                    bounds = r.getDimensions(cellsize, nrows, ncols, tileMatrix, p.TwoFiveSix);
-                    //System.out.println(bounds.toString());
-                    p.setBounds(bounds);
-                    if (doWissey) {
-                        area = SARIC_Strings.s_Wissey;
-                        f = (Grids_GridDoubleFactory) sw1KMGridMaskedToCatchment[1];
-                        g = (Grids_GridDouble) sw1KMGridMaskedToCatchment[0];
-                        processObservationImages(colorMap, ndvColor, area, scale,
-                                layerName, cellsize, p, lp, r, f, g);
-                    }
-                    if (doTeifi) {
-                        area = SARIC_Strings.s_Teifi;
-                        f = (Grids_GridDoubleFactory) st1KMGridMaskedToCatchment[1];
-                        g = (Grids_GridDouble) st1KMGridMaskedToCatchment[0];
-                        processObservationImages(colorMap, ndvColor, area, scale,
-                                layerName, cellsize, p, lp, r, f, g);
-                    }
-                }
-            }
+        } catch (IOException ex) {
+            ex.printStackTrace(System.err);
         }
     }
 
@@ -337,12 +341,12 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
     private void processForecastPoints(String area,
             HashSet<SARIC_Site> sites,
             Grids_GridDoubleFactory f, Grids_GridDouble g,
-            TreeMap<Double, Color> colorMap) {
+            TreeMap<Double, Color> colorMap) throws IOException {
         String methodName;
         methodName = "processForecastPoints(...)";
         System.out.println("<" + methodName + ">");
         System.out.println("Area " + area);
-        Grids_Files gridf  = ge.files;
+        Grids_Files gridf = ge.files;
         File gdir;
         String dataType;
         String path;
@@ -410,7 +414,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                         File file;
                         if (indir1.exists()) {
                             forecasts = new HashMap<>();
-                            gdir = gridf.createNewFile(gridf.getGeneratedGridDoubleDir());
+                            gdir = se.env.io.createNewFile(gridf.getGeneratedGridDoubleDir());
                             //forecastsForTime2 = (Grids_GridDouble) gf.create(gdir, nearestForecastsSitesGrid);
                             forecastsForTime2 = (Grids_GridDouble) f.create(gdir, g);
                             name = date + "-00" + "_ForecastFor_" + date1.getYYYYMMDD();
@@ -506,7 +510,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
         if (dirnames != null) {
             dirname = dir1.list()[0]; //Sometimes data are missing here!
             dir2 = new File(dir1, dirname);
-            filename = siteID + SARIC_Strings.s_3hourly 
+            filename = siteID + SARIC_Strings.s_3hourly
                     + SARIC_Strings.symbol_dot + dataType;
             file = new File(dir2, filename);
             h = new SARIC_MetOfficeSiteXMLSAXHandler(se, file);
@@ -526,12 +530,12 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
     private void processForecastPoints2(String area,
             HashSet<SARIC_Site> sites,
             Grids_GridDoubleFactory f, Grids_GridDouble g,
-            TreeMap<Double, Color> colorMap) {
+            TreeMap<Double, Color> colorMap)  throws IOException {
         String methodName;
         methodName = "processForecastPoints(...)";
         System.out.println("<" + methodName + ">");
         System.out.println("Area " + area);
-        Grids_Files gridf  = ge.files;
+        Grids_Files gridf = ge.files;
         File gdir;
         String dataType;
         String path;
@@ -605,7 +609,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
                         date1 = iterat.next();
                         File file;
                         if (indir1.exists()) {
-                            gdir = gridf.createNewFile(gridf.getGeneratedGridDoubleDir());
+                            gdir = se.env.io.createNewFile(gridf.getGeneratedGridDoubleDir());
                             //forecastsForTime2 = (Grids_GridDouble) gf.create(gdir, nearestForecastsSitesGrid);
                             forecastsForTime2 = (Grids_GridDouble) f.create(gdir, g);
                             ndv = forecastsForTime2.getNoDataValue();
@@ -693,13 +697,13 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
             BigDecimal cellsize, SARIC_MetOfficeParameters p,
             SARIC_MetOfficeLayerParameters lp,
             SARIC_MetOfficeCapabilitiesXMLDOMReader r,
-            Grids_GridDoubleFactory f, Grids_GridDouble g) {
+            Grids_GridDoubleFactory f, Grids_GridDouble g)  throws IOException {
         String methodName;
         methodName = "processForecastImages(...)";
         System.out.println("<" + methodName + ">");
         System.out.println("Area " + area);
         // Initial declaration
-        Grids_Files gridf  = ge.files;
+        Grids_Files gridf = ge.files;
         File gdir;
         String pathIn;
         String pathOut;
@@ -777,7 +781,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
         boolean writtenOut;
         writtenOut = true;
 
-        gdir = gridf.createNewFile(gridf.getGeneratedGridDoubleDir());
+        gdir = se.env.io.createNewFile(gridf.getGeneratedGridDoubleDir());
         b1KMGrid = (Grids_GridDouble) f.create(gdir, g);
         ite = timesForecast.keySet().iterator();
         while (ite.hasNext()) {
@@ -981,13 +985,13 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
             SARIC_MetOfficeLayerParameters lp,
             SARIC_MetOfficeCapabilitiesXMLDOMReader r,
             Grids_GridDoubleFactory f,
-            Grids_GridDouble g) {
+            Grids_GridDouble g) throws IOException {
         String methodName;
         methodName = "processObservationImages(...)";
         System.out.println("<" + methodName + ">");
         System.out.println("Area " + area);
         // Initial declaration
-        Grids_Files gridf  = ge.files;
+        Grids_Files gridf = ge.files;
         File gdir;
         String pathIn;
         String pathOut;
@@ -1048,7 +1052,7 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
         Iterator<Generic_Time> itet;
         Grids_GridDouble b1KMGrid;
 
-        gdir = gridf.createNewFile(gridf.getGeneratedGridDoubleDir());
+        gdir = se.env.io.createNewFile(gridf.getGeneratedGridDoubleDir());
         b1KMGrid = (Grids_GridDouble) f.create(gdir, g);
         itet = times.iterator();
         t0 = itet.next();
@@ -1129,17 +1133,17 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
      * @param gridf
      */
     private Grids_GridDouble reinitGrid(Grids_GridDouble g, Grids_GridDouble g0,
-            Grids_GridDoubleFactory f, Grids_Files gridf) {
+            Grids_GridDoubleFactory f, Grids_Files gridf)  throws IOException {
         g.env.removeGrid(g);
         File gdir;
-        gdir = gridf.createNewFile(gridf.getGeneratedGridDoubleDir());
+        gdir = se.env.io.createNewFile(gridf.getGeneratedGridDoubleDir());
         g = (Grids_GridDouble) f.create(gdir, g0);
         return g;
     }
 
     // Output result grid
     private void outputGrid(File dir, String name, Grids_GridDouble g,
-            Color ndvColor, TreeMap<Double, Color> colorMap) {
+            Color ndvColor, TreeMap<Double, Color> colorMap)  throws IOException {
         File f;
         f = new File(dir, name + ".asc");
         ae.toAsciiFile(g, f);
@@ -1232,13 +1236,13 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
             Grids_Files gridf,
             File indir, File gridDir, Generic_Time t, String dateComponentDelimeter,
             String dateTimeDivider, String timeComponentDivider, String ending,
-            BigDecimal cellsize, SARIC_MetOfficeLayerParameters lp) {
+            BigDecimal cellsize, SARIC_MetOfficeLayerParameters lp)  throws IOException {
         String methodName;
         methodName = "getGridObserved(File,Generic_Time,BigDecimal,Vector_Envelope2D)";
         Grids_GridDouble result;
         System.out.println("<Duplicate a1KMGrid>");
         File gdir;
-        gdir = gridf.createNewFile(gridf.getGeneratedGridDoubleDir());
+        gdir = se.env.io.createNewFile(gridf.getGeneratedGridDoubleDir());
         result = (Grids_GridDouble) f.create(gdir, g0);
 
         String s;
@@ -1374,13 +1378,13 @@ public class SARIC_ImageProcessor extends SARIC_Object implements Runnable {
             File indir, File gridDir, Generic_Time t, String timen,
             String dateComponentDelimeter,
             String dateTimeDivider, String timeComponentDivider, String ending,
-            BigDecimal cellsize, SARIC_MetOfficeLayerParameters lp) {
+            BigDecimal cellsize, SARIC_MetOfficeLayerParameters lp) throws IOException  {
         String methodName;
         methodName = "getGridForecast(File,Generic_Time,BigDecimal,Vector_Envelope2D)";
         Grids_GridDouble result;
         System.out.println("<Duplicate a1KMGrid>");
         File gdir;
-        gdir = gridf.createNewFile(gridf.getGeneratedGridDoubleDir());
+        gdir = se.env.io.createNewFile(gridf.getGeneratedGridDoubleDir());
         result = (Grids_GridDouble) f.create(gdir, g0);
 
         String s;

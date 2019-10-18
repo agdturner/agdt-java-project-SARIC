@@ -114,73 +114,77 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
 
     @Override
     public void run() {
-        SARIC_Colour sc;
-        sc = new SARIC_Colour(se);
-        TreeMap<Double, Color> colorMap;
-        colorMap = sc.getVarianceColorMap();
-        Color noDataValueColor;
-        noDataValueColor = Color.BLACK;
-        // Initial declaration
-        File inspireWMTSCapabilities;
-        SARIC_MetOfficeParameters p;
-        SARIC_MetOfficeCapabilitiesXMLDOMReader r;
-        String area;
-        String layerName;
-        String tileMatrixSet;
-        String tileMatrix;
-        HashMap<String, SARIC_MetOfficeLayerParameters> metOfficeLayerParameters;
-        BigDecimal cellsize;
-        int nrows;
-        int ncols;
-        Vector_Envelope2D bounds;
-        // Initial assignment
-        inspireWMTSCapabilities = files.getInputDataMetOfficeDataPointInspireViewWmtsCapabilitiesFile();
-        p = new SARIC_MetOfficeParameters(se);
-        r = new SARIC_MetOfficeCapabilitiesXMLDOMReader(se, inspireWMTSCapabilities);
-        tileMatrixSet = "EPSG:27700"; // British National Grid
-        // Initialisation for Wissey
-        SARIC_Wissey sw;
-        Object[] sw1KMGrid = null;
-        Object[] sw1KMGridMaskedToCatchment = null;
-        if (doWissey) {
-            sw = se.getWissey();
-            sw1KMGrid = sw.get1KMGrid("1KMGrid");
-            sw1KMGridMaskedToCatchment = sw.get1KMGridMaskedToCatchment();
-        }
-        // Initialisation for Wissey
-        SARIC_Teifi st;
-        Object[] st1KMGrid = null;
-        Object[] st1KMGridMaskedToCatchment = null;
-        if (doTeifi) {
-            st = se.getTeifi();
-            st1KMGrid = st.get1KMGrid("1KMGrid");
-            st1KMGridMaskedToCatchment = st.get1KMGridMaskedToCatchment();
-        }
-        layerName = SARIC_Strings.s_RADAR_UK_Composite_Highres;
-        for (int scale = 4; scale < 5; scale++) {
-            tileMatrix = tileMatrixSet + ":" + scale;
-            metOfficeLayerParameters = p.getMetOfficeLayerParameters();
-            SARIC_MetOfficeLayerParameters lp;
-            lp = metOfficeLayerParameters.get(tileMatrix);
-            cellsize = r.getCellsize(tileMatrix);
-            if (lp == null) {
-                lp = new SARIC_MetOfficeLayerParameters(se, cellsize, p);
-            }
-            nrows = r.getNrows(tileMatrix); // nrows is the number of rows of tiles.
-            ncols = r.getNcols(tileMatrix); // ncols is the number of columns of tiles.
-            bounds = r.getDimensions(cellsize, nrows, ncols, tileMatrix, p.TwoFiveSix);
-            //System.out.println(bounds.toString());
-            p.setBounds(bounds);
+        try {
+            SARIC_Colour sc;
+            sc = new SARIC_Colour(se);
+            TreeMap<Double, Color> colorMap;
+            colorMap = sc.getVarianceColorMap();
+            Color noDataValueColor;
+            noDataValueColor = Color.BLACK;
+            // Initial declaration
+            File inspireWMTSCapabilities;
+            SARIC_MetOfficeParameters p;
+            SARIC_MetOfficeCapabilitiesXMLDOMReader r;
+            String area;
+            String layerName;
+            String tileMatrixSet;
+            String tileMatrix;
+            HashMap<String, SARIC_MetOfficeLayerParameters> metOfficeLayerParameters;
+            BigDecimal cellsize;
+            int nrows;
+            int ncols;
+            Vector_Envelope2D bounds;
+            // Initial assignment
+            inspireWMTSCapabilities = files.getInputDataMetOfficeDataPointInspireViewWmtsCapabilitiesFile();
+            p = new SARIC_MetOfficeParameters(se);
+            r = new SARIC_MetOfficeCapabilitiesXMLDOMReader(se, inspireWMTSCapabilities);
+            tileMatrixSet = "EPSG:27700"; // British National Grid
+            // Initialisation for Wissey
+            SARIC_Wissey sw;
+            Object[] sw1KMGrid = null;
+            Object[] sw1KMGridMaskedToCatchment = null;
             if (doWissey) {
-                area = SARIC_Strings.s_Wissey;
-                processObservations(
-                        colorMap, noDataValueColor, area, scale, layerName, cellsize, p, lp, r, sw1KMGrid, sw1KMGridMaskedToCatchment);
+                sw = se.getWissey();
+                sw1KMGrid = sw.get1KMGrid("1KMGrid");
+                sw1KMGridMaskedToCatchment = sw.get1KMGridMaskedToCatchment();
             }
+            // Initialisation for Wissey
+            SARIC_Teifi st;
+            Object[] st1KMGrid = null;
+            Object[] st1KMGridMaskedToCatchment = null;
             if (doTeifi) {
-                area = SARIC_Strings.s_Teifi;
-                processObservations(
-                        colorMap, noDataValueColor, area, scale, layerName, cellsize, p, lp, r, st1KMGrid, st1KMGridMaskedToCatchment);
+                st = se.getTeifi();
+                st1KMGrid = st.get1KMGrid("1KMGrid");
+                st1KMGridMaskedToCatchment = st.get1KMGridMaskedToCatchment();
             }
+            layerName = SARIC_Strings.s_RADAR_UK_Composite_Highres;
+            for (int scale = 4; scale < 5; scale++) {
+                tileMatrix = tileMatrixSet + ":" + scale;
+                metOfficeLayerParameters = p.getMetOfficeLayerParameters();
+                SARIC_MetOfficeLayerParameters lp;
+                lp = metOfficeLayerParameters.get(tileMatrix);
+                cellsize = r.getCellsize(tileMatrix);
+                if (lp == null) {
+                    lp = new SARIC_MetOfficeLayerParameters(se, cellsize, p);
+                }
+                nrows = r.getNrows(tileMatrix); // nrows is the number of rows of tiles.
+                ncols = r.getNcols(tileMatrix); // ncols is the number of columns of tiles.
+                bounds = r.getDimensions(cellsize, nrows, ncols, tileMatrix, p.TwoFiveSix);
+                //System.out.println(bounds.toString());
+                p.setBounds(bounds);
+                if (doWissey) {
+                    area = SARIC_Strings.s_Wissey;
+                    processObservations(
+                            colorMap, noDataValueColor, area, scale, layerName, cellsize, p, lp, r, sw1KMGrid, sw1KMGridMaskedToCatchment);
+                }
+                if (doTeifi) {
+                    area = SARIC_Strings.s_Teifi;
+                    processObservations(
+                            colorMap, noDataValueColor, area, scale, layerName, cellsize, p, lp, r, st1KMGrid, st1KMGridMaskedToCatchment);
+                }
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace(System.err);
         }
     }
 
@@ -195,7 +199,7 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
             SARIC_MetOfficeLayerParameters lp,
             SARIC_MetOfficeCapabilitiesXMLDOMReader r,
             Object[] a1KMGrid,
-            Object[] a1KMGridMaskedToCatchment) {
+            Object[] a1KMGridMaskedToCatchment) throws IOException {
         String methodName;
         methodName = "processObservations(File[],HashSet<String>,FileString,"
                 + "String,BigDecimal,SARIC_MetOfficeParameters,"
@@ -289,8 +293,8 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
             s = ym.getYYYYMM();
             dates = ymDates.get(ym);
             System.out.println(s);
-            outdir1 = new File(                    outdir0,                    s);
-            indir1 = new File(                    indir0,                    s);
+            outdir1 = new File(outdir0, s);
+            indir1 = new File(indir0, s);
             ite1 = dates.iterator();
             while (ite1.hasNext()) {
 
@@ -321,7 +325,7 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
                                 infiles = indirs0[j].listFiles();
 
                                 st = new Generic_Time(se.env, indirname2,
-                                        SARIC_Strings.symbol_minus, 
+                                        SARIC_Strings.symbol_minus,
                                         SARIC_Strings.s_T,
                                         SARIC_Strings.symbol_underscore);
                                 if (atg.containsKey(st)) {
@@ -381,7 +385,7 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
                             if (variances.containsKey(rowCol)) {
                                 variance = variances.get(rowCol);
                             } else {
-                                gdir = gridf.createNewFile(gridf.getGeneratedGridDoubleDir());
+                                gdir = se.env.io.createNewFile(gridf.getGeneratedGridDoubleDir());
                                 variance = gf.create(gdir,
                                         NRows, NCols, sum.getDimensions());
                                 variances.put(rowCol, variance);
@@ -430,7 +434,7 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
                     System.out.println("<Duplicate a1KMGrid>");
                     Grids_GridDoubleFactory f;
                     f = (Grids_GridDoubleFactory) a1KMGrid[1];
-                    gdir = gridf.createNewFile(gridf.getGeneratedGridDoubleDir());
+                    gdir = se.env.io.createNewFile(gridf.getGeneratedGridDoubleDir());
                     b1KMGrid = (Grids_GridDouble) f.create(gdir, (Grids_GridDouble) a1KMGrid[0]);
                     //b1KMGrid = (Grids_GridDouble) a1KMGrid[0];
                     System.out.println("</Duplicate a1KMGrid>");
@@ -536,11 +540,11 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
             BigDecimal cellsize,
             Vector_Envelope2D tileBounds,
             String layerName,
-            int[] rowColint) {
+            int[] rowColint) throws IOException {
         String methodName;
         methodName = "getGrid(File,BigDecimal,Vector_Envelope2D,String,int[])";
         Grids_GridDouble r = null;
-        Grids_Files gridf  = ge.files;
+        Grids_Files gridf = ge.files;
         File gdir;
         Image image = null;
         int width;
@@ -566,7 +570,7 @@ public class SARIC_RainfallStatistics extends SARIC_Object implements Runnable {
 //        dimensions[4] = tileBounds.YMax.subtract(cellsize.multiply(new BigDecimal(rowColint[0]).multiply(new BigDecimal(width)))); //YMAX
 //        dimensions[2] = dimensions[4].subtract(cellsize.multiply(new BigDecimal(height))); //YMIN
 //        dimensions[3] = dimensions[1].subtract(cellsize.multiply(new BigDecimal(width)));  //XMAX
-            gdir = gridf.createNewFile(gridf.getGeneratedGridDoubleDir());
+            gdir = se.env.io.createNewFile(gridf.getGeneratedGridDoubleDir());
             r = (Grids_GridDouble) gf.create(gdir, height, width, dimensions);
             int[] pixels = new int[width * height];
             PixelGrabber pg = new PixelGrabber(image, 0, 0, width, height, pixels, 0, width);

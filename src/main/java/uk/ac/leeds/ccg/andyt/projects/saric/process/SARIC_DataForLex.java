@@ -90,19 +90,20 @@ public class SARIC_DataForLex extends SARIC_Object implements Runnable {
 
     @Override
     public void run() {
-        estimateName = getEstimateName(estimateType);
-        // Initial day set
+        try {
+            estimateName = getEstimateName(estimateType);
+            // Initial day set
 //        Generic_Date day0;
-        // Number of days after initial day results are output for
+            // Number of days after initial day results are output for
 //        int numberOfDaysRun;
-        // What areas to run for
-        ArrayList<String> areas = new ArrayList<>();
-        areas.add(SARIC_Strings.s_Teifi);
-        areas.add(SARIC_Strings.s_Wissey);
-        // Fill in gaps or overwrite?
-        boolean overwrite;
-        overwrite = false;
-        //overwrite = true;
+            // What areas to run for
+            ArrayList<String> areas = new ArrayList<>();
+            areas.add(SARIC_Strings.s_Teifi);
+            areas.add(SARIC_Strings.s_Wissey);
+            // Fill in gaps or overwrite?
+            boolean overwrite;
+            overwrite = false;
+            //overwrite = true;
 //        // Run 1
 //        day0 = new Generic_Date(se, "2017-09-06"); 
 //        numberOfDaysRun = 7;
@@ -118,311 +119,311 @@ public class SARIC_DataForLex extends SARIC_Object implements Runnable {
 //        // Run 5
 //        day0 = new Generic_Date(se, "2017-10-25");
 //        numberOfDaysRun = 28;
-        // Run 6
+            // Run 6
 //        day0 = new Generic_Date(se, "2017-09-06");
 //        numberOfDaysRun = 200;
 //        // Run 7
 //        day0 = new Generic_Date(se, "2018-03-10");
 //        numberOfDaysRun = 10;
-        // Declaration
-        String area;
-        Generic_Date day;
-        //TreeMap<Generic_Time, Grids_GridDouble> observationsGrids;
+            // Declaration
+            String area;
+            Generic_Date day;
+            //TreeMap<Generic_Time, Grids_GridDouble> observationsGrids;
 
-        Grids_GridDouble g;
+            Grids_GridDouble g;
 
-        int numberOfDaysSinceLastRainfallEventGT2mm;
+            int numberOfDaysSinceLastRainfallEventGT2mm;
 
-        TreeMap<Generic_Date, Grids_GridDouble> observationsGrids;
+            TreeMap<Generic_Date, Grids_GridDouble> observationsGrids;
 
-        Grids_GridDouble o10;
-        Grids_GridDouble o9;
-        Grids_GridDouble o8;
-        Grids_GridDouble o7;
-        Grids_GridDouble o6;
-        Grids_GridDouble o5;
-        Grids_GridDouble o4;
-        Grids_GridDouble o3;
-        Grids_GridDouble o2;
-        Grids_GridDouble o1;
-        double observedRainfall10DaysAgo;
-        double observedRainfall9DaysAgo;
-        double observedRainfall8DaysAgo;
-        double observedRainfall7DaysAgo;
-        double observedRainfall6DaysAgo;
-        double observedRainfall5DaysAgo;
-        double observedRainfall4DaysAgo;
-        double observedRainfall3DaysAgo;
-        double observedRainfall2DaysAgo;
-        double observedRainfallYesterday;
+            Grids_GridDouble o10;
+            Grids_GridDouble o9;
+            Grids_GridDouble o8;
+            Grids_GridDouble o7;
+            Grids_GridDouble o6;
+            Grids_GridDouble o5;
+            Grids_GridDouble o4;
+            Grids_GridDouble o3;
+            Grids_GridDouble o2;
+            Grids_GridDouble o1;
+            double observedRainfall10DaysAgo;
+            double observedRainfall9DaysAgo;
+            double observedRainfall8DaysAgo;
+            double observedRainfall7DaysAgo;
+            double observedRainfall6DaysAgo;
+            double observedRainfall5DaysAgo;
+            double observedRainfall4DaysAgo;
+            double observedRainfall3DaysAgo;
+            double observedRainfall2DaysAgo;
+            double observedRainfallYesterday;
 
-        Grids_GridDouble f0;
-        Grids_GridDouble f1;
-        Grids_GridDouble f2;
-        Grids_GridDouble f3;
-        Grids_GridDouble f4;
-        //Grids_GridDouble f5;
-        double forecastRainfallInTheNext24Hours;
-        double forecastRainfallIn24to48Hours;
-        double forecastRainfallIn48to72Hours;
-        double forecastRainfallIn72to96HoursHours;
-        double forecastRainfallIn96to120Hours;
-        //double forecastRainfallIn120to144Hours;
-        double noDataValue;
+            Grids_GridDouble f0;
+            Grids_GridDouble f1;
+            Grids_GridDouble f2;
+            Grids_GridDouble f3;
+            Grids_GridDouble f4;
+            //Grids_GridDouble f5;
+            double forecastRainfallInTheNext24Hours;
+            double forecastRainfallIn24to48Hours;
+            double forecastRainfallIn48to72Hours;
+            double forecastRainfallIn72to96HoursHours;
+            double forecastRainfallIn96to120Hours;
+            //double forecastRainfallIn120to144Hours;
+            double noDataValue;
 
-        Grids_GridDouble mask;
+            Grids_GridDouble mask;
 
-        SARIC_LexRecord r;
-        File f;
-        PrintWriter pw = null;
+            SARIC_LexRecord r;
+            File f;
+            PrintWriter pw = null;
 
-        //double[] Easting_Northing;
-        Iterator<String> iteArea;
-        iteArea = areas.iterator();
-        while (iteArea.hasNext()) {
-            area = iteArea.next();
-            observationsGrids = getObservationsGrids(area);
-            // GetWaterCompanyShapefile Geometry
-            if (area.equalsIgnoreCase(SARIC_Strings.s_Wissey)) {
-                // Wissey (Wissington), latitude: 52.551, longitude: 0.447
-                //Easting_Northing = Vector_OSGBtoLatLon.latlon2osgb(52.551, 0.447);
-                //Easting_Northing = Vector_OSGBtoLatLon.latlon2osgb(52.6, 0.5);
-                SARIC_Wissey sw;
-                sw = new SARIC_Wissey(se);
-                mask = (Grids_GridDouble) sw.get1KMGridMaskedToCatchment()[0];
-            } else {
-                // Teifi (Lampeter), latitude: 52.114, longitude: -4.078
-                //Easting_Northing = Vector_OSGBtoLatLon.latlon2osgb(52.114, -4.078);
-                SARIC_Teifi st;
-                st = new SARIC_Teifi(se);
-                mask = (Grids_GridDouble) st.get1KMGridMaskedToCatchment()[0];
-            }
-            long nrows;
-            long ncols;
-            nrows = mask.getNRows();
-            ncols = mask.getNCols();
-            noDataValue = mask.getNoDataValue();
+            //double[] Easting_Northing;
+            Iterator<String> iteArea;
+            iteArea = areas.iterator();
+            while (iteArea.hasNext()) {
+                area = iteArea.next();
+                observationsGrids = getObservationsGrids(area);
+                // GetWaterCompanyShapefile Geometry
+                if (area.equalsIgnoreCase(SARIC_Strings.s_Wissey)) {
+                    // Wissey (Wissington), latitude: 52.551, longitude: 0.447
+                    //Easting_Northing = Vector_OSGBtoLatLon.latlon2osgb(52.551, 0.447);
+                    //Easting_Northing = Vector_OSGBtoLatLon.latlon2osgb(52.6, 0.5);
+                    SARIC_Wissey sw;
+                    sw = new SARIC_Wissey(se);
+                    mask = (Grids_GridDouble) sw.get1KMGridMaskedToCatchment()[0];
+                } else {
+                    // Teifi (Lampeter), latitude: 52.114, longitude: -4.078
+                    //Easting_Northing = Vector_OSGBtoLatLon.latlon2osgb(52.114, -4.078);
+                    SARIC_Teifi st;
+                    st = new SARIC_Teifi(se);
+                    mask = (Grids_GridDouble) st.get1KMGridMaskedToCatchment()[0];
+                }
+                long nrows;
+                long ncols;
+                nrows = mask.getNRows();
+                ncols = mask.getNCols();
+                noDataValue = mask.getNoDataValue();
 
-            // get days not processed yet
-            File dir;
-            TreeSet<Generic_Date> daysProcessed;
-            TreeSet<Generic_Date> daysToProcess;
-            dir = new File("Y:/projects/saric", "Lex");
-            dir = new File(dir, area);
-            dir = new File(dir, estimateName);
-            daysProcessed = getDays(dir);
-            dir = new File(files.getOutputDataMetOfficeDataPointDir(),
-                    "/inspire/view/wmts/Wissey/RADAR_UK_Composite_Highres/EPSG_27700_4/l");
-            daysToProcess = getDays(dir);
-            File dir0;
-            //dir0 = files.getOutputDataDir(ss);
-            dir0 = new File("Y:/projects/saric", "Lex");
-            if (!overwrite) {
-                daysToProcess.removeAll(daysProcessed);
-            }
-            Iterator<Generic_Date> ite;
-            ite = daysToProcess.iterator();
-            if (skip10) {
-                // Skip the first 10 dates as the first 10 days are needed.
-                if (overwrite || (daysProcessed.size() < 10)) {
-                    for (int i = 0; i < 10; i++) {
+                // get days not processed yet
+                File dir;
+                TreeSet<Generic_Date> daysProcessed;
+                TreeSet<Generic_Date> daysToProcess;
+                dir = new File("Y:/projects/saric", "Lex");
+                dir = new File(dir, area);
+                dir = new File(dir, estimateName);
+                daysProcessed = getDays(dir);
+                dir = new File(files.getOutputDataMetOfficeDataPointDir(),
+                        "/inspire/view/wmts/Wissey/RADAR_UK_Composite_Highres/EPSG_27700_4/l");
+                daysToProcess = getDays(dir);
+                File dir0;
+                //dir0 = files.getOutputDataDir(ss);
+                dir0 = new File("Y:/projects/saric", "Lex");
+                if (!overwrite) {
+                    daysToProcess.removeAll(daysProcessed);
+                }
+                Iterator<Generic_Date> ite;
+                ite = daysToProcess.iterator();
+                if (skip10) {
+                    // Skip the first 10 dates as the first 10 days are needed.
+                    if (overwrite || (daysProcessed.size() < 10)) {
+                        for (int i = 0; i < 10; i++) {
+                            day = ite.next();
+                            System.out.println("Skip day " + day.getYYYYMMDD());
+                        }
+                    }
+                }
+                if (dolast5days) {
+                    for (int i = 0; i < daysToProcess.size() - 5; i++) {
                         day = ite.next();
                         System.out.println("Skip day " + day.getYYYYMMDD());
                     }
                 }
-            }
-            if (dolast5days) {
-                for (int i = 0; i < daysToProcess.size() - 5; i++) {
-                        day = ite.next();
-                        System.out.println("Skip day " + day.getYYYYMMDD());
-                    }
-            }
 //            for (int days = 0; days < numberOfDaysRun; days++) {
 //                day = new Generic_Date(day0);
 //                day.addDays(days);
-            while (ite.hasNext()) {
-                day = ite.next();
-                //System.out.println("day " + day.getYYYYMMDD());
-                f = getFile(dir0, area, day);
-                if (f.exists() && overwrite || !f.exists()) {
+                while (ite.hasNext()) {
+                    day = ite.next();
+                    //System.out.println("day " + day.getYYYYMMDD());
+                    f = getFile(dir0, area, day);
+                    if (f.exists() && overwrite || !f.exists()) {
 
-                    boolean found;
-                    int i;
-                    double v;
+                        boolean found;
+                        int i;
+                        double v;
 
-                    o10 = getObservationGrid(observationsGrids, day, -10);
-                    o9 = getObservationGrid(observationsGrids, day, -9);
-                    o8 = getObservationGrid(observationsGrids, day, -8);
-                    o7 = getObservationGrid(observationsGrids, day, -7);
-                    o6 = getObservationGrid(observationsGrids, day, -6);
-                    o5 = getObservationGrid(observationsGrids, day, -5);
-                    o4 = getObservationGrid(observationsGrids, day, -4);
-                    o3 = getObservationGrid(observationsGrids, day, -3);
-                    o2 = getObservationGrid(observationsGrids, day, -2);
-                    o1 = getObservationGrid(observationsGrids, day, -1);
-                    f0 = getForecastsGrid(area, day, 0);
-                    f1 = getForecastsGrid(area, day, 1);
-                    f2 = getForecastsGrid(area, day, 2);
-                    f3 = getForecastsGrid(area, day, 3);
-                    f4 = getForecastsGrid(area, day, 4);
-                    //f5 = getForecastsGrid(area, t, 5);
-                    // Assume all grids have the same noDataValue.
-                    pw = initialisePrintWriter(f);
-                    //int i;
-                    //double v;
-                    for (long row = 0; row < nrows; row++) {
-                        for (long col = 0; col < ncols; col++) {
-                            if (mask.getCell(row, col) != noDataValue) {
-                                i = 0;
-                                numberOfDaysSinceLastRainfallEventGT2mm = 1;
-                                found = false;
-                                g = observationsGrids.get(day);
-                                while (!found) {
-                                    //System.out.println(day1);
-                                    if (g != null) {
-                                        v = g.getCell(row, col);
-                                    } else {
-                                        v = 0.0d;
-                                    }
-                                    if (v != noDataValue) {
-                                        //accumulation += v;
-                                        if (!found) {
-                                            if (v > 2) {
-                                                found = true;
-                                            } else {
-                                                numberOfDaysSinceLastRainfallEventGT2mm++;
-                                                i--;
-                                                g = getObservationGrid(observationsGrids, day, i);
-                                                if (g == null) {
-                                                    if (i < -10) {
-                                                        found = true; // Found that the last rainfall event of greater than 2mm was longer than 10 days ago and we've hit a null obsevation record.
+                        o10 = getObservationGrid(observationsGrids, day, -10);
+                        o9 = getObservationGrid(observationsGrids, day, -9);
+                        o8 = getObservationGrid(observationsGrids, day, -8);
+                        o7 = getObservationGrid(observationsGrids, day, -7);
+                        o6 = getObservationGrid(observationsGrids, day, -6);
+                        o5 = getObservationGrid(observationsGrids, day, -5);
+                        o4 = getObservationGrid(observationsGrids, day, -4);
+                        o3 = getObservationGrid(observationsGrids, day, -3);
+                        o2 = getObservationGrid(observationsGrids, day, -2);
+                        o1 = getObservationGrid(observationsGrids, day, -1);
+                        f0 = getForecastsGrid(area, day, 0);
+                        f1 = getForecastsGrid(area, day, 1);
+                        f2 = getForecastsGrid(area, day, 2);
+                        f3 = getForecastsGrid(area, day, 3);
+                        f4 = getForecastsGrid(area, day, 4);
+                        //f5 = getForecastsGrid(area, t, 5);
+                        // Assume all grids have the same noDataValue.
+                        pw = initialisePrintWriter(f);
+                        //int i;
+                        //double v;
+                        for (long row = 0; row < nrows; row++) {
+                            for (long col = 0; col < ncols; col++) {
+                                if (mask.getCell(row, col) != noDataValue) {
+                                    i = 0;
+                                    numberOfDaysSinceLastRainfallEventGT2mm = 1;
+                                    found = false;
+                                    g = observationsGrids.get(day);
+                                    while (!found) {
+                                        //System.out.println(day1);
+                                        if (g != null) {
+                                            v = g.getCell(row, col);
+                                        } else {
+                                            v = 0.0d;
+                                        }
+                                        if (v != noDataValue) {
+                                            //accumulation += v;
+                                            if (!found) {
+                                                if (v > 2) {
+                                                    found = true;
+                                                } else {
+                                                    numberOfDaysSinceLastRainfallEventGT2mm++;
+                                                    i--;
+                                                    g = getObservationGrid(observationsGrids, day, i);
+                                                    if (g == null) {
+                                                        if (i < -10) {
+                                                            found = true; // Found that the last rainfall event of greater than 2mm was longer than 10 days ago and we've hit a null obsevation record.
+                                                        }
                                                     }
                                                 }
                                             }
                                         }
                                     }
-                                }
-                                //System.out.println("numberOfDaysSinceLastRainfallEventGT2mm " + numberOfDaysSinceLastRainfallEventGT2mm);
-                                if (o10 == null) {
-                                    observedRainfall10DaysAgo = 0.0d;
-                                } else {
-                                    observedRainfall10DaysAgo = o10.getCell(row, col);
-                                    if (observedRainfall10DaysAgo == noDataValue) {
+                                    //System.out.println("numberOfDaysSinceLastRainfallEventGT2mm " + numberOfDaysSinceLastRainfallEventGT2mm);
+                                    if (o10 == null) {
                                         observedRainfall10DaysAgo = 0.0d;
+                                    } else {
+                                        observedRainfall10DaysAgo = o10.getCell(row, col);
+                                        if (observedRainfall10DaysAgo == noDataValue) {
+                                            observedRainfall10DaysAgo = 0.0d;
+                                        }
                                     }
-                                }
-                                if (o9 == null) {
-                                    observedRainfall9DaysAgo = 0.0d;
-                                } else {
-                                    observedRainfall9DaysAgo = o9.getCell(row, col);
-                                    if (observedRainfall9DaysAgo == noDataValue) {
+                                    if (o9 == null) {
                                         observedRainfall9DaysAgo = 0.0d;
+                                    } else {
+                                        observedRainfall9DaysAgo = o9.getCell(row, col);
+                                        if (observedRainfall9DaysAgo == noDataValue) {
+                                            observedRainfall9DaysAgo = 0.0d;
+                                        }
                                     }
-                                }
-                                if (o8 == null) {
-                                    observedRainfall8DaysAgo = 0.0d;
-                                } else {
-                                    observedRainfall8DaysAgo = o8.getCell(row, col);
-                                    if (observedRainfall8DaysAgo == noDataValue) {
+                                    if (o8 == null) {
                                         observedRainfall8DaysAgo = 0.0d;
+                                    } else {
+                                        observedRainfall8DaysAgo = o8.getCell(row, col);
+                                        if (observedRainfall8DaysAgo == noDataValue) {
+                                            observedRainfall8DaysAgo = 0.0d;
+                                        }
                                     }
-                                }
-                                if (o7 == null) {
-                                    observedRainfall7DaysAgo = 0.0d;
-                                } else {
-                                    observedRainfall7DaysAgo = o7.getCell(row, col);
-                                    if (observedRainfall7DaysAgo == noDataValue) {
+                                    if (o7 == null) {
                                         observedRainfall7DaysAgo = 0.0d;
+                                    } else {
+                                        observedRainfall7DaysAgo = o7.getCell(row, col);
+                                        if (observedRainfall7DaysAgo == noDataValue) {
+                                            observedRainfall7DaysAgo = 0.0d;
+                                        }
                                     }
-                                }
-                                if (o6 == null) {
-                                    observedRainfall6DaysAgo = 0.0d;
-                                } else {
-                                    observedRainfall6DaysAgo = o6.getCell(row, col);
-                                    if (observedRainfall6DaysAgo == noDataValue) {
+                                    if (o6 == null) {
                                         observedRainfall6DaysAgo = 0.0d;
+                                    } else {
+                                        observedRainfall6DaysAgo = o6.getCell(row, col);
+                                        if (observedRainfall6DaysAgo == noDataValue) {
+                                            observedRainfall6DaysAgo = 0.0d;
+                                        }
                                     }
-                                }
-                                if (o5 == null) {
-                                    observedRainfall5DaysAgo = 0.0d;
-                                } else {
-                                    observedRainfall5DaysAgo = o5.getCell(row, col);
-                                    if (observedRainfall5DaysAgo == noDataValue) {
+                                    if (o5 == null) {
                                         observedRainfall5DaysAgo = 0.0d;
+                                    } else {
+                                        observedRainfall5DaysAgo = o5.getCell(row, col);
+                                        if (observedRainfall5DaysAgo == noDataValue) {
+                                            observedRainfall5DaysAgo = 0.0d;
+                                        }
                                     }
-                                }
-                                if (o4 == null) {
-                                    observedRainfall4DaysAgo = 0.0d;
-                                } else {
-                                    observedRainfall4DaysAgo = o4.getCell(row, col);
-                                    if (observedRainfall4DaysAgo == noDataValue) {
+                                    if (o4 == null) {
                                         observedRainfall4DaysAgo = 0.0d;
+                                    } else {
+                                        observedRainfall4DaysAgo = o4.getCell(row, col);
+                                        if (observedRainfall4DaysAgo == noDataValue) {
+                                            observedRainfall4DaysAgo = 0.0d;
+                                        }
                                     }
-                                }
-                                if (o3 == null) {
-                                    observedRainfall3DaysAgo = 0.0d;
-                                } else {
-                                    observedRainfall3DaysAgo = o3.getCell(row, col);
-                                    if (observedRainfall3DaysAgo == noDataValue) {
+                                    if (o3 == null) {
                                         observedRainfall3DaysAgo = 0.0d;
+                                    } else {
+                                        observedRainfall3DaysAgo = o3.getCell(row, col);
+                                        if (observedRainfall3DaysAgo == noDataValue) {
+                                            observedRainfall3DaysAgo = 0.0d;
+                                        }
                                     }
-                                }
-                                if (o2 == null) {
-                                    observedRainfall2DaysAgo = 0.0d;
-                                } else {
-                                    observedRainfall2DaysAgo = o2.getCell(row, col);
-                                    if (observedRainfall2DaysAgo == noDataValue) {
+                                    if (o2 == null) {
                                         observedRainfall2DaysAgo = 0.0d;
+                                    } else {
+                                        observedRainfall2DaysAgo = o2.getCell(row, col);
+                                        if (observedRainfall2DaysAgo == noDataValue) {
+                                            observedRainfall2DaysAgo = 0.0d;
+                                        }
                                     }
-                                }
-                                if (o1 == null) {
-                                    observedRainfallYesterday = 0.0d;
-                                } else {
-                                    observedRainfallYesterday = o1.getCell(row, col);
-                                    if (observedRainfallYesterday == noDataValue) {
+                                    if (o1 == null) {
                                         observedRainfallYesterday = 0.0d;
+                                    } else {
+                                        observedRainfallYesterday = o1.getCell(row, col);
+                                        if (observedRainfallYesterday == noDataValue) {
+                                            observedRainfallYesterday = 0.0d;
+                                        }
                                     }
-                                }
-                                if (f0 == null) {
-                                    forecastRainfallInTheNext24Hours = 0.0d;
-                                } else {
-                                    forecastRainfallInTheNext24Hours = f0.getCell(row, col);
-                                    if (forecastRainfallInTheNext24Hours == noDataValue) {
+                                    if (f0 == null) {
                                         forecastRainfallInTheNext24Hours = 0.0d;
+                                    } else {
+                                        forecastRainfallInTheNext24Hours = f0.getCell(row, col);
+                                        if (forecastRainfallInTheNext24Hours == noDataValue) {
+                                            forecastRainfallInTheNext24Hours = 0.0d;
+                                        }
                                     }
-                                }
-                                if (f1 == null) {
-                                    forecastRainfallIn24to48Hours = 0.0d;
-                                } else {
-                                    forecastRainfallIn24to48Hours = f1.getCell(row, col);
-                                    if (forecastRainfallIn24to48Hours == noDataValue) {
+                                    if (f1 == null) {
                                         forecastRainfallIn24to48Hours = 0.0d;
+                                    } else {
+                                        forecastRainfallIn24to48Hours = f1.getCell(row, col);
+                                        if (forecastRainfallIn24to48Hours == noDataValue) {
+                                            forecastRainfallIn24to48Hours = 0.0d;
+                                        }
                                     }
-                                }
-                                if (f2 == null) {
-                                    forecastRainfallIn48to72Hours = 0.0d;
-                                } else {
-                                    forecastRainfallIn48to72Hours = f2.getCell(row, col);
-                                    if (forecastRainfallIn48to72Hours == noDataValue) {
+                                    if (f2 == null) {
                                         forecastRainfallIn48to72Hours = 0.0d;
+                                    } else {
+                                        forecastRainfallIn48to72Hours = f2.getCell(row, col);
+                                        if (forecastRainfallIn48to72Hours == noDataValue) {
+                                            forecastRainfallIn48to72Hours = 0.0d;
+                                        }
                                     }
-                                }
-                                if (f3 == null) {
-                                    forecastRainfallIn72to96HoursHours = 0.0d;
-                                } else {
-                                    forecastRainfallIn72to96HoursHours = f3.getCell(row, col);
-                                    if (forecastRainfallIn72to96HoursHours == noDataValue) {
+                                    if (f3 == null) {
                                         forecastRainfallIn72to96HoursHours = 0.0d;
+                                    } else {
+                                        forecastRainfallIn72to96HoursHours = f3.getCell(row, col);
+                                        if (forecastRainfallIn72to96HoursHours == noDataValue) {
+                                            forecastRainfallIn72to96HoursHours = 0.0d;
+                                        }
                                     }
-                                }
-                                if (f4 == null) {
-                                    forecastRainfallIn96to120Hours = 0.0d;
-                                } else {
-                                    forecastRainfallIn96to120Hours = f4.getCell(row, col);
-                                    if (forecastRainfallIn96to120Hours == noDataValue) {
+                                    if (f4 == null) {
                                         forecastRainfallIn96to120Hours = 0.0d;
+                                    } else {
+                                        forecastRainfallIn96to120Hours = f4.getCell(row, col);
+                                        if (forecastRainfallIn96to120Hours == noDataValue) {
+                                            forecastRainfallIn96to120Hours = 0.0d;
+                                        }
                                     }
-                                }
 //                            if (f5 == null) {
 //                                forecastRainfallIn120to144Hours = 0.0d;
 //                            } else {
@@ -432,53 +433,56 @@ public class SARIC_DataForLex extends SARIC_Object implements Runnable {
 //                                }
 //                            }
 
-                                r = new SARIC_LexRecord(
-                                        Long.toString(row * ncols + col),//mask.getCellID(row, col).toString(),//day.getYYYYMMDD(),
-                                        row,//Easting_Northing[1],
-                                        col,//Easting_Northing[0],
-                                        mask.getCellYDouble(row),
-                                        mask.getCellXDouble(col),
-                                        numberOfDaysSinceLastRainfallEventGT2mm,
-                                        observedRainfall10DaysAgo,
-                                        observedRainfall9DaysAgo,
-                                        observedRainfall8DaysAgo,
-                                        observedRainfall7DaysAgo,
-                                        observedRainfall6DaysAgo,
-                                        observedRainfall5DaysAgo,
-                                        observedRainfall4DaysAgo,
-                                        observedRainfall3DaysAgo,
-                                        observedRainfall2DaysAgo,
-                                        observedRainfallYesterday,
-                                        forecastRainfallInTheNext24Hours,
-                                        forecastRainfallIn24to48Hours,
-                                        forecastRainfallIn48to72Hours,
-                                        forecastRainfallIn72to96HoursHours,
-                                        forecastRainfallIn96to120Hours);
-                                System.out.println(r.toString());
-                                if (pw != null) {
-                                    pw.println(r.toString());
+                                    r = new SARIC_LexRecord(
+                                            Long.toString(row * ncols + col),//mask.getCellID(row, col).toString(),//day.getYYYYMMDD(),
+                                            row,//Easting_Northing[1],
+                                            col,//Easting_Northing[0],
+                                            mask.getCellYDouble(row),
+                                            mask.getCellXDouble(col),
+                                            numberOfDaysSinceLastRainfallEventGT2mm,
+                                            observedRainfall10DaysAgo,
+                                            observedRainfall9DaysAgo,
+                                            observedRainfall8DaysAgo,
+                                            observedRainfall7DaysAgo,
+                                            observedRainfall6DaysAgo,
+                                            observedRainfall5DaysAgo,
+                                            observedRainfall4DaysAgo,
+                                            observedRainfall3DaysAgo,
+                                            observedRainfall2DaysAgo,
+                                            observedRainfallYesterday,
+                                            forecastRainfallInTheNext24Hours,
+                                            forecastRainfallIn24to48Hours,
+                                            forecastRainfallIn48to72Hours,
+                                            forecastRainfallIn72to96HoursHours,
+                                            forecastRainfallIn96to120Hours);
+                                    System.out.println(r.toString());
+                                    if (pw != null) {
+                                        pw.println(r.toString());
+                                    }
                                 }
                             }
+                            if (pw != null) {
+                                pw.flush();
+                            }
                         }
-                        if (pw != null) {
-                            pw.flush();
-                        }
+                    } else {
+                        System.out.println("File " + f.toString() + " already exists and is not being overwriiten.");
                     }
-                } else {
-                    System.out.println("File " + f.toString() + " already exists and is not being overwriiten.");
-                }
-                //ID++;
+                    //ID++;
 //                    }
 //                }
+                }
+                if (pw != null) {
+                    pw.close();
+                }
             }
-            if (pw != null) {
-                pw.close();
-            }
+        } catch (IOException ex) {
+            ex.printStackTrace(System.err);
         }
     }
 
     TreeSet<Generic_Date> getDays(File dir) {
-        TreeSet<Generic_Date> r  = new TreeSet<>();
+        TreeSet<Generic_Date> r = new TreeSet<>();
         Generic_Date date;
         File[] files0;
         File[] files1;
@@ -504,7 +508,7 @@ public class SARIC_DataForLex extends SARIC_Object implements Runnable {
 
     File getFile(File dir0, String area, Generic_Date day) {
         File r;
-        File dir  = getDir(dir0, area);
+        File dir = getDir(dir0, area);
         dir = new File(dir, estimateName);
         dir = new File(dir, day.getYYYYMM());
         dir = new File(dir, day.getYYYYMMDD());
@@ -550,7 +554,7 @@ public class SARIC_DataForLex extends SARIC_Object implements Runnable {
         } else if (area.equalsIgnoreCase(SARIC_Strings.s_Wissey)) {
             sc = new SARIC_Wissey(se);
         }
-        Geotools_Shapefile shpf  = sc.getWaterCompanyAGDT_Shapefile();
+        Geotools_Shapefile shpf = sc.getWaterCompanyAGDT_Shapefile();
         SimpleFeature feature2 = null;
         try {
             feature2 = (SimpleFeature) shpf.getFeatureSource().getFeatures().features().next();
@@ -570,12 +574,12 @@ public class SARIC_DataForLex extends SARIC_Object implements Runnable {
     }
 
     protected Grids_GridDouble getObservationGrid(String area, Generic_Date d,
-            int offset) {
-        Grids_Files gridf  = ge.files;
-        Generic_Date d1  = new Generic_Time(d);
+            int offset) throws IOException {
+        Grids_Files gridf = ge.files;
+        Generic_Date d1 = new Generic_Time(d);
         d1.addDays(offset);
         Grids_GridDouble result;
-        File dir  = new File(files.getOutputDataMetOfficeDataPointDir(),
+        File dir = new File(files.getOutputDataMetOfficeDataPointDir(),
                 SARIC_Strings.s_inspire);
         dir = new File(dir, SARIC_Strings.s_view);
         //dir = new File(dir, strings.getS_wmts() + "0");
@@ -589,17 +593,17 @@ public class SARIC_DataForLex extends SARIC_Object implements Runnable {
         //System.out.println(f);
         if (f.exists()) {
             File gdir;
-            gdir = gridf.createNewFile(gridf.getGeneratedGridDoubleDir());
+            gdir = se.env.io.createNewFile(gridf.getGeneratedGridDoubleDir());
             result = (Grids_GridDouble) gf.create(gdir, f);
             //System.out.println(result);
             return result;
         }
         return null;
     }
-    
+
     protected Grids_GridDouble getObservationGrid(
-            TreeMap<Generic_Date, Grids_GridDouble> observationsGrids, 
-            Generic_Date d,            int offset) {
+            TreeMap<Generic_Date, Grids_GridDouble> observationsGrids,
+            Generic_Date d, int offset) throws IOException {
         Grids_GridDouble r;
         Generic_Date d1;
         d1 = new Generic_Time(d);
@@ -607,15 +611,14 @@ public class SARIC_DataForLex extends SARIC_Object implements Runnable {
         r = observationsGrids.get(d1);
         return r;
     }
-        
 
     protected Grids_GridDouble getForecastsGrid(String area, Generic_Date d,
-            int offset) {
-        Grids_Files gridf  = ge.files;
-        Generic_Date d1  = new Generic_Time(d);
+            int offset) throws IOException {
+        Grids_Files gridf = ge.files;
+        Generic_Date d1 = new Generic_Time(d);
         d1.addDays(offset);
         Grids_GridDouble r;
-        File dir  = new File(files.getOutputDataMetOfficeDataPointDir(),
+        File dir = new File(files.getOutputDataMetOfficeDataPointDir(),
                 SARIC_Strings.s_inspire);
         dir = new File(dir, SARIC_Strings.s_view);
         //dir = new File(dir, strings.getS_wmts() + "0");
@@ -630,7 +633,7 @@ public class SARIC_DataForLex extends SARIC_Object implements Runnable {
             //System.out.println(f);
             if (f.exists()) {
                 File gdir;
-                gdir = gridf.createNewFile(gridf.getGeneratedGridDoubleDir());
+                gdir = se.env.io.createNewFile(gridf.getGeneratedGridDoubleDir());
                 r = (Grids_GridDouble) gf.create(gdir, f);
                 //System.out.println(result);
                 return r;
@@ -652,7 +655,7 @@ public class SARIC_DataForLex extends SARIC_Object implements Runnable {
             //System.out.println(f);
             if (f.exists()) {
                 File gdir;
-                gdir = gridf.createNewFile(gridf.getGeneratedGridDoubleDir());
+                gdir = se.env.io.createNewFile(gridf.getGeneratedGridDoubleDir());
                 r = (Grids_GridDouble) gf.create(gdir, f);
                 //System.out.println(result);
                 return r;
@@ -662,7 +665,7 @@ public class SARIC_DataForLex extends SARIC_Object implements Runnable {
     }
 
     protected TreeMap<Generic_Date, Grids_GridDouble> getObservationsGrids(
-            String area) {
+            String area) throws IOException {
         Grids_Files gridf = ge.files;
         TreeMap<Generic_Date, Grids_GridDouble> result;
         result = new TreeMap<>();
@@ -695,8 +698,7 @@ public class SARIC_DataForLex extends SARIC_Object implements Runnable {
                 f = new File(dir3,
                         SARIC_Strings.s_RADAR_UK_Composite_Highres + ".asc");
                 if (f.exists()) {
-                    File gdir;
-                    gdir = gridf.createNewFile(
+                    File gdir = se.env.io.createNewFile(
                             gridf.getGeneratedGridDoubleDir());
                     g = (Grids_GridDouble) gf.create(gdir, f);
                     //System.out.println(g);

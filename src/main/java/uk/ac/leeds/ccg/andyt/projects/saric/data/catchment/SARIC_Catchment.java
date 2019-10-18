@@ -129,7 +129,7 @@ public abstract class SARIC_Catchment extends SARIC_Object {
      * @param name "1KMGrid", "1KMGridMaskedToCatchment"
      * @return
      */
-    public Object[] get1KMGrid(String name) {
+    public Object[] get1KMGrid(String name) throws IOException {
         Object[] result;
         result = new Object[3];
         Grids_GridDouble grid;
@@ -174,7 +174,7 @@ public abstract class SARIC_Catchment extends SARIC_Object {
      *
      * @return
      */
-    public Object[] get1KMGridMaskedToCatchment() {
+    public Object[] get1KMGridMaskedToCatchment() throws IOException {
         Object[] result;
         result = get1KMGrid("1KMGridMaskedToCatchment");
         if (!(Boolean) result[2]) {
@@ -279,7 +279,7 @@ public abstract class SARIC_Catchment extends SARIC_Object {
         return bounds;
     }
 
-    public Object[] getNearestForecastsSitesGrid(HashSet<SARIC_Site> sites) {
+    public Object[] getNearestForecastsSitesGrid(HashSet<SARIC_Site> sites) throws IOException {
         Object[] result;
         result = get1KMGridMaskedToCatchment();
         Grids_GridDouble resultGrid;

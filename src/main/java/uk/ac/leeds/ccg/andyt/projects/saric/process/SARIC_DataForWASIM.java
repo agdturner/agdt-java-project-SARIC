@@ -80,7 +80,7 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
 
     @Override
     public void run() {
-
+try {
         // Initial day set
         Generic_Date day0;
         // Number of days after initial day results are output for
@@ -342,6 +342,9 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
                 }
             }
         }
+        } catch (IOException ex) {
+            ex.printStackTrace(System.err);
+        }
     }
 
     File getFile(String area, Generic_Date day) {
@@ -404,7 +407,7 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
     }
 
     protected Grids_GridDouble getForecastsGrid(String area, Generic_Date d,
-            int offset) {
+            int offset) throws IOException {
         Grids_Files gridf  = ge.files;
         Generic_Date d1  = new Generic_Time(d);
         d1.addDays(offset);
@@ -422,7 +425,7 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
             System.out.println(f);
             if (f.exists()) {
                 File gdir;
-                gdir = gridf.createNewFile(gridf.getGeneratedGridDoubleDir());
+                gdir = se.env.io.createNewFile(gridf.getGeneratedGridDoubleDir());
                 r = (Grids_GridDouble) gf.create(gdir, f);
                 System.out.println(r);
                 return r;
@@ -443,7 +446,7 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
             System.out.println(f);
             if (f.exists()) {
                 File gdir;
-                gdir = gridf.createNewFile(gridf.getGeneratedGridDoubleDir());
+                gdir = se.env.io.createNewFile(gridf.getGeneratedGridDoubleDir());
                 r = (Grids_GridDouble) gf.create(gdir, f);
                 System.out.println(r);
                 return r;
@@ -453,7 +456,7 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
     }
 
     protected TreeMap<Generic_Time, Grids_GridDouble> getObservationsGrids(
-            String area) {
+            String area) throws IOException {
         Grids_Files gridf  = ge.files;
         TreeMap<Generic_Time, Grids_GridDouble> r= new TreeMap<>();
         File dir  = new File(files.getOutputDataMetOfficeDataPointDir(),
@@ -482,7 +485,7 @@ public class SARIC_DataForWASIM extends SARIC_Object implements Runnable {
                         date + SARIC_Strings.s_RADAR_UK_Composite_Highres + ".asc");
                 if (f.exists()) {
                     File gdir;
-                    gdir = gridf.createNewFile(gridf.getGeneratedGridDoubleDir());
+                    gdir = se.env.io.createNewFile(gridf.getGeneratedGridDoubleDir());
                     g = (Grids_GridDouble) gf.create(gdir, f);
                     System.out.println(g);
                     r.put(t, g);

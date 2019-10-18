@@ -73,7 +73,7 @@ public class SARIC_DataViewer extends Geotools_DisplayShapefile implements Runna
     private SARIC_DataViewer() {
     }
 
-    public SARIC_DataViewer(SARIC_Environment se, boolean doWissey, 
+    public SARIC_DataViewer(SARIC_Environment se, boolean doWissey,
             boolean doTeifi, boolean addGBHRUs) {
         this.se = se;
         this.sf = se.files;
@@ -85,101 +85,104 @@ public class SARIC_DataViewer extends Geotools_DisplayShapefile implements Runna
 
     @Override
     public void run() {
-
-        // Ititalise gcl
-        gcls = getGridCoverageLayers();
-
-        MapContent mc;
-        ReferencedEnvelope re;
-
-        mc = new MapContent();
-
-        addGridCoverageLayersToMapContent(mc);
-        re = mc.getMaxBounds();
-
-        HashMap<Integer, File> files;
-        files = new HashMap<>();
-        String name;
-
-        Geotools_Shapefile as;
-        FeatureLayer fl;
-
-        if (addGBHRUs) {
-            File dir;
-            File f;
-            dir = new File(                    this.sf.getInputDataCEHDir(),                    "WGS84");
-            name = "ihu_catchments.shp";
-            f = Geotools_Env.getShapefile(dir, name, false);
-            files.put(0, f);
-        }
-
-        if (doWissey) {
-            // Wissey
-            SARIC_Wissey sw;
-            sw = new SARIC_Wissey(se);
-            as = sw.getNRFAAGDT_Shapefile();
-            files.put(1, as.getFile());
-            fl = as.getFeatureLayer();
-            mc.addLayer(fl);
-            as = sw.getWaterCompanyAGDT_Shapefile();
-            files.put(2, as.getFile());
-            fl = as.getFeatureLayer();
-            mc.addLayer(fl);
-            re = fl.getBounds();
-            printBounds(re);
-        }
-
-        if (doTeifi) {
-            // Teifi
-            SARIC_Teifi st;
-            st = new SARIC_Teifi(se);
-            // Add NRFA Catchment boundary
-            as = st.getNRFAAGDT_Shapefile();
-            files.put(3, as.getFile());
-            fl = as.getFeatureLayer();
-            mc.addLayer(fl);
-            // Add Water Company Catchment boundary
-            as = st.getWaterCompanyAGDT_Shapefile();
-            files.put(4, as.getFile());
-            fl = as.getFeatureLayer();
-            mc.addLayer(fl);
-            re = fl.getBounds();
-            printBounds(re);
-            re = mc.getMaxBounds();
-            printBounds(re);
-
-            // Add OSM data
-            String osmLayerName;
-            // Roads
-            osmLayerName = "gis.osm_roads_free_1.shp";
-            as = st.getOSMAGDT_Shapefile(osmLayerName);
-            files.put(5, as.getFile());
-            fl = as.getFeatureLayer();
-            mc.addLayer(fl);
-            // Railways
-            osmLayerName = "gis.osm_railways_free_1.shp";
-            as = st.getOSMAGDT_Shapefile(osmLayerName);
-            files.put(6, as.getFile());
-            fl = as.getFeatureLayer();
-            mc.addLayer(fl);
-            // Water
-            osmLayerName = "gis.osm_water_a_free_1.shp";
-            as = st.getOSMAGDT_Shapefile(osmLayerName);
-            files.put(7, as.getFile());
-            fl = as.getFeatureLayer();
-            mc.addLayer(fl);
-            // Waterways
-            osmLayerName = "gis.osm_waterways_free_1.shp";
-            as = st.getOSMAGDT_Shapefile(osmLayerName);
-            files.put(8, as.getFile());
-            fl = as.getFeatureLayer();
-            mc.addLayer(fl);
-        }
-
         try {
-            displayShapefiles(files, 800, 600, re);
-        } catch (Exception ex) {
-            Logger.getLogger(Geotools_DisplayShapefile.class.getName()).log(Level.SEVERE, null, ex);
+            // Ititalise gcl
+            gcls = getGridCoverageLayers();
+
+            MapContent mc;
+            ReferencedEnvelope re;
+
+            mc = new MapContent();
+
+            addGridCoverageLayersToMapContent(mc);
+            re = mc.getMaxBounds();
+
+            HashMap<Integer, File> files;
+            files = new HashMap<>();
+            String name;
+
+            Geotools_Shapefile as;
+            FeatureLayer fl;
+
+            if (addGBHRUs) {
+                File dir;
+                File f;
+                dir = new File(this.sf.getInputDataCEHDir(), "WGS84");
+                name = "ihu_catchments.shp";
+                f = Geotools_Env.getShapefile(dir, name, false);
+                files.put(0, f);
+            }
+
+            if (doWissey) {
+                // Wissey
+                SARIC_Wissey sw;
+                sw = new SARIC_Wissey(se);
+                as = sw.getNRFAAGDT_Shapefile();
+                files.put(1, as.getFile());
+                fl = as.getFeatureLayer();
+                mc.addLayer(fl);
+                as = sw.getWaterCompanyAGDT_Shapefile();
+                files.put(2, as.getFile());
+                fl = as.getFeatureLayer();
+                mc.addLayer(fl);
+                re = fl.getBounds();
+                printBounds(re);
+            }
+
+            if (doTeifi) {
+                // Teifi
+                SARIC_Teifi st;
+                st = new SARIC_Teifi(se);
+                // Add NRFA Catchment boundary
+                as = st.getNRFAAGDT_Shapefile();
+                files.put(3, as.getFile());
+                fl = as.getFeatureLayer();
+                mc.addLayer(fl);
+                // Add Water Company Catchment boundary
+                as = st.getWaterCompanyAGDT_Shapefile();
+                files.put(4, as.getFile());
+                fl = as.getFeatureLayer();
+                mc.addLayer(fl);
+                re = fl.getBounds();
+                printBounds(re);
+                re = mc.getMaxBounds();
+                printBounds(re);
+
+                // Add OSM data
+                String osmLayerName;
+                // Roads
+                osmLayerName = "gis.osm_roads_free_1.shp";
+                as = st.getOSMAGDT_Shapefile(osmLayerName);
+                files.put(5, as.getFile());
+                fl = as.getFeatureLayer();
+                mc.addLayer(fl);
+                // Railways
+                osmLayerName = "gis.osm_railways_free_1.shp";
+                as = st.getOSMAGDT_Shapefile(osmLayerName);
+                files.put(6, as.getFile());
+                fl = as.getFeatureLayer();
+                mc.addLayer(fl);
+                // Water
+                osmLayerName = "gis.osm_water_a_free_1.shp";
+                as = st.getOSMAGDT_Shapefile(osmLayerName);
+                files.put(7, as.getFile());
+                fl = as.getFeatureLayer();
+                mc.addLayer(fl);
+                // Waterways
+                osmLayerName = "gis.osm_waterways_free_1.shp";
+                as = st.getOSMAGDT_Shapefile(osmLayerName);
+                files.put(8, as.getFile());
+                fl = as.getFeatureLayer();
+                mc.addLayer(fl);
+            }
+
+            try {
+                displayShapefiles(files, 800, 600, re);
+            } catch (Exception ex) {
+                Logger.getLogger(Geotools_DisplayShapefile.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace(System.err);
         }
     }
 
@@ -205,8 +208,8 @@ public class SARIC_DataViewer extends Geotools_DisplayShapefile implements Runna
      * @param re Used to set MapViewport
      * @throws Exception
      */
-    protected void displayShapefiles(            HashMap<Integer, File> files,
-            int displayWidth,            int displayHeight,
+    protected void displayShapefiles(HashMap<Integer, File> files,
+            int displayWidth, int displayHeight,
             ReferencedEnvelope re) throws Exception {
         MapContent mc;
         mc = new MapContent();
@@ -386,13 +389,13 @@ public class SARIC_DataViewer extends Geotools_DisplayShapefile implements Runna
         return result;
     }
 
-    public ArrayList<GridCoverageLayer> getGridCoverageLayers() {
+    public ArrayList<GridCoverageLayer> getGridCoverageLayers() throws IOException {
         ArrayList<GridCoverageLayer> result;
         result = new ArrayList<>();
 
         File dir;
         File f;
-        String name = "2017-08-09" 
+        String name = "2017-08-09"
                 + SARIC_Strings.s_RADAR_UK_Composite_Highres + ".asc";
 
         if (doWissey) {
@@ -414,7 +417,7 @@ public class SARIC_DataViewer extends Geotools_DisplayShapefile implements Runna
         return result;
     }
 
-    public GridCoverageLayer getGridCoverageLayer(File dir, String name) {
+    public GridCoverageLayer getGridCoverageLayer(File dir, String name) throws IOException {
         Grids_Files gridf = env.grids_env.files;
         GridCoverageLayer result;
         File f;
@@ -439,7 +442,7 @@ public class SARIC_DataViewer extends Geotools_DisplayShapefile implements Runna
         Grids_GridDoubleFactory gf;
         gf = se.gridsEnv.getProcessor().GridDoubleFactory;
         File gdir;
-        gdir = gridf.createNewFile(gridf.getGeneratedGridDoubleDir());
+        gdir = se.env.io.createNewFile(gridf.getGeneratedGridDoubleDir());
         Grids_GridDouble g;
         g = (Grids_GridDouble) gf.create(gdir, f);
 

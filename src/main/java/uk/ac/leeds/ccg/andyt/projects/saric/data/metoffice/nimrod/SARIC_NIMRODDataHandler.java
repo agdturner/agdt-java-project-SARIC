@@ -59,7 +59,7 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
     boolean doTeifi;
 
     public SARIC_NIMRODDataHandler(SARIC_Environment se, boolean doWissey,
-            boolean doTeifi) {
+            boolean doTeifi) throws IOException {
         super(se);
         ge = se.gridsEnv;
         gp = ge.getProcessor();
@@ -69,179 +69,180 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
     }
 
     public void run() {
+        try {
+            // For visualisation/output
+            SARIC_Colour sc;
+            sc = new SARIC_Colour(se);
+            TreeMap<Double, Color> cm;
+            cm = sc.getColorMap();
+            Grids_ImageExporter ie;
+            ie = new Grids_ImageExporter(ge);
 
-        // For visualisation/output
-        SARIC_Colour sc;
-        sc = new SARIC_Colour(se);
-        TreeMap<Double, Color> cm;
-        cm = sc.getColorMap();
-        Grids_ImageExporter ie;
-        ie = new Grids_ImageExporter(ge);
+            Grids_Files gridf = ge.files;
+            File outfile;
 
-        Grids_Files gridf  = ge.files;
-        File outfile;
+            String path0;
+            File inputDir;
+            File generatedDir0;
+            File generatedDir1;
+            File generatedDir2 = null;
+            File outputDir0;
+            File outputDir1;
+            path0 = "data/composite/uk-1km/";
+            generatedDir0 = new File(files.getGeneratedDataMetOfficeNimrodDir(), path0);
+            generatedDir0 = new File(generatedDir0, "Grids");
+            outputDir0 = new File(files.getOutputDataMetOfficeNimrodDir(), path0);
+            outputDir0.mkdirs();
+            //metoffice-c-band-rain-radar_uk_201706270000_1km-composite.dat
+            File gpDir;
 
-        String path0;
-        File inputDir;
-        File generatedDir0;
-        File generatedDir1;
-        File generatedDir2 = null;
-        File outputDir0;
-        File outputDir1;
-        path0 = "data/composite/uk-1km/";
-        generatedDir0 = new File(                files.getGeneratedDataMetOfficeNimrodDir(),                path0);
-        generatedDir0 = new File(                generatedDir0,                "Grids");
-        outputDir0 = new File(                files.getOutputDataMetOfficeNimrodDir(),                path0);
-        outputDir0.mkdirs();
-        //metoffice-c-band-rain-radar_uk_201706270000_1km-composite.dat
-        File gpDir;
+            String YYYY;
+            String MM;
+            String DD;
+            String path;
+            Generic_Date date;
+            File f;
 
-        String YYYY;
-        String MM;
-        String DD;
-        String path;
-        Generic_Date date;
-        File f;
+            YYYY = "2017";
+            MM = "06";
+            DD = "27";
+            path = "/" + YYYY + "/" + YYYY + "-" + MM + "/";
+            date = new Generic_Date(se.env, YYYY + "-" + MM + "-" + DD);
+            inputDir = new File(files.getInputDataMetOfficeNimrodDir(), path0 + path);
+            generatedDir1 = new File(generatedDir0, path);
+            outputDir1 = new File(outputDir0, path);
 
-        YYYY = "2017";
-        MM = "06";
-        DD = "27";
-        path = "/" + YYYY + "/" + YYYY + "-" + MM + "/";
-        date = new Generic_Date(se.env, YYYY + "-" + MM + "-" + DD);
-        inputDir = new File(files.getInputDataMetOfficeNimrodDir(), path0 + path);
-        generatedDir1 = new File(generatedDir0, path);
-        outputDir1 = new File(outputDir0, path);
+            //metoffice-c-band-rain-radar_uk_201706270000_1km-composite.dat
+            int numberOf5MinutePeriodsIn24Hours;
+            numberOf5MinutePeriodsIn24Hours = 480;
 
-        //metoffice-c-band-rain-radar_uk_201706270000_1km-composite.dat
-        int numberOf5MinutePeriodsIn24Hours;
-        numberOf5MinutePeriodsIn24Hours = 480;
+            //numberOf5MinutePeriodsIn24Hours = 2;
+            //numberOf5MinutePeriodsIn24Hours = 0;
+            Generic_Time st;
+            st = new Generic_Time(date);
+            String name;
+            System.out.println("Time " + st.getYYYYMMDDHHMM());
+            FileInputStream fis;
+            DataInputStream dis;
+            Grids_GridDouble g;
+            Grids_GridDouble ag = null;
 
-        //numberOf5MinutePeriodsIn24Hours = 2;
-        //numberOf5MinutePeriodsIn24Hours = 0;
-        Generic_Time st;
-        st = new Generic_Time(date);
-        String name;
-        System.out.println("Time " + st.getYYYYMMDDHHMM());
-        FileInputStream fis;
-        DataInputStream dis;
-        Grids_GridDouble g;
-        Grids_GridDouble ag = null;
-
-        // Teifi
-        SARIC_Teifi teifi;
-        Object[] tg;
-        Grids_GridDouble tg0;
-        Grids_GridDouble tg1;
-        Grids_GridDouble tg2;
-        Grids_GridDoubleFactory tgf;
-        teifi = new SARIC_Teifi(se);
-        tg = teifi.get1KMGridMaskedToCatchment();
-        tg0 = (Grids_GridDouble) tg[0];
-        tgf = (Grids_GridDoubleFactory) tg[1];
-        File dirt1;
-        File dirt2;
-        dirt1 = new File(gridf.getGeneratedGridDoubleDir(), "TG1");
-        tg1 = (Grids_GridDouble) tgf.create(dirt1, tg0, 0, 0,
-                tg0.getNRows() - 1, tg0.getNCols() - 1);
-        dirt2 = new File(gridf.getGeneratedGridDoubleDir(), "TG2");
-
-        // Wissey
-        SARIC_Wissey wissey;
-        Object[] wg;
-        Grids_GridDouble wg0;
-        Grids_GridDouble wg1;
-        Grids_GridDouble wg2;
-        Grids_GridDoubleFactory wgf;
-        wissey = new SARIC_Wissey(se);
-        wg = wissey.get1KMGridMaskedToCatchment();
-        wg0 = (Grids_GridDouble) wg[0];
-        wgf = (Grids_GridDoubleFactory) wg[1];
-        File dirw1;
-        File dirw2;
-        dirw1 = new File(gridf.getGeneratedGridDoubleDir(), "WG1");
-        wg1 = (Grids_GridDouble) wgf.create(dirw1, wg0, 0, 0,
-                wg0.getNRows() - 1, wg0.getNCols() - 1);
-        dirw2 = new File(gridf.getGeneratedGridDoubleDir(), "WG2");
-        // Set archive parameters
-        long GridID;
-        //long maxID;
-        int range;
-        GridID = 0L;
-        //maxID = 10000L;
-        range = 100;
-
-        for (int i = 0; i < numberOf5MinutePeriodsIn24Hours; i++) {
-            tg2 = (Grids_GridDouble) tgf.create(dirt2, tg0, 0, 0,
+            // Teifi
+            SARIC_Teifi teifi;
+            Object[] tg;
+            Grids_GridDouble tg0;
+            Grids_GridDouble tg1;
+            Grids_GridDouble tg2;
+            Grids_GridDoubleFactory tgf;
+            teifi = new SARIC_Teifi(se);
+            tg = teifi.get1KMGridMaskedToCatchment();
+            tg0 = (Grids_GridDouble) tg[0];
+            tgf = (Grids_GridDoubleFactory) tg[1];
+            File dirt1;
+            File dirt2;
+            dirt1 = new File(gridf.getGeneratedGridDoubleDir(), "TG1");
+            tg1 = (Grids_GridDouble) tgf.create(dirt1, tg0, 0, 0,
                     tg0.getNRows() - 1, tg0.getNCols() - 1);
-            wg2 = (Grids_GridDouble) wgf.create(dirw2, wg0, 0, 0,
+            dirt2 = new File(gridf.getGeneratedGridDoubleDir(), "TG2");
+
+            // Wissey
+            SARIC_Wissey wissey;
+            Object[] wg;
+            Grids_GridDouble wg0;
+            Grids_GridDouble wg1;
+            Grids_GridDouble wg2;
+            Grids_GridDoubleFactory wgf;
+            wissey = new SARIC_Wissey(se);
+            wg = wissey.get1KMGridMaskedToCatchment();
+            wg0 = (Grids_GridDouble) wg[0];
+            wgf = (Grids_GridDoubleFactory) wg[1];
+            File dirw1;
+            File dirw2;
+            dirw1 = new File(gridf.getGeneratedGridDoubleDir(), "WG1");
+            wg1 = (Grids_GridDouble) wgf.create(dirw1, wg0, 0, 0,
                     wg0.getNRows() - 1, wg0.getNCols() - 1);
-            f = new File(inputDir,
-                    "metoffice-c-band-rain-radar_uk_" + st.getYYYYMMDDHHMM() + "_1km-composite.dat");
-            if (f.exists()) {
-                try {
-                    // Set archive for storing grids
-                    if (generatedDir2 == null) {
-                        se.env.io.initialiseArchive(generatedDir1, range);
-                        generatedDir2 = se.env.io.getObjectDir(
-                                generatedDir1, GridID, GridID, range);
-                    } else {
-                        GridID++;
-                        generatedDir2 = se.env.io.addToArchive(
-                                generatedDir1, range, GridID);
-                    }
-                    generatedDir2.mkdirs();
+            dirw2 = new File(gridf.getGeneratedGridDoubleDir(), "WG2");
+            // Set archive parameters
+            long GridID;
+            //long maxID;
+            int range;
+            GridID = 0L;
+            //maxID = 10000L;
+            range = 100;
+
+            for (int i = 0; i < numberOf5MinutePeriodsIn24Hours; i++) {
+                tg2 = (Grids_GridDouble) tgf.create(dirt2, tg0, 0, 0,
+                        tg0.getNRows() - 1, tg0.getNCols() - 1);
+                wg2 = (Grids_GridDouble) wgf.create(dirw2, wg0, 0, 0,
+                        wg0.getNRows() - 1, wg0.getNCols() - 1);
+                f = new File(inputDir,
+                        "metoffice-c-band-rain-radar_uk_" + st.getYYYYMMDDHHMM() + "_1km-composite.dat");
+                if (f.exists()) {
+                    try {
+                        // Set archive for storing grids
+                        if (generatedDir2 == null) {
+                            se.env.io.initialiseArchive(generatedDir1, range, false);
+                            //se.env.io.initialiseArchive(generatedDir1, range, true);
+                            generatedDir2 = se.env.io.getObjectDir(
+                                    generatedDir1, GridID, GridID, range);
+                        } else {
+                            GridID++;
+                            generatedDir2 = se.env.io.addToArchive(
+                                    generatedDir1, range, GridID);
+                        }
+                        generatedDir2.mkdirs();
 //                    gpDir = new File(generatedDir2, "Processor");
 //                    gpDir.mkdirs();
 //                    gp.setDirectory(gpDir, false, true);
-                    // Initialise streams for reading
-                    fis = new FileInputStream(f);
-                    dis = new DataInputStream(fis);
-                    SARIC_NIMRODHeader snh;
-                    snh = new SARIC_NIMRODHeader(fis, dis);
-                    Grids_Dimensions dimensions;
-                    dimensions = new Grids_Dimensions(
-                            new BigDecimal(snh.EastingOrLongitudeOfBottomLeftCornerOfTheImage),
-                            new BigDecimal(snh.EastingOrLongitudeOfTopRightCornerOfTheImage),
-                            new BigDecimal(snh.NorthingOrLatitudeOfBottomLeftCornerOfTheImage),
-                            new BigDecimal(snh.NorthingOrLatitudeOfTopRightCornerOfTheImage),
-                            new BigDecimal(snh.IntervalBetweenRows));
-                    gf.setNoDataValue(-1d);
-                    gf.setDimensions(dimensions);
-                    gf.setChunkNCols(345);
-                    gf.setChunkNRows(435);
-                    gf.setDefaultChunkFactory(new Grids_GridChunkDoubleArrayFactory());
-                    gp.GridDoubleFactory = gf;
-                    g = (Grids_GridDouble) gf.create(generatedDir2, snh.nrows, snh.ncols, dimensions);
-                    try {
-                        for (long row = 0; row < snh.nrows; row++) {
-                            for (long col = 0; col < snh.ncols; col++) {
-                                g.setCell(row, col, dis.readShort());
+                        // Initialise streams for reading
+                        fis = new FileInputStream(f);
+                        dis = new DataInputStream(fis);
+                        SARIC_NIMRODHeader snh;
+                        snh = new SARIC_NIMRODHeader(fis, dis);
+                        Grids_Dimensions dimensions;
+                        dimensions = new Grids_Dimensions(
+                                new BigDecimal(snh.EastingOrLongitudeOfBottomLeftCornerOfTheImage),
+                                new BigDecimal(snh.EastingOrLongitudeOfTopRightCornerOfTheImage),
+                                new BigDecimal(snh.NorthingOrLatitudeOfBottomLeftCornerOfTheImage),
+                                new BigDecimal(snh.NorthingOrLatitudeOfTopRightCornerOfTheImage),
+                                new BigDecimal(snh.IntervalBetweenRows));
+                        gf.setNoDataValue(-1d);
+                        gf.setDimensions(dimensions);
+                        gf.setChunkNCols(345);
+                        gf.setChunkNRows(435);
+                        gf.setDefaultChunkFactory(new Grids_GridChunkDoubleArrayFactory());
+                        gp.GridDoubleFactory = gf;
+                        g = (Grids_GridDouble) gf.create(generatedDir2, snh.nrows, snh.ncols, dimensions);
+                        try {
+                            for (long row = 0; row < snh.nrows; row++) {
+                                for (long col = 0; col < snh.ncols; col++) {
+                                    g.setCell(row, col, dis.readShort());
+                                }
+                                //System.out.println("done row " + row);
                             }
-                            //System.out.println("done row " + row);
+                            System.out.println(g.toString());
+                            fis.close();
+                            dis.close();
+                        } catch (IOException ex) {
+                            Logger.getLogger(SARIC_NIMRODDataHandler.class.getName()).log(Level.SEVERE, null, ex);
                         }
-                        System.out.println(g.toString());
-                        fis.close();
-                        dis.close();
-                    } catch (IOException ex) {
-                        Logger.getLogger(SARIC_NIMRODDataHandler.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                    /**
-                     * Clip grid to the Wissey and Teifi catchments here to
-                     * reduce computing for the
-                     */
-                    name = st.getYYYYMMDDHHMM();
-                    if (doTeifi) {
-                        gp.addToGrid(tg1, g, 1.0d);
-                        gp.addToGrid(tg2, g, 1.0d);
-                        outputImages(outputDir1, SARIC_Strings.s_Teifi, name,
-                                tgf, tg2, tg0, ie, cm);
-                    }
-                    if (doWissey) {
-                        gp.addToGrid(wg1, g, 1.0d);
-                        gp.addToGrid(wg2, g, 1.0d);
-                        outputImages(outputDir1, SARIC_Strings.s_Wissey, name,
-                                wgf, wg2, wg0, ie, cm);
-                    }
+                        /**
+                         * Clip grid to the Wissey and Teifi catchments here to
+                         * reduce computing for the
+                         */
+                        name = st.getYYYYMMDDHHMM();
+                        if (doTeifi) {
+                            gp.addToGrid(tg1, g, 1.0d);
+                            gp.addToGrid(tg2, g, 1.0d);
+                            outputImages(outputDir1, SARIC_Strings.s_Teifi, name,
+                                    tgf, tg2, tg0, ie, cm);
+                        }
+                        if (doWissey) {
+                            gp.addToGrid(wg1, g, 1.0d);
+                            gp.addToGrid(wg2, g, 1.0d);
+                            outputImages(outputDir1, SARIC_Strings.s_Wissey, name,
+                                    wgf, wg2, wg0, ie, cm);
+                        }
 //                    /**
 //                     * Initialise aggregateGrid if it has not been already and
 //                     * aggergate if it has.
@@ -251,29 +252,32 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
 //                    } else {
 //                        gp.addToGrid(g, ag, true);
 //                    }
-                } catch (FileNotFoundException ex) {
-                    Logger.getLogger(SARIC_NIMRODDataHandler.class.getName()).log(Level.SEVERE, null, ex);
+                    } catch (FileNotFoundException ex) {
+                        Logger.getLogger(SARIC_NIMRODDataHandler.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    System.out.println("Aggregated " + st.getYYYYMMDDHHMM());
                 }
-                System.out.println("Aggregated " + st.getYYYYMMDDHHMM());
+                st.addMinutes(5);
             }
-            st.addMinutes(5);
-        }
-        if (doTeifi) {
-            outputImages(outputDir1, SARIC_Strings.s_Teifi, "", tgf, tg1, tg0,
-                    ie, cm);
-        }
-        if (doWissey) {
-            outputImages(outputDir1, SARIC_Strings.s_Wissey, "", wgf, wg1, wg0,
-                    ie, cm);
+            if (doTeifi) {
+                outputImages(outputDir1, SARIC_Strings.s_Teifi, "", tgf, tg1, tg0,
+                        ie, cm);
+            }
+            if (doWissey) {
+                outputImages(outputDir1, SARIC_Strings.s_Wissey, "", wgf, wg1, wg0,
+                        ie, cm);
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace(System.err);
         }
     }
 
     public void outputImages(File outdir, String area, String name,
-            Grids_GridDoubleFactory gf, Grids_GridDouble g, 
+            Grids_GridDoubleFactory gf, Grids_GridDouble g,
             Grids_GridDouble mask, Grids_ImageExporter ie,
             TreeMap<Double, Color> cm) {
         File outputDir1;
-        outputDir1 = new File(                outdir,                area);
+        outputDir1 = new File(outdir, area);
         outputDir1.mkdirs();
         File outfile;
         gp.GridDoubleFactory.setNoDataValue(gf.getNoDataValue());
@@ -282,7 +286,7 @@ public class SARIC_NIMRODDataHandler extends SARIC_Object {
 //                outputDir1,
 //                area + st.getYYYYMMDDHHMM() + ".png");
 //        ie.toGreyScaleImage(g, gp, outfile, "png", true);
-        outfile = new File(                outputDir1,                area + "Colour" + name + ".png");
+        outfile = new File(outputDir1, area + "Colour" + name + ".png");
         ie.toColourImage(0, cm, Color.BLACK, g, outfile, "PNG");
     }
 }
