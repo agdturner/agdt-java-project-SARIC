@@ -20,6 +20,7 @@ package uk.ac.leeds.ccg.andyt.projects.saric.core;
 
 import java.io.File;
 import java.io.IOException;
+import uk.ac.leeds.ccg.andyt.data.core.Data_Environment;
 import uk.ac.leeds.ccg.andyt.generic.core.Generic_Environment;
 import uk.ac.leeds.ccg.andyt.generic.time.Generic_Time;
 import uk.ac.leeds.ccg.andyt.geotools.core.Geotools_Environment;
@@ -36,14 +37,13 @@ import uk.ac.leeds.ccg.andyt.vector.core.Vector_Environment;
  */
 public class SARIC_Environment {
 
-    public Generic_Environment env;
-
-    public SARIC_Files files;
-
-    public final SARIC_MetOfficeParameters metOfficeParameters;
+    public final Generic_Environment env;
     public final Grids_Environment gridsEnv;
+    public final Data_Environment dataEnv;
     public final Vector_Environment vectorEnv;
     public final Geotools_Environment geotoolsEnv;
+    public final SARIC_MetOfficeParameters metOfficeParameters;
+    public final SARIC_Files files;
 
     Generic_Time time;
     SARIC_Wissey Wissey;
@@ -51,11 +51,12 @@ public class SARIC_Environment {
 
     public SARIC_Environment(File dataDir) throws IOException  {
             env = new Generic_Environment(dataDir);
+            dataEnv = new Data_Environment(env);
             files = new SARIC_Files(dataDir);
             metOfficeParameters = new SARIC_MetOfficeParameters(this);
             gridsEnv = new Grids_Environment(env, files.getGeneratedDataGridsDir());
             vectorEnv = new Vector_Environment(gridsEnv);
-            geotoolsEnv = new Geotools_Environment(env, dataDir);
+            geotoolsEnv = new Geotools_Environment(vectorEnv, dataDir);
     }
 
     public void setTime(Generic_Time time) {

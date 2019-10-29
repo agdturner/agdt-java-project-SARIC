@@ -19,6 +19,7 @@
 package uk.ac.leeds.ccg.andyt.projects.saric.io;
 
 import java.io.File;
+import java.io.IOException;
 import uk.ac.leeds.ccg.andyt.generic.io.Generic_Files;
 import uk.ac.leeds.ccg.andyt.generic.time.Generic_Date;
 import uk.ac.leeds.ccg.andyt.projects.saric.core.SARIC_Strings;
@@ -57,12 +58,8 @@ public class SARIC_Files extends Generic_Files {
     protected File OutputDataMetOfficeDataPointDir;
     protected File OutputDataMetOfficeNimrodDir;
 
-    public SARIC_Files() {
-        super();
-    }
-
-    public SARIC_Files(File dataDir) {
-        super( dataDir);
+    public SARIC_Files(File dataDir) throws IOException {
+        super(dataDir);
     }
 
     /**

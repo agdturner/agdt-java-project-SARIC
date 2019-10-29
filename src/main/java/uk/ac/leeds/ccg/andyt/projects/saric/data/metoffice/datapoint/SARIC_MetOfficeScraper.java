@@ -125,7 +125,7 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
             String dataType,
             boolean iterate
     ) throws IOException {
-        super(new Web_Environment());
+        super(new Web_Environment(se.dataEnv));
         this.se = se;
         this.sf = se.files;
         ve = se.vectorEnv;
@@ -502,7 +502,7 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
      * @param siteID The ID of the site for which the forecast is requested.
      * @return The File where the data is stored.
      */
-    protected File getForecastsSite(int siteID, String res, String timeRange) {
+    protected File getForecastsSite(int siteID, String res, String timeRange) throws IOException {
         return getForecastsSite(Integer.toString(siteID), res, timeRange);
     }
 
@@ -515,7 +515,7 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
      * @param timeRange
      * @return The File where the data is stored.
      */
-    protected File getForecastsSite(String siteID, String res, String timeRange) {
+    protected File getForecastsSite(String siteID, String res, String timeRange) throws IOException {
         File result;
         path = sf.getValDataTypePath(dataType, SARIC_Strings.s_wxfcs) + siteID;
         url = BASE_URL
@@ -545,7 +545,7 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
      * @param siteID The ID of the site for which the observation is requested.
      * @return The File where the data is stored.
      */
-    protected File getObservationsSite(int siteID, String timeRange) {
+    protected File getObservationsSite(int siteID, String timeRange) throws IOException {
         return getObservationsSite(Integer.toString(siteID), timeRange);
     }
 
@@ -558,7 +558,7 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
      * @param timeRange
      * @return The File where the data is stored.
      */
-    protected File getObservationsSite(String siteID, String timeRange) {
+    protected File getObservationsSite(String siteID, String timeRange) throws IOException {
         File result;
         path = sf.getValDataTypePath(dataType, SARIC_Strings.s_wxobs) + siteID;
         String res;
@@ -601,7 +601,7 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
     /**
      * Get observation site list.
      */
-    protected void getObservationsSiteList() {
+    protected void getObservationsSiteList() throws IOException {
         getSiteList(SARIC_Strings.s_wxobs, null);
     }
 
@@ -610,7 +610,7 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
      *
      * @param time Expect "3hourly" or "daily".
      */
-    protected void getForecastsSiteList(String time) {
+    protected void getForecastsSiteList(String time) throws IOException {
         getSiteList(SARIC_Strings.s_wxfcs, time);
     }
 
@@ -621,7 +621,7 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
      * @param time Expected null for observations, or "daily" or "3hourly" for
      * forecasts.
      */
-    protected void getSiteList(String type, String time) {
+    protected void getSiteList(String type, String time) throws IOException {
         path = sf.getValDataTypePath(dataType, type) + SARIC_Strings.s_sitelist;
         //http://datapoint.metoffice.gov.uk/public/data/val/wxobs/all/xml/sitelist?key={key}
         //http://datapoint.metoffice.gov.uk/public/data/val/wxfcs/all/xml/sitelist?res=daily&key={key}
@@ -1087,7 +1087,7 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
      *
      * @return
      */
-    protected File getInspireWMTSCapabilities() {
+    protected File getInspireWMTSCapabilities() throws IOException {
         //http://datapoint.metoffice.gov.uk/public/data/inspire/view/wmts?REQUEST=getcapabilities&key=<API key>
         path = "inspire/view/wmts";
         url = BASE_URL
@@ -1105,7 +1105,7 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
      *
      * @return
      */
-    protected File getObservationsLayerCapabilities() {
+    protected File getObservationsLayerCapabilities() throws IOException {
         // http://datapoint.metoffice.gov.uk/public/data/layer/wxobs/all/xml/capabilities?key=<API key>
         setPath(SARIC_Strings.s_val, SARIC_Strings.s_wxobs, dataType);
         addCapabilitiesToPath();
@@ -1117,7 +1117,7 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
      *
      * @return
      */
-    protected File getObservationsSiteCapabilities() {
+    protected File getObservationsSiteCapabilities() throws IOException {
         setPath(SARIC_Strings.s_val, SARIC_Strings.s_wxobs, dataType);
         addCapabilitiesToPath();
         path += SARIC_Strings.s_res + SARIC_Strings.symbol_equals + SARIC_Strings.s_hourly
@@ -1133,7 +1133,7 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
      * can be parsed and amended to write out data in a specific location.
      * @return
      */
-    protected File getCapabilities(int parsePath) {
+    protected File getCapabilities(int parsePath) throws IOException {
         url = BASE_URL + path + SARIC_Strings.s_key
                 + SARIC_Strings.symbol_equals + API_KEY;
         File r = getXML(SARIC_Strings.s_capabilities, parsePath, null);
@@ -1145,7 +1145,7 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
      *
      * @return
      */
-    protected File getForecastsLayerCapabilities() {
+    protected File getForecastsLayerCapabilities() throws IOException {
         // http://datapoint.metoffice.gov.uk/public/data/layer/wxfcs/all/xml/capabilities?key=<API key>
         setPath(SARIC_Strings.s_val, SARIC_Strings.s_wxfcs, dataType);
         addCapabilitiesToPath();
@@ -1158,7 +1158,7 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
      * @param time Expecting "daily" or 3hourly
      * @return
      */
-    protected File getForecastsSiteCapabilities(String time) {
+    protected File getForecastsSiteCapabilities(String time) throws IOException {
         // http://datapoint.metoffice.gov.uk/public/data/val/wxfcs/all/xml/capabilities?res=3hourly&key=01234567-89ab-cdef-0123-456789abcdef
         setPath(SARIC_Strings.s_val, SARIC_Strings.s_wxfcs, dataType);
         addCapabilitiesToPath();
@@ -1205,7 +1205,7 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
      * is added to the outputDir. path.
      * @return
      */
-    protected File getXML(String name, int parsePath, String endDir) {
+    protected File getXML(String name, int parsePath, String endDir) throws IOException {
         File outputDir;
         switch (parsePath) {
             case 0:
@@ -1330,13 +1330,12 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
      * @param url The url request.
      * @param f The file written to.
      */
-    public void getXML(String url, File f) {
+    public void getXML(String url, File f) throws IOException {
         HttpURLConnection connection;
         BufferedReader br;
         boolean append;
         append = false;
-        BufferedWriter bw;
-        bw = se.env.io.getBufferedWriter(f, append);
+        BufferedWriter bw = se.env.io.getBufferedWriter(f, append);
         String line;
         try {
             connection = getOpenHttpURLConnection(url);
@@ -1444,7 +1443,7 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
         return (HashSet<SARIC_Site>) se.env.io.readObject(f);
     }
 
-    protected void getForecastsForSites(String name, BigDecimal buffer, String res, String timeRange) {
+    protected void getForecastsForSites(String name, BigDecimal buffer, String res, String timeRange) throws IOException {
         File dir = sf.getGeneratedDataMetOfficeDataPointForecastsDir();
         HashSet<SARIC_Site> sites  = getSites(name, buffer, dir);
         Iterator<SARIC_Site> ite  = sites.iterator();
@@ -1454,7 +1453,7 @@ public class SARIC_MetOfficeScraper extends Web_Scraper implements Runnable {
         }
     }
 
-    protected void getObservationsForSites(String name, BigDecimal buffer, String timeRange) {
+    protected void getObservationsForSites(String name, BigDecimal buffer, String timeRange) throws IOException {
         File dir;
         dir = sf.getGeneratedDataMetOfficeDataPointObservationsDir();
         HashSet<SARIC_Site> sites;

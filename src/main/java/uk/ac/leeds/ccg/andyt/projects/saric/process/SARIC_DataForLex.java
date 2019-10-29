@@ -522,7 +522,7 @@ public class SARIC_DataForLex extends SARIC_Object implements Runnable {
     /**
      * Initialise the PrintWriter for the output
      */
-    PrintWriter initialisePrintWriter(File f) {
+    PrintWriter initialisePrintWriter(File f) throws IOException {
         PrintWriter result;
         result = se.env.io.getPrintWriter(f, false);
         result.println(//"ID,EASTING,NORTHING,"

@@ -418,7 +418,7 @@ public class SARIC_DataViewer extends Geotools_DisplayShapefile implements Runna
     }
 
     public GridCoverageLayer getGridCoverageLayer(File dir, String name) throws IOException {
-        Grids_Files gridf = env.grids_env.files;
+        Grids_Files gridf = env.ge.files;
         GridCoverageLayer result;
         File f;
         f = new File(dir, name);

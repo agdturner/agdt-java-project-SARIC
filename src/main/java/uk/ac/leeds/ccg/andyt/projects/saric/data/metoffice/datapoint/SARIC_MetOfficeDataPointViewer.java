@@ -20,6 +20,7 @@ package uk.ac.leeds.ccg.andyt.projects.saric.data.metoffice.datapoint;
 
 import java.awt.Color;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.logging.Level;
@@ -54,9 +55,9 @@ public class SARIC_MetOfficeDataPointViewer extends Geotools_DisplayShapefile {
     protected SARIC_MetOfficeDataPointViewer() {
     }
 
-    public SARIC_MetOfficeDataPointViewer(SARIC_Environment se) {
+    public SARIC_MetOfficeDataPointViewer(SARIC_Environment se) throws IOException {
         this.se = se;
-        files = new SARIC_Files();
+        files = new SARIC_Files(se.dataEnv.env.files.getDir());
         Geotools_Env = se.geotoolsEnv;
     }
 
@@ -66,8 +67,7 @@ public class SARIC_MetOfficeDataPointViewer extends Geotools_DisplayShapefile {
 
     @Override
     public void run() {
-        ArrayList<File> fs;
-        fs = new ArrayList<>();
+        ArrayList<File> fs  = new ArrayList<>();
         String name;
         File dir;
         File f;

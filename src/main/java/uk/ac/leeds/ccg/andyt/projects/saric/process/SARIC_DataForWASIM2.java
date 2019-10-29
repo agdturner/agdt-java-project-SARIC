@@ -356,10 +356,9 @@ public class SARIC_DataForWASIM2 extends SARIC_Object implements Runnable {
     /**
      * Initialise the PrintWriter for the output
      */
-    PrintWriter initialisePrintWriter(File f) {
-        PrintWriter result;
-        result = se.env.io.getPrintWriter(f, false);
-        result.println("ID,EASTING,NORTHING,NumberOfDaysSinceLast2mmRainfall,"
+    PrintWriter initialisePrintWriter(File f) throws IOException {
+        PrintWriter r = se.env.io.getPrintWriter(f, false);
+        r.println("ID,EASTING,NORTHING,NumberOfDaysSinceLast2mmRainfall,"
                 + "TotalAccumulatedRainfallOverTheLast10Days,"
                 + "ObservedRainfallInTheLast24Hours,"
                 + "ForecastRainfallInTheNext24Hours,"
@@ -367,7 +366,7 @@ public class SARIC_DataForWASIM2 extends SARIC_Object implements Runnable {
                 + "ForecastRainfallIn48to72Hours,"
                 + "ForecastRainfallIn72to96HoursHours,"
                 + "ForecastRainfallIn96to120Hours");
-        return result;
+        return r;
     }
 
     Geometry getWaterCompanyShapefileGeometry(String area) {
